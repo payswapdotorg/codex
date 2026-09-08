@@ -1,18 +1,14 @@
 {
   "current_commit": "main",
   "active_agents": [
-    "WO-002-worker(session 79297467)",
-    "WO-003-worker(session 9ec12c44)"
+    "WO-002-worker(session 79297467)"
   ],
   "active_change_surfaces": [
     "codex-rs/model-provider-info",
     "codex-rs/model-provider",
-    "universal-model-contracts",
-    "workflow-repository-contracts",
-    "workflow-semantic-contracts",
-    "workflow-control-plane-contracts"
+    "universal-model-contracts"
   ],
-  "last_verified_sha": "da88fc094749330d45e969021163470e7b4033a9",
-  "verification_state": "bootstrap-merged-wo001-accepted",
-  "notes": "Wave 1 DISPATCHED by Tech Lead from base a324d08ef953dc9767e94df30a1cda640b20924e: WO-002 (branch wo-002/universal-model-contract) and WO-003 (branch wo-003/git-native-workflow-contracts) to two bounded implementation workers, parallel, disjoint surfaces. Workers verified base SHA and cloned; both reported no Rust toolchain in their sandboxes (installing or proceeding without \u2014 Tech Lead re-verifies locally with cargo 1.98.1)."
+  "last_verified_sha": "912fb71a2372c56388e000b027929f243d93fa7d",
+  "verification_state": "wo003-merged-and-verified",
+  "notes": "WO-003 ACCEPTED and MERGED via PR #2 (912fb71a2372c56388e000b027929f243d93fa7d): Tech Lead independently verified branch 14aea900 (cargo test 86/86, clippy 0, fmt 0, workspace spot checks green; secret sweep clean; surface exactly workflow-contracts + registration). WO-005 now READY (dependency WO-003 satisfied). WO-002 still in flight (worker sandbox hit disk-full, recovered, iterating compile errors). Next: dispatch WO-005 worker."
 }

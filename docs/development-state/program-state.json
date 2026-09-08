@@ -6,7 +6,7 @@
   "current_milestone": "M1",
   "current_phase": "wave-1-universal-model-and-workflow-contracts",
   "active_work_order": "WO-002",
-  "parallel_work_order": "WO-003",
+  "parallel_work_order": null,
   "main_branch": "main",
   "bootstrap_branch": "architecture/bootstrap",
   "gates": {
