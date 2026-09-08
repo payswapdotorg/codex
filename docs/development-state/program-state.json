@@ -1,6 +1,6 @@
 {
   "program": "codex-universal",
-  "architecture_version": "0.1.0-bootstrap",
+  "architecture_version": "0.2.0",
   "architecture_status": "frozen",
   "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
   "current_milestone": "M0",
@@ -11,14 +11,17 @@
   "gates": {
     "upstream_behavior_preserved": true,
     "universal_model_abi_frozen": false,
-    "workflow_contracts_frozen": false,
+    "workflow_repository_contract_frozen": false,
     "execution_adapter_contract_frozen": false,
+    "codex_native_browser_bridge_verified": false,
+    "codex_native_computer_bridge_verified": false,
     "initial_integration_tests_green": false
   },
   "rules": [
     "architecture changes require an Architecture Change Request",
     "implementation work requires a bounded Work Order",
     "verification evidence must identify an exact commit SHA",
+    "workflow execution pins immutable workflow source and dependency identities",
     "stale agent reports are not authoritative"
   ]
 }
