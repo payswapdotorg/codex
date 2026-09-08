@@ -3968,6 +3968,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-model-contract"
+version = "0.0.0"
+dependencies = [
+ "codex-protocol",
+ "codex-tools",
+ "futures",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "codex-model-provider"
 version = "0.0.0"
 dependencies = [
@@ -3977,11 +3991,13 @@ dependencies = [
  "codex-feedback",
  "codex-http-client",
  "codex-login",
+ "codex-model-contract",
  "codex-model-provider-info",
  "codex-models-manager",
  "codex-otel",
  "codex-protocol",
  "codex-response-debug-context",
+ "codex-tools",
  "codex-utils-redacted-string",
  "http 1.4.0",
  "pretty_assertions",

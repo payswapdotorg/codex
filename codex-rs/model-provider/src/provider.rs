@@ -41,14 +41,10 @@ pub(crate) fn enforce_managed_residency(provider: &mut Provider) {
     }
 }
 
-/// Remote context-compaction protocols supported by a model provider.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RemoteCompactionSupport {
-    /// The provider does not support remote compaction.
-    Unsupported,
-    /// The provider supports `compaction_trigger` items over the Responses endpoint.
-    V2,
-}
+// `RemoteCompactionSupport` moved to the universal model contract
+// (`codex-model-contract`) and is re-exported here so existing import paths
+// keep working.
+pub use codex_model_contract::RemoteCompactionSupport;
 
 /// Optional provider-backed features that Codex may expose at runtime.
 ///
