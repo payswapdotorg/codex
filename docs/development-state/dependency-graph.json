@@ -1,9 +1,9 @@
 {
   "version": "0.2.0",
   "work_orders": {
-    "WO-001": {"status": "active", "depends_on": [], "surface": ["architecture-docs", "development-state", "agent-bootstrap"]},
-    "WO-002": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["codex-rs/model-provider-info", "codex-rs/model-provider", "universal-model-contracts"]},
-    "WO-003": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["workflow-repository-contracts", "workflow-semantic-contracts", "workflow-control-plane-contracts"]},
+    "WO-001": {"status": "merged", "depends_on": [], "surface": ["architecture-docs", "development-state", "agent-bootstrap"]},
+    "WO-002": {"status": "ready", "depends_on": ["WO-001"], "surface": ["codex-rs/model-provider-info", "codex-rs/model-provider", "universal-model-contracts"]},
+    "WO-003": {"status": "ready", "depends_on": ["WO-001"], "surface": ["workflow-repository-contracts", "workflow-semantic-contracts", "workflow-control-plane-contracts"]},
     "WO-004": {"status": "blocked", "depends_on": ["WO-002"], "surface": ["provider-adapters", "model-capability-tests"]},
     "WO-005": {"status": "blocked", "depends_on": ["WO-003"], "surface": ["execution-abstraction", "capability-resource-registry"]},
     "WO-006": {"status": "blocked", "depends_on": ["WO-005"], "surface": ["codex-native-browser-use", "browser-workflow-adapter"]},

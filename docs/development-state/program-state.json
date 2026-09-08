@@ -3,9 +3,10 @@
   "architecture_version": "0.2.0",
   "architecture_status": "frozen",
   "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
-  "current_milestone": "M0",
-  "current_phase": "repository-and-architecture-bootstrap",
-  "active_work_order": "WO-001",
+  "current_milestone": "M1",
+  "current_phase": "wave-1-universal-model-and-workflow-contracts",
+  "active_work_order": "WO-002",
+  "parallel_work_order": "WO-003",
   "main_branch": "main",
   "bootstrap_branch": "architecture/bootstrap",
   "gates": {
