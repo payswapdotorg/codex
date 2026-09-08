@@ -13,34 +13,46 @@
 //!   ([`ModelError`]) mapped from the OpenAI protocol;
 //! - the OpenAI Responses wire request built from a [`ModelRequest`], with
 //!   unsupported capabilities failing explicitly instead of silently
-//!   degrading.
-//!
-//! This is the marshalling and policy boundary only. Request execution
-//! through `codex_model_contract::ModelSession` remains owned by the runtime
-//! model client and follow-on provider adapters (work order WO-004), so no
-//! second execution path is introduced here.
+//!   degrading;
+//! - session creation through the frozen contract's `ModelProvider`
+//!   trait (WO-004): [`create_session`](ModelProvider::create_session)
+//!   returns a session that executes requests through the existing
+//!   `codex-api` `ResponsesClient`, reusing the runtime transport, retry,
+//!   auth, streaming, and cancellation behavior instead of introducing a
+//!   second execution path.
 //!
 //! The adapter preserves the default OpenAI behavior of the existing runtime
 //! request path; the legacy runtime path is untouched and keeps its
 //! compatibility clamps, while this adapter surfaces negotiation failures
 //! explicitly.
 
+use std::sync::Arc;
+
 use codex_api::ApiError;
+use codex_api::Provider as ApiProvider;
 use codex_api::Reasoning;
+use codex_api::ReqwestTransport;
 use codex_api::ResponseEvent;
 use codex_api::ResponsesApiRequest;
 use codex_api::ResponsesApiTools;
 use codex_api::SafetyBuffering;
 use codex_api::TransportError;
 use codex_api::create_text_param_for_request;
+use codex_http_client::ClientRouteClass;
+use codex_http_client::HttpClientFactory;
+use codex_http_client::OutboundProxyPolicy;
+use codex_login::default_client::create_client_for_route;
 use codex_model_contract::ModelAuthStatus;
+use codex_model_contract::ModelAuthStatusFuture;
 use codex_model_contract::ModelCapabilities;
 use codex_model_contract::ModelDescriptor;
 use codex_model_contract::ModelError;
 use codex_model_contract::ModelEvent;
 use codex_model_contract::ModelFeature;
+use codex_model_contract::ModelProvider as ContractModelProvider;
 use codex_model_contract::ModelRequest;
 use codex_model_contract::ModelSafetyBuffering;
+use codex_model_contract::ModelSession;
 use codex_model_contract::ModelToolChoice;
 use codex_model_contract::ModelTransportPolicy;
 use codex_protocol::models::ContentItem;
@@ -51,6 +63,8 @@ use codex_tools::create_tools_raw_json_for_responses_api;
 use http::StatusCode;
 
 use crate::provider::SharedModelProvider;
+use crate::universal_catalog::ModelCatalog;
+use crate::universal_session::ResponsesModelSession;
 
 /// Value the Responses runtime includes to receive encrypted reasoning
 /// content, matching the existing runtime request path.
@@ -61,10 +75,19 @@ const REASONING_ENCRYPTED_CONTENT_INCLUDE: &str = "reasoning.encrypted_content";
 /// Construct it with the provider registry key (for example `openai`) and
 /// the runtime provider handle; the adapter never exposes provider protocol
 /// types through its contract surface.
+///
+/// Attach a [`ModelCatalog`] (with
+/// [`ModelContractAdapter::with_model_catalog`]) to enable session execution:
+/// sessions resolve model metadata through the catalog, negotiate
+/// capabilities, and execute requests over the existing runtime client.
+/// Without a catalog the adapter still serves its marshalling surface
+/// (descriptors, capabilities, wire request building).
 #[derive(Debug, Clone)]
 pub struct ModelContractAdapter {
     provider_id: String,
     provider: SharedModelProvider,
+    models: Option<ModelCatalog>,
+    http_client_factory: HttpClientFactory,
 }
 
 impl ModelContractAdapter {
@@ -73,12 +96,68 @@ impl ModelContractAdapter {
         Self {
             provider_id: provider_id.into(),
             provider,
+            models: None,
+            http_client_factory: HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
         }
+    }
+
+    /// Attaches the provider-scoped model catalog used to resolve model
+    /// metadata for session execution and capability-aware selection.
+    pub fn with_model_catalog(
+        mut self,
+        manager: codex_models_manager::manager::SharedModelsManager,
+        config: codex_models_manager::ModelsManagerConfig,
+    ) -> Self {
+        self.models = Some(ModelCatalog::new(manager, config));
+        self
+    }
+
+    /// Overrides the HTTP client factory used to build request transports.
+    ///
+    /// Defaults to the runtime's default policy (`ReqwestDefault`); callers
+    /// that resolved a different effective policy (for example from config)
+    /// pass it here so proxy behavior matches the rest of the runtime.
+    pub fn with_http_client_factory(mut self, factory: HttpClientFactory) -> Self {
+        self.http_client_factory = factory;
+        self
     }
 
     /// Provider registry key this adapter was constructed with.
     pub fn provider_id(&self) -> &str {
         &self.provider_id
+    }
+
+    /// Provider-scoped model catalog, when one is attached.
+    pub(crate) fn model_catalog(&self) -> Option<ModelCatalog> {
+        self.models.clone()
+    }
+
+    /// Shared runtime provider handle backing this adapter.
+    pub(crate) fn shared_provider(&self) -> SharedModelProvider {
+        std::sync::Arc::clone(&self.provider)
+    }
+
+    /// Builds the runtime transport for one request attempt.
+    ///
+    /// Uses the same route-aware client construction as the runtime request
+    /// path (`ClientRouteClass::Api`), preserving proxy and TLS behavior.
+    pub(crate) fn build_transport(
+        &self,
+        api_provider: &ApiProvider,
+    ) -> Result<ReqwestTransport, ModelError> {
+        let request_url = api_provider.url_for_path(codex_api::ResponsesEndpoint::Responses.path());
+        let client = create_client_for_route(
+            &self.http_client_factory,
+            &request_url,
+            ClientRouteClass::Api,
+        )
+        .map_err(|error| ModelError::Transport {
+            message: error.to_string(),
+            retryable: false,
+            retry_after: None,
+            status: None,
+        })?;
+        Ok(ReqwestTransport::from_http_client(client))
     }
 
     /// Returns the descriptor for a catalog model.
@@ -137,6 +216,12 @@ impl ModelContractAdapter {
     /// Resolves the normalized authentication status; never exposes
     /// credentials, only status and an account label.
     pub async fn auth_status(&self) -> ModelAuthStatus {
+        self.resolve_auth_status().await
+    }
+
+    /// Shared implementation backing both the inherent async `auth_status`
+    /// and the contract trait's boxed-future `auth_status`.
+    async fn resolve_auth_status(&self) -> ModelAuthStatus {
         let info = self.provider.info();
         let auth = self.provider.auth().await;
         match auth {
@@ -343,8 +428,53 @@ impl ModelContractAdapter {
     }
 }
 
+/// Implements the frozen universal contract's provider boundary for the
+/// OpenAI-compatible runtime path.
+///
+/// Identity, policy, and capability methods delegate to the inherent adapter
+/// methods above (which keep their WO-002 signatures for direct use);
+/// `create_session` returns the WO-004 execution session, which resolves
+/// model metadata through the attached [`ModelCatalog`] and executes requests
+/// through the existing `codex-api` client.
+impl ContractModelProvider for ModelContractAdapter {
+    fn provider_id(&self) -> &str {
+        self.provider_id()
+    }
+
+    fn transport_policy(&self) -> ModelTransportPolicy {
+        self.transport_policy()
+    }
+
+    fn auth_status(&self) -> ModelAuthStatusFuture<'_> {
+        Box::pin(self.resolve_auth_status())
+    }
+
+    fn model_capabilities(&self, model: &ModelInfo) -> ModelCapabilities {
+        self.model_capabilities(model)
+    }
+
+    fn descriptor(&self, model_id: &str) -> ModelDescriptor {
+        ModelDescriptor::new(self.provider_id.clone(), model_id)
+    }
+
+    fn create_session(&self) -> Result<Arc<dyn ModelSession>, ModelError> {
+        if self.models.is_none() {
+            return Err(ModelError::InvalidRequest {
+                message: format!(
+                    "provider {} has no model catalog configured; attach one with `with_model_catalog` before creating sessions",
+                    self.provider_id,
+                ),
+            });
+        }
+        Ok(Arc::new(ResponsesModelSession::new(self.clone())))
+    }
+}
+
 /// Features a request requires, derived from its requested controls.
-fn required_features(request: &ModelRequest) -> Vec<ModelFeature> {
+///
+/// Shared by the adapter's wire-request negotiation and the registry's
+/// capability-aware selection so the two derivations cannot drift.
+pub(crate) fn required_features(request: &ModelRequest) -> Vec<ModelFeature> {
     let mut required = Vec::new();
     if let Some(reasoning) = request.reasoning.as_ref() {
         if let Some(effort) = reasoning.effort.as_ref() {

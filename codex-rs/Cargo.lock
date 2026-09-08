@@ -3999,6 +3999,7 @@ dependencies = [
  "codex-response-debug-context",
  "codex-tools",
  "codex-utils-redacted-string",
+ "futures",
  "http 1.4.0",
  "pretty_assertions",
  "serde_json",
