@@ -2,7 +2,7 @@
   "current_commit": "architecture/bootstrap",
   "active_agents": [],
   "active_change_surfaces": [],
-  "last_verified_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
-  "verification_state": "bootstrap-docs-pending",
-  "notes": "Bootstrap artifacts are being established before implementation agents are dispatched."
+  "last_verified_sha": "2f6f449cf4ea4977b284bbd37da4b2e620857059",
+  "verification_state": "architecture-bootstrap-refined",
+  "notes": "Architecture v0.2 is frozen. WO-001 remains active until bootstrap PR is reviewed/merged. No runtime implementation has been authorized on this branch."
 }
