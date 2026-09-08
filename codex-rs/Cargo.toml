@@ -148,6 +148,7 @@ members = [
     "plugin",
     "model-provider",
     "workflow-contracts",
+    "teaching-compiler",
     "execution-contracts",
 ]
 resolver = "2"
