@@ -3332,6 +3332,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-execution-contracts"
+version = "0.0.0"
+dependencies = [
+ "codex-workflow-contracts",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "codex-experimental-api-macros"
 version = "0.0.0"
 dependencies = [
