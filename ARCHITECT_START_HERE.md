@@ -15,19 +15,30 @@ This repository is the `payswapdotorg/codex` fork of OpenAI Codex. The Codex run
 6. Treat workflows as software repositories: forkable, branchable, reviewable, composable, version-pinned, publishable, installable, and collaboratively maintainable.
 7. Let users create, maintain, run, share, install, schedule, and eventually monetize workflows from the Codex application.
 
+## Operating handoffs
+
+- **Architect:** owns frozen architecture and Architecture Change Requests.
+- **Tech Lead:** owns implementation sequencing, worker dispatch, verification, acceptance, integration, and state reconciliation. See `TECH_LEAD_START_HERE.md`.
+- **Workers:** implement bounded Work Orders only. See `docs/agent-operating-model.md` and `docs/work-orders/README.md`.
+
+The repository is intentionally prepared so an autonomous Tech Lead can take over without conversation history.
+
 ## Mandatory bootstrap
 
 Before changing code:
 
 1. Read this file completely.
-2. Read `AGENTS.md`.
-3. Read `docs/architecture/CODEX-UNIVERSAL-ARCHITECTURE.md`.
-4. Read `docs/architecture/CODEX-UNIVERSAL-LOCK.md`.
-5. Read `docs/development-state/README.md` and current state files.
-6. Inspect the exact live target branch and relevant Git history.
-7. Identify the active Work Order and its dependency graph.
-8. Verify that the requested change is inside the authorized change surface.
-9. Re-read the live target branch before dispatch and before final review.
+2. Read `TECH_LEAD_START_HERE.md` if acting as Tech Lead.
+3. Read `AGENTS.md`.
+4. Read `docs/architecture/CODEX-UNIVERSAL-ARCHITECTURE.md`.
+5. Read `docs/architecture/CODEX-UNIVERSAL-LOCK.md`.
+6. Read `docs/architecture/CODEX-CAPABILITY-IMPLEMENTATION-MAP.md`.
+7. Read `docs/development-state/README.md` and current state files.
+8. Read `docs/work-orders/README.md` and the active Work Order(s).
+9. Inspect the exact live target branch and relevant Git history.
+10. Identify the active Work Order and dependency graph.
+11. Verify that the requested change is inside the authorized change surface.
+12. Re-read the live target branch before dispatch and before final review.
 
 ## Authority hierarchy
 
