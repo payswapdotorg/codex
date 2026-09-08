@@ -1,0 +1,22 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "codex-teaching-compiler"
+version.workspace = true
+
+
+[lints]
+workspace = true
+
+
+[lib]
+doctest = false
+name = "codex_teaching_compiler"
+path = "src/lib.rs"
+
+
+[dependencies]
+codex-workflow-contracts = { path = "../workflow-contracts" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

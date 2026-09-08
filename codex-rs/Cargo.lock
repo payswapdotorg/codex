@@ -4589,6 +4589,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-teaching-compiler"
+version = "0.0.0"
+dependencies = [
+ "codex-workflow-contracts",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "codex-terminal-detection"
 version = "0.0.0"
 dependencies = [
