@@ -2,7 +2,7 @@
   "current_commit": "architecture/bootstrap",
   "active_agents": [],
   "active_change_surfaces": [],
-  "last_verified_sha": "2f6f449cf4ea4977b284bbd37da4b2e620857059",
-  "verification_state": "architecture-bootstrap-refined",
-  "notes": "Architecture v0.2 is frozen. WO-001 remains active until bootstrap PR is reviewed/merged. No runtime implementation has been authorized on this branch."
+  "last_verified_sha": "d5e9138a1fa40def5bbaef8aaae72ea9aad6e2ad",
+  "verification_state": "architecture-bootstrap-agent-ready",
+  "notes": "Architecture v0.2 is frozen. The repository now includes the autonomous Tech Lead operating contract, worker operating model, Work Order execution rules, dispatch policy, and PR evidence template. WO-001 remains active until bootstrap PR is reviewed/merged. No runtime implementation has been authorized on this branch."
 }
