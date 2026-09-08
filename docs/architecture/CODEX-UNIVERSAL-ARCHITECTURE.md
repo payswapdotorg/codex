@@ -1,19 +1,15 @@
 # Codex Universal Architecture
 
-**Status:** Proposed frozen architecture for implementation bootstrap.
+**Status:** FROZEN — Version 0.2.0
 **Parent:** upstream OpenAI Codex runtime.
-**Product objective:** Codex-compatible agent runtime + model portability + first-class reusable workflow system.
+**Supersedes:** 0.1.0-bootstrap via `ARCHITECTURE-CHANGE-REQUEST-001.md`.
+**Product objective:** Codex-compatible agent runtime + model portability + a Git-native, multi-environment workflow platform.
 
 ## 1. System mission
 
-Codex Universal is a fork of Codex whose core agent, execution, session, tool, skill, MCP, approval, and client semantics remain Codex-compatible unless explicitly changed by an approved architecture version.
+Codex Universal is a fork of OpenAI Codex. The Codex runtime remains the primary agent substrate. The fork adds a provider-neutral Model Plane and a first-class Workflow Plane while preserving upstream behavior unless an explicit architecture version authorizes divergence.
 
-The fork adds two foundational capabilities:
-
-- a **Universal Model Plane** so the Codex runtime can use different model providers without provider semantics leaking into core;
-- a **Workflow Plane** so users can teach, author, version, execute, share, install, and schedule reusable computer/browser workflows from the application.
-
-The workflow layer is a product layer over the Codex runtime. It does not fork or duplicate the Codex agent loop, tool runtime, approval engine, or execution substrate.
+The workflow platform is not browser-first. A workflow may use any supported execution environment and may mix environments within one graph, stage, or execution. Browser, desktop/computer, terminal, API/tool, human, and future mobile environments are all peers behind execution contracts.
 
 ## 2. Layered architecture
 
@@ -21,71 +17,71 @@ The workflow layer is a product layer over the Codex runtime. It does not fork o
 Clients
 CLI | IDE | Desktop | Web | SDK | Automation
                      |
-                Agent Protocol
+                Agent / App Protocol
                      |
              +-------v--------+
              | Codex Runtime   |
              | threads/turns   |
-             | context         |
+             | context/memory  |
              | tools/skills    |
              | approvals       |
-             | agents          |
+             | agents/plans    |
              +---+---------+---+
                  |         |
-        +--------v--+   +--v---------------+
-        | Model     |   | Workflow Plane   |
-        | Plane     |   | teaching/compiler|
-        | providers |   | control/schedule |
-        +--------+--+   | versions/instances|
-                 |      +---------+---------+
+        +--------v--+   +--v----------------+
+        | Model     |   | Workflow Platform |
+        | Plane     |   | teaching/compiler |
+        | adapters  |   | repo/versioning   |
+        +--------+--+   | control/schedule  |
+                 |      +---------+----------+
                  |                |
                  |        +-------v--------+
                  |        | Execution      |
-                 +------->| Abstraction    |
-                          | browser/tool/API|
-                          | terminal/human  |
+                 +------->| Plane          |
+                          | browser        |
+                          | computer/desk  |
+                          | terminal       |
+                          | API/tool/MCP   |
+                          | human          |
+                          | future mobile |
                           +-------+--------+
                                   |
                        +----------v-----------+
-                       | Evidence + Memory    |
+                       | Evidence / Memory    |
                        +-----------------------+
 ```
 
-## 3. Canonical authority boundaries
+## 3. Authority boundaries
 
 ### Codex Runtime
 
-Owns agent turn lifecycle, model interaction orchestration, tool invocation lifecycle, context assembly, approvals, interruption, cancellation, session transport, and agent-to-agent runtime primitives.
+Owns agent turn lifecycle, model interaction orchestration, context assembly, tool invocation, approvals, interruption, cancellation, session transport, plan/subagent primitives, and existing Codex execution semantics.
 
 ### Universal Model Plane
 
-Owns provider discovery, model configuration, capability declaration, request/response normalization, streaming, cancellation, retry/transport behavior, authentication adapters, and provider-specific options.
+Owns provider discovery, model descriptors/capabilities, request/response normalization, streaming/cancellation, retry/transport, authentication adapters, provider-specific configuration, and provider routing. It is the only layer allowed to know provider-specific model protocol details.
 
-The core runtime consumes only universal model contracts. Provider-specific SDKs/types never become semantic authority in core.
+### Workflow Platform
 
-### Workflow Plane
+Owns workflow semantics: definitions, immutable semantic versions, workflow repository identity, graph structure, instances, stages, transitions, guards, loops, subworkflow references, scheduling, triggers, approvals, resource/capability requirements, dependency constraints, publication, and lifecycle state.
 
-Owns workflow definitions, immutable versions, workflow instances, stages, transitions, guards, loops, scheduling, approvals, resource requirements, capability requirements, workflow learning candidates, and workflow lifecycle state.
-
-The workflow plane is the sole authority for workflow semantics and legal durable workflow transitions.
+The workflow control plane is the sole authority for legal durable workflow transitions. LLMs and execution adapters may propose or perform actions but cannot mutate workflow meaning directly.
 
 ### Execution Plane
 
-Owns concrete execution against a browser, terminal, API, tool, human participant, desktop runtime, or future mobile runtime. Execution adapters return normalized observations/results and never redefine workflow meaning.
+Owns actual interaction with supported environments and normalizes observations/results. It must never become workflow semantic authority.
 
 ### Evidence Plane
 
-Owns observed actions/results, screenshots, DOM/accessibility observations, tool results, terminal output, test results, approvals, decisions, lineage, timing, recovery history, and cost/resource telemetry.
+Owns execution observations, screenshots, accessibility/DOM observations, terminal output, tool results, test results, approvals, recovery history, artifacts, lineage, timing, and resource/cost telemetry.
 
-### Memory/Knowledge Plane
+### Memory / Knowledge Plane
 
 Owns episodic, semantic, procedural, and organizational knowledge with provenance/trust metadata.
 
 ## 4. Universal Model Plane
 
-### Contract
-
-The minimum internal model contract is:
+The core contract is:
 
 ```text
 ModelProvider
@@ -98,223 +94,288 @@ ModelError
 ModelSession
 ```
 
-The runtime must be able to select or switch a model without rewriting thread/workflow state.
+Provider classes include native providers, OpenAI-compatible gateways, local inference runtimes, and future adapters. Switching models must not rewrite thread, workflow, or repository state.
 
-### Provider tiers
+Model capabilities are distinct from runtime capabilities. Browser control, desktop control, shell execution, repository search, screenshots, MCP, skills, and workflow scheduling remain available to any model when the runtime can supply the capability.
 
-1. Native providers: adapters for providers with materially distinct APIs/semantics.
-2. OpenAI-compatible providers: configurable base URL/auth/header/query/model mapping.
-3. Local runtimes: Ollama, LM Studio, vLLM, llama.cpp-compatible gateways, or equivalent.
-4. Future custom adapters.
+## 5. Codex-native capability reuse
 
-### Capability model
+The fork SHALL reuse existing Codex mechanisms where applicable rather than creating parallel mechanisms:
 
-Model capabilities describe what the model itself can provide, e.g. context window, tool calling, vision, reasoning, structured output, streaming, web search, caching, and native compaction.
+- **Browser Use** for browser workflow execution when the Browser Use runtime/skill is available and authorized.
+- **Computer Use** for desktop/application workflow execution when the Computer Use runtime/skill is available and authorized.
+- **Skills** as reusable capability/instruction packages, including progressive disclosure and skill dependency discovery.
+- **Plugins** and plugin manifests as the extension substrate for packaged capabilities.
+- **MCP** as a tool/connector modality.
+- **Subagents / agent orchestration** for workflow roles, parallel research, execution, review, and recovery.
+- **Plan mode / planning primitives** for explicit workflow planning when useful.
+- **Worktrees / isolated execution** for collaborative workflow development and parallel changes where applicable.
+- **Existing approvals, sandboxing, policy, session, rollout, and tracing infrastructure** instead of workflow-specific security or lifecycle bypasses.
+- **Remote-plugin and plugin-sharing concepts** as implementation references for discovery/distribution of capability packages; workflow distribution remains a distinct semantic layer.
 
-Agent capabilities are distinct. For example, web access, code execution, repository search, or browser control are runtime capabilities and do not depend on native model features.
+Codex feature/skill availability is runtime capability state. A workflow must receive a diagnostic failure when a declared required capability is unavailable rather than silently substituting a weaker mechanism.
 
-### Provider isolation invariant
+## 6. Execution environments
 
-No core crate may depend directly on provider-specific request/response types, authentication flows, or SDK semantics when a universal contract can represent the behavior.
+Execution environments are open-ended adapters. Initial environments are:
 
-## 5. Workflow Plane
+`BROWSER`, `COMPUTER`, `TERMINAL`, `API`, `TOOL`, `MCP`, `HUMAN`.
 
-The workflow architecture is adapted from `payswapdotorg/workflows` V1.1. Its concepts are imported at the semantic level; its implementation remains inside this repository.
+Future environments include `MOBILE`, `REMOTE_DESKTOP`, `DEVICE`, and other adapters that satisfy the execution contract.
 
-### Teaching modes
+A workflow may freely mix environments:
 
-- `DEMONSTRATE`: observe a person or agent performing work.
-- `INSTRUCT`: user describes the procedure.
-- `HYBRID`: demonstration + instruction + correction/clarification/approval.
+```text
+Browser -> Computer -> Browser -> API -> Human -> Terminal
+```
 
-Teaching produces trajectories and evidence. It does not directly mutate a published workflow.
+Environment choice is a runtime binding decision, not workflow semantics.
 
-### Compilation pipeline
+### Browser
+
+Browser steps preferentially use the Codex Browser Use skill/runtime. Required runtime concepts include session, profile, tab identity/ownership, observation, action, action result, recovery, takeover, and browser artifacts.
+
+### Computer / desktop
+
+Computer steps preferentially use the Codex Computer Use skill/runtime. The adapter must expose normalized application/window/screen observations, actions, results, recovery, takeover, and evidence without leaking provider-specific Computer Use semantics into workflow definitions.
+
+### Mobile
+
+Mobile is reserved for an execution adapter. If a currently compatible Codex skill, plugin, connector, or external execution bridge can satisfy the mobile execution contract, it may be used without changing workflow semantics. A future native mobile adapter must plug into the same interface.
+
+## 7. Workflow authoring and compilation
+
+Teaching modes remain:
+
+`DEMONSTRATE`, `INSTRUCT`, `HYBRID`.
+
+Compilation is:
 
 ```text
 TeachingSession
-→ Trajectory
+→ Trajectory + Evidence
 → WorkflowCandidate
 → WorkflowIR
 → semantic validation
-→ capability/resource binding proposal
-→ execution-plan validation
+→ capability/resource/skill dependency analysis
+→ execution binding proposal
+→ replay/simulation/verification
 → approval
 → immutable WorkflowVersion
 ```
 
-A compiler may replace an observed browser action with a semantically equivalent connector/API/tool action where policy and evidence permit. This is an optimization, not a semantic change.
+The compiler may optimize an observed interaction into a more deterministic capability binding (for example Browser Use action -> API/tool call) when equivalence, policy, evidence, and resource constraints are satisfied.
 
-### Workflow graph
+## 8. Workflow as a Git-native software artifact
 
-Minimum graph primitives:
+A workflow is treated like software, not like a saved prompt.
 
-`SEQUENCE`, `PARALLEL_FORK`, `PARALLEL_JOIN`, `CONDITIONAL_BRANCH`, `LOOP`, `SUBWORKFLOW`, `WAIT`, `HUMAN_GATE`, `COMPENSATION`.
+### WorkflowRepository
 
-Join conditions, loop bounds, idempotency, failure transitions, and compensation semantics are versioned properties.
-
-### Workflow instance
-
-A WorkflowInstance references exactly one immutable WorkflowVersion plus resolved resources, execution identity, policies, and runtime state.
-
-A running instance can pause, resume, recover, retry, or request human takeover without mutating the published WorkflowVersion.
-
-## 6. Execution modality and reasoning mode are independent
-
-Execution modalities:
-
-`BROWSER`, `TOOL`, `API`, `TERMINAL`, `HUMAN`, future `DESKTOP`, `MOBILE`.
-
-Reasoning modes:
-
-`OPEN_ENDED`, `SEMANTIC`, `DETERMINISTIC`.
-
-A semantic action can execute through a browser, API, tool, or terminal. Modality never implies reasoning policy.
-
-## 7. Capability registry
-
-Workflow semantics express capabilities, not provider tool names.
-
-Example:
+A WorkflowRepository has:
 
 ```text
-create_issue
-  -> GitHub API adapter
-  -> Composio GitHub tool
-  -> browser execution
-  -> human execution
+repository identity
+forge/provider
+origin
+fork lineage
+default branch
+branches
+commits
+workflow manifests
+workflow definitions
+skill/plugin dependencies
+subworkflow dependencies
+release/tag identities
+access policy
+maintainers
 ```
 
-Bindings are selected by deterministic policy using capability, resource, authorization, reliability, evidence, cost, latency, and modality constraints.
+GitHub is the first supported forge. The workflow semantic model must not depend on GitHub-specific APIs so additional forges can be added later.
 
-## 8. Resource model
+### Version identity
 
-Resources are typed runtime dependencies, not credentials embedded in workflows.
-
-Examples:
+A published WorkflowVersion is immutable and identified by at least:
 
 ```text
+workflow semantic version
+repository identity
+immutable source revision
+workflow definition digest
+dependency lock / resolved dependency identities
+```
+
+Branches and moving refs are development inputs only; execution pins an immutable revision/version.
+
+### Collaboration
+
+Workflows support:
+
+```text
+fork
+branch
+edit
+review
+pull request
+merge
+release/tag
+rebase/upgrade
+cherry-pick where supported
+```
+
+Multiple users may collaborate on the same workflow repository. The Codex application should provide this lifecycle without requiring users to leave the workflow surface for routine operations.
+
+## 9. Workflow composition
+
+A workflow may depend on other workflows:
+
+```text
+Workflow A
+  -> Subworkflow B@1.4.2
+  -> Subworkflow C@commit:<immutable-id>
+```
+
+Dependencies are explicit, version-pinned, integrity-checked, and provenance-bearing. A dependency upgrade creates a new candidate and cannot silently change an active published workflow.
+
+Composition primitives include:
+
+`SUBWORKFLOW`, `SEQUENCE`, `PARALLEL_FORK`, `PARALLEL_JOIN`, `CONDITIONAL_BRANCH`, `LOOP`, `WAIT`, `HUMAN_GATE`, `COMPENSATION`.
+
+## 10. Skills, plugins, and workflow dependencies
+
+A workflow may declare:
+
+```text
+required capabilities
+required skills
+required plugins
+required MCP connectors
+required tools
+required resources
+required model capabilities (optional policy constraint)
+```
+
+A skill/plugin is reusable implementation capability. A workflow is semantic orchestration. They must remain distinct.
+
+Skill/plugin references are resolved at install/execute time according to policy and compatibility rules. Workflows should consume stable capability contracts rather than hard-coding transient tool identifiers where possible.
+
+## 11. Capability and resource registry
+
+Workflow semantics express capabilities:
+
+```text
+navigate_web
+click_element
+fill_form
+control_desktop_app
+read_screen
+send_email
+create_github_issue
+run_terminal_command
+approve_payment
+```
+
+A capability can have multiple bindings:
+
+```text
+navigate_web
+  -> Codex Browser Use
+  -> compatible external browser adapter
+  -> API connector where semantically equivalent
+  -> Human
+```
+
+Resources are typed dependencies:
+
+```text
+browser profile
+desktop session
 GitHub account
-Chrome profile
-browser tab
-Composio connected account
 Slack workspace
-human approver
-API capability
+Composio connected account
 terminal workspace
+human approver
+mobile device
+API credential capability
 ```
 
-A resource requirement references identity/scope/capability/policy metadata. Raw credentials never become workflow semantic content.
+Raw credentials never enter workflow source, prompts, ordinary memory, or semantic workflow state.
 
-## 9. Browser execution
+## 12. Scheduling and triggers
 
-Browser execution is an adapter. The initial implementation may use Chromium + Playwright/CDP/BiDi or an equivalent controlled browser bridge.
+Triggers:
 
-Required concepts:
+`USER`, `SCHEDULE`, `WEBHOOK`, `CONNECTOR_EVENT`, `BROWSER_EVENT`, `COMPUTER_EVENT`, `WORKFLOW_EVENT`, `HUMAN_EVENT`.
+
+Scheduling evaluates eligibility, capabilities, policy, resource/account availability, skill/plugin availability, evidence requirements, reliability, latency/cost, user preferences, and execution modality before binding.
+
+No external event directly mutates workflow state.
+
+## 13. Sharing, publishing, installation, and monetization
+
+Workflow distribution is a first-class application capability.
+
+A published workflow package contains semantic source plus dependency metadata and compatibility/integrity metadata. Installation creates a local/tenant-owned binding to an immutable version and asks the user to bind required resources.
+
+The product must support, as separate concepts:
 
 ```text
-BrowserSession
-BrowserProfile
-TabIdentity
-TabOwnership
-Observation
-Action
-ActionResult
-Recovery
-HumanTakeover
-BrowserArtifact
+private workflow
+shared workflow
+public workflow
+forked workflow
+installed workflow
+published release
+paid workflow
+subscription/licensed workflow
 ```
 
-Browser scope is capability-based by profile/session/tab/origin.
+Monetization is deliberately separated from workflow semantics. A future marketplace can price access to a version/release without changing its executable definition.
 
-## 10. Scheduling
+The architecture must support ownership/attribution, licensing terms, optional commercial entitlements, install provenance, and version upgrade policy without putting payment credentials into workflow source.
 
-Scheduling is separate from development-team concurrency.
+## 14. Execution, evidence, and recovery
 
-A workflow scheduler evaluates:
+Every workflow step produces normalized evidence. Evidence references the exact workflow/version/step/execution/resource/session identity.
+
+Failure handling is:
 
 ```text
-trigger
-→ eligibility
-→ capability requirements
-→ authorization/policy
-→ resource availability
-→ account constraints
-→ evidence requirements
-→ reliability
-→ latency/cost
-→ execution modality
-→ binding
-→ execution
+failure
+→ classify
+→ recover/retry/takeover/rebind/replan
+→ verify
+→ continue or escalate
 ```
 
-Triggers include:
+The execution engine may rebind an execution modality when the semantic contract remains satisfied and policy allows it. Such a rebind is recorded as evidence.
 
-`USER`, `SCHEDULE`, `WEBHOOK`, `CONNECTOR_EVENT`, `BROWSER_EVENT`, `WORKFLOW_EVENT`, `HUMAN_EVENT`.
+## 15. Security invariants
 
-External events never directly mutate workflow state.
+- LLM output is untrusted input.
+- Browser, webpage, desktop application, tool, API, MCP, connector, webhook, and external event output is untrusted input.
+- External instructions never become executable merely because an agent/model observed them.
+- Credentials are capability-scoped and excluded from workflow source and ordinary evidence/memory.
+- Human takeover cannot bypass authorization.
+- Execution capability does not imply permission to execute it.
+- A workflow dependency cannot silently escalate permissions beyond the installed policy.
+- Provider/skill/plugin failure cannot mutate workflow semantics.
+- Published workflow revisions are immutable.
 
-## 11. Workflow sharing/installing
+## 16. Observability
 
-A workflow package is a portable, versioned artifact containing at minimum:
-
-```text
-Workflow manifest
-WorkflowVersion(s)
-Capability requirements
-Resource requirements
-Role definitions
-Skill dependencies
-Policy declarations
-Input/output schema
-Compatibility metadata
-Integrity metadata
-```
-
-Installation creates a local/tenant-owned workflow definition. External providers, credentials, accounts, and local resources are rebound explicitly; secrets are never imported as workflow content.
-
-Published versions are immutable. An update installs a new version and never silently mutates an existing active instance.
-
-## 12. Workflow scheduling from the application
-
-The application exposes workflow creation, browsing, version management, run/pause/resume/cancel, sharing/installing, and scheduling. These are clients of the workflow control plane, not owners of workflow state.
-
-## 13. Learning loop
+Every run should be traceable to:
 
 ```text
-Execution
-→ trajectory + evidence
-→ outcome/feedback
-→ improvement candidate
-→ replay/simulation/validation
-→ explicit approval
-→ new WorkflowVersion / SkillVersion / binding policy
-```
-
-No learned change silently replaces an active version.
-
-## 14. Security invariants
-
-- LLM output is untrusted input, never policy authority.
-- Browser, webpage, connector, API, MCP, webhook, and tool output is untrusted by default.
-- Credentials are capability-scoped and excluded from ordinary prompts, workflow contents, memory, logs, and evidence payloads.
-- Human takeover does not bypass authorization or evidence requirements.
-- Approval is explicit and auditable.
-- External instructions become executable only through authorized capability/policy pathways.
-- Provider adapters cannot silently alter workflow semantics.
-
-## 15. Observability
-
-Every agent turn and workflow execution should be traceable to:
-
-```text
-thread
-turn
-workflow/version/instance
+workflow repository
+workflow/version
+source revision
+workflow instance
 step
 role
 model/provider
-capability
+skill/plugin dependencies
+capability binding
 resource binding
 execution modality
 approval
@@ -322,46 +383,40 @@ actions
 observations
 recovery
 artifacts
-cost/latency
+latency/cost
 outcome
 ```
 
-Evidence must be tied to an exact execution/version identity.
-
-## 16. Dependency direction
+## 17. Dependency direction
 
 ```text
 clients
   ↓
-protocol
+agent/app protocol
   ↓
-workflow / agent orchestration
+workflow control / agent orchestration
   ↓
-universal model + tool contracts
+universal model + tool + execution contracts
   ↓
-adapters
+skills/plugins/connectors/execution adapters
   ↓
-provider/execution implementations
+provider/environment implementations
 ```
 
-Provider implementations may depend on universal contracts. Universal contracts may not depend on providers.
+Workflow semantics may depend on capability, resource, evidence, dependency, and repository abstractions, but never directly on Browser Use, Computer Use, Playwright, a model SDK, Composio internals, or UI state.
 
-Workflow semantics may depend on capability/resource/evidence abstractions. Workflow semantics may not depend directly on browser automation libraries, Composio SDK details, model SDKs, or UI state.
+## 18. Compatibility and change discipline
 
-## 17. Backward compatibility
+Upstream Codex behavior remains the default compatibility target. Any intentional divergence must identify the upstream behavior, new behavior, affected surface, compatibility risk, migration, and tests.
 
-Upstream Codex behavior is preserved by default. Any behavior-changing fork modification must identify:
+Architecture changes require an Architecture Change Request and a new immutable architecture version. Implementation changes require bounded Work Orders.
 
-- upstream behavior;
-- intended new behavior;
-- affected protocol/configuration/CLI surfaces;
-- compatibility risks;
-- migration and test strategy.
+## 19. Explicit non-goals
 
-## 18. What is explicitly out of scope for bootstrap
-
-- Training a foundation model.
-- Replacing the Codex agent loop with an unrelated framework.
-- Building a second standalone workflow repository/runtime.
-- Mobile execution implementation before the execution abstraction supports it.
-- Silent autonomous workflow learning without versioning/approval.
+- Building a second agent runtime.
+- Building a second skill/plugin runtime.
+- Restricting workflows to browser-only execution.
+- Hard-coding workflow semantics to GitHub.
+- Hard-coding workflow semantics to a specific model provider.
+- Treating workflows as prompts without versioned semantics.
+- Silent mutation of published workflows.
