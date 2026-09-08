@@ -2,7 +2,7 @@
  "current_commit": "main",
  "active_agents": [],
  "active_change_surfaces": [],
- "last_verified_sha": "aec58758badd5da27723d3d123e057ddcb05a64a",
- "verification_state": "wo008-merged-and-verified",
- "notes": "WO-008 ACCEPTED and MERGED via PR #6 (aec58758ba, merge-clean): chat worker (GLM-5.3-Flash session wo-008, 133K-char response + continuation) patch applied and verified by Tech Lead (cargo test -p codex-teaching-compiler 36 unit + 5 integration passed; cargo test -p codex-workflow-contracts 86 passed; clippy 0; fmt 0; surface teaching-compiler/** + members line + Cargo.lock; secret sweep 0; worker output-token truncation reconstructed: compiler.rs + error.rs head + candidate.rs tail + continuation tests corrected). 6/15 WOs merged. WO-006 + WO-007 still generating in replay sessions; WO-009 queued next."
+ "last_verified_sha": "47cdb3f67f3122bb8a01409c24935f909a41279a",
+ "verification_state": "wo007-merged-and-verified",
+ "notes": "WO-007 ACCEPTED and MERGED via PR #7 (47cdb3f67f): chat worker patch (full response recovered via CodeMirror editor-state extraction after DOM virtualization clipped the first harvest) verified by Tech Lead (37 tests passed + 86 regression + clippy/fmt clean; fixes: lib name, missing policy types, evidence derive, contract_status, serde shapes, clippy). 7/15 WOs merged. WO-006 continuation REPORT READY in replay; harvest+verify next; then WO-009."
 }
