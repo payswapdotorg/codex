@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "work_orders": {
+    "WO-001": {"status": "active", "depends_on": [], "surface": ["architecture-docs", "development-state", "agent-bootstrap"]},
+    "WO-002": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["codex-rs/model-provider-info", "codex-rs/model-provider", "universal-model-contracts"]},
+    "WO-003": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["workflow-contracts", "workflow-control-plane", "workflow-storage"]},
+    "WO-004": {"status": "blocked", "depends_on": ["WO-002"], "surface": ["provider-adapters", "model-capability-tests"]},
+    "WO-005": {"status": "blocked", "depends_on": ["WO-003"], "surface": ["workflow-teaching", "workflow-compiler"]},
+    "WO-006": {"status": "blocked", "depends_on": ["WO-003"], "surface": ["workflow-scheduler", "workflow-triggers"]},
+    "WO-007": {"status": "blocked", "depends_on": ["WO-003"], "surface": ["execution-abstraction", "browser-adapter-contract"]},
+    "WO-008": {"status": "blocked", "depends_on": ["WO-004", "WO-005", "WO-006", "WO-007"], "surface": ["workflow-app-integration", "workflow-e2e"]},
+    "WO-009": {"status": "blocked", "depends_on": ["WO-002", "WO-008"], "surface": ["differential-evaluation", "compatibility-suite"]}
+  },
+  "parallelism_rule": "Only work orders with disjoint surfaces and satisfied dependencies may execute concurrently.",
+  "max_autonomous_implementation_specialists": 3
+}
