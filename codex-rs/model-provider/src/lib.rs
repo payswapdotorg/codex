@@ -3,6 +3,8 @@ mod auth;
 mod bearer_auth_provider;
 mod models_endpoint;
 mod provider;
+mod selection;
+mod session;
 mod shared_state;
 mod universal;
 
@@ -36,4 +38,8 @@ pub use provider::ProviderUnauthorizedRecovery;
 pub use provider::RemoteCompactionSupport;
 pub use provider::SharedModelProvider;
 pub use provider::create_model_provider;
+pub use selection::ProviderSelectionError;
+pub use selection::negotiate_model_capabilities;
+pub use selection::select_provider_for_descriptor;
+pub use session::OpenAiResponsesSession;
 pub use universal::ModelContractAdapter;

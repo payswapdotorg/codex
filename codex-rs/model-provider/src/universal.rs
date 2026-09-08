@@ -34,23 +34,29 @@ use codex_api::SafetyBuffering;
 use codex_api::TransportError;
 use codex_api::create_text_param_for_request;
 use codex_model_contract::ModelAuthStatus;
+use codex_model_contract::ModelAuthStatusFuture;
 use codex_model_contract::ModelCapabilities;
 use codex_model_contract::ModelDescriptor;
 use codex_model_contract::ModelError;
 use codex_model_contract::ModelEvent;
 use codex_model_contract::ModelFeature;
+use codex_model_contract::ModelProvider as ContractModelProvider;
 use codex_model_contract::ModelRequest;
 use codex_model_contract::ModelSafetyBuffering;
+use codex_model_contract::ModelSession;
 use codex_model_contract::ModelToolChoice;
 use codex_model_contract::ModelTransportPolicy;
+use codex_models_manager::manager::SharedModelsManager;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputContentItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::openai_models::ModelInfo;
 use codex_tools::create_tools_raw_json_for_responses_api;
 use http::StatusCode;
+use std::sync::Arc;
 
 use crate::provider::SharedModelProvider;
+use crate::session::OpenAiResponsesSession;
 
 /// Value the Responses runtime includes to receive encrypted reasoning
 /// content, matching the existing runtime request path.
@@ -61,10 +67,17 @@ const REASONING_ENCRYPTED_CONTENT_INCLUDE: &str = "reasoning.encrypted_content";
 /// Construct it with the provider registry key (for example `openai`) and
 /// the runtime provider handle; the adapter never exposes provider protocol
 /// types through its contract surface.
+///
+/// The adapter is the marshalling and policy boundary. To open an executable
+/// [`ModelSession`] against the contract, attach a model catalog with
+/// [`ModelContractAdapter::with_models_manager`] and then call
+/// [`ModelContractAdapter::create_session`] (provided by the
+/// [`codex_model_contract::ModelProvider`] impl).
 #[derive(Debug, Clone)]
 pub struct ModelContractAdapter {
     provider_id: String,
     provider: SharedModelProvider,
+    models_manager: Option<SharedModelsManager>,
 }
 
 impl ModelContractAdapter {
@@ -73,7 +86,20 @@ impl ModelContractAdapter {
         Self {
             provider_id: provider_id.into(),
             provider,
+            models_manager: None,
         }
+    }
+
+    /// Attaches a model catalog so the adapter can resolve
+    /// [`ModelInfo`] for a request's [`ModelDescriptor`] and open
+    /// [`ModelSession`]s.
+    ///
+    /// Without a catalog, [`codex_model_contract::ModelProvider::create_session`]
+    /// fails explicitly with [`ModelError::InvalidRequest`]; capability and
+    /// wire-request marshalling remain available regardless.
+    pub fn with_models_manager(mut self, models_manager: SharedModelsManager) -> Self {
+        self.models_manager = Some(models_manager);
+        self
     }
 
     /// Provider registry key this adapter was constructed with.
@@ -85,6 +111,25 @@ impl ModelContractAdapter {
     pub fn descriptor(&self, model_info: &ModelInfo) -> ModelDescriptor {
         ModelDescriptor::new(self.provider_id.clone(), model_info.slug.clone())
             .with_display_name(model_info.display_name.clone())
+    }
+
+    /// Returns the descriptor for a model id without requiring catalog
+    /// resolution. The descriptor is opaque identity only; capabilities are
+    /// resolved separately through [`ModelContractAdapter::model_capabilities`].
+    pub fn descriptor_for_id(&self, model_id: &str) -> ModelDescriptor {
+        ModelDescriptor::new(self.provider_id.clone(), model_id)
+    }
+
+    /// Returns the underlying runtime provider handle, for adapters and
+    /// sessions that need to resolve auth, transport, or catalog state.
+    pub fn runtime_provider(&self) -> &SharedModelProvider {
+        &self.provider
+    }
+
+    /// Returns the attached model catalog, when one was provided through
+    /// [`ModelContractAdapter::with_models_manager`].
+    pub fn models_manager(&self) -> Option<&SharedModelsManager> {
+        self.models_manager.as_ref()
     }
 
     /// Returns the effective contract capabilities for a catalog model.
@@ -340,6 +385,57 @@ impl ModelContractAdapter {
                 message: "server overloaded".to_string(),
             },
         }
+    }
+}
+
+/// Provider-neutral contract implementation for the OpenAI Responses runtime.
+///
+/// The adapter is one concrete [`codex_model_contract::ModelProvider`]: the
+/// OpenAI-compatible path used by OpenAI, Azure Responses, Amazon Bedrock
+/// (Mantle), and OpenAI-compatible OSS runtimes (Ollama, LM Studio). Each
+/// provider is a separate adapter instance constructed with its own
+/// registry key and runtime provider handle; provider swap is done by
+/// constructing a second adapter for the same durable thread, not by
+/// mutating this one.
+///
+/// Execution through [`ModelSession`] requires an attached model catalog
+/// (see [`ModelContractAdapter::with_models_manager`]); without one,
+/// [`ModelContractAdapter::create_session`] fails explicitly so callers
+/// never silently construct a non-functional session.
+impl ContractModelProvider for ModelContractAdapter {
+    fn provider_id(&self) -> &str {
+        ModelContractAdapter::provider_id(self)
+    }
+
+    fn transport_policy(&self) -> ModelTransportPolicy {
+        ModelContractAdapter::transport_policy(self)
+    }
+
+    fn auth_status(&self) -> ModelAuthStatusFuture<'_> {
+        let this = self.clone();
+        Box::pin(async move { this.auth_status().await })
+    }
+
+    fn model_capabilities(&self, model: &ModelInfo) -> ModelCapabilities {
+        ModelContractAdapter::model_capabilities(self, model)
+    }
+
+    fn descriptor(&self, model_id: &str) -> ModelDescriptor {
+        ModelContractAdapter::descriptor_for_id(self, model_id)
+    }
+
+    fn create_session(&self) -> Result<Arc<dyn ModelSession>, ModelError> {
+        let models_manager = self.models_manager.clone().ok_or_else(|| {
+            ModelError::InvalidRequest {
+                message: format!(
+                    "model provider {} cannot open a session without an attached model catalog; \
+                     construct the adapter with `with_models_manager`",
+                    self.provider_id
+                ),
+            }
+        })?;
+        let session = OpenAiResponsesSession::new(self.clone(), models_manager);
+        Ok(Arc::new(session))
     }
 }
 
