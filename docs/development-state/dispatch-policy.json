@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "architecture_version": "0.2.0",
+  "program_owner_role": "tech-lead",
+  "dispatch_authority": "tech-lead",
+  "max_autonomous_implementation_specialists": 3,
+  "require_exact_base_sha": true,
+  "require_current_tree_verification_before_acceptance": true,
+  "require_completion_evidence": true,
+  "shared_surface_concurrency": "forbidden",
+  "architecture_change_mechanism": "Architecture Change Request",
+  "worker_roles": [
+    "implementation",
+    "research",
+    "verification",
+    "review"
+  ],
+  "lifecycle": [
+    "BLOCKED",
+    "READY",
+    "DISPATCHED",
+    "IMPLEMENTED",
+    "VERIFYING",
+    "ACCEPTED",
+    "MERGED"
+  ],
+  "failure_states": [
+    "NEEDS-ARCHITECTURE",
+    "BLOCKED"
+  ],
+  "mandatory_evidence": [
+    "work_order",
+    "base_branch",
+    "base_sha",
+    "head_sha",
+    "changed_paths",
+    "test_commands",
+    "test_results",
+    "lint_format_results",
+    "acceptance_evidence",
+    "compatibility_impact",
+    "security_review",
+    "known_limitations",
+    "deferred_items",
+    "architecture_divergence"
+  ],
+  "nonnegotiable_invariants": [
+    "no_second_agent_runtime",
+    "no_second_workflow_engine",
+    "provider_neutral_universal_contracts",
+    "environment_neutral_workflow_semantics",
+    "immutable_published_workflow_revisions",
+    "external_outputs_are_untrusted",
+    "credentials_excluded_from_workflow_semantics",
+    "capability_availability_does_not_imply_authorization",
+    "existing_codex_capabilities_are_reused_before_parallel_mechanisms"
+  ],
+  "dependency_rule": "A Work Order is READY only when every dependency is ACCEPTED or MERGED and the architecture version matches the current frozen version.",
+  "branch_rule": "Workers branch from the exact Tech Lead supplied SHA and must not force-push shared branches.",
+  "state_rule": "Development state is evidence-backed metadata and never overrides frozen architecture or exact source truth."
+}

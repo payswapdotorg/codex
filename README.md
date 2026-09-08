@@ -1,81 +1,55 @@
-<p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
-<p align="center">
-  <img src="https://github.com/openai/codex/blob/main/.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />
-</p>
-</br>
-If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/codex/ide">install in your IDE.</a>
-</br>If you want the desktop app experience, run <code>codex app</code> or visit <a href="https://chatgpt.com/codex?app-landing-page=true">the Codex App page</a>.
-</br>If you are looking for the <em>cloud-based agent</em> from OpenAI, <strong>Codex Web</strong>, go to <a href="https://chatgpt.com/codex">chatgpt.com/codex</a>.</p>
+# Codex Universal
 
----
+Codex Universal is the `payswapdotorg/codex` fork of OpenAI Codex.
 
-## Quickstart
+The repository preserves the Codex coding-agent runtime while evolving it toward a **model-independent agent runtime** and a first-class **workflow layer** for reusable computer/browser workflows, with future desktop/mobile execution support.
 
-### Installing and running Codex CLI
+## Agent contributors: start here
 
-Run the following on Mac or Linux to install Codex CLI:
+**Read [`ARCHITECT_START_HERE.md`](./ARCHITECT_START_HERE.md) before changing anything.**
 
-```shell
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
+Then read:
+
+- [`docs/architecture/CODEX-UNIVERSAL-ARCHITECTURE.md`](./docs/architecture/CODEX-UNIVERSAL-ARCHITECTURE.md)
+- [`docs/architecture/CODEX-UNIVERSAL-LOCK.md`](./docs/architecture/CODEX-UNIVERSAL-LOCK.md)
+- [`docs/development-state/README.md`](./docs/development-state/README.md)
+- [`docs/implementation-roadmap.md`](./docs/implementation-roadmap.md)
+- [`docs/work-orders/`](./docs/work-orders/)
+
+The repository's existing `AGENTS.md` remains authoritative for Codex/Rust-specific engineering rules.
+
+## Project direction
+
+```text
+                        Codex Universal
+                              |
+              +---------------+----------------+
+              |                                |
+       Universal Model Plane             Workflow Plane
+              |                                |
+     any supported LLM              teach / author / version
+              |                     run / share / install
+              |                     schedule / learn
+              |                                |
+              +-------------+------------------+
+                            |
+                    Codex Execution Runtime
+                            |
+               terminal / tools / browser / API
+                     human / future mobile
 ```
 
-Run the following on Windows to install Codex CLI:
+The workflow layer is semantically informed by the architecture in [`payswapdotorg/workflows`](https://github.com/payswapdotorg/workflows), but the implementation lives in this repository and reuses the Codex runtime rather than creating a second agent/workflow engine.
 
-```shell
-powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
-```
+## Upstream compatibility
 
-The standalone installers download from `https://releases.openai.com/codex` by default and fall back to GitHub Releases if a metadata or asset download is unavailable. To force GitHub Releases, set `CODEX_INSTALLER_USE_RELEASES_OPENAI_COM` to `false` (`0` and `no` are also accepted):
+Until a deliberate architecture change is approved, upstream Codex behavior remains the compatibility target. Provider portability and workflows are implemented behind explicit architectural boundaries.
 
-```shell
-curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_INSTALLER_USE_RELEASES_OPENAI_COM=false sh
-```
+## Upstream documentation
 
-```powershell
-$env:CODEX_INSTALLER_USE_RELEASES_OPENAI_COM='false'; irm https://chatgpt.com/codex/install.ps1 | iex
-```
-
-Codex CLI can also be installed via the following package managers:
-
-```shell
-# Install using npm
-npm install -g @openai/codex
-```
-
-```shell
-# Install using Homebrew
-brew install --cask codex
-```
-
-Then simply run `codex` to get started.
-
-<details>
-<summary>You can also go to the <a href="https://github.com/openai/codex/releases/latest">latest GitHub Release</a> and download the appropriate binary for your platform.</summary>
-
-Each GitHub Release contains many executables, but in practice, you likely want one of these:
-
-- macOS
-  - Apple Silicon/arm64: `codex-aarch64-apple-darwin.tar.gz`
-  - x86_64 (older Mac hardware): `codex-x86_64-apple-darwin.tar.gz`
-- Linux
-  - x86_64: `codex-x86_64-unknown-linux-musl.tar.gz`
-  - arm64: `codex-aarch64-unknown-linux-musl.tar.gz`
-
-Each archive contains a single entry with the platform baked into the name (e.g., `codex-x86_64-unknown-linux-musl`), so you likely want to rename it to `codex` after extracting it.
-
-</details>
-
-### Using Codex with your ChatGPT plan
-
-Run `codex` and select **Sign in with ChatGPT**. We recommend signing into your ChatGPT account to use Codex as part of your Plus, Pro, Business, Edu, or Enterprise plan. [Learn more about what's included in your ChatGPT plan](https://help.openai.com/en/articles/11369540-codex-in-chatgpt).
-
-You can also use Codex with an API key, but this requires [additional setup](https://developers.openai.com/codex/auth#sign-in-with-an-api-key).
-
-## Docs
-
-- [**Codex Documentation**](https://developers.openai.com/codex)
-- [**Contributing**](./docs/contributing.md)
-- [**Installing & building**](./docs/install.md)
-- [**Open source fund**](./docs/open-source-fund.md)
+- [Codex Documentation](https://developers.openai.com/codex)
+- [Contributing](./docs/contributing.md)
+- [Installing & building](./docs/install.md)
+- [Open source fund](./docs/open-source-fund.md)
 
 This repository is licensed under the [Apache-2.0 License](LICENSE).

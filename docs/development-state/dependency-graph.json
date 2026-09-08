@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "work_orders": {
+    "WO-001": {"status": "active", "depends_on": [], "surface": ["architecture-docs", "development-state", "agent-bootstrap"]},
+    "WO-002": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["codex-rs/model-provider-info", "codex-rs/model-provider", "universal-model-contracts"]},
+    "WO-003": {"status": "blocked", "depends_on": ["WO-001"], "surface": ["workflow-repository-contracts", "workflow-semantic-contracts", "workflow-control-plane-contracts"]},
+    "WO-004": {"status": "blocked", "depends_on": ["WO-002"], "surface": ["provider-adapters", "model-capability-tests"]},
+    "WO-005": {"status": "blocked", "depends_on": ["WO-003"], "surface": ["execution-abstraction", "capability-resource-registry"]},
+    "WO-006": {"status": "blocked", "depends_on": ["WO-005"], "surface": ["codex-native-browser-use", "browser-workflow-adapter"]},
+    "WO-007": {"status": "blocked", "depends_on": ["WO-005"], "surface": ["codex-native-computer-use", "desktop-workflow-adapter"]},
+    "WO-008": {"status": "blocked", "depends_on": ["WO-003", "WO-005"], "surface": ["workflow-teaching", "workflow-compiler"]},
+    "WO-009": {"status": "blocked", "depends_on": ["WO-003", "WO-005"], "surface": ["workflow-composition", "git-forge-github"]},
+    "WO-010": {"status": "blocked", "depends_on": ["WO-006", "WO-007", "WO-008", "WO-009"], "surface": ["workflow-app-integration", "workflow-e2e"]},
+    "WO-011": {"status": "blocked", "depends_on": ["WO-010"], "surface": ["workflow-scheduling", "sharing-installation", "triggers"]},
+    "WO-012": {"status": "blocked", "depends_on": ["WO-010", "WO-011"], "surface": ["workflow-distribution", "marketplace", "monetization"]},
+    "WO-013": {"status": "blocked", "depends_on": ["WO-002", "WO-010"], "surface": ["differential-evaluation", "compatibility-suite"]},
+    "WO-014": {"status": "blocked", "depends_on": ["WO-010", "WO-013"], "surface": ["learning", "governed-evolution"]},
+    "WO-015": {"status": "blocked", "depends_on": ["WO-005", "WO-010"], "surface": ["mobile", "remote-desktop", "additional-environments"]}
+  },
+  "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may execute concurrently.",
+  "max_autonomous_implementation_specialists": 3
+}
