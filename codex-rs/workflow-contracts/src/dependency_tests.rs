@@ -1,4 +1,5 @@
 use super::*;
+use crate::ContentDigest;
 use crate::WorkflowDefinitionId;
 use crate::WorkflowRepositoryId;
 use crate::WorkflowVersionId;

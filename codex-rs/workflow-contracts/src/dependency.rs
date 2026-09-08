@@ -23,7 +23,6 @@ use semver::VersionReq;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::ContentDigest;
 use crate::SemanticVersion;
 use crate::WorkflowContractError;
 use crate::WorkflowDefinitionId;
