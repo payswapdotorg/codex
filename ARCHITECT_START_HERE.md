@@ -1,22 +1,21 @@
 # Codex Universal — Architect Start Here
 
-**Status:** BOOTSTRAP / FROZEN until superseded by an approved Architecture Change Request.
+**Status:** FROZEN architecture bootstrap
+**Current architecture:** `0.2.0`
 
-This repository is a fork of OpenAI Codex. The upstream Codex runtime is the implementation substrate. The purpose of this fork is to evolve Codex into a **model-independent agent runtime with a first-class workflow platform** while preserving upstream behavior until a deliberate change is specified, implemented, tested, and frozen.
+This repository is the `payswapdotorg/codex` fork of OpenAI Codex. The Codex runtime is the primary agent/execution substrate. The fork evolves it into a model-independent agent runtime plus a Git-native workflow platform that can automate work across many execution environments.
 
 ## Mission
 
-Build the strongest practical Codex-compatible agent runtime with these properties:
+1. Keep the Codex coding-agent runtime as the primary execution/agent substrate.
+2. Make the LLM/model provider replaceable behind universal model contracts.
+3. Let users create reusable workflows from instruction, demonstration, or both.
+4. Let workflows execute across browser, computer/desktop, terminal, API/tool, MCP, human, and future mobile/device/remote environments.
+5. Let one workflow mix multiple environments and multiple Codex skills/plugins.
+6. Treat workflows as software repositories: forkable, branchable, reviewable, composable, version-pinned, publishable, installable, and collaboratively maintainable.
+7. Let users create, maintain, run, share, install, schedule, and eventually monetize workflows from the Codex application.
 
-1. The agent runtime is independent of any single LLM provider.
-2. Coding-agent behavior remains the primary compatibility target.
-3. Users can create reusable workflows from instruction and/or demonstration.
-4. Users can run, maintain, version, share, install, and schedule workflows from the Codex application.
-5. Workflow execution can span browser, tool/API, terminal, human, and future desktop/mobile execution modalities.
-6. Workflow semantics are durable, versioned, auditable, and independent of models, providers, browsers, tools, and connectors.
-7. Execution, evidence, policy, and memory are explicit runtime concerns rather than prompt conventions.
-
-## Mandatory bootstrap for every coding agent
+## Mandatory bootstrap
 
 Before changing code:
 
@@ -24,81 +23,43 @@ Before changing code:
 2. Read `AGENTS.md`.
 3. Read `docs/architecture/CODEX-UNIVERSAL-ARCHITECTURE.md`.
 4. Read `docs/architecture/CODEX-UNIVERSAL-LOCK.md`.
-5. Read `docs/development-state/README.md` and all referenced current-state files.
-6. Inspect the live target branch and relevant commit history through Git.
-7. Identify the active Work Order in `docs/work-orders/`.
-8. Confirm that the requested change is inside the Work Order change surface and dependency graph.
-9. Run the smallest relevant verification before modifying behavior when practical.
-10. Re-read current `main` or target branch immediately before dispatching work and before final review.
+5. Read `docs/development-state/README.md` and current state files.
+6. Inspect the exact live target branch and relevant Git history.
+7. Identify the active Work Order and its dependency graph.
+8. Verify that the requested change is inside the authorized change surface.
+9. Re-read the live target branch before dispatch and before final review.
 
 ## Authority hierarchy
 
-From strongest to weakest:
+Frozen architecture and approved architecture changes > Work Orders/dependency graph > exact source/tests > exact verification evidence > upstream behavior where not intentionally diverged > agent reports/conversation summaries.
 
-1. Frozen architecture and approved Architecture Change Requests.
-2. Active Work Order and dependency graph.
-3. Repository source code and tests on the exact target commit.
-4. Persisted verification evidence tied to exact commit SHA.
-5. Upstream Codex implementation and documentation when the fork has not intentionally diverged.
-6. Agent reports, conversation history, screenshots, copied summaries, and generated analysis.
+## Non-negotiable rules
 
-Agents must never treat a claim of completion as evidence.
+- Never create a second Codex agent runtime.
+- Never create a second workflow engine.
+- Never make an LLM, browser, desktop app, tool, connector, Git branch, GitHub UI, cache, or chat transcript the owner of durable workflow semantics.
+- Provider and environment specifics stay behind adapters/contracts.
+- Workflow semantics are independent of execution environment.
+- A workflow may mix execution environments in a single graph/execution.
+- Browser steps prefer Codex Browser Use; computer/desktop steps prefer Codex Computer Use; use compatible Codex skills/plugins before inventing new mechanisms.
+- Skills/plugins provide capabilities and instructions; workflows provide orchestration semantics. Do not conflate them.
+- Workflow execution pins immutable source and dependency identities.
+- Forks/branches/PRs are development mechanisms; published workflow revisions are immutable execution artifacts.
+- External model/browser/desktop/tool/API/MCP/webhook/event output is untrusted input by default.
+- Credentials never enter workflow source or ordinary logs/prompts/memory/evidence.
+- Durable workflow state is policy/control-plane authority, not agent authority.
+- Use existing Codex approvals, sandboxing, skills, plugins, MCP, subagents, planning, sessions, worktrees, and tracing wherever applicable.
 
-## Non-negotiable architectural rules
+## Workflow relationship to `payswapdotorg/workflows`
 
-- Do not create a second agent runtime beside Codex.
-- Do not create a second workflow engine beside the workflow control plane.
-- Do not make an LLM, chat transcript, browser, tool, connector, Redis/cache, or external provider the owner of durable semantic state.
-- Keep model/provider-specific behavior behind an explicit model-provider boundary.
-- Keep execution modalities behind explicit execution adapters.
-- Keep workflow semantics independent from execution modality.
-- Keep reasoning mode independent from execution modality.
-- Treat external model, browser, tool, API, connector, webhook, and event output as untrusted input by default.
-- Never store raw credentials in workflows, prompts, memory, logs, or ordinary evidence payloads.
-- Workflow versions are immutable after publication. Changes create a new version.
-- Durable workflow transitions are controlled by deterministic state/policy logic; LLMs propose, they do not authorize.
-- Agents propose work; workflow control state remains authoritative elsewhere.
-- A new provider or execution environment must not require a second workflow protocol.
-- Preserve upstream Codex compatibility unless a divergence is explicitly covered by the architecture and tests.
-
-## Change discipline
-
-Use this lifecycle:
-
-`SPEC → INVARIANTS → INTERFACES → TESTS → IMPLEMENTATION → ADVERSARIAL TESTS → AUDIT → FREEZE`
-
-Normal implementation changes require a Work Order. Architecture changes require an Architecture Change Request and a new immutable architecture version.
-
-Every implementation branch must have one bounded Work Order unless that Work Order explicitly authorizes a composed change. Avoid overlapping sibling change surfaces.
-
-## Workflow layer relationship
-
-The workflow layer is **informed by** `payswapdotorg/workflows` but is not a copy of that repository and does not preserve a separate runtime.
-
-The adapted model is:
-
-`Teaching → Workflow Compiler → Workflow IR/Definition/Version → Workflow Control Plane → Execution Planner → Codex Agent / Tool / Browser / Human → Evidence/Memory → Learning`
-
-The browser is the first user-facing workflow execution environment. Terminal/software-development remains core Codex functionality and can also participate as an execution modality.
+`payswapdotorg/workflows` is a semantic reference only. This repository owns the runtime implementation. Its V1.1 concepts inform teaching, compilation, control-plane authority, resources, capabilities, evidence, and learning, while this project deliberately broadens execution to as many compatible environments as practical.
 
 ## Current phase
 
-**Phase 0 — Repository & Architecture Bootstrap.**
+**Phase 0 — Repository/architecture bootstrap.**
 
-No workflow product implementation is authorized by this document alone. The first implementation milestone is to establish the provider-neutral model boundary, workflow contracts, control-plane contracts, and test/verification scaffolding without disturbing upstream Codex behavior.
+The next implementation work must first establish the provider-neutral model boundary and workflow repository/control contracts. Runtime implementation must proceed through bounded Work Orders and exact verification.
 
 ## Completion report
 
-Every implementation agent must report:
-
-- Work Order ID
-- base SHA
-- head SHA
-- changed surfaces
-- tests executed and results
-- acceptance-criteria evidence
-- known limitations
-- exact artifacts produced
-- any architecture divergence introduced
-
-`Done` is never an acceptable completion report by itself.
+Every implementation agent must report Work Order, base SHA, head SHA, changed surfaces, tests/results, acceptance evidence, known limitations, artifacts, and architecture divergence (if any). `Done` is never sufficient.
