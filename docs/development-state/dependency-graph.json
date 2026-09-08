@@ -43,7 +43,7 @@
       ]
     },
     "WO-005": {
-      "status": "ready",
+      "status": "merged",
       "depends_on": [
         "WO-003"
       ],
@@ -53,7 +53,7 @@
       ]
     },
     "WO-006": {
-      "status": "blocked",
+      "status": "ready",
       "depends_on": [
         "WO-005"
       ],
@@ -63,7 +63,7 @@
       ]
     },
     "WO-007": {
-      "status": "blocked",
+      "status": "ready",
       "depends_on": [
         "WO-005"
       ],
@@ -73,7 +73,7 @@
       ]
     },
     "WO-008": {
-      "status": "blocked",
+      "status": "ready",
       "depends_on": [
         "WO-003",
         "WO-005"
@@ -84,7 +84,7 @@
       ]
     },
     "WO-009": {
-      "status": "blocked",
+      "status": "ready",
       "depends_on": [
         "WO-003",
         "WO-005"

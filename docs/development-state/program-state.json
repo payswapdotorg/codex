@@ -4,7 +4,7 @@
   "architecture_status": "frozen",
   "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
   "current_milestone": "M1",
-  "current_phase": "wave-2-provider-adapters-and-execution-abstraction",
+  "current_phase": "wave-3-runtime-adapters-and-binding",
   "active_work_order": null,
   "parallel_work_order": null,
   "main_branch": "main",
@@ -13,7 +13,7 @@
     "upstream_behavior_preserved": true,
     "universal_model_abi_frozen": true,
     "workflow_repository_contract_frozen": true,
-    "execution_adapter_contract_frozen": false,
+    "execution_adapter_contract_frozen": true,
     "codex_native_browser_bridge_verified": false,
     "codex_native_computer_bridge_verified": false,
     "initial_integration_tests_green": false
