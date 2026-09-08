@@ -1,8 +1,8 @@
 {
-  "current_commit": "main",
-  "active_agents": [],
-  "active_change_surfaces": [],
-  "last_verified_sha": "bf7245c1e9085220bf1b444b0e4251d5a7629b6a",
-  "verification_state": "wo005-merged-and-verified",
-  "notes": "WO-005 ACCEPTED and MERGED via PR #4 (bf7245c1): Tech Lead independently verified branch 07ed97363 (cargo test 112 execution-contracts + 86 workflow-contracts regression all passing; clippy clean on WO surface; fmt clean; secret sweep clean; surface = execution-contracts crate + registration only). WO-004 dispatch still queued (browser dispatch wall). Wave 3 READY: WO-006, WO-007, WO-008, WO-009."
+ "current_commit": "main",
+ "active_agents": [],
+ "active_change_surfaces": [],
+ "last_verified_sha": "334b083bd2c4ff678bea18a88f75aa6a6304d78c",
+ "verification_state": "wo004-merged-and-verified",
+ "notes": "WO-004 ACCEPTED and MERGED via PR #5 (334b083bd2, merge-clean): Tech Lead independently verified branch 6147d08ff0 in a fresh sandbox (cargo test -p codex-model-provider 112 passed / 0 failed incl. 22 new selection+session tests; cargo test -p codex-model-contract 33 passed; clippy 0; fmt 0; surface exactly model-provider/** + Cargo.toml/lock; secret sweep 0). 5/15 WOs merged. Wave 3 dispatching now: WO-006 + WO-007 + WO-008 (deps satisfied, surfaces disjoint, concurrency 3). WO-009 queued next."
 }
