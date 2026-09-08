@@ -5168,6 +5168,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-workflow-contracts"
+version = "0.0.0"
+dependencies = [
+ "codex-git-utils",
+ "codex-protocol",
+ "pretty_assertions",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.18",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
 name = "codex-workload-identity"
 version = "0.0.0"
 dependencies = [
