@@ -1,14 +1,8 @@
 {
   "current_commit": "main",
-  "active_agents": [
-    "WO-002-worker(session 79297467)"
-  ],
-  "active_change_surfaces": [
-    "codex-rs/model-provider-info",
-    "codex-rs/model-provider",
-    "universal-model-contracts"
-  ],
-  "last_verified_sha": "912fb71a2372c56388e000b027929f243d93fa7d",
-  "verification_state": "wo003-merged-and-verified",
-  "notes": "WO-003 ACCEPTED and MERGED via PR #2 (912fb71a2372c56388e000b027929f243d93fa7d): Tech Lead independently verified branch 14aea900 (cargo test 86/86, clippy 0, fmt 0, workspace spot checks green; secret sweep clean; surface exactly workflow-contracts + registration). WO-005 now READY (dependency WO-003 satisfied). WO-002 still in flight (worker sandbox hit disk-full, recovered, iterating compile errors). Next: dispatch WO-005 worker."
+  "active_agents": [],
+  "active_change_surfaces": [],
+  "last_verified_sha": "412ec519444e8ceb74dfd53b1e876fa72d8d49f4",
+  "verification_state": "wo002-merged-and-verified",
+  "notes": "WO-002 ACCEPTED and MERGED via PR #3 (412ec519): Tech Lead independently verified branch 52a30d3db (cargo test 33+90 all passing, clippy 0, fmt 0; secret sweep clean; surface = model-contract crate + model-provider integration + registration + 1-line re-export). Wave 1 COMPLETE. WO-004 now READY (dependency WO-002 satisfied); WO-005 READY (WO-003 satisfied). Next: dispatch wave 2 WO-004 + WO-005."
 }
