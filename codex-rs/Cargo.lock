@@ -2849,6 +2849,18 @@ name = "codex-collaboration-mode-templates"
 version = "0.0.0"
 
 [[package]]
+name = "codex-computer-use-adapter"
+version = "0.0.0"
+dependencies = [
+ "codex-workflow-contracts",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.18",
+ "uuid",
+]
+
+[[package]]
 name = "codex-config"
 version = "0.0.0"
 dependencies = [
