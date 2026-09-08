@@ -6,12 +6,18 @@ This document defines how autonomous agents work on the repository. It is subord
 
 | Role | Authority | May modify code? | Primary output |
 |---|---|---:|---|
-| Tech Lead | Program execution | Yes, when needed | dispatch decisions, integration, acceptance, state |
-| Architect | Architecture | By approved architecture change only | frozen decisions, ACRs |
+| Tech Lead | Full program execution | Yes | dispatch, integration, acceptance, state |
+| Architect | Architecture guard | Yes when required by autonomous change protocol | invariant decisions, ACRs |
 | Implementation Worker | Assigned Work Order | Yes | focused implementation + tests |
 | Verification Worker | Assigned verification | Only in verification scope | test/evidence report |
 | Review Worker | Adversarial review | Normally no | findings against architecture/WO |
-| Research Worker | Repository/source research | No runtime semantics | source-backed audit |
+| Research Worker | Repository/source research | No runtime semantics unless assigned | source-backed audit |
+
+## Autonomy principle
+
+The program is designed to run without operator approval between Work Orders. Once dependencies are satisfied, the Tech Lead is authorized to dispatch, integrate, verify, accept, and merge implementation work according to the deterministic gates below.
+
+Human approval is not a normal state in the execution graph.
 
 ## Ownership rules
 
@@ -27,6 +33,8 @@ This document defines how autonomous agents work on the repository. It is subord
 BLOCKED -> READY -> DISPATCHED -> IMPLEMENTED -> VERIFYING -> ACCEPTED -> MERGED
                          \-> BLOCKED / NEEDS-ARCHITECTURE
 ```
+
+`NEEDS-ARCHITECTURE` is an internal engineering state, not a human approval queue. The Tech Lead owns the autonomous architecture-change protocol.
 
 ## Worker branch rule
 
@@ -59,9 +67,9 @@ known_limitations
 
 ## Escalation triggers
 
-Escalate instead of guessing when a worker finds:
+Escalate to the Tech Lead's architecture decision process instead of guessing when a worker finds:
 
-- a contradiction with the frozen architecture;
+- a contradiction with a frozen invariant;
 - a requirement owned by another Work Order;
 - a provider/environment-specific type crossing a universal boundary;
 - a need for a second runtime/control plane;
@@ -69,6 +77,8 @@ Escalate instead of guessing when a worker finds:
 - an immutable-version violation;
 - a material upstream compatibility break;
 - a dependency or repository primitive that does not work as the Work Order assumes.
+
+An escalation does not require operator involvement. The Tech Lead resolves it autonomously where permitted by the frozen invariants and records the result.
 
 ## Review checklist
 
