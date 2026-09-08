@@ -1,0 +1,24 @@
+{
+  "program": "codex-universal",
+  "architecture_version": "0.1.0-bootstrap",
+  "architecture_status": "frozen",
+  "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
+  "current_milestone": "M0",
+  "current_phase": "repository-and-architecture-bootstrap",
+  "active_work_order": "WO-001",
+  "main_branch": "main",
+  "bootstrap_branch": "architecture/bootstrap",
+  "gates": {
+    "upstream_behavior_preserved": true,
+    "universal_model_abi_frozen": false,
+    "workflow_contracts_frozen": false,
+    "execution_adapter_contract_frozen": false,
+    "initial_integration_tests_green": false
+  },
+  "rules": [
+    "architecture changes require an Architecture Change Request",
+    "implementation work requires a bounded Work Order",
+    "verification evidence must identify an exact commit SHA",
+    "stale agent reports are not authoritative"
+  ]
+}
