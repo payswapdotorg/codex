@@ -1,8 +1,18 @@
 {
   "current_commit": "main",
-  "active_agents": [],
-  "active_change_surfaces": [],
+  "active_agents": [
+    "WO-002-worker(session 79297467)",
+    "WO-003-worker(session 9ec12c44)"
+  ],
+  "active_change_surfaces": [
+    "codex-rs/model-provider-info",
+    "codex-rs/model-provider",
+    "universal-model-contracts",
+    "workflow-repository-contracts",
+    "workflow-semantic-contracts",
+    "workflow-control-plane-contracts"
+  ],
   "last_verified_sha": "da88fc094749330d45e969021163470e7b4033a9",
   "verification_state": "bootstrap-merged-wo001-accepted",
-  "notes": "PR #1 merged at da88fc094749330d45e969021163470e7b4033a9 (merge commit). WO-001 ACCEPTED/MERGED; architecture v0.2.0 operating system is now main truth. Wave 1 (WO-002 Universal Model Contract + WO-003 Git-Native Workflow Contracts, disjoint surfaces) is READY for Tech Lead dispatch. No runtime implementation has landed yet."
+  "notes": "Wave 1 DISPATCHED by Tech Lead from base a324d08ef953dc9767e94df30a1cda640b20924e: WO-002 (branch wo-002/universal-model-contract) and WO-003 (branch wo-003/git-native-workflow-contracts) to two bounded implementation workers, parallel, disjoint surfaces. Workers verified base SHA and cloned; both reported no Rust toolchain in their sandboxes (installing or proceeding without \u2014 Tech Lead re-verifies locally with cargo 1.98.1)."
 }
