@@ -1,0 +1,411 @@
+//! The workflow application lifecycle service.
+//!
+//! [`WorkflowLifecycle`] composes the frozen planes behind control-plane
+//! seams: it selects immutable versions from the [`WorkflowVersionStore`],
+//! instantiates them (validate -> approve -> bind) through the capability
+//! registry, runs them across environment classes ([`crate::run`]), and
+//! reconciles the durable records afterwards
+//! ([`WorkflowLifecycle::verify_run`]). It owns no durable state: every
+//! record crosses a [`crate::port`] seam.
+//!
+//! Instantiation enforces the frozen gate order:
+//!
+//! ```text
+//! validate: version integrity + adapter readiness + binding plan
+//! approve:  one AuthorizationGrant per selected binding, resting on
+//!           recorded approval evidence (Codex approvals stay the
+//!           authority)
+//! bind:     resource bindings attached, binding AUTHORIZED -> BOUND
+//! ```
+//!
+//! A binding never reaches dispatch without passing every gate in order.
+
+use std::collections::BTreeMap;
+
+use codex_execution_contracts::AuthorizationGrant;
+use codex_execution_contracts::BindingPlan;
+use codex_execution_contracts::BindingPolicy;
+use codex_execution_contracts::CapabilityBindingId;
+use codex_execution_contracts::CapabilityRegistry;
+use codex_execution_contracts::ExecutionEnvironment;
+use codex_execution_contracts::ResourceBinding;
+use codex_execution_contracts::TransitionCause;
+use codex_workflow_contracts::CapabilityId;
+use codex_workflow_contracts::EvidenceKind;
+use codex_workflow_contracts::EvidenceReference;
+use codex_workflow_contracts::TriggerSource;
+use codex_workflow_contracts::WorkflowDefinitionId;
+use codex_workflow_contracts::WorkflowInstance;
+use codex_workflow_contracts::WorkflowInstanceId;
+use codex_workflow_contracts::WorkflowInstanceStatus;
+use codex_workflow_contracts::WorkflowVersion;
+use codex_workflow_contracts::WorkflowVersionId;
+
+use crate::WorkflowAppError;
+use crate::WorkflowEvent;
+use crate::approval::ApprovalRequest;
+use crate::port::ApprovalSource;
+use crate::port::EventSink;
+use crate::port::EvidenceStore;
+use crate::port::StepActionSource;
+use crate::port::WorkflowInstanceStore;
+use crate::port::WorkflowVersionStore;
+use crate::run::ActiveRun;
+use crate::walk::Walk;
+use crate::walk::WalkConfig;
+
+/// The seams and registry a lifecycle is constructed from.
+pub struct LifecycleDeps {
+    /// Durable workflow version records.
+    pub versions: Box<dyn WorkflowVersionStore>,
+    /// Durable workflow instance records.
+    pub instances: Box<dyn WorkflowInstanceStore>,
+    /// The evidence plane.
+    pub evidence: Box<dyn EvidenceStore>,
+    /// The approval plane.
+    pub approvals: Box<dyn ApprovalSource>,
+    /// The action proposal seam (the Codex agent/model loop).
+    pub actions: Box<dyn StepActionSource>,
+    /// The lifecycle event observer.
+    pub events: Box<dyn EventSink>,
+    /// The capability registry with the host's environment adapters
+    /// registered.
+    pub registry: CapabilityRegistry,
+}
+
+/// A request to instantiate the selected workflow version.
+#[derive(Clone, Debug, Default)]
+pub struct InstantiateRequest {
+    /// The accepted trigger that starts the instance, when recorded.
+    ///
+    /// External trigger payloads are untrusted input; only this
+    /// normalized control-plane source is recorded.
+    pub trigger: Option<TriggerSource>,
+    /// The binding policy applied during capability resolution.
+    ///
+    /// Defaults to the conservative execution-contracts policy (all peer
+    /// environments in scope, human fallback forbidden).
+    pub policy: BindingPolicy,
+    /// The concrete resource bindings to attach.
+    ///
+    /// Resource bindings are opaque, credential-free instance identities;
+    /// the adapters resolve them to secret material internally.
+    pub resources: Vec<ResourceBinding>,
+    /// The walk budget for the run.
+    pub walk: WalkConfig,
+}
+
+/// The result of reconciling a finished run against the durable records.
+#[derive(Clone, Debug)]
+pub struct VerifiedRun {
+    /// The durable instance record as stored.
+    pub instance: WorkflowInstance,
+    /// The workflow the instance executed.
+    pub workflow: WorkflowDefinitionId,
+    /// The immutable version the instance pinned.
+    pub version: WorkflowVersionId,
+    /// The evidence references recorded on the instance.
+    pub evidence: Vec<EvidenceReference>,
+}
+
+/// The application-facing workflow lifecycle service.
+pub struct WorkflowLifecycle {
+    pub(crate) versions: Box<dyn WorkflowVersionStore>,
+    pub(crate) instances: Box<dyn WorkflowInstanceStore>,
+    pub(crate) evidence: Box<dyn EvidenceStore>,
+    pub(crate) approvals: Box<dyn ApprovalSource>,
+    pub(crate) actions: Box<dyn StepActionSource>,
+    pub(crate) events: Box<dyn EventSink>,
+    pub(crate) registry: CapabilityRegistry,
+    pub(crate) selected: Option<WorkflowVersion>,
+    pub(crate) active: Option<ActiveRun>,
+}
+
+impl WorkflowLifecycle {
+    /// Creates the lifecycle from its seams and registry.
+    ///
+    /// Nothing is probed or executed at construction: adapters register
+    /// lazily-probing descriptors, and no workflow is active until
+    /// [`Self::select_version`] succeeds. This is the ordinary-Codex
+    /// no-op default path.
+    pub fn new(deps: LifecycleDeps) -> Self {
+        Self {
+            versions: deps.versions,
+            instances: deps.instances,
+            evidence: deps.evidence,
+            approvals: deps.approvals,
+            actions: deps.actions,
+            events: deps.events,
+            registry: deps.registry,
+            selected: None,
+            active: None,
+        }
+    }
+
+    /// Whether any workflow state is held (a selected version or an
+    /// active run).
+    ///
+    /// When this is `false`, no workflow code path has executed anything:
+    /// ordinary Codex behavior is untouched.
+    pub fn is_active(&self) -> bool {
+        self.selected.is_some() || self.active.is_some()
+    }
+
+    /// The capability registry backing this lifecycle.
+    pub fn registry(&self) -> &CapabilityRegistry {
+        &self.registry
+    }
+
+    /// Selects an immutable workflow version and verifies its integrity.
+    ///
+    /// The version is loaded from the store and must pass
+    /// [`WorkflowVersion::verify_integrity`]: a tampered record never
+    /// becomes executable. Selection alone instantiates nothing and
+    /// touches no adapter.
+    pub fn select_version(
+        &mut self,
+        version: &WorkflowVersionId,
+    ) -> Result<WorkflowDefinitionId, WorkflowAppError> {
+        let record =
+            self.versions
+                .load(version)?
+                .ok_or_else(|| WorkflowAppError::VersionUnavailable {
+                    version: version.to_string(),
+                })?;
+        record
+            .verify_integrity()
+            .map_err(|error| WorkflowAppError::VersionIntegrity {
+                version: version.to_string(),
+                reason: error.to_string(),
+            })?;
+        let workflow = record.definition.id.clone();
+        self.selected = Some(record);
+        self.events.record(WorkflowEvent::VersionSelected {
+            version: version.clone(),
+        });
+        Ok(workflow)
+    }
+
+    /// Instantiates the selected version: validate -> approve -> bind.
+    ///
+    /// On any phase failure the durable instance record is settled as
+    /// `Failed` with the structured reason before the original error is
+    /// returned, so approval denials and binding failures are observable
+    /// after the fact.
+    pub async fn instantiate(
+        &mut self,
+        request: InstantiateRequest,
+    ) -> Result<WorkflowInstance, WorkflowAppError> {
+        let version = self
+            .selected
+            .clone()
+            .ok_or(WorkflowAppError::NoActiveWorkflow)?;
+        let instance_id = WorkflowInstanceId::generate();
+        let mut instance = WorkflowInstance::new(
+            instance_id,
+            version.definition.id.clone(),
+            version.version_id.clone(),
+            WorkflowInstanceStatus::Pending,
+        );
+        instance.trigger = request.trigger;
+        self.instances.create(instance.clone())?;
+        self.events.record(WorkflowEvent::InstanceCreated {
+            instance: instance_id,
+            workflow: version.definition.id.clone(),
+            version: version.version_id.clone(),
+            status: WorkflowInstanceStatus::Pending,
+        });
+
+        // Phase 1: validate — integrity, readiness, resources, plan.
+        version
+            .verify_integrity()
+            .map_err(|error| self.fail_instance(&mut instance, error.into()))?;
+        self.registry
+            .refresh_readiness()
+            .await
+            .map_err(|error| self.fail_instance(&mut instance, error.into()))?;
+        for resource in &request.resources {
+            self.registry
+                .bind_resource(resource.clone())
+                .map_err(|error| self.fail_instance(&mut instance, error.into()))?;
+        }
+        let plan = self
+            .registry
+            .plan(&version.definition.ir, &request.policy)
+            .map_err(|error| {
+                self.fail_instance(
+                    &mut instance,
+                    WorkflowAppError::BindingPlanFailed {
+                        message: error.message,
+                        code: error.code,
+                    },
+                )
+            })?;
+        let selected = distinct_bindings(&plan);
+
+        // Phase 2: approve — one grant per distinct selected binding,
+        // each resting on recorded approval evidence.
+        for (binding, environment, capability) in &selected {
+            let approval = self
+                .authorize_binding(&instance_id, binding, *environment, capability.clone())
+                .map_err(|error| self.fail_instance(&mut instance, error))?;
+            instance.record_evidence(approval);
+        }
+
+        // Phase 3: bind — attach each binding's required resources
+        // (AUTHORIZED -> BOUND).
+        for (binding, _, _) in selected {
+            let attached = self
+                .registry
+                .bind(&binding)
+                .map_err(|error| self.fail_instance(&mut instance, error.into()))?;
+            self.events.record(WorkflowEvent::ResourcesBound {
+                instance: instance_id,
+                binding,
+                resources: attached
+                    .into_iter()
+                    .map(|resource| resource.resource_type)
+                    .collect(),
+            });
+        }
+
+        let walk = Walk::new(&version.definition.ir)?;
+        let decisions = plan
+            .steps
+            .iter()
+            .map(|step| (step.node.clone(), step.decisions.clone()))
+            .collect::<BTreeMap<_, _>>();
+        instance.status = WorkflowInstanceStatus::Running;
+        self.instances.save(instance.clone())?;
+        self.events.record(WorkflowEvent::InstanceStarted {
+            instance: instance_id,
+        });
+        let settled = instance.clone();
+        self.active = Some(ActiveRun {
+            version,
+            instance,
+            policy: request.policy,
+            walk,
+            walk_config: request.walk,
+            decisions,
+        });
+        Ok(settled)
+    }
+
+    /// Reconciles a run's durable records: the instance is loaded from the
+    /// store, its pinned version is loaded from the version store, and the
+    /// version must still verify end to end.
+    pub fn verify_run(
+        &self,
+        instance_id: &WorkflowInstanceId,
+    ) -> Result<VerifiedRun, WorkflowAppError> {
+        let instance = self.instances.load(instance_id)?.ok_or_else(|| {
+            WorkflowAppError::InstanceUnavailable {
+                instance: instance_id.to_string(),
+            }
+        })?;
+        let version = self.versions.load(&instance.version)?.ok_or_else(|| {
+            WorkflowAppError::VersionUnavailable {
+                version: instance.version.to_string(),
+            }
+        })?;
+        version
+            .verify_integrity()
+            .map_err(|error| WorkflowAppError::VersionIntegrity {
+                version: instance.version.to_string(),
+                reason: error.to_string(),
+            })?;
+        Ok(VerifiedRun {
+            workflow: instance.workflow.clone(),
+            version: instance.version.clone(),
+            evidence: instance.evidence.clone(),
+            instance,
+        })
+    }
+
+    /// Records one evidence payload through the evidence plane and appends
+    /// the reference to the in-flight instance.
+    pub(crate) fn store_evidence(
+        &mut self,
+        instance: &mut WorkflowInstance,
+        kind: EvidenceKind,
+        payload: &serde_json::Value,
+    ) -> Result<EvidenceReference, WorkflowAppError> {
+        let reference = self.evidence.store(kind, payload)?;
+        instance.record_evidence(reference.clone());
+        self.instances.save(instance.clone())?;
+        Ok(reference)
+    }
+
+    /// Authorizes one binding through the approval plane.
+    ///
+    /// The grant rests on recorded approval evidence of kind `Approval`;
+    /// the registry enforces the `READY -> AUTHORIZED` transition.
+    pub(crate) fn authorize_binding(
+        &mut self,
+        instance: &WorkflowInstanceId,
+        binding: &CapabilityBindingId,
+        environment: ExecutionEnvironment,
+        capability: CapabilityId,
+    ) -> Result<EvidenceReference, WorkflowAppError> {
+        let request = ApprovalRequest {
+            instance: *instance,
+            binding: binding.clone(),
+            environment,
+            capability,
+        };
+        let approval = self.approvals.approve(&request)?;
+        let grant = AuthorizationGrant::new(binding.clone(), approval.clone())?;
+        self.registry
+            .advance(binding, TransitionCause::Authorized(grant))?;
+        self.events.record(WorkflowEvent::BindingAuthorized {
+            instance: *instance,
+            binding: binding.clone(),
+            environment,
+        });
+        Ok(approval)
+    }
+
+    /// Settles a failed instantiation: the durable instance record becomes
+    /// `Failed`, a `RunFailed` event is emitted, and the original error is
+    /// returned for the caller.
+    fn fail_instance(
+        &mut self,
+        instance: &mut WorkflowInstance,
+        error: WorkflowAppError,
+    ) -> WorkflowAppError {
+        instance.status = WorkflowInstanceStatus::Failed;
+        let save = self.instances.save(instance.clone());
+        self.events.record(WorkflowEvent::RunFailed {
+            instance: instance.instance_id,
+            reason: error.to_string(),
+        });
+        match save {
+            Ok(()) => error,
+            Err(store_error) => store_error,
+        }
+    }
+}
+
+/// The distinct bindings selected by a plan, with their environment and
+/// capability, ordered by binding identity for determinism.
+fn distinct_bindings(
+    plan: &BindingPlan,
+) -> Vec<(CapabilityBindingId, ExecutionEnvironment, CapabilityId)> {
+    let mut distinct: BTreeMap<CapabilityBindingId, (ExecutionEnvironment, CapabilityId)> =
+        BTreeMap::new();
+    for step in &plan.steps {
+        for decision in &step.decisions {
+            distinct
+                .entry(decision.selected.binding.clone())
+                .or_insert((
+                    decision.selected.environment,
+                    decision.requirement.capability.clone(),
+                ));
+        }
+    }
+    distinct
+        .into_iter()
+        .map(|(binding, (environment, capability))| (binding, environment, capability))
+        .collect()
+}

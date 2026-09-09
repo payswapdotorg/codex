@@ -153,6 +153,7 @@ members = [
     "browser-use-adapter",
     "teaching-compiler",
     "execution-contracts",
+    "workflow-app",
 ]
 resolver = "2"
 
