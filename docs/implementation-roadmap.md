@@ -36,6 +36,10 @@ Implement durable workflow lifecycle, legal transitions, version pinning, pause/
 
 Map Codex-native tools/skills/plugins/MCP/subagents/planning/approvals/sandbox/session-trace primitives into the workflow execution contract. Define normalized EnvironmentAdapter, CapabilityBinding, ResourceBinding, Observation, Action, ActionResult, and Recovery contracts.
 
+The execution/resource model must remain provider-neutral. It may later support a generic Execution Resource Provider Plane beneath `ResourceBinding`, allowing interchangeable infrastructure providers such as Codex-native/local resources, E2B, Daytona, Modal, Kubernetes, and future providers. Do not shape universal semantics around a single vendor.
+
+Codex/workflow remains authoritative for long-running agent/task orchestration. Resource persistence, snapshots, pause/resume, checkpoints, forks, and similar features are resource lifecycle capabilities, not substitutes for workflow/task semantics.
+
 **Gate:** one workflow graph can invoke multiple environment classes while preserving semantic meaning.
 
 ## M6 — Codex-native Browser Use integration
@@ -66,6 +70,8 @@ Implement GitHub forge integration first: clone/fetch, fork metadata, branches, 
 
 Implement schedules, webhooks, connector/browser/computer/workflow events, package discovery, install/configuration, resource rebinding, compatibility checks, and application-level run control.
 
+Client implementations are separate concerns from the runtime substrate. The public `openai/codex` repository contains runtime and application-protocol surfaces but is not assumed to contain every Codex product client. Web/mobile client work must use the application/client protocol and its own bounded Work Order rather than being inferred from repository absence.
+
 **Gate:** a workflow can be shared, installed, configured, scheduled, and run from the application.
 
 ## M11 — Marketplace / monetization / distribution
@@ -89,5 +95,7 @@ Use execution evidence to generate workflow, skill, plugin-binding, recovery, an
 ## M14 — Additional execution environments
 
 Add mobile, remote desktop, device control, specialized applications, robotics/IoT where practical, always through the same execution/capability/resource contracts.
+
+Before selecting a concrete infrastructure provider, evaluate multiple providers against the same resource contract. Candidate resource backends include E2B, Daytona, Modal, local/container/VM infrastructure, Kubernetes, and future providers. Provider choice must remain a runtime binding and must not leak into workflow semantics.
 
 **Gate:** new environments require adapters only; no new workflow engine or semantic protocol.
