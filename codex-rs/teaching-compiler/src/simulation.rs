@@ -301,7 +301,7 @@ mod tests {
             capabilities: Vec::new(),
             roles: Vec::new(),
             description: None,
-            next: next.map(|next| node_id(next)),
+            next: next.map(node_id),
         })
     }
 
@@ -379,7 +379,7 @@ mod tests {
             node_id("branch"),
             WorkflowIrNode::ConditionalBranch(ConditionalBranchNode {
                 arms: vec![ConditionalBranchArm {
-                    condition: condition.clone(),
+                    condition,
                     target: node_id("step-fast-path"),
                 }],
                 default: Some(node_id("step-safe-path")),

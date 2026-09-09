@@ -327,6 +327,44 @@ mod tests {
         assert!(last.next.is_none());
     }
 
+    #[test]
+    fn emits_neutral_inferences_and_binding_proposals_per_step() {
+        let mut session = TeachingSession::new(TeachingMode::Demonstrate);
+        session
+            .record(
+                RecordOrigin::Demonstration,
+                TrajectoryEvent::Action {
+                    text: "Open the list.".to_string(),
+                },
+                vec![evidence("open-list")],
+            )
+            .expect("record");
+        session.close();
+
+        let candidate = compile(&session).expect("compile");
+        assert_eq!(candidate.capability_inferences().len(), 1);
+        let hint = &candidate.capability_inferences()[0];
+        assert_eq!(hint.node_id, node_id("step-001"));
+        assert_eq!(hint.requirement_hint, "verb:open");
+        assert!(!hint.rationale.is_empty());
+
+        assert_eq!(candidate.binding_proposals().len(), 1);
+        let proposal = &candidate.binding_proposals()[0];
+        assert_eq!(proposal.node_id, node_id("step-001"));
+        assert_eq!(proposal.kind, crate::proposal::BindingKind::Capability);
+        assert_eq!(proposal.proposed_reference, "unresolved:verb:open");
+        assert!(proposal.requires_approval);
+
+        // Environment neutrality: the compiler emits unresolved references
+        // only; concrete bindings are the execution plane's decision.
+        assert!(
+            candidate
+                .binding_proposals()
+                .iter()
+                .all(|binding| binding.proposed_reference.starts_with("unresolved:"))
+        );
+    }
+
     fn len(slice: &[TeachingEvidence]) -> usize {
         slice.len()
     }

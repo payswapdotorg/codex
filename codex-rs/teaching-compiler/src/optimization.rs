@@ -232,6 +232,7 @@ mod tests {
 
     use crate::approval::ApprovalDecision;
     use crate::approval::ApprovalDecisionKind;
+    use crate::blueprint::StepOrigin;
     use crate::candidate::CandidateStatus;
     use crate::candidate::WorkflowCandidate;
     use crate::error::TeachingCompilerError;
@@ -248,7 +249,7 @@ mod tests {
             capabilities: Vec::new(),
             roles: Vec::new(),
             description: Some("authored step".to_string()),
-            next: next.map(|next| node_id(next)),
+            next: next.map(node_id),
         })
     }
 
@@ -403,5 +404,46 @@ mod tests {
         apply_optimization(&mut candidate, &proposals[0]).expect("apply");
         assert_eq!(candidate.status(), CandidateStatus::Compiled);
         assert!(candidate.approval().is_none());
+    }
+
+    #[test]
+    fn observed_steps_without_evidence_block_collapse() {
+        let mut candidate = WorkflowCandidate::from_ir(graph_with_single_child_sequence(), None)
+            .expect("candidate");
+        candidate.set_policy(allowed_policy());
+        // The compiler's own graphs are linear step chains, so a candidate
+        // with both a single-child sequence and an observed-step origin can
+        // only arrive through the public serde surface (for example a host
+        // replaying a captured candidate). Mark the collapse child as an
+        // observed step carrying no evidence: the evidence gate must block
+        // the optimization.
+        let mut value = serde_json::to_value(&candidate).expect("serialize");
+        value
+            .as_object_mut()
+            .expect("candidate serializes to an object")
+            .insert(
+                "nodeOrigins".to_string(),
+                serde_json::json!({ "step-a": "observed" }),
+            );
+        let mut candidate: WorkflowCandidate = serde_json::from_value(value).expect("deserialize");
+        assert_eq!(
+            candidate.node_origin(&node_id("step-a")),
+            Some(StepOrigin::Observed)
+        );
+        assert!(candidate.node_evidence(&node_id("step-a")).is_none());
+        let proposals = propose_optimizations(&candidate);
+        assert_eq!(proposals.len(), 1);
+        assert_eq!(
+            proposals[0].kind(),
+            OptimizationKind::CollapseSingleChildSequence
+        );
+        assert!(matches!(
+            apply_optimization(&mut candidate, &proposals[0]),
+            Err(TeachingCompilerError::OptimizationForbidden { .. })
+        ));
+        // The rejected optimization changed nothing: the candidate keeps
+        // its content epoch and graph.
+        assert_eq!(candidate.epoch(), 1);
+        assert!(candidate.ir().nodes.contains_key(&node_id("sequence-root")));
     }
 }

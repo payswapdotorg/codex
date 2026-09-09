@@ -136,6 +136,82 @@ fn annotate_last(
             reason: "a result or recovery record appeared before any demonstrated action"
                 .to_string(),
         })?;
-    last.intent = format!("{}. {}", last.intent, annotation);
+    last.intent = format!("{}. {annotation}", last.intent);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::StepOrigin;
+    use super::extract_blueprints;
+    use crate::error::TeachingCompilerError;
+    use crate::mode::TeachingMode;
+    use crate::session::TeachingSession;
+    use crate::trajectory::RecordOrigin;
+    use crate::trajectory::TrajectoryEvent;
+
+    #[test]
+    fn rejects_empty_open_and_accepts_closed_sessions() {
+        let mut session = TeachingSession::new(TeachingMode::Instruct);
+        assert!(matches!(
+            extract_blueprints(&session),
+            Err(TeachingCompilerError::EmptySession)
+        ));
+        session
+            .record(
+                RecordOrigin::Instruction,
+                TrajectoryEvent::Instruction {
+                    text: "Do it.".to_string(),
+                },
+                Vec::new(),
+            )
+            .expect("record");
+        assert!(matches!(
+            extract_blueprints(&session),
+            Err(TeachingCompilerError::SessionNotClosed)
+        ));
+        session.close();
+        let blueprints = extract_blueprints(&session).expect("blueprints");
+        assert_eq!(blueprints.len(), 1);
+        assert_eq!(blueprints[0].origin(), StepOrigin::Instructed);
+        assert_eq!(blueprints[0].intent(), "Do it.");
+    }
+
+    #[test]
+    fn rejects_sessions_with_no_compilable_steps() {
+        let mut session = TeachingSession::new(TeachingMode::Demonstrate);
+        session
+            .record(
+                RecordOrigin::Demonstration,
+                TrajectoryEvent::Note {
+                    text: "Provenance only, never a step.".to_string(),
+                },
+                Vec::new(),
+            )
+            .expect("record");
+        session.close();
+        assert!(matches!(
+            extract_blueprints(&session),
+            Err(TeachingCompilerError::NoCompilableSteps { .. })
+        ));
+    }
+
+    #[test]
+    fn rejects_outcome_records_before_any_demonstrated_action() {
+        let mut session = TeachingSession::new(TeachingMode::Demonstrate);
+        session
+            .record(
+                RecordOrigin::Demonstration,
+                TrajectoryEvent::Result {
+                    text: "An outcome with no preceding action.".to_string(),
+                },
+                Vec::new(),
+            )
+            .expect("record");
+        session.close();
+        assert!(matches!(
+            extract_blueprints(&session),
+            Err(TeachingCompilerError::InvalidEvent { .. })
+        ));
+    }
 }

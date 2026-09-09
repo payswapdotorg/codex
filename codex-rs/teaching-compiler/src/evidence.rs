@@ -104,7 +104,7 @@ mod tests {
     #[test]
     fn rejects_bad_labels_and_locators() {
         assert!(TeachingEvidence::new("", "rollout://abc", "ab".repeat(32)).is_err());
-        assert!(TeachingEvidence::new(&"x".repeat(129), "rollout://abc", "ab".repeat(32)).is_err());
+        assert!(TeachingEvidence::new("x".repeat(129), "rollout://abc", "ab".repeat(32)).is_err());
         assert!(TeachingEvidence::new("label", "", "ab".repeat(32)).is_err());
     }
 

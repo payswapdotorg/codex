@@ -121,7 +121,7 @@ mod tests {
         assert!(
             ApprovalDecision::new(
                 "tech-lead",
-                &"r".repeat(MAX_REFERENCE_BYTES + 1),
+                "r".repeat(MAX_REFERENCE_BYTES + 1),
                 ApprovalDecisionKind::Approved
             )
             .is_err()
