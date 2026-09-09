@@ -149,6 +149,7 @@ members = [
     "plugin",
     "model-provider",
     "workflow-contracts",
+    "workflow-forge",
     "browser-use-adapter",
     "teaching-compiler",
     "execution-contracts",

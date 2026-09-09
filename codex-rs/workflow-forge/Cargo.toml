@@ -1,0 +1,17 @@
+[package]
+name = "codex-workflow-forge"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Git-native workflow collaboration (WO-009): forge adapters, package and dependency-lock semantics, and explicit install and update records for the Codex universal workflow platform."
+publish = false
+
+[lib]
+name = "codex_workflow_forge"
+path = "src/lib.rs"
+
+[dependencies]
+codex-workflow-contracts = { path = "../workflow-contracts" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

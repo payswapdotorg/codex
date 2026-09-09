@@ -2526,6 +2526,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-browser-use-adapter"
+version = "0.0.0"
+dependencies = [
+ "codex-config",
+ "codex-workflow-contracts",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "codex-build-info"
 version = "0.0.0"
 dependencies = [
@@ -5234,6 +5246,16 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "uuid",
+]
+
+[[package]]
+name = "codex-workflow-forge"
+version = "0.1.0"
+dependencies = [
+ "codex-workflow-contracts",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
