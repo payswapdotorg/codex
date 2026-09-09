@@ -3,6 +3,6 @@
  "active_agents": [],
  "active_change_surfaces": [],
  "last_verified_sha": "b3a442223aa0a155b5bb3498f9b0d90b8b1897c4",
- "verification_state": "wave3-complete-8of15",
- "notes": "WAVE 3 COMPLETE. WO-006 MERGED via PR #8 (b3a442223a): chat worker patch (output-limit truncated; continuation + CodeMirror extraction) verified (38+86 tests, clippy/fmt clean; session.rs splice, string-literal joins, takeover recovery contract, clippy round). With WO-007 (PR #7) and WO-008 (PR #6): 8/15 WOs merged. All three wave-3 chat workers dispatched via the replay browser (GLM-5.3-Flash), harvested via CodeMirror editor-state extraction (DOM virtualization workaround), Tech Lead applied + independently verified + merged each. Next: WO-009 dispatch (dependency check from docs/development-state/dependency-graph.json)."
+ "verification_state": "wave3-reauth-wo006-8of15",
+ "notes": "WO-006 RE-AUTHORIZED via agents-tab audit session (wo-006-audit, GLM-5.3 + Full-Stack, operator redeployment order after the wave-3 chat-tab sessions were ruled NULL AND VOID). Audit verdict: 7/7 Required outcomes SATISFIED (file+item mapping), 0/4 forbidden violations, compile-correctness PASS (static reasoning + CI clippy gate green on 1.95.0), NO CORRECTIONS. Authoritative report: docs/development-state/reports/WO-006-audit-report.md. Live: wo-009-agents (mid-implementation, workflow-forge), wo-007-audit (auditing computer-use-adapter). Next: WO-008-audit dispatch in the freed slot; then WO-010+ per dependency graph."
 }
