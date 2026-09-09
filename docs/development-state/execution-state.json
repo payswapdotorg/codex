@@ -2,7 +2,7 @@
  "current_commit": "main",
  "active_agents": [],
  "active_change_surfaces": [],
- "last_verified_sha": "b3a442223aa0a155b5bb3498f9b0d90b8b1897c4",
- "verification_state": "wave3-reauth-wo006-8of15",
- "notes": "WO-006 RE-AUTHORIZED via agents-tab audit session (wo-006-audit, GLM-5.3 + Full-Stack, operator redeployment order after the wave-3 chat-tab sessions were ruled NULL AND VOID). Audit verdict: 7/7 Required outcomes SATISFIED (file+item mapping), 0/4 forbidden violations, compile-correctness PASS (static reasoning + CI clippy gate green on 1.95.0), NO CORRECTIONS. Authoritative report: docs/development-state/reports/WO-006-audit-report.md. Live: wo-009-agents (mid-implementation, workflow-forge), wo-007-audit (auditing computer-use-adapter). Next: WO-008-audit dispatch in the freed slot; then WO-010+ per dependency graph."
+ "last_verified_sha": "wo-009/workflow-forge@25a4162 merged via PR #9 (squash)",
+ "verification_state": "wo009-merged-9of15",
+ "notes": "WO-009 MERGED via PR #9: workflow-forge leaf crate (git-native workflow collaboration) delivered via the wo-009-agents agents-tab session (GLM-5.3 + Full-Stack, session /c/23a808db-141d-4045-aaba-3e3ae6bdb69c) \u2014 the authoritative work record. Multi-turn delivery recovered via continuation messages + CodeMirror extraction with scroll sweep; github.rs block-cap truncation spliced from a line-630 tail delivery. Tech Lead verification: 44/44 crate tests, clippy 0 warnings, fmt clean, 86/86 contracts regression, secrets sweep clean; Tech Lead fixes: genesis commit on unborn default branch, snake_case dependency ids, serde shapes (SemanticVersion, ForkLineage), move-after-move in tests. Live: wo-007-audit (computer-use-adapter audit, generating); wo-008-audit dispatched (tab lost \u2014 re-dispatch pending check). Next: WO-010+ per dependency graph."
 }
