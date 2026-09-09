@@ -1,0 +1,28 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "codex-workflow-app"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+doctest = false
+name = "codex_workflow_app"
+path = "src/lib.rs"
+
+[dependencies]
+codex-browser-use-adapter = { path = "../browser-use-adapter" }
+codex-computer-use-adapter = { path = "../computer-use-adapter" }
+codex-execution-contracts = { path = "../execution-contracts" }
+codex-teaching-compiler = { path = "../teaching-compiler" }
+codex-workflow-contracts = { path = "../workflow-contracts" }
+codex-workflow-forge = { path = "../workflow-forge" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
