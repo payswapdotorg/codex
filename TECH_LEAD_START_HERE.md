@@ -187,6 +187,12 @@ INVARIANTS
 - Credentials never enter source, prompts, ordinary logs, or workflow semantic state.
 - Reuse Codex approvals, sandboxing, skills, plugins, MCP, subagents, planning, sessions, worktrees, and tracing where applicable.
 
+RESOURCE PROVIDER RULE
+Treat E2B, Daytona, Modal, local infrastructure, Kubernetes, and similar systems as optional execution-resource providers only. Do not introduce provider-specific workflow semantics. Codex/workflow owns long-running/background agent orchestration; provider persistence, snapshots, pause/resume, checkpoints, or forks are resource lifecycle capabilities, not task semantics. When a provider abstraction is needed, prove it against at least two implementations rather than designing around a single vendor.
+
+CLIENT BOUNDARY RULE
+Do not infer that the public openai/codex repository must contain every Codex client product. Runtime/application-protocol surfaces and client products may be separate. Do not create web/mobile client scope inside an unrelated Work Order; use the existing application/client protocol and a separate bounded Work Order where appropriate.
+
 IMPLEMENTATION
 1. Audit first.
 2. Write the smallest coherent implementation.
@@ -316,6 +322,8 @@ Known reusable surfaces include:
 - approvals/sandbox/policy
 - sessions/rollouts/tracing
 - remote control
+- app-server/application protocol surfaces
+- existing background/long-running task infrastructure
 
 The `docs/architecture/CODEX-CAPABILITY-IMPLEMENTATION-MAP.md` is a guide, not a substitute for source inspection. The exact current tree is authoritative.
 
@@ -352,6 +360,8 @@ Do not pause between milestones waiting for operator confirmation. Do not ask th
 
 When a worker fails, first inspect the evidence, then retry/reassign/split autonomously. A failed worker does not pause unrelated tracks.
 
+A parked advisory or future Work Order must not be treated as a dependency simply because it appears in architecture documentation. In particular, the resource-provider advisory/WO-016 remains non-blocking until the Tech Lead explicitly activates it after the appropriate roadmap boundary.
+
 ## 16. Definition of program completion
 
 The program is complete only when the roadmap gates through M14 are satisfied and the resulting implementation demonstrates:
@@ -366,7 +376,8 @@ The program is complete only when the roadmap gates through M14 are satisfied an
 - scheduling, triggers, sharing, installation, distribution and monetization;
 - reproducible evaluation and upstream compatibility evidence;
 - governed learning/evolution that creates new versions rather than silent mutation;
-- additional environments through adapters without semantic redesign.
+- additional environments through adapters without semantic redesign;
+- provider-neutral resource selection where infrastructure providers are used.
 
 ## 17. Final rule
 
