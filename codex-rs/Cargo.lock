@@ -5276,6 +5276,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-workflow-triggers"
+version = "0.0.0"
+dependencies = [
+ "codex-browser-use-adapter",
+ "codex-computer-use-adapter",
+ "codex-execution-contracts",
+ "codex-teaching-compiler",
+ "codex-workflow-app",
+ "codex-workflow-contracts",
+ "codex-workflow-forge",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "codex-workload-identity"
 version = "0.0.0"
 dependencies = [

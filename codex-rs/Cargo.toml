@@ -154,6 +154,7 @@ members = [
     "teaching-compiler",
     "execution-contracts",
     "workflow-app",
+    "workflow-triggers",
 ]
 resolver = "2"
 
