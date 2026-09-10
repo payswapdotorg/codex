@@ -155,6 +155,7 @@ members = [
     "execution-contracts",
     "workflow-app",
     "workflow-triggers",
+    "env-adapters",
 ]
 resolver = "2"
 
