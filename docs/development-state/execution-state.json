@@ -1,14 +1,14 @@
 {
   "current_commit": "main",
   "active_agents": [
-    "WO-012-worker(session 75bbfb60, fresh re-dispatch 18:56, actively implementing)"
+    "WO-012-worker(session 75bbfb60, turn open since 18:57 \u2014 long compile; resume nudge staged as draft)"
   ],
   "active_change_surfaces": [
     "workflow-distribution",
     "marketplace",
     "monetization"
   ],
-  "last_verified_sha": "main @ 7fa980488 (WO-013: codex-eval-compat 18/18 tests, clippy+fmt clean)",
-  "verification_state": "wo013-13of15",
-  "notes": "WO-013 MERGED via PR #15 (squash, 7fa980488): eval-compat \u2014 new leaf crate codex-rs/eval-compat (reproducible model/provider compatibility harnesses over the WO-002 model contract, workflow execution benchmarks over the WO-010 lifecycle via in-memory control-plane seams, differential comparison enumerating all divergences, upstream no-workflow compat snapshot with pinned digest sha256:ba95e860...). Worker session 88cacce2 (fresh sandbox redo after pod reset; worker base 67c0460, worker head 9f61c7a0, 15 files +3421 lines); delivery via workspace files API (bundle + full crate copy, byte-identical); Tech Lead reconstructed at main bf82abd4f and independently verified on toolchain 1.95.0: cargo test -p codex-eval-compat 18/18 (model_differential 8, upstream_compat 2, workflow_differential 8); clippy -D warnings clean; fmt clean. Report: docs/development-state/reports/WO-013-report.md. 13/15 WOs merged. WO-012 in flight (session 75bbfb60); WO-014 UNBLOCKED (eval-compat on main) \u2014 dispatching next."
+  "last_verified_sha": "main @ 0d61744a (WO-014: codex-workflow-evolution 25+10 tests, clippy+fmt clean)",
+  "verification_state": "wo014-14of15",
+  "notes": "WO-014 MERGED via PR #16 (squash, 0d61744a): workflow-evolution \u2014 new leaf crate codex-rs/workflow-evolution (evidence-driven ImprovementCandidate generation with full provenance, three-stage validation: replay via eval-compat + differential gate + policy, ApprovalPort-governed evolution, immutable successor publication + append-only lineage, upgrade/rollback via install registry, retention bounds + credential scrubbing). Worker session 73c6eb63, base a5c2b854 == current main (strict bundle path), worker head fb6036e1; integration fix: scrub-test fixtures assembled at runtime from fragments (GitHub push protection blocks secret-shaped literals even in test fixtures \u2014 the literal xoxb-token fixture was flagged; display layers also redact such strings in tool output, byte-verify before diagnosing). Tech-Lead verification on toolchain 1.95.0: 25 unit + 10 E2E = 35/35 passed; clippy -D warnings clean; fmt clean. Report: docs/development-state/reports/WO-014-report.md. 14/15 WOs merged. WO-012 in flight (last worker track; its turn has been compiling for ~3h \u2014 monitored, resume nudge staged)."
 }

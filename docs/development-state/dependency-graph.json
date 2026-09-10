@@ -142,7 +142,7 @@
       ]
     },
     "WO-014": {
-      "status": "ready",
+      "status": "merged",
       "depends_on": [
         "WO-010",
         "WO-013"
