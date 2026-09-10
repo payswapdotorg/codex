@@ -2,7 +2,7 @@
  "current_commit": "main",
  "active_agents": [],
  "active_change_surfaces": [],
- "last_verified_sha": "main @ 5db631b (WO-010: workflow-app 3+11 tests, clippy+fmt clean)",
- "verification_state": "wo010-10of15",
- "notes": "WO-010 MERGED via PR #12 (squash, commit 5db631b): workflow application integration + e2e runtime — new leaf crate codex-rs/workflow-app (17 files, +5,087 lines) wiring frozen WO-006..009 contracts into lifecycle/port/run. Independent verification on real toolchain 1.95.0: cargo test -p codex-workflow-app 3 unit + 11 E2E all green; clippy -D warnings clean; fmt clean. Worker session 5f2cf05c recovered from a silent stream stall (3.5h frozen mid-generation) via in-session continuation nudge — work preserved, no re-dispatch needed; workspace delivered via the agents Download archive (263MB tar.gz) after sandbox disk cleanup (cargo target removal). Report: docs/development-state/reports/WO-010-report.md. 10/15 WOs merged (WO-001..010). WO-011..015 now UNBLOCKED — dispatch wave 4 (max 3 concurrent)."
+ "last_verified_sha": "main @ 9bd959d3b118 (WO-011: codex-workflow-triggers 9+14 tests, clippy+fmt clean)",
+ "verification_state": "wo011-11of15",
+ "notes": "WO-011 MERGED via PR #13 (squash, 9bd959d3b118): workflow-triggers \u2014 new leaf crate codex-rs/workflow-triggers. Independent verification on real toolchain 1.95.0: cargo test -p codex-workflow-triggers 9+14 tests green; clippy -D warnings clean; fmt clean. Delivered via git-bundle in the workspace archive (head 388b5fc8018b, base 67c0460ae168). Report: docs/development-state/reports/WO-011-report.md. 11/15 WOs merged."
 }
