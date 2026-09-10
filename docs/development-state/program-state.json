@@ -1,28 +1,28 @@
 {
-  "program": "codex-universal",
-  "architecture_version": "0.2.0",
-  "architecture_status": "frozen",
-  "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
-  "current_milestone": "M1",
-  "current_phase": "wave-3-runtime-adapters-and-binding",
-  "active_work_order": null,
-  "parallel_work_order": null,
-  "main_branch": "main",
-  "bootstrap_branch": "architecture/bootstrap",
-  "gates": {
-    "upstream_behavior_preserved": true,
-    "universal_model_abi_frozen": true,
-    "workflow_repository_contract_frozen": true,
-    "execution_adapter_contract_frozen": true,
-    "codex_native_browser_bridge_verified": false,
-    "codex_native_computer_bridge_verified": false,
-    "initial_integration_tests_green": false
-  },
-  "rules": [
-    "architecture changes require an Architecture Change Request",
-    "implementation work requires a bounded Work Order",
-    "verification evidence must identify an exact commit SHA",
-    "workflow execution pins immutable workflow source and dependency identities",
-    "stale agent reports are not authoritative"
-  ]
+ "program": "codex-universal",
+ "architecture_version": "0.2.0",
+ "architecture_status": "frozen",
+ "base_sha": "4b0d9669cc46ba97bf85fa6312431b630d80498d",
+ "current_milestone": "M11-M14 wave (distribution, evaluation, environments)",
+ "current_phase": "wave-6-distribution-evaluation-and-environments",
+ "active_work_order": "WO-012",
+ "parallel_work_order": "WO-013",
+ "main_branch": "main",
+ "bootstrap_branch": "architecture/bootstrap",
+ "gates": {
+  "upstream_behavior_preserved": true,
+  "universal_model_abi_frozen": true,
+  "workflow_repository_contract_frozen": true,
+  "execution_adapter_contract_frozen": true,
+  "codex_native_browser_bridge_verified": true,
+  "codex_native_computer_bridge_verified": true,
+  "initial_integration_tests_green": true
+ },
+ "rules": [
+  "architecture changes require an Architecture Change Request",
+  "implementation work requires a bounded Work Order",
+  "verification evidence must identify an exact commit SHA",
+  "workflow execution pins immutable workflow source and dependency identities",
+  "stale agent reports are not authoritative"
+ ]
 }
