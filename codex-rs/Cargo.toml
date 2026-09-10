@@ -157,6 +157,7 @@ members = [
     "workflow-triggers",
     "env-adapters",
     "eval-compat",
+    "workflow-evolution",
 ]
 resolver = "2"
 
