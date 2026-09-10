@@ -5304,6 +5304,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-workflow-evolution"
+version = "0.0.0"
+dependencies = [
+ "codex-eval-compat",
+ "codex-execution-contracts",
+ "codex-workflow-app",
+ "codex-workflow-contracts",
+ "codex-workflow-forge",
+ "codex-workflow-triggers",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "codex-workflow-forge"
 version = "0.1.0"
 dependencies = [
