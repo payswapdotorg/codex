@@ -1,0 +1,31 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "codex-eval-compat"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "codex_eval_compat"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+codex-execution-contracts = { path = "../execution-contracts" }
+codex-model-contract = { path = "../model-contract" }
+codex-model-provider = { path = "../model-provider" }
+codex-protocol = { workspace = true }
+codex-teaching-compiler = { path = "../teaching-compiler" }
+codex-workflow-app = { path = "../workflow-app" }
+codex-workflow-contracts = { path = "../workflow-contracts" }
+codex-workflow-forge = { path = "../workflow-forge" }
+futures = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }
