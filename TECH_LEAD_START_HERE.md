@@ -34,9 +34,11 @@ Before dispatching any worker, the Tech Lead MUST:
 5. Read `docs/architecture/CODEX-CAPABILITY-IMPLEMENTATION-MAP.md`.
 6. Read `docs/implementation-roadmap.md`.
 7. Read `docs/development-state/README.md`, `program-state.json`, `dependency-graph.json`, and `execution-state.json`.
-8. Inspect the actual branch/ref and latest history. Never trust a previous SHA, chat transcript, or worker report as current truth.
-9. Read the complete active Work Order(s), including forbidden changes and acceptance criteria.
-10. Inspect the exact current Codex implementation relevant to the Work Order before assigning implementation.
+8. Read `docs/validation/README.md`, `docs/validation/VALIDATION-PROGRAM.md`, `docs/validation/validation-dependency-graph.json`, and all validation Work Orders that are currently READY/DISPATCHED.
+9. Read the canonical prompts under `docs/validation/prompts/` when taking over or resuming the final completion/validation program.
+10. Inspect the actual branch/ref and latest history. Never trust a previous SHA, chat transcript, or worker report as current truth.
+11. Read the complete active Work Order(s), including forbidden changes and acceptance criteria.
+12. Inspect the exact current Codex implementation relevant to the Work Order before assigning implementation.
 
 If any document is stale, reconcile it to live repository truth as part of normal program-state maintenance. Do not stop merely because a state file is behind the source tree.
 
@@ -270,38 +272,9 @@ No additional person is required to click approve once these deterministic condi
 
 Use dependency order, not roadmap excitement.
 
-### First executable wave
+The original implementation roadmap is now historically complete through WO-015, subject to the architect's durable M4 remediation finding. Do not treat the old `WO-010` merge alone as proof that M4 is production-complete.
 
-The bootstrap has already been merged. Dispatch immediately when the Tech Lead starts:
-
-- `WO-002` Universal Model Contract
-- `WO-003` Git-Native Workflow Contracts
-
-These may proceed in parallel because their surfaces are disjoint.
-
-### Second wave
-
-After `WO-002`:
-
-- `WO-004` Provider Portability
-
-After `WO-003`:
-
-- `WO-005` Multi-Environment Execution Contract
-
-### Third wave
-
-After `WO-005`:
-
-- `WO-006` Browser Use
-- `WO-007` Computer Use
-
-After `WO-003` + `WO-005`:
-
-- `WO-008` Teaching/Compiler
-- `WO-009` Composition/Git Forge
-
-Continue strictly from `docs/development-state/dependency-graph.json`; do not manually reorder dependencies just to increase parallelism.
+The next implementation priority is the bounded durable-control-plane remediation program defined by the active Work Orders created by the Tech Lead. After M4 is green, proceed automatically into the validation program below.
 
 ## 12. Codex capability reuse rule
 
@@ -362,7 +335,28 @@ When a worker fails, first inspect the evidence, then retry/reassign/split auton
 
 A parked advisory or future Work Order must not be treated as a dependency simply because it appears in architecture documentation. In particular, the resource-provider advisory/WO-016 remains non-blocking until the Tech Lead explicitly activates it after the appropriate roadmap boundary.
 
-## 16. Definition of program completion
+## 16. Mandatory human-workflow validation program
+
+After the durable-control-plane remediation reaches the point where the application can be exercised reliably, the Tech Lead MUST execute the repository-native human-workflow validation program:
+
+- Read `docs/validation/VALIDATION-PROGRAM.md`.
+- Read `docs/validation/validation-dependency-graph.json`.
+- Execute validation Work Orders `VWO-001` through `VWO-010` strictly by dependency order.
+- Maximum three workers concurrently.
+- Prefer E2B desktop-capable proving grounds provisioned through the connected Composio/E2B integration.
+- Build/use realistic synthetic enterprise applications rather than depending on unstable external SaaS.
+- Use the real application as a human would. Do not substitute internal Rust calls when a product pathway exists.
+- Exercise DEMONSTRATE, INSTRUCT and HYBRID teaching modes.
+- Exercise construction, software/technology, ride-share, media and marketplace workflows.
+- Exercise creation, compilation, approval, publication, installation, scheduling, triggers, execution, recovery, upgrades, rollback and governed evolution.
+- Deliberately test restart/session-loss, duplicate triggers, provider/environment failures, malicious external content, credential exfiltration, authorization races, version confusion, cancellation races and marketplace entitlement races.
+- Record product/UX friction and missing product surfaces, not merely code failures.
+- Every P0/P1 finding becomes a bounded remediation Work Order; after its fix is accepted, rerun the original failing scenario.
+- Push every plan, Work Order, report, evidence summary, remediation and final conclusion to GitHub.
+
+Do not declare the product final because the historical graph says `15/15` Work Orders are merged. The product is final only when the durable control-plane gate and the human-workflow validation program are green.
+
+## 17. Definition of program completion
 
 The program is complete only when the roadmap gates through M14 are satisfied and the resulting implementation demonstrates:
 
@@ -377,10 +371,15 @@ The program is complete only when the roadmap gates through M14 are satisfied an
 - reproducible evaluation and upstream compatibility evidence;
 - governed learning/evolution that creates new versions rather than silent mutation;
 - additional environments through adapters without semantic redesign;
-- provider-neutral resource selection where infrastructure providers are used.
+- provider-neutral resource selection where infrastructure providers are used;
+- demonstrated human workflow creation and execution across realistic application ecosystems;
+- restart/session-loss resilience and durable workflow recovery;
+- no unresolved P0/P1 product, security or architecture findings.
 
-## 17. Final rule
+## 18. Final rule
 
 **The Tech Lead is fully autonomous in execution.**
 
-Optimize execution aggressively. Do not optimize away the architecture, the security invariants, the evidence requirements, or the dependency graph.
+Optimize execution aggressively. Do not optimize away the architecture, the security invariants, the evidence requirements, the human-workflow validation program, or the dependency graphs.
+
+The operator must not need to repost either the final-completion prompt or the human-workflow validation prompt. Their repository-native forms live under `docs/validation/prompts/` and their executable program is `docs/validation/VALIDATION-PROGRAM.md`.
