@@ -99,6 +99,7 @@ use codex_workflow_app::ComputerUseEnvironmentAdapter;
 use codex_workflow_app::InMemoryApprovalSource;
 use codex_workflow_app::InMemoryEvidenceStore;
 use codex_workflow_app::InMemoryInstanceStore;
+use codex_workflow_app::InMemoryRunPositionStore;
 use codex_workflow_app::InMemoryVersionStore;
 use codex_workflow_app::InstantiateRequest;
 use codex_workflow_app::LifecycleDeps;
@@ -623,6 +624,7 @@ struct Harness {
     approvals: InMemoryApprovalSource,
     actions: ScriptedActionSource,
     events: RecordingEventSink,
+    positions: InMemoryRunPositionStore,
     browser: Arc<BrowserUseEnvironmentAdapter>,
     computer: Arc<ComputerUseEnvironmentAdapter>,
     browser_executor: Arc<ScriptedBrowserExecutor>,
@@ -674,15 +676,19 @@ fn harness(
     let approvals = InMemoryApprovalSource::approving("tech-lead", evidence.clone());
     let actions = ScriptedActionSource::new(action_script);
     let events = RecordingEventSink::new();
-    let lifecycle = WorkflowLifecycle::new(LifecycleDeps {
-        versions: Box::new(versions.clone()),
-        instances: Box::new(instances.clone()),
-        evidence: Box::new(evidence.clone()),
-        approvals: Box::new(approvals.clone()),
-        actions: Box::new(actions.clone()),
-        events: Box::new(events.clone()),
-        registry,
-    });
+    let positions = InMemoryRunPositionStore::new();
+    let lifecycle = WorkflowLifecycle::with_positions(
+        LifecycleDeps {
+            versions: Box::new(versions.clone()),
+            instances: Box::new(instances.clone()),
+            evidence: Box::new(evidence.clone()),
+            approvals: Box::new(approvals.clone()),
+            actions: Box::new(actions.clone()),
+            events: Box::new(events.clone()),
+            registry,
+        },
+        Box::new(positions.clone()),
+    );
     Harness {
         lifecycle,
         versions,
@@ -691,6 +697,7 @@ fn harness(
         approvals,
         actions,
         events,
+        positions,
         browser,
         computer,
         browser_executor,
@@ -1426,6 +1433,74 @@ fn await_signoff_artifact() -> PublishedArtifact {
     artifact
 }
 
+/// Publishes the control-plane-authored resumable await-signoff
+/// workflow: a browser step, a wait for a human trigger event, then a
+/// desktop step — so a resume continues past the pause point and the
+/// continued step dispatches through a real environment adapter. The
+/// teaching compiler still gates publication (validation, simulation,
+/// approval, digest-pinned finalization).
+fn resumable_signoff_artifact() -> PublishedArtifact {
+    let mut nodes = BTreeMap::new();
+    nodes.insert(
+        node_id("step-001"),
+        WorkflowIrNode::Step(StepNode {
+            capabilities: Vec::new(),
+            roles: Vec::new(),
+            description: Some("prepare the triage report".to_string()),
+            next: Some(node_id("wait-signoff")),
+        }),
+    );
+    nodes.insert(
+        node_id("wait-signoff"),
+        WorkflowIrNode::Wait(WaitNode {
+            wait_for: WaitFor::Trigger(TriggerClass::HumanEvent),
+            next: Some(node_id("step-002")),
+        }),
+    );
+    nodes.insert(
+        node_id("step-002"),
+        WorkflowIrNode::Step(StepNode {
+            capabilities: Vec::new(),
+            roles: Vec::new(),
+            description: Some("paste the summary into the tracker app".to_string()),
+            next: None,
+        }),
+    );
+    let ir = WorkflowIr {
+        ir_format: IR_FORMAT_VERSION,
+        entry: node_id("step-001"),
+        nodes,
+        conditions: BTreeMap::new(),
+    };
+    let mut candidate = WorkflowCandidate::from_ir(
+        ir,
+        Some("authored resumable await-signoff workflow".to_string()),
+    )
+    .expect("candidate");
+    let summary = candidate.validate().expect("validate");
+    assert!(summary.is_clean());
+    candidate
+        .simulate(SimulationConfig::default())
+        .expect("simulate");
+    candidate
+        .approve(
+            ApprovalDecision::new("tech-lead", "review-resume", ApprovalDecisionKind::Approved)
+                .expect("decision"),
+        )
+        .expect("approve");
+    let approved = candidate
+        .finalize(WorkflowDefinitionId::parse("await-signoff-resumable").expect("definition id"))
+        .expect("finalize");
+    let (artifact, _installs) = publish_with(
+        approved,
+        WorkflowDefinitionId::parse("await-signoff-resumable").expect("definition id"),
+        "v1.0.0",
+        (1, 0, 0),
+        step_bindings(),
+    );
+    artifact
+}
+
 #[tokio::test]
 async fn wait_node_pauses_the_running_instance() {
     let artifact = await_signoff_artifact();
@@ -1749,4 +1824,231 @@ async fn settled_instances_are_immutable_under_cancel() {
             .status,
         WorkflowInstanceStatus::Failed
     );
+}
+
+/// Performs the control-plane `Paused -> Running` transition on the
+/// store directly: the test plays the host's `InstanceControl` seam,
+/// exactly the resume the trigger plane drives.
+fn control_plane_resumes(harness: &mut Harness, instance: &WorkflowInstanceId) {
+    let mut record = harness
+        .instances
+        .load(instance)
+        .expect("load record")
+        .expect("stored record");
+    record.status = WorkflowInstanceStatus::Running;
+    harness.instances.save(record).expect("resume record");
+}
+
+#[tokio::test]
+async fn resumed_run_continues_past_the_wait_node_and_completes() {
+    let artifact = resumable_signoff_artifact();
+
+    let mut harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Allow,
+        Vec::new(),
+    );
+    let outcome = run_installed(&mut harness, &artifact).await;
+
+    // The run paused at the wait node: the browser step executed, the
+    // desktop step did not.
+    assert_eq!(
+        outcome.terminal,
+        RunTerminal::Paused {
+            node: node_id("wait-signoff"),
+            reason: "wait".to_string(),
+        }
+    );
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Paused);
+    let instance = outcome.instance.instance_id;
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 1);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 0);
+
+    // The pause checkpoint holds the pending re-entry point.
+    let position = harness
+        .positions
+        .position(&instance)
+        .expect("position persisted at the pause checkpoint");
+    assert_eq!(position.walk.current, Some(node_id("step-002")));
+
+    // The control plane resumes; the lifecycle rehydrates from the
+    // durable records and continues the walk from the persisted step.
+    control_plane_resumes(&mut harness, &instance);
+    let outcome = harness
+        .lifecycle
+        .resume_run(&instance)
+        .await
+        .expect("resume continuation");
+
+    assert_eq!(outcome.terminal, RunTerminal::Completed);
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Succeeded);
+    assert_eq!(
+        outcome.path,
+        vec![
+            node_id("step-001"),
+            node_id("wait-signoff"),
+            node_id("step-002")
+        ]
+    );
+    // The completed browser step did not re-execute; the post-pause
+    // desktop step dispatched exactly once.
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 1);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 1);
+    // The terminal settlement discarded the position, the resume was
+    // observable, and the durable records still verify end to end.
+    assert!(harness.positions.position(&instance).is_none());
+    assert!(harness.events.events().iter().any(|event| matches!(
+        event,
+        WorkflowEvent::RunResumed {
+            node: Some(pending),
+            ..
+        } if *pending == node_id("step-002")
+    )));
+    let verified = harness.lifecycle.verify_run(&instance).expect("verify run");
+    assert_eq!(verified.instance.status, WorkflowInstanceStatus::Succeeded);
+    verify_evidence(&harness, &verified);
+}
+
+#[tokio::test]
+async fn startup_reconciliation_recovers_an_orphaned_running_record() {
+    let artifact = resumable_signoff_artifact();
+
+    let mut harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Allow,
+        Vec::new(),
+    );
+
+    // "Process 1": publish, select, instantiate — then the application
+    // dies before the run executes anything. The store keeps the
+    // post-crash signature: a `Running` record with no live run
+    // anywhere, and the start checkpoint's persisted position.
+    harness
+        .versions
+        .publish(artifact.version.clone())
+        .expect("store version");
+    harness
+        .lifecycle
+        .select_version(&artifact.version.version_id)
+        .expect("select version");
+    let instance = harness
+        .lifecycle
+        .instantiate(InstantiateRequest {
+            trigger: None,
+            policy: BindingPolicy::default(),
+            resources: resources(),
+            walk: WalkConfig::default(),
+        })
+        .await
+        .expect("instantiate");
+    assert_eq!(instance.status, WorkflowInstanceStatus::Running);
+    let instance = instance.instance_id;
+    assert!(
+        harness.positions.position(&instance).is_some(),
+        "the start checkpoint persisted the position"
+    );
+
+    // "Process 2" (restart): a fresh lifecycle over the same stores, a
+    // fresh registry over the same scripted executors, and a fresh
+    // approval source — nothing in-flight from the first process
+    // survives.
+    let mut registry = CapabilityRegistry::new();
+    registry
+        .register_adapter(harness.browser.clone())
+        .expect("register browser adapter");
+    registry
+        .register_adapter(harness.computer.clone())
+        .expect("register computer adapter");
+    let events = RecordingEventSink::new();
+    let evidence = harness.evidence.clone();
+    let mut lifecycle = WorkflowLifecycle::with_positions(
+        LifecycleDeps {
+            versions: Box::new(harness.versions.clone()),
+            instances: Box::new(harness.instances.clone()),
+            evidence: Box::new(evidence.clone()),
+            approvals: Box::new(InMemoryApprovalSource::approving("tech-lead", evidence)),
+            actions: Box::new(harness.actions.clone()),
+            events: Box::new(events.clone()),
+            registry,
+        },
+        Box::new(harness.positions.clone()),
+    );
+
+    // The sweep: the orphaned `Running` record recovers to `Paused`
+    // with recovery evidence, and the sweep is idempotent.
+    let evidence_before = harness
+        .instances
+        .load(&instance)
+        .expect("load record")
+        .expect("running record")
+        .evidence
+        .len();
+    let reconciled = lifecycle
+        .reconcile_startup(&harness.instances.records())
+        .expect("sweep");
+    assert_eq!(reconciled, vec![instance]);
+    let recovered = harness
+        .instances
+        .load(&instance)
+        .expect("load record")
+        .expect("reconciled record");
+    assert_eq!(recovered.status, WorkflowInstanceStatus::Paused);
+    assert_eq!(
+        recovered.evidence.len(),
+        evidence_before + 1,
+        "the sweep appends exactly one recovery trace"
+    );
+    assert!(
+        events
+            .events()
+            .iter()
+            .any(|event| matches!(event, WorkflowEvent::InstanceReconciled { .. }))
+    );
+    assert!(
+        lifecycle
+            .reconcile_startup(&harness.instances.records())
+            .expect("second sweep")
+            .is_empty(),
+        "the second sweep is a no-op"
+    );
+
+    // The host resumes through the control plane; the lifecycle
+    // continues from the persisted start position (the crash happened
+    // before any step executed), so the first resume runs the browser
+    // step and pauses again at the wait.
+    control_plane_resumes(&mut harness, &instance);
+    let outcome = lifecycle.resume_run(&instance).await.expect("resume");
+    assert_eq!(
+        outcome.terminal,
+        RunTerminal::Paused {
+            node: node_id("wait-signoff"),
+            reason: "wait".to_string(),
+        }
+    );
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Paused);
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 1);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 0);
+
+    // A second resume cycle completes the run through the real desktop
+    // adapter — the full crash-recovery loop closed.
+    control_plane_resumes(&mut harness, &instance);
+    let outcome = lifecycle.resume_run(&instance).await.expect("resume");
+    assert_eq!(outcome.terminal, RunTerminal::Completed);
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Succeeded);
+    assert_eq!(
+        outcome.path,
+        vec![
+            node_id("step-001"),
+            node_id("wait-signoff"),
+            node_id("step-002")
+        ]
+    );
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 1);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 1);
+    assert!(harness.positions.position(&instance).is_none());
+    let verified = harness.lifecycle.verify_run(&instance).expect("verify run");
+    assert_eq!(verified.instance.status, WorkflowInstanceStatus::Succeeded);
+    verify_evidence(&harness, &verified);
 }

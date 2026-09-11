@@ -37,6 +37,8 @@ use crate::port::ActionRequest;
 use crate::port::ApprovalSource;
 use crate::port::EventSink;
 use crate::port::EvidenceStore;
+use crate::port::RunPosition;
+use crate::port::RunPositionStore;
 use crate::port::StepActionSource;
 use crate::port::WorkflowInstanceStore;
 use crate::port::WorkflowVersionStore;
@@ -142,6 +144,60 @@ impl WorkflowInstanceStore for InMemoryInstanceStore {
         instance: &WorkflowInstanceId,
     ) -> Result<Option<WorkflowInstance>, WorkflowAppError> {
         Ok(self.lock().get(instance).cloned())
+    }
+}
+
+/// In-memory persisted run positions: the double for the
+/// [`RunPositionStore`] seam.
+///
+/// Clones share the same backing records, so tests and hosts audit the
+/// positions the lifecycle persists while the lifecycle owns the boxed
+/// port.
+#[derive(Clone, Debug, Default)]
+pub struct InMemoryRunPositionStore {
+    state: Arc<Mutex<BTreeMap<WorkflowInstanceId, RunPosition>>>,
+}
+
+impl InMemoryRunPositionStore {
+    /// Creates an empty store.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Number of persisted positions.
+    pub fn len(&self) -> usize {
+        self.lock().len()
+    }
+
+    /// Whether no position is persisted.
+    pub fn is_empty(&self) -> bool {
+        self.lock().is_empty()
+    }
+
+    /// Snapshot of the persisted position for `instance`, when present
+    /// (audit convenience).
+    pub fn position(&self, instance: &WorkflowInstanceId) -> Option<RunPosition> {
+        self.lock().get(instance).cloned()
+    }
+
+    fn lock(&self) -> MutexGuard<'_, BTreeMap<WorkflowInstanceId, RunPosition>> {
+        self.state.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+}
+
+impl RunPositionStore for InMemoryRunPositionStore {
+    fn save(&mut self, position: RunPosition) -> Result<(), WorkflowAppError> {
+        self.lock().insert(position.instance, position);
+        Ok(())
+    }
+
+    fn load(&self, instance: &WorkflowInstanceId) -> Result<Option<RunPosition>, WorkflowAppError> {
+        Ok(self.lock().get(instance).cloned())
+    }
+
+    fn discard(&mut self, instance: &WorkflowInstanceId) -> Result<(), WorkflowAppError> {
+        self.lock().remove(instance);
+        Ok(())
     }
 }
 

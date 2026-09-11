@@ -67,6 +67,42 @@ pub enum WorkflowAppError {
         /// The refused target status.
         target: WorkflowInstanceStatus,
     },
+    /// A resume continuation was attempted for an instance whose record
+    /// is not `Running`: the explicit control-plane `Paused -> Running`
+    /// transition (the [`InstanceControl`] seam of the trigger plane) has
+    /// not happened, and resume continuation never performs it —
+    /// auto-resume without an explicit control-plane transition is
+    /// forbidden.
+    ///
+    /// [`InstanceControl`]: codex_workflow_triggers::InstanceControl
+    #[error(
+        "workflow instance `{instance}` is `{current:?}`; resume continuation requires the explicit control-plane `Paused -> Running` transition"
+    )]
+    InstanceNotRunning {
+        /// The instance whose continuation was refused.
+        instance: String,
+        /// The instance's current status.
+        current: WorkflowInstanceStatus,
+    },
+    /// The persisted run position required to continue a resumed run is
+    /// not available: the lifecycle has no run-position store attached,
+    /// the store holds no position for the instance, or the persisted
+    /// position disagrees with the instance record's version pin.
+    #[error("run position for instance `{instance}` is unavailable: {reason}")]
+    RunPositionUnavailable {
+        /// The instance whose position was requested.
+        instance: String,
+        /// Why the position is unavailable.
+        reason: String,
+    },
+    /// A resumed run cannot be rehydrated while this lifecycle still
+    /// holds another active run: dropping an in-flight run silently
+    /// would strand a `Running` record exactly like a crash.
+    #[error("an active run is already held by this lifecycle for instance `{instance}`")]
+    ActiveRunHeld {
+        /// The instance of the held active run.
+        instance: String,
+    },
     /// Capability resolution or planning failed with a structured
     /// execution-plane diagnostic.
     #[error("binding plan failed: {code:?}: {message}")]

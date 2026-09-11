@@ -1,18 +1,20 @@
-//! Durable control-plane stores (MWO-001).
+//! Durable control-plane stores (MWO-001, extended by MWO-003).
 //!
 //! This crate is the **durable backing** of the workflow control plane:
-//! file-backed implementations of the six existing store ports so
-//! workflow versions, instance records, evidence, trigger idempotency,
-//! installations, and resume directives survive process restart. It
-//! implements the ports exactly as the in-memory doubles define their
-//! observable behavior — no new semantics, no second engine, no host
-//! integration beyond the stores themselves.
+//! file-backed implementations of the store ports so workflow versions,
+//! instance records, evidence, trigger idempotency, installations,
+//! resume directives, and the persisted run positions of active runs
+//! survive process restart. It implements the ports exactly as the
+//! in-memory doubles define their observable behavior — no new
+//! semantics, no second engine, no host integration beyond the stores
+//! themselves.
 //!
 //! ```text
 //! workflow-contracts (WO-003)  -> frozen records: versions, instances,
 //!                                 evidence references, digests
-//! workflow-app (WO-010)        -> ports: WorkflowVersionStore,
-//!                                 WorkflowInstanceStore, EvidenceStore
+//! workflow-app (WO-010/MWO-003) -> ports: WorkflowVersionStore,
+//!                                 WorkflowInstanceStore, EvidenceStore,
+//!                                 RunPositionStore
 //! workflow-triggers (WO-011)   -> ports: TriggerLedger,
 //!                                 InstallationStore, InstanceControl
 //! workflow-durable (this)      -> std-only file-backed durability:
@@ -21,25 +23,26 @@
 //!
 //! ## What this crate is
 //!
-//! - [`DurableStores`]: a facade opening all six stores over one root
+//! - [`DurableStores`]: a facade opening all seven stores over one root
 //!   directory, plus the individual store structs
 //!   ([`DurableVersionStore`], [`DurableInstanceStore`],
 //!   [`DurableEvidenceStore`], [`DurableTriggerLedger`],
-//!   [`DurableInstallationStore`], [`DurableInstanceControl`]) so hosts
-//!   adopt them piecemeal.
+//!   [`DurableInstallationStore`], [`DurableInstanceControl`],
+//!   [`DurableRunPositionStore`]) so hosts adopt them piecemeal.
 //! - **Atomic snapshots** for current-state records (versions,
-//!   instances, installations): every write serializes the whole
-//!   ordered map deterministically, goes to a temp file, fsyncs, and
-//!   renames — the rename is the commit point.
+//!   instances, installations, run positions): every write serializes
+//!   the whole ordered map deterministically, goes to a temp file,
+//!   fsyncs, and renames — the rename is the commit point.
 //! - **Append-only JSONL journals** for event-shaped state (evidence
 //!   payloads, trigger acceptances/settlements, installation audits,
 //!   resume directives): every append writes the full line and fsyncs
 //!   before the port method returns.
 //! - **Crash/restart parity**: reloading replays exactly the committed
 //!   records — locators, digests, `evt-<n>` event ids, settlements,
-//!   await registrations, instance statuses, and installations all
-//!   re-observe identically. A trigger event key accepted once keeps
-//!   answering `Duplicate` forever, across restarts.
+//!   await registrations, instance statuses, installations, and
+//!   persisted run positions all re-observe identically. A trigger
+//!   event key accepted once keeps answering `Duplicate` forever,
+//!   across restarts.
 //!
 //! ## Durability policies
 //!
@@ -103,6 +106,8 @@
 //! - `installation_store` — durable installed configurations and
 //!   rebind audits.
 //! - `instance_control` — the durable `Paused -> Running` resume seam.
+//! - `run_position_store` — the durable persisted run positions of
+//!   active runs (MWO-003).
 //! - `facade` — [`DurableStores`] over one root directory.
 //!
 //! ## Ordinary Codex compatibility
@@ -121,6 +126,7 @@ mod installation_store;
 mod instance_control;
 mod instance_store;
 mod journal;
+mod run_position_store;
 mod trigger_ledger;
 mod version_store;
 
@@ -134,5 +140,6 @@ pub use facade::DurableStores;
 pub use installation_store::DurableInstallationStore;
 pub use instance_control::DurableInstanceControl;
 pub use instance_store::DurableInstanceStore;
+pub use run_position_store::DurableRunPositionStore;
 pub use trigger_ledger::DurableTriggerLedger;
 pub use version_store::DurableVersionStore;

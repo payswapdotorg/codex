@@ -23,6 +23,7 @@ use codex_execution_contracts::CapabilityRegistry;
 use codex_workflow_app::InMemoryApprovalSource;
 use codex_workflow_app::InMemoryEvidenceStore;
 use codex_workflow_app::InMemoryInstanceStore;
+use codex_workflow_app::InMemoryRunPositionStore;
 use codex_workflow_app::InMemoryVersionStore;
 use codex_workflow_app::LifecycleDeps;
 use codex_workflow_app::RecordingEventSink;
@@ -125,6 +126,45 @@ pub fn wait_ir() -> WorkflowIr {
     }
 }
 
+/// A step, a wait for a human trigger, then a second step: the run
+/// pauses at the wait node and a resume continues past the pause point
+/// (the MWO-003 cross-plane scenario's graph).
+pub fn resumable_ir() -> WorkflowIr {
+    let entry = IrNodeId::parse("step-001").expect("node id");
+    let mut nodes = BTreeMap::new();
+    nodes.insert(
+        entry.clone(),
+        WorkflowIrNode::Step(StepNode {
+            capabilities: Vec::new(),
+            roles: Vec::new(),
+            description: Some("prepare the report".to_string()),
+            next: Some(IrNodeId::parse("wait-signoff").expect("node id")),
+        }),
+    );
+    nodes.insert(
+        IrNodeId::parse("wait-signoff").expect("node id"),
+        WorkflowIrNode::Wait(WaitNode {
+            wait_for: WaitFor::Trigger(TriggerClass::HumanEvent),
+            next: Some(IrNodeId::parse("step-002").expect("node id")),
+        }),
+    );
+    nodes.insert(
+        IrNodeId::parse("step-002").expect("node id"),
+        WorkflowIrNode::Step(StepNode {
+            capabilities: Vec::new(),
+            roles: Vec::new(),
+            description: Some("publish the report".to_string()),
+            next: None,
+        }),
+    );
+    WorkflowIr {
+        ir_format: IR_FORMAT_VERSION,
+        entry,
+        nodes,
+        conditions: BTreeMap::new(),
+    }
+}
+
 /// Seals the single-step workflow declaring the User trigger.
 pub fn sealed_step_version(id: &str, version: (u64, u64, u64)) -> WorkflowVersion {
     seal(id, step_ir(), vec![TriggerClass::User], version)
@@ -136,6 +176,17 @@ pub fn sealed_wait_version(id: &str, version: (u64, u64, u64)) -> WorkflowVersio
     seal(
         id,
         wait_ir(),
+        vec![TriggerClass::User, TriggerClass::HumanEvent],
+        version,
+    )
+}
+
+/// Seals the resumable workflow declaring both the start and the resume
+/// trigger classes.
+pub fn sealed_resumable_version(id: &str, version: (u64, u64, u64)) -> WorkflowVersion {
+    seal(
+        id,
+        resumable_ir(),
         vec![TriggerClass::User, TriggerClass::HumanEvent],
         version,
     )
@@ -247,6 +298,8 @@ pub struct MemoryHarness {
     pub instances: InMemoryInstanceStore,
     /// The in-memory evidence store (audit handle).
     pub evidence: InMemoryEvidenceStore,
+    /// The in-memory run-position store (audit handle).
+    pub positions: InMemoryRunPositionStore,
     /// The in-memory trigger ledger (audit handle).
     pub ledger: InMemoryTriggerLedger,
     /// The in-memory installation store (audit handle).
@@ -261,15 +314,19 @@ pub fn memory_harness() -> MemoryHarness {
     let approvals = InMemoryApprovalSource::approving("tech-lead", evidence.clone());
     let actions = ScriptedActionSource::new(Vec::new());
     let events = RecordingEventSink::new();
-    let lifecycle = WorkflowLifecycle::new(LifecycleDeps {
-        versions: Box::new(versions.clone()),
-        instances: Box::new(instances.clone()),
-        evidence: Box::new(evidence.clone()),
-        approvals: Box::new(approvals),
-        actions: Box::new(actions),
-        events: Box::new(events),
-        registry: CapabilityRegistry::new(),
-    });
+    let positions = InMemoryRunPositionStore::new();
+    let lifecycle = WorkflowLifecycle::with_positions(
+        LifecycleDeps {
+            versions: Box::new(versions.clone()),
+            instances: Box::new(instances.clone()),
+            evidence: Box::new(evidence.clone()),
+            approvals: Box::new(approvals),
+            actions: Box::new(actions),
+            events: Box::new(events),
+            registry: CapabilityRegistry::new(),
+        },
+        Box::new(positions.clone()),
+    );
     let ledger = InMemoryTriggerLedger::new();
     let installations = InMemoryInstallationStore::new();
     let control = InMemoryInstanceControl::new(instances.clone());
@@ -289,6 +346,7 @@ pub fn memory_harness() -> MemoryHarness {
         versions,
         instances,
         evidence,
+        positions,
         ledger,
         installations,
     }
@@ -301,7 +359,10 @@ pub fn memory_harness() -> MemoryHarness {
 /// The approval source stays the in-memory double (approval durability
 /// is outside MWO-001's six ports, and the double is hard-wired to the
 /// in-memory evidence store type); the catalog, authorizer, and clock
-/// stay host-owned in-memory doubles exactly as in the baseline.
+/// stay host-owned in-memory doubles exactly as in the baseline. The
+/// persisted run positions (MWO-003) go through the durable
+/// run-position store, so what a resumed instance's continuation
+/// rehydrates from survives restarts.
 pub struct DurableHarness {
     /// The trigger plane.
     pub plane: WorkflowTriggerPlane,
@@ -323,15 +384,18 @@ pub fn harness_over(stores: DurableStores) -> DurableHarness {
     let approvals = InMemoryApprovalSource::approving("tech-lead", InMemoryEvidenceStore::new());
     let actions = ScriptedActionSource::new(Vec::new());
     let events = RecordingEventSink::new();
-    let lifecycle = WorkflowLifecycle::new(LifecycleDeps {
-        versions: Box::new(stores.versions.clone()),
-        instances: Box::new(stores.instances.clone()),
-        evidence: Box::new(stores.evidence.clone()),
-        approvals: Box::new(approvals),
-        actions: Box::new(actions),
-        events: Box::new(events),
-        registry: CapabilityRegistry::new(),
-    });
+    let lifecycle = WorkflowLifecycle::with_positions(
+        LifecycleDeps {
+            versions: Box::new(stores.versions.clone()),
+            instances: Box::new(stores.instances.clone()),
+            evidence: Box::new(stores.evidence.clone()),
+            approvals: Box::new(approvals),
+            actions: Box::new(actions),
+            events: Box::new(events),
+            registry: CapabilityRegistry::new(),
+        },
+        Box::new(stores.run_positions.clone()),
+    );
     let plane = WorkflowTriggerPlane::new(TriggerDeps {
         ledger: Box::new(stores.ledger.clone()),
         catalog: Box::new(InMemoryPackageCatalog::new()),

@@ -10,11 +10,17 @@
 //! The traits are deliberately synchronous: they describe record seams, not
 //! runtimes. Hosts bridge to their own concurrency as needed.
 
+use std::collections::BTreeMap;
+
 use codex_execution_contracts::Action;
+use codex_execution_contracts::BindingDecision;
+use codex_execution_contracts::BindingPolicy;
+use codex_execution_contracts::ResourceBinding;
 use codex_execution_contracts::SelectedBinding;
 use codex_workflow_contracts::CapabilityRequirement;
 use codex_workflow_contracts::EvidenceKind;
 use codex_workflow_contracts::EvidenceReference;
+use codex_workflow_contracts::IrNodeId;
 use codex_workflow_contracts::WorkflowInstance;
 use codex_workflow_contracts::WorkflowInstanceId;
 use codex_workflow_contracts::WorkflowVersion;
@@ -23,6 +29,7 @@ use codex_workflow_contracts::WorkflowVersionId;
 use crate::WorkflowAppError;
 use crate::WorkflowEvent;
 use crate::approval::ApprovalRequest;
+use crate::walk::WalkPosition;
 
 /// Durable storage for immutable workflow version records.
 ///
@@ -134,4 +141,58 @@ pub struct ActionRequest {
     pub requirement: CapabilityRequirement,
     /// The binding the requirement resolved to.
     pub selected: SelectedBinding,
+}
+
+/// The persisted control-plane state of one active run.
+///
+/// The record is **control-plane state only**: the workflow semantics —
+/// the IR, the version pin, the integrity digests — are never part of
+/// it. Rehydration re-loads the pinned version from the version store
+/// and re-verifies it end to end; the position only describes *where*
+/// the bounded walk stopped and *how* it was being driven (the binding
+/// decisions resolved at instantiation, the policy, the budget, and the
+/// attached resource identities), so a resumed run re-crosses every
+/// gate exactly like the original run did.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RunPosition {
+    /// The instance the position belongs to.
+    pub instance: WorkflowInstanceId,
+    /// The immutable version the instance pins (re-loaded and
+    /// re-verified at rehydration; never adopted from this record).
+    pub version: WorkflowVersionId,
+    /// Where the bounded walk stopped: the pending re-entry point and
+    /// the continuation frames.
+    pub walk: WalkPosition,
+    /// The binding decisions per step node, resolved at instantiation
+    /// and extended by rebinds.
+    pub decisions: BTreeMap<IrNodeId, Vec<BindingDecision>>,
+    /// The binding policy in force for the run.
+    pub policy: BindingPolicy,
+    /// The walk budget in force for the run.
+    pub max_steps: u64,
+    /// The opaque, credential-free resource identities the run attached
+    /// at instantiation, so rehydration can re-bind them.
+    pub resources: Vec<ResourceBinding>,
+}
+
+/// Durable storage for the persisted run positions of active runs.
+///
+/// The run path saves the active run's position at its documented
+/// checkpoints (instantiation, each step completion, each pause) and
+/// discards it at terminal settlement and cancellation, so the record a
+/// load observes is always the latest checkpoint a crash could have
+/// left behind. Implementations key the positions by instance identity
+/// and treat an absent record as "nothing persisted" — never as a
+/// default position.
+pub trait RunPositionStore: Send + Sync {
+    /// Persists the run position of one active run, keyed by its
+    /// instance identity (replacing any earlier checkpoint for the
+    /// instance).
+    fn save(&mut self, position: RunPosition) -> Result<(), WorkflowAppError>;
+    /// Loads the persisted run position for `instance`, when present.
+    fn load(&self, instance: &WorkflowInstanceId) -> Result<Option<RunPosition>, WorkflowAppError>;
+    /// Discards the persisted run position for `instance`; discarding
+    /// an instance with no position is an ordinary no-op.
+    fn discard(&mut self, instance: &WorkflowInstanceId) -> Result<(), WorkflowAppError>;
 }

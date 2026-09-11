@@ -187,3 +187,119 @@ fn budget_exceeded_aborts_the_walk() {
     assert!(walk.next(&graph, config).is_ok());
     assert!(walk.next(&graph, config).is_err());
 }
+
+#[test]
+fn a_paused_walk_resumes_at_the_wait_nodes_successor() {
+    // step-001 -> wait -> step-002: the pause records the pending
+    // re-entry point, so resuming continues at the wait node's successor
+    // and reaches the terminal state.
+    let mut nodes = BTreeMap::new();
+    nodes.insert(node_id("step-001"), step(Some("wait")));
+    nodes.insert(node_id("wait"), {
+        WorkflowIrNode::Wait(WaitNode {
+            wait_for: WaitFor::Trigger(codex_workflow_contracts::TriggerClass::User),
+            next: Some(node_id("step-002")),
+        })
+    });
+    nodes.insert(node_id("step-002"), step(None));
+    let graph = ir("step-001", nodes);
+
+    let mut walk = Walk::new(&graph).expect("walk");
+    let config = WalkConfig::default();
+    assert!(matches!(
+        walk.next(&graph, config).expect("step"),
+        WalkStep::Visit(ref node) if *node == node_id("step-001")
+    ));
+    let WalkStep::Terminal(WalkTerminal::Paused { node, .. }) =
+        walk.next(&graph, config).expect("pause")
+    else {
+        panic!("expected the walk to pause at the wait node");
+    };
+    pretty_assert_eq!(node, node_id("wait"));
+    // The position at the pause holds the pending re-entry point.
+    let position = walk.position();
+    pretty_assert_eq!(position.current, Some(node_id("step-002")));
+    pretty_assert_eq!(position.path, vec![node_id("step-001"), node_id("wait")]);
+    assert_eq!(position.steps_taken, 2);
+    // Continuing the same walk visits the successor and completes.
+    assert!(matches!(
+        walk.next(&graph, config).expect("resume step"),
+        WalkStep::Visit(ref node) if *node == node_id("step-002")
+    ));
+    assert_eq!(
+        walk.next(&graph, config).expect("terminal"),
+        WalkStep::Terminal(WalkTerminal::Completed)
+    );
+}
+
+#[test]
+fn a_paused_walk_without_a_successor_completes_on_resume() {
+    // A wait node that is the final node has no successor: resuming
+    // finds no pending work and the walk completes.
+    let mut nodes = BTreeMap::new();
+    nodes.insert(node_id("step-001"), step(Some("wait")));
+    nodes.insert(node_id("wait"), {
+        WorkflowIrNode::Wait(WaitNode {
+            wait_for: WaitFor::Trigger(codex_workflow_contracts::TriggerClass::User),
+            next: None,
+        })
+    });
+    let graph = ir("step-001", nodes);
+
+    let mut walk = Walk::new(&graph).expect("walk");
+    let config = WalkConfig::default();
+    assert!(matches!(
+        walk.next(&graph, config).expect("step"),
+        WalkStep::Visit(ref node) if *node == node_id("step-001")
+    ));
+    let WalkStep::Terminal(WalkTerminal::Paused { .. }) = walk.next(&graph, config).expect("pause")
+    else {
+        panic!("expected the walk to pause at the wait node");
+    };
+    pretty_assert_eq!(walk.position().current, None);
+    assert_eq!(
+        walk.next(&graph, config).expect("terminal"),
+        WalkStep::Terminal(WalkTerminal::Completed)
+    );
+}
+
+#[test]
+fn a_position_round_trips_through_a_fresh_walk() {
+    // step-001 -> wait -> step-002 -> step-003: snapshot the position at
+    // the pause and restore it through a fresh walk; the fresh walk
+    // continues from the same pending re-entry point with the same
+    // consumed budget.
+    let mut nodes = BTreeMap::new();
+    nodes.insert(node_id("step-001"), step(Some("wait")));
+    nodes.insert(node_id("wait"), {
+        WorkflowIrNode::Wait(WaitNode {
+            wait_for: WaitFor::Trigger(codex_workflow_contracts::TriggerClass::User),
+            next: Some(node_id("step-002")),
+        })
+    });
+    nodes.insert(node_id("step-002"), step(Some("step-003")));
+    nodes.insert(node_id("step-003"), step(None));
+    let graph = ir("step-001", nodes);
+
+    let mut walk = Walk::new(&graph).expect("walk");
+    let config = WalkConfig { max_steps: 3 };
+    assert!(matches!(
+        walk.next(&graph, config).expect("step"),
+        WalkStep::Visit(ref node) if *node == node_id("step-001")
+    ));
+    let WalkStep::Terminal(WalkTerminal::Paused { .. }) = walk.next(&graph, config).expect("pause")
+    else {
+        panic!("expected the walk to pause at the wait node");
+    };
+    let position = walk.position();
+    let mut restored = Walk::resume(&graph, position.clone()).expect("restore");
+    pretty_assert_eq!(restored.position(), position);
+    assert!(matches!(
+        restored.next(&graph, config).expect("resume step"),
+        WalkStep::Visit(ref node) if *node == node_id("step-002")
+    ));
+    assert!(
+        restored.next(&graph, config).is_err(),
+        "the restored walk inherits the consumed budget, not a fresh one"
+    );
+}

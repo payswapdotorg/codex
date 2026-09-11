@@ -34,6 +34,7 @@ use codex_execution_contracts::ReadinessState;
 use codex_execution_contracts::Recovery;
 use codex_execution_contracts::RecoveryOutcome;
 use codex_execution_contracts::RecoveryStrategy;
+use codex_execution_contracts::ResourceBinding;
 use codex_execution_contracts::TransitionCause;
 use codex_workflow_contracts::CapabilityId;
 use codex_workflow_contracts::EvidenceKind;
@@ -102,6 +103,10 @@ pub(crate) struct ActiveRun {
     /// Binding decisions per step node, resolved at instantiation (and
     /// extended by rebinds).
     pub(crate) decisions: BTreeMap<IrNodeId, Vec<BindingDecision>>,
+    /// The opaque, credential-free resource identities attached at
+    /// instantiation, so the persisted run position can re-bind them
+    /// at rehydration.
+    pub(crate) resources: Vec<ResourceBinding>,
 }
 
 /// How a step settled.
@@ -170,6 +175,12 @@ impl WorkflowLifecycle {
             }
         }
         self.instances.save(active.instance.clone())?;
+        // Terminal settlements discard the persisted run position: a
+        // settled record must never look resumable. A pause keeps it —
+        // that is exactly what a resume rehydrates from.
+        if !matches!(terminal, RunTerminal::Paused { .. }) {
+            self.discard_position(&instance_id)?;
+        }
         let path = active.walk.path().to_vec();
         let instance = active.instance.clone();
         Ok(RunOutcome {
@@ -527,13 +538,21 @@ async fn execute_run(
             WalkStep::Visit(node_id) => {
                 if let Some(WorkflowIrNode::Step(step)) = ir.nodes.get(&node_id).cloned() {
                     match lifecycle.execute_step(active, &node_id, &step).await? {
-                        StepFlow::Completed => {}
+                        StepFlow::Completed => {
+                            // Checkpoint: the position advances past the
+                            // settled step, so a crash resumes at its
+                            // successor instead of re-executing it.
+                            lifecycle.persist_position(active)?;
+                        }
                         StepFlow::Failed(reason) => break RunTerminal::Failed { reason },
                     }
                 }
             }
             WalkStep::Terminal(WalkTerminal::Completed) => break RunTerminal::Completed,
             WalkStep::Terminal(WalkTerminal::Paused { node, reason }) => {
+                // Checkpoint: the position holds the wait node's pending
+                // re-entry point, which is what a resume continues from.
+                lifecycle.persist_position(active)?;
                 break RunTerminal::Paused {
                     node,
                     reason: reason.to_string(),

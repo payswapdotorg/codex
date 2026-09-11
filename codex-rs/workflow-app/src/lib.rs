@@ -84,6 +84,7 @@ pub mod lifecycle;
 pub mod memory;
 pub mod port;
 pub mod publish;
+pub mod resume;
 pub mod run;
 pub mod walk;
 
@@ -99,16 +100,16 @@ pub use error::WorkflowAppError;
 pub use event::WorkflowEvent;
 pub use lifecycle::{InstantiateRequest, LifecycleDeps, VerifiedRun, WorkflowLifecycle};
 pub use memory::{
-    InMemoryApprovalSource, InMemoryEvidenceStore, InMemoryInstanceStore, InMemoryVersionStore,
-    RecordingEventSink, ScriptedAction, ScriptedActionSource,
+    InMemoryApprovalSource, InMemoryEvidenceStore, InMemoryInstanceStore, InMemoryRunPositionStore,
+    InMemoryVersionStore, RecordingEventSink, ScriptedAction, ScriptedActionSource,
 };
 pub use port::{
-    ActionRequest, ApprovalSource, EventSink, EvidenceStore, StepActionSource,
-    WorkflowInstanceStore, WorkflowVersionStore,
+    ActionRequest, ApprovalSource, EventSink, EvidenceStore, RunPosition, RunPositionStore,
+    StepActionSource, WorkflowInstanceStore, WorkflowVersionStore,
 };
 pub use publish::{
     BindingResolution, PublishRequest, PublishedArtifact, StepCapabilityBindings, install_version,
     publish,
 };
 pub use run::{RunOutcome, RunTerminal};
-pub use walk::{WalkConfig, WalkTerminal};
+pub use walk::{WalkConfig, WalkPosition, WalkTerminal};
