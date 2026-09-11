@@ -1,8 +1,8 @@
 # WO-016 — Execution Resource Provider Plane
 
-**Status:** PARKED / NON-BLOCKING
+**Status:** MERGED / EXTENSION (PR #18, squash `6bbe5eb45`; activated post-roadmap per the scheduling rule below)
 **Architecture:** 0.2.0
-**Scheduling rule:** Must not be dispatched during the active roadmap. Re-evaluate only when the provider/resource extension boundary is reached and the Tech Lead confirms the universal resource contract is stable.
+**Scheduling rule:** Was PARKED / NON-BLOCKING during the active roadmap. Activated by the Tech Lead after the core roadmap completed (15/15 at `528741a67`) and after a live-architecture audit confirmed the universal resource contract (WO-005 `ResourceBinding`) was stable.
 
 ## Objective
 
