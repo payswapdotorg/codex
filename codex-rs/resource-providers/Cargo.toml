@@ -1,0 +1,29 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "codex-resource-providers"
+version.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+doctest = false
+name = "codex_resource_providers"
+path = "src/lib.rs"
+
+[dependencies]
+codex-execution-contracts = { path = "../execution-contracts" }
+codex-workflow-contracts = { path = "../workflow-contracts" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+codex-env-adapters = { path = "../env-adapters" }
+codex-teaching-compiler = { path = "../teaching-compiler" }
+codex-workflow-app = { path = "../workflow-app" }
+codex-workflow-forge = { path = "../workflow-forge" }
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }

@@ -4354,6 +4354,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-resource-providers"
+version = "0.0.0"
+dependencies = [
+ "codex-env-adapters",
+ "codex-execution-contracts",
+ "codex-teaching-compiler",
+ "codex-workflow-app",
+ "codex-workflow-contracts",
+ "codex-workflow-forge",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "codex-response-debug-context"
 version = "0.0.0"
 dependencies = [

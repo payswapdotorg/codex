@@ -159,6 +159,7 @@ members = [
     "eval-compat",
     "workflow-evolution",
     "workflow-distribution",
+    "resource-providers",
 ]
 resolver = "2"
 
