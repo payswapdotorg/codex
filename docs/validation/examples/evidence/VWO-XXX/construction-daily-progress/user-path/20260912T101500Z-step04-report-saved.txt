@@ -1,0 +1,18 @@
+EXAMPLE EVIDENCE (user-path) — what the human saw on the product surface.
+Captured (example) via:
+  bash docs/validation/scripts/capture-evidence.sh VWO-XXX \
+       construction-daily-progress user-path - step04-report-saved
+
+--- page: http://localhost:4101/projects/p-101 (after submit) ---
+
+Project: Harborview Tower (p-101) — percent complete 68%
+
+  Flash: "Progress report pr-4002 saved for Harborview Tower (68%)."
+
+  Recent reports:
+    pr-4002  2026-09-12  68%  tasks: t-101c  photos: a-101  by marco.silva
+    pr-4001  2026-09-10  62%  tasks: t-101a, t-101b  by marco.silva
+
+  (Example transcript. The flash text, report row, and updated percent are
+  the observable confirmation a human relies on; screenshot alternative
+  would be …Z-step04-report-saved.png.)

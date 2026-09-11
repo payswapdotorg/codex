@@ -1,0 +1,36 @@
+VWO-003 verification transcript — static checks, validator runs, catalog cross-checks
+date: 2026-09-11T18:09:06Z   base: e2a5e968581e4feb60b754a848824d7c05a583a9   branch: vwo-003/validation-harness
+
+== A. script syntax checks (the WO's required static verification) ==
+reset-scenario.sh: bash -n OK (exit 0)
+capture-evidence.sh: bash -n OK (exit 0)
+validate-report.py: py_compile OK (exit 0)
+node --check: N/A — VWO-003 adds no .js files (helpers are bash + python3; modified .js files in the delivery: 0)
+
+== B. validate-report.py against the worked example (with --catalog) ==
+[WARN] Identity: 'Codex Universal runtime/application SHA' recorded without a 40-hex SHA (explicit placeholder — acceptable only with the stated reason) (value: NONE — example: teaching/compile)
+RESULT: PASS — Class A, 1 scenario block(s), 1 warning(s)
+exit=0
+
+== C. negative tests (corrupted copies of the example report must FAIL) ==
+C1 illegal severity P9      -> exit=1 (expect 1)
+C2 P1 finding DEFERred      -> exit=1 (expect 1)
+C3 dangling evidence ptr    -> exit=1 (expect 1)
+C4 user path <3 numbered    -> exit=1 (expect 1)
+C5 scenario not in catalog  -> exit=1 (expect 1)
+[FAIL] docs/validation/evidence/VWO-TMPTEST/_infra/post-hoc/leak.txt:1: secret-looking content: AWS key: AKIA<example-redacted>
+RESULT: FAIL — Class A, 1 scenario block(s), 1 violation(s), 1 warning(s)
+C6 secret in referenced evidence file -> exit=1 (expect 1)
+(VWO-TMPTEST scratch dir removed — contamination never committed)
+
+== D. catalog cross-checks ==
+catalog entries parsed: 26 (1 format-template block excluded)
+1) scenario<->fixture binding: OK — 26/26 app dirs exist, ports match run-all.sh, terminal surfaces exist, owners/modes/industries legal
+2) industry families (prompt-02 list): {'construction': 3, 'software': 3, 'rideshare': 3, 'media': 3, 'marketplace': 4}
+   adversarial entries: 10 | prompt-02 adversarial items covered: 10 /10 | missing: none
+3) teaching-mode coverage: {'DEMONSTRATE': 8, 'INSTRUCT': 9, 'HYBRID': 9}
+4) selection table <-> binding blocks: consistent (26 rows, industries, modes)
+
+== E. harness self-test (live) — see 20260911T180656Z-harness-self-test.txt ==
+reset-scenario.sh construction: stale-pid handled, started, healthy, seed reset (world.reset event); capture-evidence.sh wrote the canonical timestamped path; secrets-refusal demo exited 1 with nothing written.
+NOTE (appended): the first capture attempt of THIS transcript was itself REFUSED by capture-evidence.sh because the C6 output line quoted the fake AKIA key verbatim — the checker has no self-exemption; the quoted value is redacted here (AKIA<example-redacted>).

@@ -1,0 +1,15 @@
+EXAMPLE EVIDENCE (user-path) — duplicate submission rejection (what the human saw).
+Captured (example) via:
+  bash docs/validation/scripts/capture-evidence.sh VWO-XXX \
+       construction-daily-progress user-path - step07-duplicate-rejected
+
+--- page: http://localhost:4101/projects/p-101 (second same-day submit) ---
+
+  Flash (red): "A progress report for p-101 on 2026-09-12 already exists —
+  daily reports are one per project per day. [duplicate_event]"
+
+  Recent reports: (unchanged — pr-4002 remains the only report for 2026-09-12)
+
+--- diagnostic note (post-hoc context, redacted) ---
+  HTTP status: 409 ; error code: duplicate_event
+  redacted credential forms: ?token=<redacted>
