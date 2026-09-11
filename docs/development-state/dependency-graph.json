@@ -177,5 +177,43 @@
   }
  },
  "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may execute concurrently.",
- "max_autonomous_implementation_specialists": 3
+ "max_autonomous_implementation_specialists": 3,
+ "m4_remediation_program": {
+  "status": "active",
+  "authority": "TECH_LEAD_START_HERE.md \u00a716 + docs/validation/prompts/01-final-completion-tech-lead-orchestration.md",
+  "work_orders": {
+   "MWO-001": {
+    "status": "ready",
+    "depends_on": [],
+    "surface": [
+     "durable-stores",
+     "workflow-durable-crate"
+    ],
+    "packet": "docs/work-orders/MWO-001-DURABLE-STORES.md"
+   },
+   "MWO-002": {
+    "status": "ready",
+    "depends_on": [],
+    "surface": [
+     "legal-transitions",
+     "cancellation"
+    ],
+    "packet": "docs/work-orders/MWO-002-LEGAL-TRANSITIONS-CANCEL.md"
+   },
+   "MWO-003": {
+    "status": "blocked",
+    "depends_on": [
+     "MWO-001",
+     "MWO-002"
+    ],
+    "surface": [
+     "resume-continuation",
+     "restart-reconciliation",
+     "cross-plane-durability"
+    ],
+    "packet": "docs/work-orders/MWO-003-RESUME-RECONCILIATION.md"
+   }
+  },
+  "completion_gate": "M4 durable control plane green (stores durable, transitions enforced, cancel works, resume continues, restart reconciles) before the VWO human-workflow validation program proceeds."
+ }
 }
