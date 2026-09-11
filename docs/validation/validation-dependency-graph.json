@@ -50,7 +50,7 @@
    ]
   },
   "VWO-002": {
-   "status": "ready",
+   "status": "merged",
    "depends_on": [],
    "surface": [
     "synthetic-enterprise-apps",
