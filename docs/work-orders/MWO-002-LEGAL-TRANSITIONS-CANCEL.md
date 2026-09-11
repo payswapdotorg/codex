@@ -1,6 +1,6 @@
 # MWO-002 — Legal Transitions and Cancellation
 
-**Status:** READY
+**Status:** MERGED (PR #19, squash `039273223`)
 **Depends on:** none (parallel with MWO-001)
 **Program:** M4 durable-control-plane remediation
 **Architecture:** 0.2.0

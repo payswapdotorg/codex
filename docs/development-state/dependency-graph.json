@@ -192,7 +192,7 @@
     "packet": "docs/work-orders/MWO-001-DURABLE-STORES.md"
    },
    "MWO-002": {
-    "status": "ready",
+    "status": "merged",
     "depends_on": [],
     "surface": [
      "legal-transitions",
@@ -203,8 +203,7 @@
    "MWO-003": {
     "status": "blocked",
     "depends_on": [
-     "MWO-001",
-     "MWO-002"
+     "MWO-001"
     ],
     "surface": [
      "resume-continuation",

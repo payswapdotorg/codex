@@ -1,7 +1,7 @@
 # MWO-002 Report — Legal Transitions and Cancellation
 
 **Work Order:** MWO-002 (docs/work-orders/MWO-002-LEGAL-TRANSITIONS-CANCEL.md)
-**Status:** DELIVERED on the worker branch, awaiting independent Tech Lead verification
+**Status:** MERGED via PR #19 (squash `03927322311a0299b9560487ae0ba653f6993836`); independently verified by the Tech Lead on toolchain 1.95.0 (contracts 90, app 5+15, triggers 23, dependents compile, clippy/fmt clean; two integration fixes applied: test-local harness shadowing rename, reason.clone -> &reason)
 **Program:** M4 durable-control-plane remediation (architect mandate TECH_LEAD_START_HERE.md §16)
 **Architecture:** 0.2.0
 
