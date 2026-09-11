@@ -16,7 +16,9 @@
 //!
 //! The run consumes the active instantiation: settled instances (also
 //! paused ones, until a later scheduling Work Order owns resume) are read
-//! back through [`WorkflowLifecycle::verify_run`].
+//! back through [`WorkflowLifecycle::verify_run`], and cancelled instances
+//! are terminal records no run ever settles
+//! ([`WorkflowLifecycle::cancel`] owns the takeover).
 
 use std::collections::BTreeMap;
 
@@ -141,13 +143,17 @@ impl WorkflowLifecycle {
         let instance_id = active.instance.instance_id;
         match &terminal {
             RunTerminal::Completed => {
-                active.instance.status = WorkflowInstanceStatus::Succeeded;
+                // The one status-mutation seam: the settlement transition
+                // (Running -> Succeeded) is validated against the frozen
+                // contract table before the record is persisted.
+                self.transition_status(&mut active.instance, WorkflowInstanceStatus::Succeeded)?;
                 self.events.record(WorkflowEvent::RunCompleted {
                     instance: instance_id,
                 });
             }
             RunTerminal::Paused { node, reason } => {
-                active.instance.status = WorkflowInstanceStatus::Paused;
+                // The one status-mutation seam (Running -> Paused).
+                self.transition_status(&mut active.instance, WorkflowInstanceStatus::Paused)?;
                 self.events.record(WorkflowEvent::RunPaused {
                     instance: instance_id,
                     node: node.clone(),
@@ -155,7 +161,8 @@ impl WorkflowLifecycle {
                 });
             }
             RunTerminal::Failed { reason } => {
-                active.instance.status = WorkflowInstanceStatus::Failed;
+                // The one status-mutation seam (Running -> Failed).
+                self.transition_status(&mut active.instance, WorkflowInstanceStatus::Failed)?;
                 self.events.record(WorkflowEvent::RunFailed {
                     instance: instance_id,
                     reason: reason.clone(),

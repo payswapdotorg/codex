@@ -91,3 +91,146 @@ fn evidence_is_append_only_by_construction() {
     assert_eq!(instance.evidence.first(), Some(&first));
     assert_eq!(instance.evidence.len(), 2);
 }
+
+/// The declared legal-transition table, written out independently of the
+/// implementation so the exhaustive pair test checks one against the other.
+const LEGAL_PAIRS: [(WorkflowInstanceStatus, WorkflowInstanceStatus); 10] = [
+    (
+        WorkflowInstanceStatus::Pending,
+        WorkflowInstanceStatus::Running,
+    ),
+    (
+        WorkflowInstanceStatus::Pending,
+        WorkflowInstanceStatus::Failed,
+    ),
+    (
+        WorkflowInstanceStatus::Pending,
+        WorkflowInstanceStatus::Cancelled,
+    ),
+    (
+        WorkflowInstanceStatus::Running,
+        WorkflowInstanceStatus::Paused,
+    ),
+    (
+        WorkflowInstanceStatus::Running,
+        WorkflowInstanceStatus::Succeeded,
+    ),
+    (
+        WorkflowInstanceStatus::Running,
+        WorkflowInstanceStatus::Failed,
+    ),
+    (
+        WorkflowInstanceStatus::Running,
+        WorkflowInstanceStatus::Cancelled,
+    ),
+    (
+        WorkflowInstanceStatus::Paused,
+        WorkflowInstanceStatus::Running,
+    ),
+    (
+        WorkflowInstanceStatus::Paused,
+        WorkflowInstanceStatus::Failed,
+    ),
+    (
+        WorkflowInstanceStatus::Paused,
+        WorkflowInstanceStatus::Cancelled,
+    ),
+];
+
+#[test]
+fn every_status_pair_matches_the_declared_legal_table() {
+    for from in WorkflowInstanceStatus::ALL {
+        for to in WorkflowInstanceStatus::ALL {
+            assert_eq!(
+                from.can_transition_to(to),
+                LEGAL_PAIRS.contains(&(from, to)),
+                "pair ({from:?} -> {to:?}) must match the declared table"
+            );
+        }
+    }
+}
+
+#[test]
+fn legal_transitions_list_exactly_the_declared_targets() {
+    for from in WorkflowInstanceStatus::ALL {
+        let declared: Vec<WorkflowInstanceStatus> = LEGAL_PAIRS
+            .iter()
+            .filter(|(source, _)| *source == from)
+            .map(|(_, target)| *target)
+            .collect();
+        assert_eq!(
+            from.legal_transitions(),
+            declared.as_slice(),
+            "status {from:?}"
+        );
+    }
+}
+
+#[test]
+fn terminal_statuses_admit_no_transitions() {
+    for status in WorkflowInstanceStatus::ALL {
+        let terminal = matches!(
+            status,
+            WorkflowInstanceStatus::Succeeded
+                | WorkflowInstanceStatus::Failed
+                | WorkflowInstanceStatus::Cancelled
+        );
+        assert_eq!(status.is_terminal(), terminal, "status {status:?}");
+        assert_eq!(
+            status.legal_transitions().is_empty(),
+            terminal,
+            "status {status:?}"
+        );
+    }
+}
+
+#[test]
+fn observed_live_transitions_stay_legal() {
+    // The transitions the live control plane performs today: instantiation
+    // start, the instantiation-failure settlement, wait/human-gate pause,
+    // run completion, run failure, the triggers resume, and cancellation.
+    let observed = [
+        (
+            WorkflowInstanceStatus::Pending,
+            WorkflowInstanceStatus::Running,
+        ),
+        (
+            WorkflowInstanceStatus::Pending,
+            WorkflowInstanceStatus::Failed,
+        ),
+        (
+            WorkflowInstanceStatus::Running,
+            WorkflowInstanceStatus::Paused,
+        ),
+        (
+            WorkflowInstanceStatus::Running,
+            WorkflowInstanceStatus::Succeeded,
+        ),
+        (
+            WorkflowInstanceStatus::Running,
+            WorkflowInstanceStatus::Failed,
+        ),
+        (
+            WorkflowInstanceStatus::Paused,
+            WorkflowInstanceStatus::Running,
+        ),
+        (
+            WorkflowInstanceStatus::Pending,
+            WorkflowInstanceStatus::Cancelled,
+        ),
+        (
+            WorkflowInstanceStatus::Running,
+            WorkflowInstanceStatus::Cancelled,
+        ),
+        (
+            WorkflowInstanceStatus::Paused,
+            WorkflowInstanceStatus::Cancelled,
+        ),
+    ];
+    for (from, to) in observed {
+        assert!(
+            from.can_transition_to(to),
+            "observed transition ({from:?} -> {to:?}) must stay legal"
+        );
+    }
+}

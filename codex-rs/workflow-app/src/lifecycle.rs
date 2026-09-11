@@ -3,10 +3,16 @@
 //! [`WorkflowLifecycle`] composes the frozen planes behind control-plane
 //! seams: it selects immutable versions from the [`WorkflowVersionStore`],
 //! instantiates them (validate -> approve -> bind) through the capability
-//! registry, runs them across environment classes ([`crate::run`]), and
-//! reconciles the durable records afterwards
+//! registry, runs them across environment classes ([`crate::run`]),
+//! cancels them through the control plane ([`WorkflowLifecycle::cancel`]),
+//! and reconciles the durable records afterwards
 //! ([`WorkflowLifecycle::verify_run`]). It owns no durable state: every
 //! record crosses a [`crate::port`] seam.
+//!
+//! Every instance status mutation routes through one seam,
+//! `WorkflowLifecycle::transition_status`, which validates the
+//! transition against the frozen legal-transition table the workflow
+//! contracts declare; a status is never a bare field assignment here.
 //!
 //! Instantiation enforces the frozen gate order:
 //!
@@ -275,7 +281,10 @@ impl WorkflowLifecycle {
             .iter()
             .map(|step| (step.node.clone(), step.decisions.clone()))
             .collect::<BTreeMap<_, _>>();
-        instance.status = WorkflowInstanceStatus::Running;
+        // The one status-mutation seam: the start transition
+        // (Pending -> Running) is validated against the frozen contract
+        // table before the record is persisted and the run is activated.
+        self.transition_status(&mut instance, WorkflowInstanceStatus::Running)?;
         self.instances.save(instance.clone())?;
         self.events.record(WorkflowEvent::InstanceStarted {
             instance: instance_id,
@@ -323,6 +332,90 @@ impl WorkflowLifecycle {
         })
     }
 
+    /// Cancels an instance through the control plane: `Pending`, `Running`,
+    /// or `Paused` transitions to `Cancelled`.
+    ///
+    /// Cancellation is an operator-visible takeover: the reason is
+    /// recorded as evidence through the evidence plane (the trace of the
+    /// control-plane operation, following the existing evidence
+    /// conventions), a [`WorkflowEvent::InstanceCancelled`] event is
+    /// emitted, and the updated record persists through the normal
+    /// instance-store path. An in-flight run state held for the cancelled
+    /// instance is dropped, so a later [`Self::run`] is an explicit
+    /// no-op instead of settling the now-terminal record.
+    ///
+    /// Double-cancel and cancel of an already-settled instance are
+    /// explicit [`WorkflowAppError::IllegalStatusTransition`] errors,
+    /// never silent no-ops, and are refused before any durable side
+    /// effect is recorded. Cancellation never mutates workflow
+    /// semantics: the version pin, integrity digests, and dependency
+    /// identities are untouched.
+    pub fn cancel(
+        &mut self,
+        instance: &WorkflowInstanceId,
+        reason: impl Into<String>,
+    ) -> Result<WorkflowInstance, WorkflowAppError> {
+        let mut record = self.instances.load(instance)?.ok_or_else(|| {
+            WorkflowAppError::InstanceUnavailable {
+                instance: instance.to_string(),
+            }
+        })?;
+        // Fail fast: the frozen legal table refuses the transition before
+        // any evidence, event, or store write happens.
+        self.transition_status(&mut record, WorkflowInstanceStatus::Cancelled)?;
+        // Take over the in-flight run state, when one is held for this
+        // instance: no later run may settle the terminal record.
+        if self
+            .active
+            .as_ref()
+            .is_some_and(|run| run.instance.instance_id == *instance)
+        {
+            self.active = None;
+        }
+        let reason = reason.into();
+        // The operator-visible reason is recorded through the evidence
+        // plane as the trace of the control-plane cancellation.
+        let payload = serde_json::json!({
+            "instance": instance.to_string(),
+            "operation": "cancel",
+            "reason": &reason,
+        });
+        self.store_evidence(&mut record, EvidenceKind::Trace, &payload)?;
+        self.events.record(WorkflowEvent::InstanceCancelled {
+            instance: *instance,
+            reason,
+        });
+        Ok(record)
+    }
+
+    /// Transitions the instance's status through the frozen legal table.
+    ///
+    /// This is the application layer's one status-mutation seam: every
+    /// control-plane transition of a workflow instance (the instantiation
+    /// start, the run settlement, the failure settlement, and
+    /// cancellation) routes through here and is validated against
+    /// [`WorkflowInstanceStatus::legal_transitions`] before the record is
+    /// touched. A transition the table forbids returns
+    /// [`WorkflowAppError::IllegalStatusTransition`] naming the instance
+    /// and both statuses: never a silent no-op, never a bare field
+    /// assignment. The seam mutates the in-memory record only; each
+    /// caller persists through the normal instance-store save path.
+    pub(crate) fn transition_status(
+        &mut self,
+        instance: &mut WorkflowInstance,
+        target: WorkflowInstanceStatus,
+    ) -> Result<(), WorkflowAppError> {
+        if !instance.status.can_transition_to(target) {
+            return Err(WorkflowAppError::IllegalStatusTransition {
+                instance: instance.instance_id.to_string(),
+                current: instance.status,
+                target,
+            });
+        }
+        instance.status = target;
+        Ok(())
+    }
+
     /// Records one evidence payload through the evidence plane and appends
     /// the reference to the in-flight instance.
     pub(crate) fn store_evidence(
@@ -367,14 +460,19 @@ impl WorkflowLifecycle {
     }
 
     /// Settles a failed instantiation: the durable instance record becomes
-    /// `Failed`, a `RunFailed` event is emitted, and the original error is
-    /// returned for the caller.
+    /// `Failed` through the status-mutation seam, a `RunFailed` event is
+    /// emitted, and the original error is returned for the caller.
+    ///
+    /// A settlement the frozen legal table refuses (an already-terminal
+    /// record) surfaces the refusal instead of silently dropping it.
     fn fail_instance(
         &mut self,
         instance: &mut WorkflowInstance,
         error: WorkflowAppError,
     ) -> WorkflowAppError {
-        instance.status = WorkflowInstanceStatus::Failed;
+        if let Err(refused) = self.transition_status(instance, WorkflowInstanceStatus::Failed) {
+            return refused;
+        }
         let save = self.instances.save(instance.clone());
         self.events.record(WorkflowEvent::RunFailed {
             instance: instance.instance_id,
@@ -409,3 +507,7 @@ fn distinct_bindings(
         .map(|(binding, (environment, capability))| (binding, environment, capability))
         .collect()
 }
+
+#[cfg(test)]
+#[path = "lifecycle_tests.rs"]
+mod tests;
