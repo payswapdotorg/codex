@@ -1,0 +1,22 @@
+# VWO-005 — final reset verification (all scenario families re-seeded)
+Time: 2026-09-11T22:49:20Z
+
+## reset-scenario.sh marketplace:
+reset: marketplace (seed state restored, world.reset event recorded)
+scenario-ready: marketplace — sign in at http://localhost:4105/login (personas on the page and at /api/demo-hints)
+## reset-scenario.sh software:
+reset: software (seed state restored, world.reset event recorded)
+scenario-ready: software — sign in at http://localhost:4102/login (personas on the page and at /api/demo-hints)
+## reset-scenario.sh media:
+reset: media (seed state restored, world.reset event recorded)
+scenario-ready: media — sign in at http://localhost:4104/login (personas on the page and at /api/demo-hints)
+
+## Seed markers after reset (post-hoc state pulls):
+- marketplace: pk-102 latest version (expect 2.3.1):
+   latest: 2.3.1 | installs: ['ins-0401@2.3.1']
+- software: pr-0301 status (expect open, approvals 0, staging 4.8.1):
+   status: open | approvals: 0
+   r-1 staging: 4.8.1
+- media: st-0206 absent (expect only seed stories), st-0205 approved+no-hero:
+   story ids: ['st-0201', 'st-0202', 'st-0203', 'st-0204', 'st-0205']
+   st-0205: approved | hero: False

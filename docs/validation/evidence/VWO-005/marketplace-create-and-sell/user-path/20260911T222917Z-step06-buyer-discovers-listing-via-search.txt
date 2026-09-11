@@ -1,0 +1,61 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Iris Chen · org_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Catalog" [level=1, ref=e4]
+  - generic
+    - heading "Search the catalog" [level=2, ref=e13]
+    - form
+      - textbox "Search packages (e.g. invoice, triage)" [ref=e15]: sales
+        - StaticText "sales"
+      - combobox [expanded=false, ref=e16]: All categories
+        - MenuListPopup
+          - option "All categories" [selected, ref=e25]
+          - option "finance-ops" [ref=e26]
+          - option "support-ops" [ref=e27]
+          - option "logistics" [ref=e28]
+      - button "Search" [ref=e17]
+  - generic
+    - heading "Results (1)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PACKAGE" [ref=e29]
+          - columnheader "SLUG" [ref=e30]
+          - columnheader "CATEGORY" [ref=e31]
+          - columnheader "SUMMARY" [ref=e32]
+          - columnheader "LICENSE" [ref=e33]
+          - columnheader "LATEST" [ref=e34]
+          - columnheader "INSTALLS · STARS" [ref=e35]
+          - columnheader "ACTION" [ref=e36]
+      - row
+        - cell "Monthly Sales Report" [ref=e18]
+          - link "Monthly Sales Report" [ref=e37]
+        - cell "monthly-sales-report" [ref=e19]
+          - code
+            - StaticText "monthly-sales-report"
+        - cell "finance-ops" [ref=e20]
+        - cell "Monthly revenue report assembled from ops totals and delivered to finance" [ref=e21]
+        - cell "subscription" [ref=e22]
+        - cell "1.0.0" [ref=e23]
+          - code
+            - StaticText "1.0.0"
+        - cell "0 · ★0 (0)" [ref=e24]
+        - cell
+          - form
+            - StaticText ","
+            - button "Install 1.0.0" [ref=e38]
+            - StaticText "First install auto-grants a 30-day trial entitlement."
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

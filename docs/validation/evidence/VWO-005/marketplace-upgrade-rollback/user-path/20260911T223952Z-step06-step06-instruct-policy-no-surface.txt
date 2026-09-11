@@ -1,0 +1,24 @@
+VWO-005 — marketplace-upgrade-rollback — INSTRUCT policy text (step 6): the
+exact policy description the consumer (Petra Voss, Acme Retail org admin)
+would submit to the Codex Universal teaching surface:
+
+---
+Upgrades and rollbacks of installed marketplace packages must be explicit,
+pinned, and auditable: an upgrade only proceeds when the acting org admin
+pins the exact target version and the exact current version the install is
+expected to be at; a rollback only ever moves the install to its recorded
+previous version, never an implicit downgrade to "latest". Every transition
+is recorded in the install history with actor and timestamp. A failed or
+entitlement-blocked upgrade must never leave a half-installed state — the
+install stays at its previous pin.
+---
+
+Submission attempt (user path): no Codex Universal surface accepts this
+description — no CLI command, no app-server method, no UI (finding F1, same
+missing teaching surface as the other scenarios; the product-surface
+dependency probe shows the workflow plane is mounted by no user-facing
+crate). The policy's SEMANTICS were instead exercised behaviorally through
+the FlowMart human path (steps 2–5, 7): explicit pinned upgrade
+(expectedCurrentVersion + targetVersion), natural [data_conflict] on a
+stale pin, explicit recorded rollback, and (step 7) an entitlement-blocked
+upgrade leaving the pin unchanged.

@@ -1,0 +1,145 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Ravi Gupta · org_member · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Support Ticket Triage Assistant support-triage-assistant" [level=1, ref=e4]
+    - StaticText "Support Ticket Triage Assistant support-triage-assistant"
+  - generic
+    - heading "Listing overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e20]
+        - cell "pk-102" [ref=e21]
+          - code
+            - StaticText "pk-102"
+      - row
+        - cell "Publisher" [ref=e22]
+        - cell "Vera Osei" [ref=e23]
+      - row
+        - cell "Category" [ref=e24]
+        - cell "support-ops" [ref=e25]
+      - row
+        - cell "License model" [ref=e26]
+        - cell "subscription" [ref=e27]
+      - row
+        - cell "Latest version" [ref=e28]
+        - cell "2.3.1" [ref=e29]
+          - code
+            - StaticText "2.3.1"
+      - row
+        - cell "Latest digest" [ref=e30]
+        - cell "sha256:04cf049e110cc2cc" [ref=e31]
+          - code
+            - StaticText "sha256:04cf049e110cc2cc"
+      - row
+        - cell "Stats" [ref=e32]
+        - cell "1291 installs · ★4.8 · 96 reviews" [ref=e33]
+      - row
+        - cell "Tags" [ref=e34]
+        - cell "support routing classification" [ref=e35]
+          - StaticText "support"
+          - StaticText "routing"
+          - StaticText "classification"
+      - row
+        - cell "Description" [ref=e36]
+        - cell "Classifies inbound tickets by topic, urgency and sentiment, then routes them to configured queues. Includes a review step for low-confidence classifications." [ref=e37]
+  - generic
+    - heading "Versions (immutable, newest first)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "VERSION" [ref=e61]
+          - columnheader "RELEASED" [ref=e62]
+          - columnheader "CHANGELOG" [ref=e63]
+          - columnheader "DIGEST" [ref=e64]
+          - columnheader "COMMIT" [ref=e65]
+          - columnheader "BUILT BY" [ref=e66]
+      - row
+        - cell "2.3.1" [ref=e38]
+          - code
+            - StaticText "2.3.1"
+        - cell "2026-08-30" [ref=e39]
+        - cell "Fixes queue routing for merged tickets." [ref=e40]
+        - cell "sha256:04cf049e110cc2cc" [ref=e41]
+          - code
+            - StaticText "sha256:04cf049e110cc2cc"
+        - cell "c7d8e9f" [ref=e42]
+          - code
+            - StaticText "c7d8e9f"
+        - cell "vera.osei" [ref=e43]
+  - generic
+    - heading "Provenance & attribution (latest)" [level=2, ref=e15]
+    - table
+      - row
+        - cell "Source repository" [ref=e44]
+        - cell "https://git.example.internal/vera/support-triage-assistant" [ref=e45]
+          - code
+            - StaticText "https://git.example.internal/vera/support-triage-assistant"
+      - row
+        - cell "Commit" [ref=e46]
+        - cell "c7d8e9f" [ref=e47]
+          - code
+            - StaticText "c7d8e9f"
+      - row
+        - cell "Built by" [ref=e48]
+        - cell "vera.osei" [ref=e49]
+      - row
+        - cell "Signed by" [ref=e50]
+        - cell "vera.osei" [ref=e51]
+      - row
+        - cell "Manifest digest" [ref=e52]
+        - cell "sha256:04cf049e110cc2cc" [ref=e53]
+          - code
+            - StaticText "sha256:04cf049e110cc2cc"
+  - generic
+    - heading "Write a review" [level=2, ref=e16]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Rating"
+      - combobox [expanded=false, ref=e18]: ★★★★★ 5
+        - MenuListPopup
+          - option "★★★★★ 5" [selected, ref=e67]
+          - option "★★★★ 4" [ref=e68]
+          - option "★★★ 3" [ref=e69]
+          - option "★★ 2" [ref=e70]
+          - option "★ 1" [ref=e71]
+      - StaticText ","
+      - LabelText
+        - StaticText "Review text"
+      - textbox [ref=e19]
+      - button "Post review" [ref=e54]
+      - StaticText "One review per organization per package."
+  - generic
+    - heading "Reviews" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "REVIEW" [ref=e72]
+          - columnheader "ORG" [ref=e73]
+          - columnheader "BY" [ref=e74]
+          - columnheader "RATING" [ref=e75]
+          - columnheader "TEXT" [ref=e76]
+          - columnheader "AT" [ref=e77]
+      - row
+        - cell "rv-0201" [ref=e55]
+          - code
+            - StaticText "rv-0201"
+        - cell "Northwind Logistics" [ref=e56]
+        - cell "Ravi Gupta" [ref=e57]
+        - cell "5/5" [ref=e58]
+        - cell "Cut our triage time in half." [ref=e59]
+        - cell "2026-09-05T12:00:00Z" [ref=e60]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

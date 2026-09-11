@@ -1,0 +1,29 @@
+VWO-005 — marketplace-create-and-sell — step 4: configure attribution, licensing,
+commercial policy (user-path probe, what Vera saw on the listing page):
+
+CONFIGURED AT CREATION (the only surfaces that exist):
+- Attribution (provenance card, user-visible): Source repository
+  https://git.example.internal/vera.osei/monthly-sales-report, commit de1cbb1,
+  Built by vera.osei, Signed by vera.osei, Manifest digest sha256:4d61dd23bfcbb8a5.
+- Licensing: License model = subscription (chosen in the publish form:
+  free / per-seat / subscription are the only options).
+- Category: finance-ops; tags: finance, reporting, monthly.
+
+NOT CONFIGURABLE POST-PUBLICATION (no surface exists):
+- The listing page (/listings/monthly-sales-report) exposes NO edit/update
+  form for the listing: no license-model change, no pricing/price field, no
+  commercial-policy fields (revenue share, trial length, seats), no
+  attribution change. The publisher console exposes only NEW-listing and
+  NEW-version forms.
+- The only commercial objects an admin can manage post-publication are
+  entitlements (grant/revoke on /entitlements) — separate records that do
+  not alter the listing or its published versions.
+- FlowMart has no pricing field at all: "commercial policy" is limited to
+  the licenseModel enum selected at creation + admin entitlement lifecycle.
+
+Conclusion: attribution/licensing configuration exists only at listing
+creation; commercial-policy configuration post-publication is a MISSING
+product surface (finding F3 in the report). Executed exactly what exists:
+creation-time licenseModel=subscription + provenance attribution, then the
+admin entitlement grant (step 5) as the only commercial-policy action
+available through normal surfaces.

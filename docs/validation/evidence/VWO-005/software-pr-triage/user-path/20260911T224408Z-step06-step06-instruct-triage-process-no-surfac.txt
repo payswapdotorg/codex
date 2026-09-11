@@ -1,0 +1,25 @@
+VWO-005 — software-pr-triage — INSTRUCT (additional create+publish cycle in
+INSTRUCT mode, per WO "Create an additional workflow using INSTRUCT"): the
+exact process description the code owner (Noor Haddad) would submit to the
+Codex Universal teaching surface:
+
+---
+When a pull request is opened, run CI. A pull request may only be merged
+when (a) CI has passed and (b) a code owner OTHER THAN the PR author has
+approved it — self-approval is prohibited. Merging a PR deploys the new
+version to STAGING and records a build artifact; it must never deploy
+straight to production (production promotion is a separate, later decision
+by the release manager). If a merge is attempted on an already-merged PR,
+or a reviewer approves twice, the operations must be rejected.
+---
+
+Submission attempt (user path): no Codex Universal surface accepts this
+description (finding F1 — the same missing teaching/compile surface found
+in the marketplace scenarios; no CLI command, no app-server method, no UI;
+the workflow plane is mounted by no user-facing crate). The described
+gates were instead verified BEHAVIORALLY through the ForgeOps human path:
+CI gate (run-0071 passed pre-merge), author approval blocked
+([permission_denied] for the engineer/author), code-owner approval
+recorded, duplicate approval rejected ([duplicate_event]), merge → staging
+deployment dep-1104 + service version bump 4.8.1 → 4.8.2 observable, and
+double-merge rejected ([data_conflict]) with no second deployment.

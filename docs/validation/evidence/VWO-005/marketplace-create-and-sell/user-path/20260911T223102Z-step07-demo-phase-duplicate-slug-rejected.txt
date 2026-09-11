@@ -1,0 +1,64 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Vera Osei · publisher · "
+  - link "sign out" [ref=e3]
+- main
+  - alert
+    - StaticText "A listing with slug \"monthly-sales-report\" already exists in the catalog. [duplicate_event]"
+  - heading "Publisher console" [level=1, ref=e4]
+  - generic
+    - heading "Publish a new listing" [level=2, ref=e13]
+    - form
+      - LabelText
+        - StaticText "Name"
+      - textbox [required, ref=e14]
+      - StaticText ","
+      - LabelText
+        - StaticText "Slug (auto if blank)"
+      - textbox [ref=e15]
+      - StaticText ","
+      - LabelText
+        - StaticText "Category"
+      - textbox [ref=e16]: finance-ops
+        - StaticText "finance-ops"
+      - StaticText ","
+      - LabelText
+        - StaticText "License model"
+      - combobox [expanded=false, ref=e17]: Subscription
+        - MenuListPopup
+          - option "Subscription" [selected, ref=e23]
+          - option "Per-seat" [ref=e24]
+          - option "Free" [ref=e25]
+      - StaticText ","
+      - LabelText
+        - StaticText "Summary"
+      - textbox [ref=e18]
+      - StaticText ","
+      - LabelText
+        - StaticText "Description"
+      - textbox [ref=e19]
+      - StaticText ","
+      - LabelText
+        - StaticText "Tags (comma-sep)"
+      - textbox [ref=e20]
+      - StaticText ","
+      - LabelText
+        - StaticText "Source repository"
+      - textbox [ref=e21]: https://git.example.internal/you/package
+        - StaticText "https://git.example.internal/you/package"
+      - button "Publish listing v1.0.0" [ref=e22]
+      - StaticText "A manifest + sha256 digest + provenance record are created with the first version."
+  - paragraph
+    - StaticText "Scope note: FlowMart is the store surface only. It does not define or execute workflows — packages are opaque artifacts with provenance; execution belongs to the platform consuming them."
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

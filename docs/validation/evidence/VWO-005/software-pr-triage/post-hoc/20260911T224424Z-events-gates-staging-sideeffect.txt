@@ -1,0 +1,17 @@
+# VWO-005 software-pr-triage — post-hoc diagnostics
+Pulled: 2026-09-11T22:44:16Z
+
+## Events (triage lifecycle with gates):
+type=pr.approved:
+  ev-0004 - PR #302 "Refund idempotency keys" approved by Noor Haddad
+type=pr.merged:
+  ev-0006 - PR #302 "Refund idempotency keys" merged by Noor Haddad; payments-service staging → 4.8.2
+type=deployment.created:
+  ev-0007 - Staging deployment dep-1104 of payments-service 4.8.2 (artifact art-0902)
+type=service.version_bumped:
+
+## Repo state (payments-service r-1):
+  staging version: 4.8.2 | production version: None
+
+## PR state (pr-0301):
+  status: merged | approvals: ['u-2'] | mergedBy: u-2

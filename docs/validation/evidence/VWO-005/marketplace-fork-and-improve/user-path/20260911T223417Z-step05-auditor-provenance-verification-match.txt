@@ -1,0 +1,89 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Mia Torres · auditor · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Provenance verified for \"Support Ticket Triage Assistant\"@2.3.2: digest sha256:8e2afc2ef9d9698a matches the published manifest."
+  - heading "Catalog" [level=1, ref=e4]
+  - generic
+    - heading "Search the catalog" [level=2, ref=e13]
+    - form
+      - textbox "Search packages (e.g. invoice, triage)" [ref=e15]
+      - combobox [expanded=false, ref=e16]: All categories
+        - MenuListPopup
+          - option "All categories" [selected, ref=e42]
+          - option "finance-ops" [ref=e43]
+          - option "support-ops" [ref=e44]
+          - option "logistics" [ref=e45]
+      - button "Search" [ref=e17]
+  - generic
+    - heading "Results (3)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PACKAGE" [ref=e46]
+          - columnheader "SLUG" [ref=e47]
+          - columnheader "CATEGORY" [ref=e48]
+          - columnheader "SUMMARY" [ref=e49]
+          - columnheader "LICENSE" [ref=e50]
+          - columnheader "LATEST" [ref=e51]
+          - columnheader "INSTALLS · STARS" [ref=e52]
+          - columnheader "ACTION" [ref=e53]
+      - row
+        - cell "Invoice Autofill for ERPs" [ref=e18]
+          - link "Invoice Autofill for ERPs" [ref=e54]
+        - cell "invoice-autofill" [ref=e19]
+          - code
+            - StaticText "invoice-autofill"
+        - cell "finance-ops" [ref=e20]
+        - cell "Extracts vendor invoice fields and fills ERP entry screens." [ref=e21]
+        - cell "subscription" [ref=e22]
+        - cell "1.1.0" [ref=e23]
+          - code
+            - StaticText "1.1.0"
+        - cell "412 · ★4.6 (28)" [ref=e24]
+        - cell "View" [ref=e25]
+          - link "View" [ref=e55]
+      - row
+        - cell "Support Ticket Triage Assistant" [ref=e26]
+          - link "Support Ticket Triage Assistant" [ref=e56]
+        - cell "support-triage-assistant" [ref=e27]
+          - code
+            - StaticText "support-triage-assistant"
+        - cell "support-ops" [ref=e28]
+        - cell "Routes inbound support tickets to the right queue with confidence scores." [ref=e29]
+        - cell "subscription" [ref=e30]
+        - cell "2.3.2" [ref=e31]
+          - code
+            - StaticText "2.3.2"
+        - cell "1290 · ★4.8 (96)" [ref=e32]
+        - cell "View" [ref=e33]
+          - link "View" [ref=e57]
+      - row
+        - cell "Warehouse Slot Optimizer" [ref=e34]
+          - link "Warehouse Slot Optimizer" [ref=e58]
+        - cell "warehouse-slot-optimizer" [ref=e35]
+          - code
+            - StaticText "warehouse-slot-optimizer"
+        - cell "logistics" [ref=e36]
+        - cell "Suggests pick-face slotting for warehouse SKUs." [ref=e37]
+        - cell "per-seat" [ref=e38]
+        - cell "1.2.0" [ref=e39]
+          - code
+            - StaticText "1.2.0"
+        - cell "87 · ★4.2 (11)" [ref=e40]
+        - cell "View" [ref=e41]
+          - link "View" [ref=e59]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

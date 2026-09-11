@@ -1,0 +1,27 @@
+# VWO-005 marketplace-fork-and-improve — post-hoc diagnostics
+Pulled: 2026-09-11T22:35:05Z
+
+## 1) Server-side permission gate (buyer attempting version publish via API twin — post-hoc diagnostic; user path already showed the UI hides the form):
+HTTP 403
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"iris.chen\" (role \"org_admin\") lacks permission \"version:publish\".",
+  "required": "version:publish",
+  "role": "org_admin",
+  "user": "iris.chen"
+}
+## 2) Event pulls:
+type=version.published:
+  ev-0003 - "Support Ticket Triage Assistant" 2.3.2 released by Vera Osei: Triage improvement from execution evi
+type=provenance.verified:
+  ev-0006 - Provenance verification of "Support Ticket Triage Assistant"@2.3.2: MATCH (sha256:8e2afc2ef9d9698a)
+type=notification.failed:
+
+## 3) Digest stability (recompute with fixture algorithm):
+pk-102@2.3.1 recomputed: sha256:04cf049e110cc2cc (seed files: manifest.json, queues.json)
+ stored: 2.3.1 sha256:04cf049e110cc2cc | changelog: Fixes queue routing for merged tickets.
+ stored: 2.3.2 sha256:8e2afc2ef9d9698a | changelog: Triage improvement from execution evidence: tickets from cus
+
+## 4) Lineage/fork records in state (expect NONE — fork surface absent):
+  (no forkOf/lineage/parent keys found in marketplace state — confirmed: no fork lineage data model exists)

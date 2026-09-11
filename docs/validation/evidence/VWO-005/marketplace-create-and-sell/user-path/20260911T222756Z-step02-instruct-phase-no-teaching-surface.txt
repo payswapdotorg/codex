@@ -1,0 +1,35 @@
+VWO-005 — marketplace-create-and-sell — HYBRID phase 1 (instruct): the exact
+instruction text the workflow creator (Vera Osei, publisher) would submit to
+the Codex Universal teaching surface for the "Monthly Sales Report" workflow:
+
+---
+Every month on the 1st, pull the monthly sales totals from the ops app
+(revenue by category and by installer organization), assemble a one-page
+monthly sales report (title, period, totals table, top-3 installers), and
+notify the finance team with the report. If the ops app is unavailable,
+retry once the next day, then notify finance with a partial-data note.
+The workflow must run under the FlowMart listing "Monthly Sales Report"
+(category finance-ops, subscription licensing) that I am about to publish.
+---
+
+Submission attempt (user path, what the human saw):
+- Signed in as vera.osei in FlowMart (the marketplace surface where the
+  listing will be sold). Opened every surface offering any workflow-input
+  affordance:
+  * /publisher — the Publisher console contains ONLY a listing-publish form
+    (name/slug/category/license-model/summary/description/tags/source-repo)
+    and the visible scope note: "FlowMart is the store surface only. It does
+    not define or execute workflows — packages are opaque artifacts with
+    provenance; execution belongs to the platform consuming them."
+  * /catalog, /listings/:slug, /installs, /entitlements, /notifications —
+    no workflow-teaching input anywhere.
+- The "platform consuming them" (Codex Universal) exposes no teaching
+  surface to a normal user either: the codex CLI has no workflow/teaching/
+  marketplace subcommand (command surface enumerated from source at this
+  SHA — see post-hoc product-surface-dependency-probe artifact); the
+  app-server protocol defines no workflow/teaching method; the workflow
+  plane crates are library-only and mounted by no user-facing crate.
+
+Result: instruction could NOT be submitted anywhere. The instruct phase of
+HYBRID is blocked by a missing product surface (teaching/compile). Recorded
+as finding F1 (see report); no internal workflow IR was pre-constructed.

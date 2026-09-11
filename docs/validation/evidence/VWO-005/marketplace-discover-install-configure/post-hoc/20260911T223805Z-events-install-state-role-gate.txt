@@ -1,0 +1,29 @@
+# VWO-005 marketplace-discover-install-configure — post-hoc diagnostics
+Pulled: 2026-09-11T22:38:05Z
+
+## Events (discover/install/configure lifecycle):
+type=package.installed:
+  ev-0004 - Northwind Logistics installed "Support Ticket Triage Assistant" v2.3.1 (ins-0402)
+type=entitlement.granted:
+  ev-0003 - Trial entitlement for "Support Ticket Triage Assistant" auto-granted to Northwind Logistics (until 2026-10-12)
+type=install.configured:
+  ev-0008 - Install ins-0402 (Support Ticket Triage Assistant v2.3.1) reconfigured for Northwind Logistics
+
+## Install record state (ins-0402):
+  ins-0401 o-2 v2.3.1 ent: ent-0501 config: {"queue": "tier-1", "confidenceThreshold": "0.7"}
+  ins-0402 o-1 v2.3.1 ent: ent-0504 config: {}
+  ent-0501 o-2 subscription active until 2027-05-01
+  ent-0504 o-1 trial active until 2026-10-12
+
+## Digest stability after install/configure (pk-102@2.3.1):
+ stored digest: sha256:04cf049e110cc2cc (displayed pre-install in step02 user-path artifact: sha256:04cf049e110cc2cc — unchanged)
+
+## Server-side role gate (member install attempt via API twin — post-hoc diagnostic):
+HTTP 403 {
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"ravi.gupta\" (role \"org_member\") lacks permission \"install:manage\".",
+  "required": "install:manage",
+  "role": "org_member",
+  "user": "ravi.gupta"
+}

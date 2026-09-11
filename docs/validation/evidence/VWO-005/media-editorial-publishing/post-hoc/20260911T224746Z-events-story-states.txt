@@ -1,0 +1,24 @@
+# VWO-005 media-editorial-publishing — post-hoc diagnostics
+Pulled: 2026-09-11T22:47:46Z
+
+## Events (editorial lifecycle):
+type=story.created:
+  ev-0003 - Story "Council approves riverside stadium funding" created as draft by Hana Kim
+type=story.submitted:
+type=story.approved:
+  ev-0016 - "City budget hearings: five things to watch" approved for publication by Camille Dubois
+  ev-0008 - "Council approves riverside stadium funding" approved for publication by Camille Dubois
+type=story.published:
+  ev-0021 - "City budget hearings: five things to watch" published to 2 channel(s) by Camille Dubois
+  ev-0011 - "Council approves riverside stadium funding" published to 1 channel(s) by Camille Dubois
+type=distribution.failed:
+  ev-0020 - FAILED "City budget hearings: five things to watch" to channel partner-app — license expired
+
+## Story states:
+  st-0202 | status: published | v3 | hero: True | channels: ['ch-1', 'ch-2']
+  st-0205 | status: approved | v1 | hero: False | channels: []
+  st-0206 | status: published | v2 | hero: True | channels: ['ch-1']
+
+## st-0205 publish attempt event (missing_asset):
+  ev-0014 story.asset_attached - Asset a-0301 (harbor-bridge-aerial.jpg) attached to "City budget hearings: five things to watch" as 
+  ev-0004 story.asset_attached - Asset a-0301 (harbor-bridge-aerial.jpg) attached to "Council approves riverside stadium funding" as 
