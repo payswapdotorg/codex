@@ -53,6 +53,7 @@ use crate::approval::ApprovalRequest;
 use crate::port::ApprovalSource;
 use crate::port::EventSink;
 use crate::port::EvidenceStore;
+use crate::port::RunPositionStore;
 use crate::port::StepActionSource;
 use crate::port::WorkflowInstanceStore;
 use crate::port::WorkflowVersionStore;
@@ -125,6 +126,10 @@ pub struct WorkflowLifecycle {
     pub(crate) registry: CapabilityRegistry,
     pub(crate) selected: Option<WorkflowVersion>,
     pub(crate) active: Option<ActiveRun>,
+    /// The persisted-run-position seam, when the host attached one
+    /// ([`WorkflowLifecycle::with_positions`]); `None` keeps the
+    /// pre-MWO-003 behavior exactly.
+    pub(crate) positions: Option<Box<dyn RunPositionStore>>,
 }
 
 impl WorkflowLifecycle {
@@ -145,6 +150,7 @@ impl WorkflowLifecycle {
             registry: deps.registry,
             selected: None,
             active: None,
+            positions: None,
         }
     }
 
@@ -290,14 +296,24 @@ impl WorkflowLifecycle {
             instance: instance_id,
         });
         let settled = instance.clone();
-        self.active = Some(ActiveRun {
+        let run = ActiveRun {
             version,
-            instance,
+            instance: instance.clone(),
             policy: request.policy,
             walk,
             walk_config: request.walk,
             decisions,
-        });
+            resources: request.resources,
+        };
+        // Checkpoint: the run is resumable from the moment it starts, so
+        // a crash between instantiation and the first step completion
+        // still reconciles and resumes. A checkpoint-seam failure
+        // settles the record `Failed`, exactly like the run path's
+        // internal seam failures — never a phantom `Running` record.
+        if let Err(error) = self.persist_position(&run) {
+            return Err(self.fail_instance(&mut instance, error));
+        }
+        self.active = Some(run);
         Ok(settled)
     }
 
@@ -372,6 +388,9 @@ impl WorkflowLifecycle {
         {
             self.active = None;
         }
+        // The persisted position of the cancelled instance goes with the
+        // in-flight run: a terminal record must never look resumable.
+        self.discard_position(instance)?;
         let reason = reason.into();
         // The operator-visible reason is recorded through the evidence
         // plane as the trace of the control-plane cancellation.

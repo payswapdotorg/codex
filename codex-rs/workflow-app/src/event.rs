@@ -131,6 +131,24 @@ pub enum WorkflowEvent {
         /// Why the run failed.
         reason: String,
     },
+    /// A resumed instance's run continued from its persisted position
+    /// (after the explicit control-plane `Paused -> Running` transition).
+    RunResumed {
+        /// The instance whose run continued.
+        instance: WorkflowInstanceId,
+        /// The pending re-entry node the walk continued from, when one
+        /// is still ahead of it.
+        node: Option<IrNodeId>,
+    },
+    /// The startup reconciliation sweep transitioned a `Running`
+    /// instance with no live run to the documented recovery state
+    /// (`Paused`, with recovery evidence, awaiting an explicit resume).
+    InstanceReconciled {
+        /// The instance that was reconciled.
+        instance: WorkflowInstanceId,
+        /// The operator-visible reconciliation reason.
+        reason: String,
+    },
     /// The instance was cancelled through the control plane
     /// (`Pending`, `Running`, or `Paused` -> `Cancelled`).
     InstanceCancelled {

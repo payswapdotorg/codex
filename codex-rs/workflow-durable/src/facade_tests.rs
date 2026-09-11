@@ -8,9 +8,11 @@ use crate::testutil::cleanup;
 use crate::testutil::installed;
 use crate::testutil::instance;
 use crate::testutil::rebind;
+use crate::testutil::run_position;
 use crate::testutil::sealed_version;
 use crate::testutil::temp_root;
 use codex_workflow_app::EvidenceStore;
+use codex_workflow_app::RunPositionStore;
 use codex_workflow_app::WorkflowInstanceStore;
 use codex_workflow_app::WorkflowVersionStore;
 use codex_workflow_contracts::EvidenceKind;
@@ -54,6 +56,7 @@ fn a_fresh_root_opens_empty() {
     assert!(stores.ledger.records().is_empty());
     assert!(stores.installations.list().expect("list").is_empty());
     assert!(stores.control.directives().is_empty());
+    assert!(stores.run_positions.is_empty());
     cleanup(&root);
 }
 
@@ -67,6 +70,7 @@ fn the_full_control_plane_survives_drop_and_reload() {
         &version.version_id,
         WorkflowInstanceStatus::Pending,
     );
+    let record_id = record.instance_id;
     let configuration = installed(&version);
     let audit = rebind("triage-report", "profile-a");
     let evidence_payload = serde_json::json!({ "note": "observation" });
@@ -132,6 +136,14 @@ fn the_full_control_plane_survives_drop_and_reload() {
             .save(configuration.clone())
             .expect("save installation");
         stores.installations.append_audit(audit).expect("audit");
+        stores
+            .run_positions
+            .save(run_position(
+                &record_id,
+                &version.version_id,
+                Some(codex_workflow_contracts::IrNodeId::parse("step-002").expect("node id")),
+            ))
+            .expect("save run position");
         ledger_records = stores.ledger.records();
     }
 
@@ -162,6 +174,18 @@ fn the_full_control_plane_survives_drop_and_reload() {
         evidence_payload
     );
     assert_eq!(stores.ledger.records(), ledger_records);
+    assert_eq!(
+        stores
+            .run_positions
+            .load(&record_id)
+            .expect("load run position"),
+        Some(run_position(
+            &record_id,
+            &version.version_id,
+            Some(codex_workflow_contracts::IrNodeId::parse("step-002").expect("node id"),),
+        )),
+        "the persisted run position survives restart"
+    );
     assert_eq!(
         stores
             .ledger
@@ -200,6 +224,7 @@ fn the_full_control_plane_survives_drop_and_reload() {
         DurableStores::VERSIONS_FILE.to_string(),
         DurableStores::INSTANCES_FILE.to_string(),
         DurableStores::INSTALLATIONS_FILE.to_string(),
+        DurableStores::RUN_POSITIONS_FILE.to_string(),
         DurableStores::EVIDENCE_FILE.to_string(),
         DurableStores::TRIGGERS_FILE.to_string(),
         DurableStores::INSTALL_AUDITS_FILE.to_string(),
@@ -241,6 +266,14 @@ fn stored_files_carry_no_credential_shapes() {
             .installations
             .append_audit(rebind("triage-report", "profile-a"))
             .expect("audit");
+        stores
+            .run_positions
+            .save(run_position(
+                &codex_workflow_contracts::WorkflowInstanceId::generate(),
+                &version.version_id,
+                Some(codex_workflow_contracts::IrNodeId::parse("step-002").expect("node id")),
+            ))
+            .expect("save run position");
         let acceptance = stores
             .ledger
             .accept(

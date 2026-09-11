@@ -20,6 +20,29 @@ use codex_workflow_contracts::WorkflowIrNode;
 
 use crate::WorkflowAppError;
 
+/// The persisted position of one bounded walk.
+///
+/// This is the walk's control-plane state for persistence and resume:
+/// the pending re-entry point, the continuation frames, the budget
+/// already consumed, and the visited path. It carries no workflow
+/// semantics — the graph it indexes is re-loaded and re-verified from
+/// the immutable version at rehydration.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WalkPosition {
+    /// The node the walk visits next, when one is pending. `None` means
+    /// the walk continues from its continuation frames (or completes
+    /// when none remain).
+    pub current: Option<IrNodeId>,
+    /// The remaining continuation frames (sequence/fork children and
+    /// loop exits), innermost frame last.
+    pub continuations: Vec<Vec<IrNodeId>>,
+    /// The node budget already consumed.
+    pub steps_taken: u64,
+    /// The nodes visited so far, in order.
+    pub path: Vec<IrNodeId>,
+}
+
 /// Default node budget for one run, matching the teaching compiler's
 /// simulation budget.
 pub const DEFAULT_WALK_BUDGET: u64 = 10_000;
@@ -98,6 +121,35 @@ impl Walk {
     /// The nodes visited so far, in order.
     pub fn path(&self) -> &[IrNodeId] {
         &self.path
+    }
+
+    /// The walk's current position, for persistence at the documented
+    /// checkpoints.
+    pub fn position(&self) -> WalkPosition {
+        WalkPosition {
+            current: self.current.clone(),
+            continuations: self.continuations.clone(),
+            steps_taken: self.steps_taken,
+            path: self.path.clone(),
+        }
+    }
+
+    /// Restores a walk over `ir` from a persisted position.
+    ///
+    /// The IR is validated exactly like [`Walk::new`]; the restored
+    /// position is control-plane state, never workflow semantics: the
+    /// graph, its digest, and the version pin are untouched. The
+    /// restored walk consumes its remaining budget from
+    /// `position.steps_taken`, so a resumed run does not get a fresh
+    /// node budget.
+    pub fn resume(ir: &WorkflowIr, position: WalkPosition) -> Result<Self, WorkflowAppError> {
+        ir.validate()?;
+        Ok(Self {
+            current: position.current,
+            continuations: position.continuations,
+            steps_taken: position.steps_taken,
+            path: position.path,
+        })
     }
 
     /// Produces the next walk step under `config`.
@@ -182,13 +234,19 @@ impl Walk {
                     self.continuations.push(vec![next]);
                 }
             }
-            WorkflowIrNode::Wait(_) => {
+            WorkflowIrNode::Wait(node) => {
+                // The pending re-entry point: a resume continues at the
+                // wait node's successor (a `None` successor means the
+                // wait is the final node, so a resume completes).
+                self.current = node.next.clone();
                 return Ok(WalkStep::Terminal(WalkTerminal::Paused {
                     node: node_id,
                     reason: "wait",
                 }));
             }
-            WorkflowIrNode::HumanGate(_) => {
+            WorkflowIrNode::HumanGate(node) => {
+                // The pending re-entry point, mirroring the wait node.
+                self.current = node.next.clone();
                 return Ok(WalkStep::Terminal(WalkTerminal::Paused {
                     node: node_id,
                     reason: "human gate",

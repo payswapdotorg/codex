@@ -7,6 +7,7 @@ use crate::DurableEvidenceStore;
 use crate::DurableInstallationStore;
 use crate::DurableInstanceControl;
 use crate::DurableInstanceStore;
+use crate::DurableRunPositionStore;
 use crate::DurableStoreError;
 use crate::DurableTriggerLedger;
 use crate::DurableVersionStore;
@@ -15,7 +16,7 @@ use crate::DurableVersionStore;
 ///
 /// Every store is an independent shared-state handle, so hosts can adopt
 /// them piecemeal — the version store for the lifecycle, the ledger for
-/// the trigger plane — while [`DurableStores::open`] wires all six over
+/// the trigger plane — while [`DurableStores::open`] wires all seven over
 /// the canonical layout below. The instance store handle is shared with
 /// [`DurableInstanceControl`], mirroring how the in-memory doubles
 /// compose: the lifecycle, the trigger plane, and the resume seam
@@ -25,6 +26,7 @@ use crate::DurableVersionStore;
 /// <root>/versions.json            atomic snapshot (id -> sealed record)
 /// <root>/instances.json           atomic snapshot (id -> instance record)
 /// <root>/installations.json       atomic snapshot (workflow -> config)
+/// <root>/run-positions.json      atomic snapshot (id -> run position)
 /// <root>/evidence.jsonl           append-only journal (payload records)
 /// <root>/triggers.jsonl           append-only journal (accept/settle)
 /// <root>/install-audits.jsonl     append-only journal (rebind audits)
@@ -48,6 +50,9 @@ pub struct DurableStores {
     pub installations: DurableInstallationStore,
     /// The durable resume seam over `instances`.
     pub control: DurableInstanceControl,
+    /// Durable persisted run positions of active runs (MWO-003): what
+    /// a resumed instance's continuation rehydrates from.
+    pub run_positions: DurableRunPositionStore,
 }
 
 impl DurableStores {
@@ -57,6 +62,8 @@ impl DurableStores {
     pub const INSTANCES_FILE: &'static str = "instances.json";
     /// The canonical installation snapshot file name.
     pub const INSTALLATIONS_FILE: &'static str = "installations.json";
+    /// The canonical run-position snapshot file name.
+    pub const RUN_POSITIONS_FILE: &'static str = "run-positions.json";
     /// The canonical evidence journal file name.
     pub const EVIDENCE_FILE: &'static str = "evidence.jsonl";
     /// The canonical trigger ledger journal file name.
@@ -90,6 +97,7 @@ impl DurableStores {
                 root.join(Self::INSTALL_AUDITS_FILE),
             )?,
             control,
+            run_positions: DurableRunPositionStore::open(root.join(Self::RUN_POSITIONS_FILE))?,
         })
     }
 }

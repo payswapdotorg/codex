@@ -4,11 +4,14 @@
 //! cleanup) and the light record builders the tests drive the ports
 //! with — the same shapes the in-memory doubles' tests use.
 
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use codex_workflow_app::RunPosition;
+use codex_workflow_app::WalkPosition;
 use codex_workflow_contracts::DependencyLock;
 use codex_workflow_contracts::DevelopmentRef;
 use codex_workflow_contracts::IR_FORMAT_VERSION;
@@ -155,5 +158,29 @@ pub(crate) fn rebind(workflow: &str, to: &str) -> RebindRecord {
         from: None,
         to: to.to_string(),
         at_unix_ms: 100,
+    }
+}
+
+/// One persisted run position for `instance` pinned to `version`,
+/// paused with `current` as the pending re-entry point (fixture
+/// shape: control-plane state only, no workflow semantics).
+pub(crate) fn run_position(
+    instance: &WorkflowInstanceId,
+    version: &WorkflowVersionId,
+    current: Option<IrNodeId>,
+) -> RunPosition {
+    RunPosition {
+        instance: *instance,
+        version: version.clone(),
+        walk: WalkPosition {
+            current,
+            continuations: Vec::new(),
+            steps_taken: 2,
+            path: Vec::new(),
+        },
+        decisions: BTreeMap::new(),
+        policy: codex_execution_contracts::BindingPolicy::default(),
+        max_steps: 1_000,
+        resources: Vec::new(),
     }
 }
