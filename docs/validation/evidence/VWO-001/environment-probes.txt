@@ -1,0 +1,83 @@
+# VWO-001 environment probe matrix (2026-09-11, connected agent sandbox)
+# policy: capability names + set/unset + reachability ONLY — no credential values anywhere
+
+## E2B/Composio credential env vars (set/unset only)
+E2B_API_KEY: NOT SET
+E2B_TEAM_ID: NOT SET
+E2B_DOMAIN: NOT SET
+E2B_API_URL: NOT SET
+E2B_ACCESS_TOKEN: NOT SET
+COMPOSIO_API_KEY: NOT SET
+COMPOSIO_CLI_API_KEY: NOT SET
+COMPOSIO_BASE_URL: NOT SET
+COMPOSIO_LOG_LEVEL: NOT SET
+E2B_TEMPLATE_ID: NOT SET
+OPENAI_API_KEY: NOT SET
+ANTHROPIC_API_KEY: NOT SET
+
+## E2B/Composio CLIs
+e2b: ABSENT
+composio: ABSENT
+e2b-cli: ABSENT
+composio-cli: ABSENT
+
+## platform config (existence only)
+/home/z/.e2b: ABSENT
+/home/z/.composio: ABSENT
+/home/z/.config/e2b: ABSENT
+/home/z/.config/composio: ABSENT
+/home/z/my-project/.mcp.json: ABSENT
+/home/z/my-project/codex/.mcp.json: ABSENT
+/home/z/.mcp.json: ABSENT
+
+## network reachability (HTTPS, 10s)
+api.e2b.dev => HTTP 404
+e2b.dev => HTTP 200
+composio.dev => HTTP 200
+backend.composio.dev => HTTP 200
+api.composio.dev => HTTP 000
+api.composio.com => HTTP 000
+api.composio.io => HTTP 000
+github.com => HTTP 200
+
+## desktop/display
+DISPLAY=''
+WAYLAND_DISPLAY=''
+Xvfb: PRESENT
+Xvnc: ABSENT (system)
+x11vnc: ABSENT (system)
+vncserver: ABSENT (system)
+xdotool: ABSENT (system)
+wmctrl: ABSENT (system)
+import: ABSENT (system)
+scrot: ABSENT (system)
+ffmpeg: PRESENT
+user-space xdotool (with LD_LIBRARY_PATH from extraction): xdotool version 3.20160805.1
+
+## browser
+chromium: ABSENT
+chromium-browser: ABSENT
+google-chrome: ABSENT
+firefox: ABSENT
+agent-browser: PRESENT
+chromium-1200
+chromium-1234
+chromium_headless_shell-1200
+chromium_headless_shell-1234
+ffmpeg-1011
+
+## runtimes + identity
+v24.19.0
+1.3.14
+Python 3.12.14
+git version 2.47.3
+Linux 5.10.134-013.8.3.kangaroo.al8.x86_64
+1001
+sudo: unavailable (password required)
+
+## platform API/tool surface (names only)
+z-ai-web-dev-sdk: PRESENT in platform project (name only)
+platform app surface localhost:3000 => HTTP 200
+
+## process persistence across invocations
+verified separately: setsid-detached processes are REAPED between platform tool invocations — see README.md §3.6 notes

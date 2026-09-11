@@ -1,0 +1,16 @@
+# VWO-001 launch verification: cargo check of the M4 workflow family
+# toolchain: rustc 1.95.0 (59807616e 2026-04-14) / cargo 1.95.0 (f2d3ce0bd 2026-03-21) per codex-rs/rust-toolchain.toml
+# repo: payswapdotorg/codex @ 926c177a5515a1bf1316d7ef1bacb9b6d2d53611 (branch vwo-001/e2b-proving-ground)
+
+## cold run (fresh target dir, full dependency graph)
+command: cargo check -p codex-workflow-contracts -p codex-workflow-forge -p codex-workflow-app -p codex-workflow-triggers -p codex-workflow-evolution -p codex-workflow-distribution -p codex-workflow-durable
+result:  exit 0
+tail:    Checking codex-model-provider v0.0.0 (/home/z/my-project/codex/codex-rs/model-provider)
+         Checking codex-workflow-durable v0.0.0 (/home/z/my-project/codex/codex-rs/workflow-durable)
+         Checking codex-eval-compat v0.0.0 (/home/z/my-project/codex/codex-rs/eval-compat)
+         Checking codex-workflow-distribution v0.0.0 (/home/z/my-project/codex/codex-rs/workflow-distribution)
+         Checking codex-workflow-evolution v0.0.0 (/home/z/my-project/codex/codex-rs/workflow-evolution)
+         Finished `dev` profile [unoptimized + debuginfo] target(s) in 4m 15s
+
+## incremental re-confirmation (same command, warm target dir — proves reproducibility from cache)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.83s

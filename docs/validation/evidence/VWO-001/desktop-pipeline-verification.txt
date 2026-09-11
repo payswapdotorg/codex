@@ -1,0 +1,24 @@
+# VWO-001 desktop-capability verification (single-invocation transcript, 2026-09-11)
+# repo: payswapdotorg/codex @ 926c177a5515a1bf1316d7ef1bacb9b6d2d53611
+
+## Step 1: Xvfb :99 bring-up
+Xvfb :99 RUNNING (1280x800x24)
+
+## Step 2: chromium GUI-mode into :99
+chromium GUI process alive on :99
+
+## Step 3: ffmpeg x11grab capture
+capture: 25933 bytes
+
+## Step 4: PNG decode + pixel census (python3)
+decoded 1280x800; non-black pixels: 1003250 (98.0%)
+VERDICT: GUI CONTENT RENDERED INTO VIRTUAL DESKTOP
+
+## Step 5: input-injection proof (xev + xdotool)
+xev window id: 10485761
+xev received 22 KeyPress/KeyRelease events
+    state 0x0, keycode 8 (keysym 0xffca, F13), same_screen YES,
+    state 0x0, keycode 8 (keysym 0xffca, F13), same_screen YES,
+SYNTHETIC_INPUT_RECEIVED_BY_X_CLIENT=TRUE
+
+## cleanup: chromium + xev stopped; Xvfb left to invocation-end reaping
