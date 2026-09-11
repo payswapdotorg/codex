@@ -1,0 +1,14 @@
+EXAMPLE EVIDENCE (post-hoc) — deterministic reset verification.
+Captured (example) via:
+  bash docs/validation/scripts/capture-evidence.sh VWO-XXX \
+       construction-daily-progress post-hoc - reset-verification
+
+--- command: POST /api/reset (fixture API twin; post-run diagnostic only) ---
+  { "ok": true, "message": "Seed state restored.", "family": "construction" }
+
+--- command: GET /api/projects (state check) ---
+  percentComplete values back to seed [62, 35, 88]
+  reports for p-101: pr-4001 only (seed) — the run's pr-4002 is gone
+
+Conclusion: reset restores the exact seed state; the scenario is
+re-runnable deterministically (world.reset event recorded in /api/events).

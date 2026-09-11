@@ -1,0 +1,42 @@
+VWO-003 harness self-test — mechanical support for the new-worker acceptance test
+date: 2026-09-11T18:06:56Z  repo: e2a5e968581e4feb60b754a848824d7c05a583a9
+note: exercises stale-pid handling (a previous failed run left a dead pid file)
+
+== 1) select-and-run: reset-scenario.sh construction (restart + reseed ONE fixture) ==
+previous construction not running (stale pid 2035)
+started construction on http://localhost:4101/ (pid 2192)
+healthy: construction -> http://localhost:4101/
+reset: construction (seed state restored, world.reset event recorded)
+scenario-ready: construction — sign in at http://localhost:4101/login (personas on the page and at /api/demo-hints)
+
+== 2) app identity the catalog binds (healthz) ==
+{
+  "ok": true,
+  "family": "construction",
+  "app": "SiteBuild Field Suite",
+  "port": 4101,
+  "version": "1.0.0",
+  "uptimeSec": 1,
+  "events": 1,
+  "resets": 1
+}
+
+== 3) deterministic-reseed oracle (world.reset event) ==
+{
+  "ok": true,
+  "family": "construction",
+  "count": 1,
+  "events": [
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-11T18:06:56.567Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "construction"
+      }
+    }
+  ]
+}
