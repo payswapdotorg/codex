@@ -179,7 +179,7 @@
  "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may execute concurrently.",
  "max_autonomous_implementation_specialists": 3,
  "m4_remediation_program": {
-  "status": "active",
+  "status": "complete",
   "authority": "TECH_LEAD_START_HERE.md \u00a716 + docs/validation/prompts/01-final-completion-tech-lead-orchestration.md",
   "work_orders": {
    "MWO-001": {
@@ -201,7 +201,7 @@
     "packet": "docs/work-orders/MWO-002-LEGAL-TRANSITIONS-CANCEL.md"
    },
    "MWO-003": {
-    "status": "ready",
+    "status": "merged",
     "depends_on": [
      "MWO-001"
     ],
@@ -213,6 +213,7 @@
     "packet": "docs/work-orders/MWO-003-RESUME-RECONCILIATION.md"
    }
   },
-  "completion_gate": "M4 durable control plane green (stores durable, transitions enforced, cancel works, resume continues, restart reconciles) before the VWO human-workflow validation program proceeds."
+  "completion_gate": "M4 durable control plane green (stores durable, transitions enforced, cancel works, resume continues, restart reconciles) before the VWO human-workflow validation program proceeds.",
+  "completion_note": "M4 GREEN (2026-09-11): all three remediation WOs merged and independently verified on the pinned toolchain \u2014 durable state (seven std-only file-backed stores with atomic snapshots, fsync'd journals, torn-tail repair, integrity re-verification, drop-and-reload + restart E2E parity), enforced legal transitions (declared table + one seam + IllegalStatusTransition), cancellation (Pending/Running/Paused -> Cancelled with event + evidence + terminal immutability), resume continuation (persisted run position + rehydration + continuation through the ordinary run path), and startup reconciliation (orphaned Running -> Paused with recovery evidence, idempotent). Final family sweep on merged main: 195/195 tests green (contracts 90, app 36, durable 46, triggers 23)."
  }
 }

@@ -1,6 +1,6 @@
 # MWO-003 — Persisted Execution Position and Restart Reconciliation
 
-**Status:** BLOCKED
+**Status:** MERGED (PR #21, squash `6b60895ba`)
 **Depends on:** MWO-001 (durable stores), MWO-002 (legal transitions + cancel)
 **Program:** M4 durable-control-plane remediation
 **Architecture:** 0.2.0

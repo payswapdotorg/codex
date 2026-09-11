@@ -1,43 +1,160 @@
 {
-  "program": "codex-universal-human-workflow-validation",
-  "version": "1.0.0",
-  "max_concurrent_workers": 3,
-  "status": "planned",
-  "waves": [
-    {
-      "id": "wave-0",
-      "purpose": "proving-ground bootstrap",
-      "work_orders": ["VWO-001", "VWO-002", "VWO-003"]
-    },
-    {
-      "id": "wave-1",
-      "purpose": "real-user workflow validation",
-      "work_orders": ["VWO-004", "VWO-005", "VWO-006"]
-    },
-    {
-      "id": "wave-2",
-      "purpose": "adversarial runtime/product validation",
-      "work_orders": ["VWO-007", "VWO-008", "VWO-009"]
-    },
-    {
-      "id": "wave-3",
-      "purpose": "synthesis and remediation orchestration",
-      "work_orders": ["VWO-010"]
-    }
-  ],
-  "work_orders": {
-    "VWO-001": {"status":"blocked","depends_on":[],"surface":["validation-proving-ground","E2B/Composio environment lifecycle","desktop workspace bootstrap"]},
-    "VWO-002": {"status":"blocked","depends_on":[],"surface":["synthetic-enterprise-apps","fixtures","seed-data","failure-controls"]},
-    "VWO-003": {"status":"blocked","depends_on":[],"surface":["validation-harness","evidence-schema","scenario-catalog","reporting"]},
-    "VWO-004": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["enterprise-operations-user-validation"]},
-    "VWO-005": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["workflow-creator-marketplace-validation"]},
-    "VWO-006": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["workflow-consumer-installation-validation"]},
-    "VWO-007": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["restart-recovery-idempotency-cancellation-validation"]},
-    "VWO-008": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["security-authorization-trust-boundary-validation"]},
-    "VWO-009": {"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["immutable-version-marketplace-entitlement-validation"]},
-    "VWO-010": {"status":"blocked","depends_on":["VWO-004","VWO-005","VWO-006","VWO-007","VWO-008","VWO-009"],"surface":["validation-synthesis","defect-classification","remediation-work-orders","revalidation"]}
+ "program": "codex-universal-human-workflow-validation",
+ "version": "1.0.0",
+ "max_concurrent_workers": 3,
+ "status": "active",
+ "waves": [
+  {
+   "id": "wave-0",
+   "purpose": "proving-ground bootstrap",
+   "work_orders": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ]
   },
-  "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may run concurrently. Maximum three autonomous workers.",
-  "retry_rule": "A failed worker does not block independent Work Orders. Reassign/retry after inspecting evidence.",
-  "completion_rule": "The program is complete only after P0/P1 findings are fixed and revalidated, P2/P3 findings are dispositioned, and the final report is committed to GitHub."
+  {
+   "id": "wave-1",
+   "purpose": "real-user workflow validation",
+   "work_orders": [
+    "VWO-004",
+    "VWO-005",
+    "VWO-006"
+   ]
+  },
+  {
+   "id": "wave-2",
+   "purpose": "adversarial runtime/product validation",
+   "work_orders": [
+    "VWO-007",
+    "VWO-008",
+    "VWO-009"
+   ]
+  },
+  {
+   "id": "wave-3",
+   "purpose": "synthesis and remediation orchestration",
+   "work_orders": [
+    "VWO-010"
+   ]
+  }
+ ],
+ "work_orders": {
+  "VWO-001": {
+   "status": "ready",
+   "depends_on": [],
+   "surface": [
+    "validation-proving-ground",
+    "E2B/Composio environment lifecycle",
+    "desktop workspace bootstrap"
+   ]
+  },
+  "VWO-002": {
+   "status": "ready",
+   "depends_on": [],
+   "surface": [
+    "synthetic-enterprise-apps",
+    "fixtures",
+    "seed-data",
+    "failure-controls"
+   ]
+  },
+  "VWO-003": {
+   "status": "ready",
+   "depends_on": [],
+   "surface": [
+    "validation-harness",
+    "evidence-schema",
+    "scenario-catalog",
+    "reporting"
+   ]
+  },
+  "VWO-004": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "enterprise-operations-user-validation"
+   ]
+  },
+  "VWO-005": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "workflow-creator-marketplace-validation"
+   ]
+  },
+  "VWO-006": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "workflow-consumer-installation-validation"
+   ]
+  },
+  "VWO-007": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "restart-recovery-idempotency-cancellation-validation"
+   ]
+  },
+  "VWO-008": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "security-authorization-trust-boundary-validation"
+   ]
+  },
+  "VWO-009": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "immutable-version-marketplace-entitlement-validation"
+   ]
+  },
+  "VWO-010": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-004",
+    "VWO-005",
+    "VWO-006",
+    "VWO-007",
+    "VWO-008",
+    "VWO-009"
+   ],
+   "surface": [
+    "validation-synthesis",
+    "defect-classification",
+    "remediation-work-orders",
+    "revalidation"
+   ]
+  }
+ },
+ "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may run concurrently. Maximum three autonomous workers.",
+ "retry_rule": "A failed worker does not block independent Work Orders. Reassign/retry after inspecting evidence.",
+ "completion_rule": "The program is complete only after P0/P1 findings are fixed and revalidated, P2/P3 findings are dispositioned, and the final report is committed to GitHub.",
+ "activation_note": "Activated 2026-09-11: the M4 durable-control-plane remediation is GREEN (dependency-graph.json m4_remediation_program complete), satisfying the architect's precondition for the human-workflow validation program (TECH_LEAD_START_HERE.md \u00a716: after M4 is green, proceed automatically). Wave 0 (VWO-001/002/003) READY for dispatch, max 3 concurrent."
 }

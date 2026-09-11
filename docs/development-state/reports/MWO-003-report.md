@@ -3,7 +3,7 @@
 **Work Order:** MWO-003 (docs/work-orders/MWO-003-RESUME-RECONCILIATION.md)
 **Program:** M4 durable-control-plane remediation (architect mandate `TECH_LEAD_START_HERE.md` §16)
 **Architecture:** 0.2.0 (frozen; no divergence)
-**Status:** implemented on branch `mwo-003/resume-reconciliation` — awaiting the Tech Lead's independent verification
+**Status:** MERGED via PR #21 (squash `6b60895badd2a27ec72b25c01b688891d903de3a`); independently verified by the Tech Lead on the pinned 1.95.0 toolchain at the strict base (app 36, durable 46, triggers 23, clippy/fmt clean, family compile clean) — zero integration fixes needed. With this merge the M4 durable-control-plane gate is GREEN.
 
 ## Verification statement (read first)
 
