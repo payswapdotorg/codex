@@ -1,0 +1,40 @@
+VWO-006 / adv-environment-failure-rebinding — post-hoc diagnostics (rebind invariant oracle)
+Date (UTC): 2026-09-11T21:59:04Z
+NOTE: the UI configure form is affected by fixture defect F-2 (urlencoded string vs object) — the human-path rebind attempt was performed and captured (no-op). The rebind operation below is the API twin of the SAME product operation (/ui/installs/configure and /api/installs/configure share inst.configureInstall), used as a marked diagnostic continuation to verify the invariant oracle the catalog requires: same version pin, same digest, new binding values.
+(iris.chen token withheld — token=<redacted>)
+
+== A. install record BEFORE diagnostic rebind (pin 2.4.0, config {}) ==
+id: ins-0402 | version pin: 2.4.0 | config: {} | history: 3 entries
+
+== B. diagnostic rebind via API twin: rebind to compatible environment (new binding values) ==
+{
+    "ok": true,
+    "message": "Install ins-0402 configured (notifyChannel, supportQueue, region).",
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-102",
+
+== C. install record AFTER diagnostic rebind (expect: version pin STILL 2.4.0, new binding values present) ==
+id: ins-0402 | version pin: 2.4.0 | config: {"notifyChannel": "northwind-ops-eu", "supportQueue": "tier-1-eu", "region": "eu-west-1"}
+history: installed None → 2.3.1 
+history: upgraded 2.3.1 → 2.4.0 
+history: configured 2.4.0 → 2.4.0 []
+history: configured 2.4.0 → 2.4.0 ['notifyChannel', 'supportQueue', 'region']
+
+== D. digest equality after rebind (listing vs package API; expect sha256:cadb075e36500b7c for 2.4.0 — unchanged) ==
+version: 2.3.1 digest: sha256:04cf049e110cc2cc
+version: 2.4.0 digest: sha256:cadb075e36500b7c
+
+== E. semantically-mutating rebind payload attempt (catalog step 6) ==
+payload tries to smuggle semantic fields through the configure surface:
+configure response ok — payload stored as config DATA
+
+install semantic identity after the smuggling attempt:
+version pin: 2.4.0 (NOT 9.9.9)
+packageId: pk-102 (NOT pk-101)
+config keys now: ['digest', 'notifyChannel', 'packageId', 'region', 'supportQueue', 'version'] — smuggled keys inert as data
+published 2.4.0 digest: sha256:cadb075e36500b7c (NOT sha256:0000000000000000 — immutability holds)
+
+VERDICT: rebind changed binding values only; version identity pinned (2.4.0); package digest immutable; smuggled semantic fields stored as inert config data (no mutation).

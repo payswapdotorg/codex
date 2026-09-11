@@ -1,0 +1,18 @@
+VWO-006 / marketplace-discover-install-configure — reset verification
+Date (UTC): 2026-09-11T21:53:35Z
+
+== POST /reset (HTML flow, documented on every page footer) ==
+HTTP 302 redirect to / (signs out) — executed above
+
+== Post-reset state: Northwind installs (expect seed: none) ==
+{
+    "ok": true,
+    "orgId": "o-1",
+    "installs": []
+}
+
+== Post-reset events tail (world.reset #2) ==
+2026-09-11T21:53:35.319Z | auth.login | iris.chen signed in
+2026-09-11T21:53:34.306Z | world.reset | Demo world reset to seed state (reset #1)
+
+(token withheld — token=<redacted>)

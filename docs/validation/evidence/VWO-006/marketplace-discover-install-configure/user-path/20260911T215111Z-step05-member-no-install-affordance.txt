@@ -1,0 +1,58 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Ravi Gupta · org_member · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Catalog" [level=1, ref=e4]
+  - generic
+    - heading "Search the catalog" [level=2, ref=e13]
+    - form
+      - textbox "Search packages (e.g. invoice, triage)" [ref=e15]: triage
+        - StaticText "triage"
+      - combobox [expanded=false, ref=e16]: All categories
+        - MenuListPopup
+          - option "All categories" [selected, ref=e26]
+          - option "finance-ops" [ref=e27]
+          - option "support-ops" [ref=e28]
+          - option "logistics" [ref=e29]
+      - button "Search" [ref=e17]
+  - generic
+    - heading "Results (1)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PACKAGE" [ref=e30]
+          - columnheader "SLUG" [ref=e31]
+          - columnheader "CATEGORY" [ref=e32]
+          - columnheader "SUMMARY" [ref=e33]
+          - columnheader "LICENSE" [ref=e34]
+          - columnheader "LATEST" [ref=e35]
+          - columnheader "INSTALLS · STARS" [ref=e36]
+          - columnheader "ACTION" [ref=e37]
+      - row
+        - cell "Support Ticket Triage Assistant" [ref=e18]
+          - link "Support Ticket Triage Assistant" [ref=e38]
+        - cell "support-triage-assistant" [ref=e19]
+          - code
+            - StaticText "support-triage-assistant"
+        - cell "support-ops" [ref=e20]
+        - cell "Routes inbound support tickets to the right queue with confidence scores." [ref=e21]
+        - cell "subscription" [ref=e22]
+        - cell "2.3.1" [ref=e23]
+          - code
+            - StaticText "2.3.1"
+        - cell "1291 · ★4.8 (96)" [ref=e24]
+        - cell "View" [ref=e25]
+          - link "View" [ref=e39]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

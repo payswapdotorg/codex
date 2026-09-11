@@ -1,0 +1,11 @@
+2026-09-11T21:59:04.787Z | install.configured | ins-0402 | Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics
+2026-09-11T21:59:04.697Z | install.configured | ins-0402 | Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics
+2026-09-11T21:58:32.172Z | install.configured | ins-0402 | Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics
+2026-09-11T21:58:20.665Z | notification.delivered | notification:n-0004 | Notification "Support Ticket Triage Assistant upgraded to 2.4.0" delivered to iris.chen
+2026-09-11T21:58:20.665Z | install.upgraded | ins-0402 | Northwind Logistics upgraded "Support Ticket Triage Assistant" 2.3.1 → 2.4.0
+2026-09-11T21:57:58.371Z | notification.delivered | notification:n-0003 | Notification "Upgrade available: Support Ticket Triage Assistant 2.4.0" delivered to iris.chen
+2026-09-11T21:57:58.371Z | notification.delivered | notification:n-0002 | Notification "Upgrade available: Support Ticket Triage Assistant 2.4.0" delivered to petra.voss
+2026-09-11T21:57:58.370Z | version.published | pk-102@2.4.0 | "Support Ticket Triage Assistant" 2.4.0 released by Vera Osei: Adds sentiment-aware escalation routing and queue-level SLA thresholds.
+2026-09-11T21:57:34.666Z | notification.delivered | notification:n-0001 | Notification "Northwind Logistics installed Support Ticket Triage Assistant" delivered to vera.osei
+2026-09-11T21:57:34.666Z | package.installed | ins-0402 | Northwind Logistics installed "Support Ticket Triage Assistant" v2.3.1 (ins-0402)
+2026-09-11T21:57:34.666Z | entitlement.granted | ent-0504 | Trial entitlement for "Support Ticket Triage Assistant" auto-granted to Northwind Logistics (until 2026-10-12)

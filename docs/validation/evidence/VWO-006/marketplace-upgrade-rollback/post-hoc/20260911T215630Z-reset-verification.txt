@@ -1,0 +1,8 @@
+VWO-006 / marketplace-upgrade-rollback — reset verification
+Date (UTC): 2026-09-11T21:56:30Z
+== post-reset: pk-102 versions (expect seed: only 2.3.1) ==
+version: 2.3.1
+== post-reset: ins-0401 pin (expect 2.3.1, history: installed only) ==
+id: ins-0401 version: 2.3.1
+history: installed None → 2.3.1
+(token withheld — token=<redacted>)
