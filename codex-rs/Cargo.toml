@@ -160,6 +160,7 @@ members = [
     "workflow-evolution",
     "workflow-distribution",
     "resource-providers",
+    "workflow-durable",
 ]
 resolver = "2"
 
