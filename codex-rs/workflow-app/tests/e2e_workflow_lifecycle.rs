@@ -111,6 +111,7 @@ use codex_workflow_app::ScriptedActionSource;
 use codex_workflow_app::WalkConfig;
 use codex_workflow_app::WorkflowAppError;
 use codex_workflow_app::WorkflowEvent;
+use codex_workflow_app::WorkflowInstanceStore;
 use codex_workflow_app::WorkflowLifecycle;
 use codex_workflow_app::WorkflowVersionStore;
 use codex_workflow_app::install_version;
@@ -133,6 +134,8 @@ use codex_workflow_contracts::TriggerSource;
 use codex_workflow_contracts::WaitFor;
 use codex_workflow_contracts::WaitNode;
 use codex_workflow_contracts::WorkflowDefinitionId;
+use codex_workflow_contracts::WorkflowInstance;
+use codex_workflow_contracts::WorkflowInstanceId;
 use codex_workflow_contracts::WorkflowInstanceStatus;
 use codex_workflow_contracts::WorkflowIr;
 use codex_workflow_contracts::WorkflowIrNode;
@@ -1368,11 +1371,11 @@ async fn tampered_version_records_never_become_executable() {
     assert!(matches!(error, WorkflowAppError::VersionIntegrity { .. }));
 }
 
-#[tokio::test]
-async fn wait_node_pauses_the_running_instance() {
-    // Control-plane-authored IR: one step, then a wait for a human event.
-    // The teaching compiler still gates publication (validation,
-    // simulation, approval, digest-pinned finalization).
+/// Publishes the control-plane-authored await-signoff workflow: one
+/// capability-less step, then a wait for a human trigger event. The
+/// teaching compiler still gates publication (validation, simulation,
+/// approval, digest-pinned finalization).
+fn await_signoff_artifact() -> PublishedArtifact {
     let mut nodes = BTreeMap::new();
     nodes.insert(
         node_id("step-001"),
@@ -1413,7 +1416,6 @@ async fn wait_node_pauses_the_running_instance() {
     let approved = candidate
         .finalize(WorkflowDefinitionId::parse("await-signoff").expect("definition id"))
         .expect("finalize");
-
     let (artifact, _installs) = publish_with(
         approved,
         WorkflowDefinitionId::parse("await-signoff").expect("definition id"),
@@ -1421,6 +1423,12 @@ async fn wait_node_pauses_the_running_instance() {
         (1, 0, 0),
         BTreeMap::new(),
     );
+    artifact
+}
+
+#[tokio::test]
+async fn wait_node_pauses_the_running_instance() {
+    let artifact = await_signoff_artifact();
 
     let mut harness = harness(Vec::new(), Vec::new(), AccessRequirement::Allow, Vec::new());
     let outcome = run_installed(&mut harness, &artifact).await;
@@ -1453,4 +1461,292 @@ async fn wait_node_pauses_the_running_instance() {
         .expect("verify run");
     assert_eq!(verified.instance.status, WorkflowInstanceStatus::Paused);
     verify_evidence(&harness, &verified);
+}
+
+#[tokio::test]
+async fn cancel_from_running_settles_the_instance_as_cancelled() {
+    let (artifact, _installs) = publish_installed(taught_approved(), "v1.0.0", (1, 0, 0));
+    let mut harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Allow,
+        Vec::new(),
+    );
+    harness
+        .versions
+        .publish(artifact.version.clone())
+        .expect("store version");
+    harness
+        .lifecycle
+        .select_version(&artifact.version.version_id)
+        .expect("select version");
+    let instance = harness
+        .lifecycle
+        .instantiate(InstantiateRequest {
+            trigger: None,
+            policy: BindingPolicy::default(),
+            resources: resources(),
+            walk: WalkConfig::default(),
+        })
+        .await
+        .expect("instantiate");
+    assert_eq!(instance.status, WorkflowInstanceStatus::Running);
+    let instance_id = instance.instance_id;
+
+    let cancelled = harness
+        .lifecycle
+        .cancel(&instance_id, "operator stopped the release run")
+        .expect("cancel the running instance");
+    assert_eq!(cancelled.status, WorkflowInstanceStatus::Cancelled);
+    assert_eq!(
+        harness
+            .instances
+            .snapshot(&instance_id)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Cancelled
+    );
+
+    // The cancellation is observable: one InstanceCancelled event carrying
+    // the operator reason and one evidence trace recording it. Nothing
+    // dispatched: the run never started.
+    let events = harness.events.events();
+    assert!(events.iter().any(|event| {
+        matches!(
+            event,
+            WorkflowEvent::InstanceCancelled { instance, reason }
+                if *instance == instance_id && reason == "operator stopped the release run"
+        )
+    }));
+    let verified = harness
+        .lifecycle
+        .verify_run(&instance_id)
+        .expect("verify run");
+    assert_eq!(verified.instance.status, WorkflowInstanceStatus::Cancelled);
+    let traces: Vec<_> = verified
+        .evidence
+        .iter()
+        .filter(|reference| reference.kind == EvidenceKind::Trace)
+        .collect();
+    assert_eq!(traces.len(), 1);
+    let payload = harness
+        .evidence
+        .payload(&traces[0].locator)
+        .expect("trace payload");
+    assert_eq!(payload["operation"], "cancel");
+    assert_eq!(payload["reason"], "operator stopped the release run");
+    let instance_string = instance_id.to_string();
+    assert_eq!(payload["instance"].as_str(), Some(instance_string.as_str()));
+    verify_evidence(&harness, &verified);
+
+    // Cancellation never mutates workflow semantics: the pinned version
+    // still verifies end to end (verify_run re-ran integrity).
+    assert_eq!(verified.version, artifact.version.version_id);
+
+    // The in-flight run state was taken over: a later run is an explicit
+    // no-op and can never settle the terminal record.
+    let error = harness
+        .lifecycle
+        .run()
+        .await
+        .expect_err("no active run after cancellation");
+    assert!(matches!(error, WorkflowAppError::NoActiveWorkflow));
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 0);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 0);
+    assert_eq!(harness.actions.remaining(), 2);
+}
+
+#[tokio::test]
+async fn cancel_from_paused_settles_the_instance_and_refuses_double_cancel() {
+    let artifact = await_signoff_artifact();
+    let mut harness = harness(Vec::new(), Vec::new(), AccessRequirement::Allow, Vec::new());
+    let outcome = run_installed(&mut harness, &artifact).await;
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Paused);
+    let instance_id = outcome.instance.instance_id;
+
+    let cancelled = harness
+        .lifecycle
+        .cancel(&instance_id, "superseded by a newer signoff request")
+        .expect("cancel the paused instance");
+    assert_eq!(cancelled.status, WorkflowInstanceStatus::Cancelled);
+    assert_eq!(
+        harness
+            .instances
+            .snapshot(&instance_id)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Cancelled
+    );
+
+    // Double-cancel: an explicit illegal transition, never a silent
+    // no-op, with no new durable side effects.
+    let events_before = harness.events.len();
+    let evidence_before = harness.evidence.len();
+    let error = harness
+        .lifecycle
+        .cancel(&instance_id, "duplicate cancel")
+        .expect_err("double cancel is refused");
+    assert!(matches!(
+        error,
+        WorkflowAppError::IllegalStatusTransition {
+            current: WorkflowInstanceStatus::Cancelled,
+            target: WorkflowInstanceStatus::Cancelled,
+            ..
+        }
+    ));
+    assert_eq!(harness.events.len(), events_before);
+    assert_eq!(harness.evidence.len(), evidence_before);
+    assert_eq!(
+        harness
+            .instances
+            .snapshot(&instance_id)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Cancelled
+    );
+
+    // The cancelled record still reconciles: pinned version verified,
+    // evidence intact, status terminal.
+    let verified = harness
+        .lifecycle
+        .verify_run(&instance_id)
+        .expect("verify run");
+    assert_eq!(verified.instance.status, WorkflowInstanceStatus::Cancelled);
+    assert_eq!(verified.version, artifact.version.version_id);
+    verify_evidence(&harness, &verified);
+}
+
+#[tokio::test]
+async fn cancel_before_start_settles_a_pending_instance() {
+    let (artifact, _installs) = publish_installed(taught_approved(), "v1.0.0", (1, 0, 0));
+    let mut harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Allow,
+        Vec::new(),
+    );
+    harness
+        .versions
+        .publish(artifact.version.clone())
+        .expect("store version");
+    // A created-but-not-started instance record: the Pending window
+    // between record creation and the start gate. No workflow is active
+    // in the lifecycle; the control plane acts on the durable record.
+    let pending = WorkflowInstance::new(
+        WorkflowInstanceId::generate(),
+        definition_id(),
+        artifact.version.version_id.clone(),
+        WorkflowInstanceStatus::Pending,
+    );
+    let instance_id = pending.instance_id;
+    harness
+        .instances
+        .create(pending)
+        .expect("seed pending record");
+
+    let cancelled = harness
+        .lifecycle
+        .cancel(&instance_id, "operator withdrew the trigger")
+        .expect("cancel before start");
+    assert_eq!(cancelled.status, WorkflowInstanceStatus::Cancelled);
+    assert_eq!(
+        harness
+            .instances
+            .snapshot(&instance_id)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Cancelled
+    );
+
+    // Nothing started: no run state, no dispatched work, and exactly one
+    // observable event, the cancellation itself.
+    assert!(!harness.lifecycle.is_active());
+    let events = harness.events.events();
+    assert_eq!(events.len(), 1);
+    assert!(matches!(
+        events[0],
+        WorkflowEvent::InstanceCancelled { instance, .. } if instance == instance_id
+    ));
+    let verified = harness
+        .lifecycle
+        .verify_run(&instance_id)
+        .expect("verify run");
+    assert_eq!(verified.instance.status, WorkflowInstanceStatus::Cancelled);
+    assert_eq!(verified.version, artifact.version.version_id);
+    assert_eq!(verified.evidence.len(), 1);
+    verify_evidence(&harness, &verified);
+    assert_eq!(harness.actions.remaining(), 2);
+    assert_eq!(harness.browser_executor.executed_kinds().len(), 0);
+    assert_eq!(harness.computer_calls.load(Ordering::SeqCst), 0);
+}
+
+#[tokio::test]
+async fn settled_instances_are_immutable_under_cancel() {
+    // A succeeded run: the golden path settles Succeeded.
+    let (artifact, _installs) = publish_installed(taught_approved(), "v1.0.0", (1, 0, 0));
+    let mut succeeded_harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Allow,
+        Vec::new(),
+    );
+    let outcome = run_installed(&mut succeeded_harness, &artifact).await;
+    assert_eq!(outcome.instance.status, WorkflowInstanceStatus::Succeeded);
+    let succeeded = outcome.instance.instance_id;
+
+    let error = succeeded_harness
+        .lifecycle
+        .cancel(&succeeded, "late cancel")
+        .expect_err("settled instances cannot be cancelled");
+    assert!(matches!(
+        error,
+        WorkflowAppError::IllegalStatusTransition {
+            current: WorkflowInstanceStatus::Succeeded,
+            target: WorkflowInstanceStatus::Cancelled,
+            ..
+        }
+    ));
+    assert_eq!(
+        succeeded_harness
+            .instances
+            .snapshot(&succeeded)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Succeeded
+    );
+
+    // A failed run: the computer-policy denial escalates and settles
+    // Failed.
+    let mut failed_harness = harness(
+        vec![success_turn()],
+        default_action_script(),
+        AccessRequirement::Deny,
+        Vec::new(),
+    );
+    let failed_outcome = run_installed(&mut failed_harness, &artifact).await;
+    assert_eq!(
+        failed_outcome.instance.status,
+        WorkflowInstanceStatus::Failed
+    );
+    let failed = failed_outcome.instance.instance_id;
+    let error = failed_harness
+        .lifecycle
+        .cancel(&failed, "late cancel")
+        .expect_err("settled instances cannot be cancelled");
+    assert!(matches!(
+        error,
+        WorkflowAppError::IllegalStatusTransition {
+            current: WorkflowInstanceStatus::Failed,
+            target: WorkflowInstanceStatus::Cancelled,
+            ..
+        }
+    ));
+    assert_eq!(
+        failed_harness
+            .instances
+            .snapshot(&failed)
+            .expect("stored record")
+            .status,
+        WorkflowInstanceStatus::Failed
+    );
 }

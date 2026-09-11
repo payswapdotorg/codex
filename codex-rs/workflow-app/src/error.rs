@@ -12,6 +12,7 @@ use codex_execution_contracts::DiagnosticCode;
 use codex_execution_contracts::ExecutionContractError;
 use codex_teaching_compiler::TeachingCompilerError;
 use codex_workflow_contracts::WorkflowContractError;
+use codex_workflow_contracts::WorkflowInstanceStatus;
 use codex_workflow_forge::WorkflowForgeError;
 use thiserror::Error;
 
@@ -51,6 +52,20 @@ pub enum WorkflowAppError {
     InstanceAlreadyExists {
         /// The duplicate instance identity.
         instance: String,
+    },
+    /// An instance status transition the frozen control-plane table
+    /// forbids: the record's current status cannot legally move to the
+    /// requested target (a double-cancel, a cancel of an already-settled
+    /// instance, or any settlement the legal-transition table refuses).
+    /// Never a silent no-op.
+    #[error("workflow instance `{instance}` cannot transition from `{current:?}` to `{target:?}`")]
+    IllegalStatusTransition {
+        /// The instance whose transition was refused.
+        instance: String,
+        /// The instance's current status.
+        current: WorkflowInstanceStatus,
+        /// The refused target status.
+        target: WorkflowInstanceStatus,
     },
     /// Capability resolution or planning failed with a structured
     /// execution-plane diagnostic.

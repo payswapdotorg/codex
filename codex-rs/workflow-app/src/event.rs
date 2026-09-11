@@ -131,4 +131,12 @@ pub enum WorkflowEvent {
         /// Why the run failed.
         reason: String,
     },
+    /// The instance was cancelled through the control plane
+    /// (`Pending`, `Running`, or `Paused` -> `Cancelled`).
+    InstanceCancelled {
+        /// The instance that was cancelled.
+        instance: WorkflowInstanceId,
+        /// The operator-visible cancellation reason.
+        reason: String,
+    },
 }

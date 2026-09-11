@@ -1,12 +1,12 @@
 //! Workflow instances.
 //!
 //! A `WorkflowInstance` is the contract-level record of one execution of a
-//! pinned, immutable workflow version. This Work Order defines the shape
-//! only: durable lifecycle, legal transitions, idempotent triggers, and
-//! recovery are owned by the workflow control plane (roadmap M4), which
-//! remains the sole authority for instance state. Agents, models, and
-//! execution adapters observe and propose; they cannot mutate instance
-//! semantics.
+//! pinned, immutable workflow version. This crate defines the record shape
+//! and the frozen legal-transition table the workflow control plane
+//! declares for instance statuses; durable lifecycle, idempotent triggers,
+//! and recovery remain control-plane authority (roadmap M4), which stays
+//! the sole authority for instance state. Agents, models, and execution
+//! adapters observe and propose; they cannot mutate instance semantics.
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -19,9 +19,14 @@ use crate::WorkflowVersionId;
 
 /// Lifecycle status of a workflow instance.
 ///
-/// The enum lists the contract-level states only. Transition rules between
-/// states are control-plane authority and are intentionally not encoded
-/// here.
+/// The enum lists the contract-level states, and
+/// [`WorkflowInstanceStatus::legal_transitions`] declares the frozen
+/// legal-transition table between them. The table is the control plane's
+/// declared authority (the M4 remediation program, mirroring the per-cause
+/// transition tables of the execution contracts' readiness lifecycle):
+/// only the control plane transitions an instance, and only along declared
+/// edges; every other pair is an illegal transition. Agents, models, and
+/// execution adapters never mutate instance status.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum WorkflowInstanceStatus {
@@ -37,6 +42,55 @@ pub enum WorkflowInstanceStatus {
     Failed,
     /// Cancelled before completion.
     Cancelled,
+}
+
+impl WorkflowInstanceStatus {
+    /// Every lifecycle status defined by the contract.
+    pub const ALL: [Self; 6] = [
+        Self::Pending,
+        Self::Running,
+        Self::Paused,
+        Self::Succeeded,
+        Self::Failed,
+        Self::Cancelled,
+    ];
+
+    /// The statuses an instance in this status may legally transition to.
+    ///
+    /// This is the frozen legal-transition table declared by the workflow
+    /// control plane:
+    ///
+    /// ```text
+    /// Pending              -> Running | Failed | Cancelled
+    /// Running              -> Paused | Succeeded | Failed | Cancelled
+    /// Paused               -> Running | Failed | Cancelled
+    /// Succeeded, Failed, Cancelled   terminal: no transitions
+    /// ```
+    ///
+    /// `Pending -> Failed` is the documented instantiation-failure
+    /// settlement: a validate/approve/bind gate failure settles the record
+    /// `Failed` before any execution starts. Terminal statuses admit no
+    /// transitions, so settled records are immutable.
+    pub fn legal_transitions(self) -> &'static [Self] {
+        match self {
+            Self::Pending => &[Self::Running, Self::Failed, Self::Cancelled],
+            Self::Running => &[Self::Paused, Self::Succeeded, Self::Failed, Self::Cancelled],
+            Self::Paused => &[Self::Running, Self::Failed, Self::Cancelled],
+            Self::Succeeded | Self::Failed | Self::Cancelled => &[],
+        }
+    }
+
+    /// Whether the transition `self -> target` is legal per the declared
+    /// table.
+    pub fn can_transition_to(self, target: Self) -> bool {
+        self.legal_transitions().contains(&target)
+    }
+
+    /// Whether the status is terminal: an instance in this status can
+    /// never transition again.
+    pub const fn is_terminal(self) -> bool {
+        matches!(self, Self::Succeeded | Self::Failed | Self::Cancelled)
+    }
 }
 
 /// One execution instance of a published workflow version.
