@@ -1,37 +1,251 @@
 {
-  "program": "codex-universal-human-workflow-validation",
-  "version": "2.0.0",
-  "max_concurrent_workers": 3,
-  "status": "active",
-  "waves": [
-    {"id":"wave-0","purpose":"proving-ground bootstrap","work_orders":["VWO-001","VWO-002","VWO-003"]},
-    {"id":"wave-1","purpose":"real-user workflow validation","work_orders":["VWO-004","VWO-005","VWO-006"]},
-    {"id":"wave-2","purpose":"adversarial runtime/product validation","work_orders":["VWO-007","VWO-008","VWO-009"]},
-    {"id":"wave-3","purpose":"synthesis, remediation and revalidation","work_orders":["VWO-010"]},
-    {"id":"wave-4","purpose":"universal computer-task coverage and north-star validation","work_orders":["VWO-011","VWO-012","VWO-013","VWO-014","VWO-015","VWO-016","VWO-017"]}
-  ],
-  "work_orders": {
-    "VWO-001":{"status":"merged","depends_on":[],"surface":["validation-proving-ground","E2B/Composio environment lifecycle","desktop workspace bootstrap"]},
-    "VWO-002":{"status":"merged","depends_on":[],"surface":["synthetic-enterprise-apps","fixtures","seed-data","failure-controls"]},
-    "VWO-003":{"status":"ready","depends_on":[],"surface":["validation-harness","evidence-schema","scenario-catalog","reporting"]},
-    "VWO-004":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["enterprise-operations-user-validation"]},
-    "VWO-005":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["workflow-creator-marketplace-validation"]},
-    "VWO-006":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["workflow-consumer-installation-validation"]},
-    "VWO-007":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["restart-recovery-idempotency-cancellation-validation"]},
-    "VWO-008":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["security-authorization-trust-boundary-validation"]},
-    "VWO-009":{"status":"blocked","depends_on":["VWO-001","VWO-002","VWO-003"],"surface":["immutable-version-marketplace-entitlement-validation"]},
-    "VWO-010":{"status":"blocked","depends_on":["VWO-004","VWO-005","VWO-006","VWO-007","VWO-008","VWO-009"],"surface":["validation-synthesis","defect-classification","remediation-work-orders","revalidation"]},
-    "VWO-011":{"status":"blocked","depends_on":["VWO-010"],"surface":["north-star-task-taxonomy","coverage-benchmark","coverage-matrix"]},
-    "VWO-012":{"status":"blocked","depends_on":["VWO-011","VWO-001","VWO-002"],"surface":["native-desktop-gui-task-validation"]},
-    "VWO-013":{"status":"blocked","depends_on":["VWO-011","VWO-001","VWO-002"],"surface":["browser-web-application-task-validation"]},
-    "VWO-014":{"status":"blocked","depends_on":["VWO-011","VWO-001","VWO-002"],"surface":["terminal-filesystem-data-developer-task-validation"]},
-    "VWO-015":{"status":"blocked","depends_on":["VWO-012","VWO-013","VWO-014"],"surface":["cross-application-multi-environment-validation"]},
-    "VWO-016":{"status":"blocked","depends_on":["VWO-015"],"surface":["unseen-human-goal-generalization","held-out-task-validation"]},
-    "VWO-017":{"status":"blocked","depends_on":["VWO-016","VWO-010"],"surface":["north-star-synthesis","universal-computer-automation-gate","final-generalization-verdict"]}
+ "program": "codex-universal-human-workflow-validation",
+ "version": "2.0.0",
+ "max_concurrent_workers": 3,
+ "status": "active",
+ "waves": [
+  {
+   "id": "wave-0",
+   "purpose": "proving-ground bootstrap",
+   "work_orders": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ]
   },
-  "parallelism_rule":"Only Work Orders with disjoint surfaces and satisfied dependencies may run concurrently. Maximum three autonomous workers.",
-  "retry_rule":"A failed worker does not block independent Work Orders. Reassign/retry after inspecting evidence.",
-  "completion_rule":"The program is complete only after P0/P1 findings are fixed and revalidated, P2/P3 findings are dispositioned, the original product validation is green, and VWO-017 records an evidence-led north-star verdict.",
-  "north_star_rule":"Passing scripted scenarios never by itself proves universal computer automation. VWO-017 must separately assess semantic, interaction, environment, capability/resource, teaching, reliability, generalization and product-usability dimensions using the evidence from VWO-011 through VWO-016.",
-  "activation_note":"Activated on validation branch 2026-09-11: VWO-001 and VWO-002 are merged; VWO-003 remains the Wave-0 frontier. Once VWO-010 is accepted, the Tech Lead must automatically continue into Wave 4. VWO-012, VWO-013 and VWO-014 may run concurrently after VWO-011. No operator prompt is required. The final product-readiness decision cannot ignore the north-star wave."
+  {
+   "id": "wave-1",
+   "purpose": "real-user workflow validation",
+   "work_orders": [
+    "VWO-004",
+    "VWO-005",
+    "VWO-006"
+   ]
+  },
+  {
+   "id": "wave-2",
+   "purpose": "adversarial runtime/product validation",
+   "work_orders": [
+    "VWO-007",
+    "VWO-008",
+    "VWO-009"
+   ]
+  },
+  {
+   "id": "wave-3",
+   "purpose": "synthesis, remediation and revalidation",
+   "work_orders": [
+    "VWO-010"
+   ]
+  },
+  {
+   "id": "wave-4",
+   "purpose": "universal computer-task coverage and north-star validation",
+   "work_orders": [
+    "VWO-011",
+    "VWO-012",
+    "VWO-013",
+    "VWO-014",
+    "VWO-015",
+    "VWO-016",
+    "VWO-017"
+   ]
+  }
+ ],
+ "work_orders": {
+  "VWO-001": {
+   "status": "merged",
+   "depends_on": [],
+   "surface": [
+    "validation-proving-ground",
+    "E2B/Composio environment lifecycle",
+    "desktop workspace bootstrap"
+   ]
+  },
+  "VWO-002": {
+   "status": "merged",
+   "depends_on": [],
+   "surface": [
+    "synthetic-enterprise-apps",
+    "fixtures",
+    "seed-data",
+    "failure-controls"
+   ]
+  },
+  "VWO-003": {
+   "status": "merged",
+   "depends_on": [],
+   "surface": [
+    "validation-harness",
+    "evidence-schema",
+    "scenario-catalog",
+    "reporting"
+   ]
+  },
+  "VWO-004": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "enterprise-operations-user-validation"
+   ]
+  },
+  "VWO-005": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "workflow-creator-marketplace-validation"
+   ]
+  },
+  "VWO-006": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "workflow-consumer-installation-validation"
+   ]
+  },
+  "VWO-007": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "restart-recovery-idempotency-cancellation-validation"
+   ]
+  },
+  "VWO-008": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "security-authorization-trust-boundary-validation"
+   ]
+  },
+  "VWO-009": {
+   "status": "ready",
+   "depends_on": [
+    "VWO-001",
+    "VWO-002",
+    "VWO-003"
+   ],
+   "surface": [
+    "immutable-version-marketplace-entitlement-validation"
+   ]
+  },
+  "VWO-010": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-004",
+    "VWO-005",
+    "VWO-006",
+    "VWO-007",
+    "VWO-008",
+    "VWO-009"
+   ],
+   "surface": [
+    "validation-synthesis",
+    "defect-classification",
+    "remediation-work-orders",
+    "revalidation"
+   ]
+  },
+  "VWO-011": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-010"
+   ],
+   "surface": [
+    "north-star-task-taxonomy",
+    "coverage-benchmark",
+    "coverage-matrix"
+   ]
+  },
+  "VWO-012": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-011",
+    "VWO-001",
+    "VWO-002"
+   ],
+   "surface": [
+    "native-desktop-gui-task-validation"
+   ]
+  },
+  "VWO-013": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-011",
+    "VWO-001",
+    "VWO-002"
+   ],
+   "surface": [
+    "browser-web-application-task-validation"
+   ]
+  },
+  "VWO-014": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-011",
+    "VWO-001",
+    "VWO-002"
+   ],
+   "surface": [
+    "terminal-filesystem-data-developer-task-validation"
+   ]
+  },
+  "VWO-015": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-012",
+    "VWO-013",
+    "VWO-014"
+   ],
+   "surface": [
+    "cross-application-multi-environment-validation"
+   ]
+  },
+  "VWO-016": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-015"
+   ],
+   "surface": [
+    "unseen-human-goal-generalization",
+    "held-out-task-validation"
+   ]
+  },
+  "VWO-017": {
+   "status": "blocked",
+   "depends_on": [
+    "VWO-016",
+    "VWO-010"
+   ],
+   "surface": [
+    "north-star-synthesis",
+    "universal-computer-automation-gate",
+    "final-generalization-verdict"
+   ]
+  }
+ },
+ "parallelism_rule": "Only Work Orders with disjoint surfaces and satisfied dependencies may run concurrently. Maximum three autonomous workers.",
+ "retry_rule": "A failed worker does not block independent Work Orders. Reassign/retry after inspecting evidence.",
+ "completion_rule": "The program is complete only after P0/P1 findings are fixed and revalidated, P2/P3 findings are dispositioned, the original product validation is green, and VWO-017 records an evidence-led north-star verdict.",
+ "north_star_rule": "Passing scripted scenarios never by itself proves universal computer automation. VWO-017 must separately assess semantic, interaction, environment, capability/resource, teaching, reliability, generalization and product-usability dimensions using the evidence from VWO-011 through VWO-016.",
+ "activation_note": "Activated on validation branch 2026-09-11: VWO-001 and VWO-002 are merged; VWO-003 remains the Wave-0 frontier. Once VWO-010 is accepted, the Tech Lead must automatically continue into Wave 4. VWO-012, VWO-013 and VWO-014 may run concurrently after VWO-011. No operator prompt is required. The final product-readiness decision cannot ignore the north-star wave."
 }
