@@ -1,6 +1,6 @@
 # MWO-001 — Durable Control-Plane Stores
 
-**Status:** READY
+**Status:** MERGED (PR #20, squash `ac3f9ced5`)
 **Depends on:** none (parallel with MWO-002)
 **Program:** M4 durable-control-plane remediation (architect finding; see `TECH_LEAD_START_HERE.md` §16 and `docs/validation/prompts/01-final-completion-tech-lead-orchestration.md`)
 **Architecture:** 0.2.0

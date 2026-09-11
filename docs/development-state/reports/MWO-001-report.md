@@ -3,7 +3,7 @@
 **Work Order:** MWO-001 (M4 durable-control-plane remediation program)
 **Program authority:** `TECH_LEAD_START_HERE.md` §16; `docs/validation/prompts/01-final-completion-tech-lead-orchestration.md`
 **Architecture:** 0.2.0 (frozen; no divergence)
-**Status:** Implemented, verified, committed. NOT PUSHED — the Tech Lead applies, independently verifies, pushes, and merges.
+**Status:** MERGED via PR #20 (squash `ac3f9ced5280f9b859184b90d2c6edc1f2c22c82`); independently re-verified by the Tech Lead on the pinned toolchain 1.95.0 after a clean rebase onto current main (durable 38, app 5+15, triggers 9+14, clippy/fmt clean) — zero integration fixes needed
 
 === MWO-001 COMPLETION REPORT ===
 

@@ -183,7 +183,7 @@
   "authority": "TECH_LEAD_START_HERE.md \u00a716 + docs/validation/prompts/01-final-completion-tech-lead-orchestration.md",
   "work_orders": {
    "MWO-001": {
-    "status": "ready",
+    "status": "merged",
     "depends_on": [],
     "surface": [
      "durable-stores",
@@ -201,7 +201,7 @@
     "packet": "docs/work-orders/MWO-002-LEGAL-TRANSITIONS-CANCEL.md"
    },
    "MWO-003": {
-    "status": "blocked",
+    "status": "ready",
     "depends_on": [
      "MWO-001"
     ],
