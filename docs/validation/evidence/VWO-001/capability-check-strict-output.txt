@@ -1,0 +1,47 @@
+
+=== 1/9 terminal ===
+[PASS] terminal executes commands and returns stdout (/bin/bash)
+
+=== 2/9 file-API (project root) ===
+[PASS] project root visible and writable: /home/z/my-project
+
+=== 3/9 repository reachability ===
+[PASS] git present (git version 2.47.3) and payswapdotorg/codex reachable (HEAD 926c177a5515a1bf1316d7ef1bacb9b6d2d53611)
+
+=== 4/9 Rust toolchain (pinned by codex-rs/rust-toolchain.toml) ===
+[PASS] rustc 1.95.0 + cargo 1.95.0 match pin 1.95.0
+
+=== 5/9 browser availability ===
+[PASS] platform browser automation CLI present: agent-browser agent-browser 0.35.0
+[PASS] Playwright chromium present: /home/z/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome
+
+=== 6/9 headless render (live) ===
+[PASS] chromium headless rendered CAPCHECK-RENDER-MARKER into DOM
+
+=== 7/9 E2B/Composio connected integration (fidelity check) ===
+[NOTE] credential env var E2B_API_KEY not set
+[NOTE] credential env var E2B_ACCESS_TOKEN not set
+[NOTE] credential env var E2B_TEAM_ID not set
+[NOTE] CLI 'e2b' absent
+[NOTE] CLI 'composio' absent
+[FAIL] E2B/Composio connected integration ABSENT — no credentials, no CLI, no config.
+       This is the recorded VWO-001 fallback condition; see README.md §2 (Fidelity Limitations).
+
+=== 8/9 desktop capability (fidelity check) ===
+[PASS] Xvfb present (virtual X framebuffer)
+[PASS] virtual display :137 live; ffmpeg x11grab captured a frame (3172 bytes)
+[PASS] input injection works (xdotool synthetic keystroke accepted by :137)
+[NOTE] VNC server binary 'Xvnc' absent (no interactive human-observable desktop)
+[NOTE] VNC server binary 'x11vnc' absent (no interactive human-observable desktop)
+[NOTE] VNC server binary 'vncserver' absent (no interactive human-observable desktop)
+[NOTE] desktop capability level: virtual-display+capture+input
+
+=== 9/9 human gate (operator channel) ===
+[PASS] no session/chat identifiers exported into worker env (human gate stays in the operator channel)
+[NOTE] human gate = operator chat session (IM gateway); documented in README.md §1
+
+=== FIDELITY PROFILE ===
+required failures : 0
+fidelity failures : 1 (strict gates exit code only with --strict)
+
+RESULT: STRICT FAIL — fallback fidelity limitations present (E2B/desktop); recorded in README.md §2.
