@@ -1,0 +1,19 @@
+VWO-005 — marketplace-create-and-sell — step 6b: configuration surface defect
+(user-path observation, iris.chen):
+
+- The /installs page offers "Apply config" with a textarea labeled
+  "Config keys to merge (JSON)" (default '{"key": "value"}').
+- iris.chen filled it with:
+  {"opsApp":"forgeops-4102","financeChannel":"#finance","reportDay":1}
+  and clicked "Apply config".
+- Observed flash: "Install ins-0402 configured (no keys)."
+- The install's Config cell still shows "{}" — the entered JSON was
+  silently DISCARDED, though a "configured" history entry was recorded
+  (configured 1.0.0 → 1.0.0 by Iris Chen at 2026-09-11T22:29:43Z).
+
+Root cause (post-hoc, see configure-form-rootcause artifact): the HTML form
+POSTs urlencoded fields; ctx.body.config arrives as a STRING, while
+ops-install.js configureInstall() only accepts typeof config === 'object'
+(else patch = {}). The form path can therefore never persist config keys;
+only the JSON API twin can. A normal person has no working configure
+surface. Recorded as finding F2 (P1) in the VWO-005 report.

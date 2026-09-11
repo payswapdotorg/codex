@@ -1,0 +1,17 @@
+# VWO-005 marketplace-create-and-sell — post-hoc event pulls
+Pulled: 2026-09-11T22:31:02Z
+
+## type=listing.published
+ev-0003 listing.published  - Listing "Monthly Sales Report" (monthly-sales-report) v1.0.0 published by Vera Osei
+
+## type=entitlement.granted
+ev-0006 entitlement.granted  - Entitlement ent-0504 (subscription) for "Monthly Sales Report" granted to Northwind Logistics by Dan Kowalski 
+
+## type=package.installed
+ev-0009 package.installed  - Northwind Logistics installed "Monthly Sales Report" v1.0.0 (ins-0402)
+
+## type=install.configured
+ev-0011 install.configured  - Install ins-0402 (Monthly Sales Report v1.0.0) reconfigured for Northwind Logistics
+
+## type=world.reset
+ev-0001 world.reset  - Demo world reset to seed state (reset #1)

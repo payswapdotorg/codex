@@ -1,0 +1,33 @@
+VWO-005 — media-editorial-publishing — DEMONSTRATE replay attempt (step 7):
+
+The catalog's DEMONSTRATE step: "replay 1–5 while observed; review the
+inferred workflow: writer/editor role split, hero gate, publish step,
+per-channel distribution."
+
+What the human demonstrated (all captured as stepNN user-path artifacts):
+- step01: hana.kim (staff writer) created draft st-0206 on /desk
+- step02: attached hero asset a-0301 (hero renditions ready)
+- step03: submitted for review → in_review state visible
+- step04: writer self-approval attempt → natural [permission_denied]
+  (hana.kim lacks story:approve — the writer/editor role split gate)
+- step05: camille.dubois (editor-in-chief) approved → published to
+  web-front-page (1/1 delivered); st-0202 additionally published to
+  web-front-page + morning-newsletter + partner-app → 2/3 delivered with
+  partner-app job FAILED (stale_entitlement, license expired 2026-06-01)
+  — partial success with observable failed job, per the catalog
+- step06: seed story st-0205 (approved, NO hero) publish attempt → natural
+  [missing_asset] "no hero image is attached. Publication blocked." — hero
+  gate working; story stays approved
+
+Replay-under-observation: NO Codex Universal surface exists to observe this
+demonstration or compile it into a workflow (finding F1 — the same missing
+teaching/compile surface as all other scenarios). The DEMONSTRATE loop
+(perform → observe → compiled proposal) cannot run. Recorded, not simulated.
+
+Additional observation (fixture state-machine dead-end, recorded as P3
+finding F7): an APPROVED story without a hero (st-0205) can never gain a
+hero through the UI — the attach form requires status
+draft/changes_requested/in_review, and no surface moves an approved story
+back. The catalog's stated recovery ("attach hero, publish") is unreachable
+through normal surfaces for approved stories; recovery requires the API
+twin or a world reset.

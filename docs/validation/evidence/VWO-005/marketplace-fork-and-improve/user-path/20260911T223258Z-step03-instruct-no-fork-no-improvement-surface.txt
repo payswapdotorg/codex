@@ -1,0 +1,36 @@
+VWO-005 — marketplace-fork-and-improve — INSTRUCT: the exact instruction text
+the workflow creator (Vera Osei) would submit to the Codex Universal teaching
+surface for the fork-and-improve lifecycle:
+
+---
+Fork the published workflow "Support Ticket Triage Assistant" (pk-102,
+v2.3.1) into my own listing. From its execution evidence, propose a triage
+improvement: tickets from customers with two or more prior contacts in the
+last 30 days should route to the senior-queue immediately instead of
+waiting for the severity scoring step. Publish the improved fork as a NEW
+immutable version, and publish it only after the improvement candidate has
+been validated against the execution evidence and approved by me.
+---
+
+Submission attempt (user path, what the human saw):
+- vera.osei opened /catalog?q=triage and the pk-102 listing page. The page
+  exposes: listing overview, immutable versions table, provenance &
+  attribution card (+ "Verify provenance"), "Publish a new version
+  (publisher)" form, and (for org users) install/review forms.
+- ZERO fork affordances: no Fork button anywhere on the listing or catalog
+  pages; the publisher console's listing form has no forkOf/parent field;
+  publishListing() creates only fresh listings with no lineage.
+- The Codex Universal product exposes no teaching/instruct surface either
+  (no CLI command, no app-server method, no UI — see the instruct-phase
+  artifact of marketplace-create-and-sell and the product-surface
+  dependency probe).
+- There is also NO execution-evidence surface anywhere: FlowMart has no
+  execution records (packages are opaque artifacts — scope note on
+  /publisher), so an "improvement candidate from execution evidence" has
+  no source data and no proposal/validate/approve-before-publish flow.
+
+Result: the fork-and-improve INSTRUCT submission could not be made anywhere.
+Fork surface missing (finding F4); improvement-candidate/approval-before-
+publish surface missing (finding F5); the teaching surface itself is
+missing (finding F1). Recorded, not simulated — no fork was fabricated
+(e.g. no hand-built "forkOf" state was injected into the store).

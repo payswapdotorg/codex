@@ -1,0 +1,43 @@
+# VWO-005 marketplace-upgrade-rollback — post-hoc diagnostics
+Pulled: 2026-09-11T22:40:14Z
+
+## 1) Upgrade/rollback events (auditable):
+type=version.published:
+  ev-0003 - "Support Ticket Triage Assistant" 2.4.0 released by Vera Osei: Senior-queue fast path for repeat contacts; imp
+type=install.upgraded:
+  ev-0006 - Acme Retail upgraded "Support Ticket Triage Assistant" 2.3.1 → 2.4.0
+type=install.rolled_back:
+  ev-0008 - Acme Retail rolled back "Support Ticket Triage Assistant" 2.4.0 → 2.3.1
+
+## 2) Install pin + history (ins-0401) after upgrade→rollback→blocked-upgrade:
+  pin: 2.3.1 | status: active
+   installed None -> 2.3.1 by u-6 at 2026-08-31T10:00:00Z
+   upgraded 2.3.1 -> 2.4.0 by u-6 at 2026-09-11T22:39:14.905Z
+   rolled_back 2.4.0 -> 2.3.1 by u-6 at 2026-09-11T22:39:39.903Z
+
+## 3) Digest stability through upgrade/rollback:
+   2.3.1 sha256:04cf049e110cc2cc
+   2.4.0 sha256:cadb075e36500b7c
+  (2.3.1 digest sha256:04cf049e110cc2cc unchanged from pre-upgrade listing page; 2.4.0 published digest stable through install transitions)
+
+## 4) Cross-tenant authorization probe (post-hoc; source review flagged no org check in upgradeInstall/configureInstall/rollbackInstall):
+  iris.chen (Northwind org_admin, install:manage) attempts to upgrade Acme Retail's ins-0401 via API twin:
+  HTTP 200 {
+  "ok": true,
+  "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      
+  -> if HTTP 200: cross-tenant install mutation ACCEPTED server-side (UI filters installs by org, but the mutation boundary does not) — finding F6.
+
+## 5) State pollution note: the probe left ins-0401 at 2.4.0 (Acme's pin moved by a Northwind admin — the defect's observable effect). Marketplace is reset before the next scenario; the artifact records the pre-reset state.
+
+## F6 classification note: cross-tenant install mutation accepted through the documented /api JSON-twin surface (fixtures README §5: 'every HTML form has a JSON twin ... the same operation'). Permission model enforces roles (403 for org_member) but NOT org ownership on upgrade/rollback/configure. Recorded P1 (would be P0-class in a production store; scoped P1 because the defect is in VWO-002 fixture mutation layer, not Codex Universal product authorization), recommendation FIX NOW via bounded fixture remediation WO before wave-2 trust-boundary scenarios rely on FlowMart boundaries.

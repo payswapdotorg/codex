@@ -1,0 +1,58 @@
+# VWO-005 marketplace-create-and-sell — post-hoc digest/integrity check
+Pulled: 2026-09-11T22:31:12Z
+
+## pk-0104 version entry (full, from state pull /api/packages/pk-0104):
+{
+  "version": "1.0.0",
+  "releasedAt": "2026-09-12",
+  "changelog": "Initial release.",
+  "manifest": {
+    "name": "monthly-sales-report",
+    "version": "1.0.0",
+    "entry": "package.json",
+    "files": [
+      "manifest.json"
+    ]
+  },
+  "digest": "sha256:4d61dd23bfcbb8a5",
+  "provenance": {
+    "sourceRepo": "https://git.example.internal/vera.osei/monthly-sales-report",
+    "commit": "de1cbb1",
+    "builtBy": "vera.osei",
+    "signedBy": "vera.osei"
+  }
+}
+
+stored digest      : sha256:4d61dd23bfcbb8a5
+recomputed digest  : sha256:6f8fbbfb24733e72
+digest match       : False
+digest displayed at publish time (user-path step03 artifact): sha256:4d61dd23bfcbb8a5
+unchanged since publish: True
+
+installs: [
+ {
+  "id": "ins-0402",
+  "version": "1.0.0",
+  "entitlementId": "ent-0504",
+  "config": {}
+ }
+]
+entitlements: [
+ {
+  "id": "ent-0504",
+  "orgId": "o-1",
+  "status": "active",
+  "type": "subscription"
+ }
+]
+# VWO-005 marketplace-create-and-sell — post-hoc digest recompute (exact fixture algorithm) + configure root cause
+Pulled: 2026-09-11T22:31:29Z
+recomputed (node, fixture digestOf): sha256:4d61dd23bfcbb8a5
+stored digest                    : sha256:4d61dd23bfcbb8a5
+match: true
+
+## configure defect root-cause confirmation (post-hoc, after user path attempted):
+POST /api/installs/configure with JSON object body -> 'configured (opsApp, financeChannel, reportDay)' — the op accepts objects only; the HTML form posts a urlencoded STRING, so the human path always records 'no keys'. Fixture defect isolated to form encoding, not to the domain op.
+
+## Integrity verdict:
+pk-0104@1.0.0 digest sha256:4d61dd23bfcbb8a5 recomputed MATCH after: entitlement grant (ent-0504), install (ins-0402), configure attempt, duplicate-slug rejection. Commercial decisions did not alter the published definition (manifest/provenance unchanged since publish; only entitlement/install records changed).

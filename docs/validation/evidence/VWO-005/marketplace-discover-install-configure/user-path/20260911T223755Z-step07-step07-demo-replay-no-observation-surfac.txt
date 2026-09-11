@@ -1,0 +1,28 @@
+VWO-005 — marketplace-discover-install-configure — DEMONSTRATE replay attempt
+(step 7, user path):
+
+The catalog's DEMONSTRATE step: "replay steps 1–4 while observed; review the
+inferred consumer workflow: search → inspect → install → configure, with
+entitlement + role gates."
+
+What the human did (all captured as stepNN user-path artifacts):
+- step01: catalog search q=triage as iris.chen (discovery)
+- step02: listing inspection BEFORE install — manifest digest
+  sha256:04cf049e110cc2cc, provenance, version history, licensing visible
+- step03: install pk-102 v2.3.1 for Northwind — install ins-0402 recorded,
+  auto-granted trial entitlement ent-0504 (entitlement gate working)
+- step04: pk-101 install attempt — natural [stale_entitlement] rejection
+  naming ent-0502, expired 2026-08-01 (recovery path: renew/grant then
+  install)
+- step05: ravi.gupta (org member) sees NO install surface (role gate
+  working: install:manage required; he retains review:write)
+- step06: configure attempt — form silently drops the JSON input
+  ("configured (no keys)", Config cell {}); finding F2 (P1)
+
+Replay-under-observation: NO Codex Universal surface exists that observes a
+human performing these steps (no teaching-by-demonstration surface, no
+"compile what you just did" affordance, no workflow proposal/review screen).
+The DEMONSTRATE mode's core loop (perform → system observes → compiled
+workflow proposal) cannot run at all. Recorded as finding F1 (missing
+teaching/compile surface — blocks DEMONSTRATE end-to-end); NOT simulated:
+no internal workflow IR was constructed and no observation was fabricated.

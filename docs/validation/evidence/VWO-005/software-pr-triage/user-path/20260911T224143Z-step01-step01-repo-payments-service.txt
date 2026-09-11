@@ -1,0 +1,140 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign in" [ref=e3]
+- main
+  - heading "payments-service Go · base main · owner payments-core" [level=1, ref=e4]
+    - code
+      - StaticText "payments-service"
+    - StaticText " Go · base main · owner payments-core"
+  - generic
+    - heading "Versions" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Staging" [ref=e20]
+        - cell "4.8.1" [ref=e21]
+          - code
+            - StaticText "4.8.1"
+      - row
+        - cell "Production" [ref=e22]
+        - cell "4.8.1" [ref=e23]
+          - code
+            - StaticText "4.8.1"
+      - row
+        - cell "Service" [ref=e24]
+        - cell "payments-api" [ref=e25]
+          - code
+            - StaticText "payments-api"
+  - generic
+    - heading "Pull requests" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PR" [ref=e56]
+          - columnheader "TITLE" [ref=e57]
+          - columnheader "AUTHOR" [ref=e58]
+          - columnheader "CI" [ref=e59]
+          - columnheader "APPROVALS" [ref=e60]
+          - columnheader "STATUS" [ref=e61]
+      - row
+        - cell "pr-0301 #302" [ref=e26]
+          - link "pr-0301 #302" [ref=e62]
+            - code
+              - StaticText "pr-0301"
+            - StaticText " #302"
+        - cell "Refund idempotency keys" [ref=e27]
+        - cell "Ari Klein" [ref=e28]
+        - cell "passed" [ref=e29]
+        - cell "0" [ref=e30]
+        - cell "open" [ref=e31]
+      - row
+        - cell "pr-0303 #298" [ref=e32]
+          - link "pr-0303 #298" [ref=e63]
+            - code
+              - StaticText "pr-0303"
+            - StaticText " #298"
+        - cell "Ledger reconcile fix" [ref=e33]
+        - cell "Ari Klein" [ref=e34]
+        - cell "passed" [ref=e35]
+        - cell "1" [ref=e36]
+        - cell "merged" [ref=e37]
+  - generic
+    - heading "Deployments" [level=2, ref=e18]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DEPLOYMENT" [ref=e64]
+          - columnheader "PR" [ref=e65]
+          - columnheader "ENV" [ref=e66]
+          - columnheader "VERSION" [ref=e67]
+          - columnheader "ARTIFACT" [ref=e68]
+          - columnheader "STATUS" [ref=e69]
+          - columnheader "ACTION" [ref=e70]
+      - row
+        - cell "dep-1102" [ref=e38]
+          - code
+            - StaticText "dep-1102"
+        - cell "pr-0303" [ref=e39]
+          - code
+            - StaticText "pr-0303"
+        - cell "info production" [ref=e40]
+          - StaticText "info production"
+        - cell "4.8.1" [ref=e41]
+          - code
+            - StaticText "4.8.1"
+        - cell "art-0901" [ref=e42]
+          - code
+            - StaticText "art-0901"
+        - cell "succeeded" [ref=e43]
+        - cell "—" [ref=e44]
+      - row
+        - cell "dep-1101" [ref=e45]
+          - code
+            - StaticText "dep-1101"
+        - cell "pr-0303" [ref=e46]
+          - code
+            - StaticText "pr-0303"
+        - cell "neutral staging" [ref=e47]
+          - StaticText "neutral staging"
+        - cell "4.8.1" [ref=e48]
+          - code
+            - StaticText "4.8.1"
+        - cell "art-0901" [ref=e49]
+          - code
+            - StaticText "art-0901"
+        - cell "promoted" [ref=e50]
+        - cell "—" [ref=e51]
+  - generic
+    - heading "Build artifacts (registry)" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ARTIFACT" [ref=e71]
+          - columnheader "DIGEST" [ref=e72]
+          - columnheader "SIZE" [ref=e73]
+          - columnheader "BUILT FROM" [ref=e74]
+      - row
+        - cell "art-0901" [ref=e52]
+          - code
+            - StaticText "art-0901"
+        - cell "sha256:9f2c41ab77e0" [ref=e53]
+          - code
+            - StaticText "sha256:9f2c41ab77e0"
+        - cell "14.0 MB" [ref=e54]
+        - cell "pr-0303" [ref=e55]
+          - code
+            - StaticText "pr-0303"
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

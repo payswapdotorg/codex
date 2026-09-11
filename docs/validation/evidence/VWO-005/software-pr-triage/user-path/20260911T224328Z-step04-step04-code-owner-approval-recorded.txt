@@ -1,0 +1,104 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Noor Haddad · code_owner · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Approval recorded for PR #302 (1 approval)."
+  - heading "PR #302 — Refund idempotency keys open" [level=1, ref=e4]
+    - StaticText "PR #302 — Refund idempotency keys open"
+  - generic
+    - heading "Overview" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Repo" [ref=e24]
+        - cell "payments-service" [ref=e25]
+          - link "payments-service" [ref=e39]
+            - code
+              - StaticText "payments-service"
+      - row
+        - cell "Author" [ref=e26]
+        - cell "Ari Klein" [ref=e27]
+      - row
+        - cell "Branch" [ref=e28]
+        - cell "ari/refund-idem → main" [ref=e29]
+          - code
+            - StaticText "ari/refund-idem"
+          - StaticText " → "
+          - code
+            - StaticText "main"
+      - row
+        - cell "Diff" [ref=e30]
+        - cell "+214 / −38" [ref=e31]
+      - row
+        - cell "Merged by" [ref=e32]
+        - cell "—" [ref=e33]
+      - row
+        - cell "Summary" [ref=e34]
+        - cell "Adds idempotency keys to the refund path to stop duplicate refunds under retry." [ref=e35]
+  - generic
+    - heading "Approvals" [level=2, ref=e17]
+    - list
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "Noor Haddad approved 2026-09-11T22:43:26.865Z — Refund path change verified; idempotency keys sound."
+  - generic
+    - heading "Approve (code review)" [level=2, ref=e18]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Review note"
+      - textbox [ref=e22]: LGTM
+        - StaticText "LGTM"
+      - button "Approve" [ref=e36]
+      - StaticText "Self-approval is blocked by policy — the author cannot approve their own PR."
+  - generic
+    - heading "Re-run CI" [level=2, ref=e19]
+    - form
+      - button "Re-run CI" [ref=e37]
+  - generic
+    - heading "Merge (release manager / code owner)" [level=2, ref=e20]
+    - form
+      - button "Merge & deploy to staging" [ref=e38]
+      - StaticText "Requires ≥1 approval and a passing CI run. Merging deploys the version to staging and creates a build artifact."
+  - generic
+    - heading "CI pipeline" [level=2, ref=e21]
+    - generic
+      - heading "CI run <code>run-0071</code> — <span class=\"pill p-ok\">passed</span>" [level=2, ref=e23]
+      - table
+        - rowgroup
+          - row
+            - columnheader "STEP" [ref=e52]
+            - columnheader "STATUS" [ref=e53]
+            - columnheader "DURATION" [ref=e54]
+        - row
+          - cell "checkout" [ref=e40]
+          - cell "passed" [ref=e41]
+          - cell "8s" [ref=e42]
+        - row
+          - cell "lint" [ref=e43]
+          - cell "passed" [ref=e44]
+          - cell "22s" [ref=e45]
+        - row
+          - cell "unit-tests" [ref=e46]
+          - cell "passed" [ref=e47]
+          - cell "46s" [ref=e48]
+        - row
+          - cell "integration-tests" [ref=e49]
+          - cell "passed" [ref=e50]
+          - cell "92s" [ref=e51]
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."
