@@ -119,7 +119,7 @@
       ]
     },
     "WO-012": {
-      "status": "dispatched",
+      "status": "merged",
       "depends_on": [
         "WO-010",
         "WO-011"

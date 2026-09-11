@@ -1,14 +1,8 @@
 {
   "current_commit": "main",
-  "active_agents": [
-    "WO-012-worker(session 75bbfb60, turn open since 18:57 \u2014 long compile; resume nudge staged as draft)"
-  ],
-  "active_change_surfaces": [
-    "workflow-distribution",
-    "marketplace",
-    "monetization"
-  ],
-  "last_verified_sha": "main @ 0d61744a (WO-014: codex-workflow-evolution 25+10 tests, clippy+fmt clean)",
-  "verification_state": "wo014-14of15",
-  "notes": "WO-014 MERGED via PR #16 (squash, 0d61744a): workflow-evolution \u2014 new leaf crate codex-rs/workflow-evolution (evidence-driven ImprovementCandidate generation with full provenance, three-stage validation: replay via eval-compat + differential gate + policy, ApprovalPort-governed evolution, immutable successor publication + append-only lineage, upgrade/rollback via install registry, retention bounds + credential scrubbing). Worker session 73c6eb63, base a5c2b854 == current main (strict bundle path), worker head fb6036e1; integration fix: scrub-test fixtures assembled at runtime from fragments (GitHub push protection blocks secret-shaped literals even in test fixtures \u2014 the literal xoxb-token fixture was flagged; display layers also redact such strings in tool output, byte-verify before diagnosing). Tech-Lead verification on toolchain 1.95.0: 25 unit + 10 E2E = 35/35 passed; clippy -D warnings clean; fmt clean. Report: docs/development-state/reports/WO-014-report.md. 14/15 WOs merged. WO-012 in flight (last worker track; its turn has been compiling for ~3h \u2014 monitored, resume nudge staged)."
+  "active_agents": [],
+  "active_change_surfaces": [],
+  "last_verified_sha": "main @ 3f6f2b3f (WO-012: codex-workflow-distribution 10+8 tests, clippy+fmt clean)",
+  "verification_state": "wo012-15of15-PROGRAM-COMPLETE",
+  "notes": "WO-012 MERGED via PR #17 (squash, 3f6f2b3f): workflow-distribution \u2014 new leaf crate codex-rs/workflow-distribution (immutable release publication with hash-chained metadata, six-state distribution lifecycle, license-gated installation, fork lineage provenance, entitlement checks as a separate boundary never mutating executable semantics, marketplace discovery, trigger-plane hand-off with the same immutable version identity). Worker session 5672abb1 (fresh re-dispatch after the first session's turn zombied); worker base a5c2b854, head 5ac1f50bd, 16 files +4,658 lines; git-bundle delivery via the workspace files API; Tech Lead reconstructed at current main and independently verified on toolchain 1.95.0: 10 unit + 8 E2E = 18/18 passed; clippy -D warnings clean; fmt clean. Report: docs/development-state/reports/WO-012-report.md. ALL 15/15 WORK ORDERS MERGED \u2014 the roadmap is complete. M4 HONEST ASSESSMENT (per the 2026-09-10 tech-lead audit, authority: frozen architecture > actual source): the workflow control plane's contracts, ports, version pinning, trigger idempotency, dependency resolution, and in-run recovery are implemented and strongly tested across workflow-contracts/app/triggers/forge/eval-compat/distribution/evolution; however the DURABLE control plane is port-only: WorkflowVersionStore/InstanceStore/EvidenceStore/TriggerLedger/InstallationStore have in-memory doubles only (host implementations do not exist), WorkflowInstanceStatus has no enforced legal-transition table, cancel is absent (Cancelled never constructed), resume continuation is partial (resumed instances marked Running with no walk continuation), and there is no startup reconciliation for orphaned Running instances. Session-loss resilience therefore remains unproven beyond in-memory doubles. RECOMMENDATION: a bounded follow-up WO 'M4 durable control plane' (SQLite/thread-store-backed implementations of the five stores + InstanceControl, a declared legal-transition table enforced at the seam, cancel, persisted walk-position resume, startup reconciliation sweep) before declaring milestone M4 gate-satisfied."
 }
