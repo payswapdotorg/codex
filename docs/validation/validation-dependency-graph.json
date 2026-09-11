@@ -41,7 +41,7 @@
  ],
  "work_orders": {
   "VWO-001": {
-   "status": "ready",
+   "status": "merged",
    "depends_on": [],
    "surface": [
     "validation-proving-ground",
