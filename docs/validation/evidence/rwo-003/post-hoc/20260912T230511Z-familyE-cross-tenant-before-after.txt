@@ -1,0 +1,522 @@
+# RWO-003 — VWO-010 Family E reproduction, BEFORE (base) vs AFTER (fix) — same requests, contrasting results
+# work order: docs/validation/work-orders/RWO-003.md (P1 Family E: cross-tenant install writes incl. pin moves)
+# attacker: petra.voss (org_admin, Acme Retail o-2) — victim install: ins-0402 of Northwind Logistics (o-1), pk-103 Warehouse Slot Optimizer
+# BEFORE capture: 2026-09-12T18:33Z, working tree clean at base 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (pre-fix)
+# AFTER capture:  2026-09-12T22:54Z, same base commit + RWO-003 guard applied to docs/validation/fixtures/marketplace/ops-install.js (uncommitted working tree, later committed on rwo-003/flowmart-org-guard)
+# Both phases replay the exact VWO-010 probe sequence (cited reproduction evidence: docs/validation/evidence/vwo-010/marketplace-upgrade-rollback/post-hoc/20260912T103445Z-familyE-cross-tenant-install-writes.txt).
+
+================================================================================
+CONTRAST SUMMARY (full transcripts below — BEFORE first, then AFTER)
+================================================================================
+request                                                  | BEFORE (base)              | AFTER (fix)
+---------------------------------------------------------|----------------------------|---------------------------
+petra configure ins-0402 (cross-tenant)                  | HTTP 200 ok:true           | HTTP 403 permission_denied
+petra upgrade ins-0402 1.2.0->1.3.0 (cross-tenant pin)   | HTTP 200 ok:true           | HTTP 403 permission_denied
+petra rollback ins-0402 (cross-tenant pin back)          | HTTP 200 ok:true           | HTTP 403 permission_denied
+ins-0402 config after attacks                            | vwo010CrossTenant injected | unchanged {zones:A}
+ins-0402 history after attacks                           | 3 entries by u-6 (petra)   | 1 entry by u-3 (iris)
+install.configured/upgraded/rolled_back events by petra  | 3 events, actor petra.voss | 0 events
+petra GET /api/installs (read path)                      | o-2 only (org-scoped)      | o-2 only (org-scoped, unchanged)
+
+AFTER 403 error body (all three actions, identical shape):
+  { "ok": false, "error": "permission_denied",
+    "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant <configure|upgrade|rollback> is denied.",
+    "installId": "ins-0402", "installOrg": "o-1" }
+→ names the install (ins-0402), its owning org (Northwind Logistics / o-1) and the denied action, per the RWO-003 fix sketch.
+
+================================================================================
+TRANSCRIPT 1/2 — BEFORE (base, vulnerable) — captured 2026-09-12T18:33Z
+================================================================================
+# Family E reproduction (BEFORE) — petra.voss (org_admin, Acme Retail o-2) vs Northwind Logistics (o-1) install ins-0402
+# surface: FlowMart JSON API twins (curl) on 127.0.0.1:4105 — same requests as the VWO-010 transcript
+
+## setup — iris.chen (Northwind org_admin) installs pk-103, creating ins-0402 (matches the VWO-010 run):
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <iris-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":{"zones":"A"}}'
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {
+      "zones": "A"
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T18:33:09.753Z",
+    "entitlementId": "ent-0503",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.753Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0503",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "type": "per-seat",
+    "seats": 25,
+    "status": "active",
+    "validUntil": "2027-01-01",
+    "grantedAt": "2026-09-01",
+    "grantedById": "u-2"
+  }
+}
+(http 200)
+
+## setup — vera.osei (publisher) releases 1.3.0 (matches the VWO-010 run / sweep golden path):
+$ curl -s -X POST "http://127.0.0.1:4105/api/versions/publish" -H 'Authorization: Bearer <vera-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-103","version":"1.3.0","changelog":"cold zones (RWO-003 repro)"}'
+{
+  "ok": true,
+  "message": "Version 1.3.0 of \"Warehouse Slot Optimizer\" published (1 installer(s) notified).",
+  "warning": null,
+  "redirect": "/listings/warehouse-slot-optimizer",
+  "release": {
+    "version": "1.3.0",
+    "releasedAt": "2026-09-12",
+    "changelog": "cold zones (RWO-003 repro)",
+    "manifest": {
+      "name": "warehouse-slot-optimizer",
+      "version": "1.3.0",
+      "entry": "package.json",
+      "files": [
+        "manifest.json",
+        "zones.json"
+      ]
+    },
+    "digest": "sha256:2e9c46167bcb150d",
+    "provenance": {
+      "sourceRepo": "https://git.example.internal/vera/warehouse-slot-optimizer",
+      "commit": "240910c",
+      "builtBy": "vera.osei",
+      "signedBy": "vera.osei"
+    }
+  }
+}
+(http 200)
+
+## probe 0 — org scoping of the read path (petra sees only Acme installs):
+$ curl -s -X GET "http://127.0.0.1:4105/api/installs" -H 'Authorization: Bearer <petra-demo-token>'
+{
+  "ok": true,
+  "orgId": "o-2",
+  "installs": [
+    {
+      "id": "ins-0401",
+      "orgId": "o-2",
+      "packageId": "pk-102",
+      "version": "2.3.1",
+      "status": "active",
+      "config": {
+        "queue": "tier-1",
+        "confidenceThreshold": "0.7"
+      },
+      "installedById": "u-6",
+      "installedAt": "2026-08-31T10:00:00Z",
+      "entitlementId": "ent-0501",
+      "history": [
+        {
+          "action": "installed",
+          "fromVersion": null,
+          "toVersion": "2.3.1",
+          "at": "2026-08-31T10:00:00Z",
+          "byId": "u-6"
+        }
+      ]
+    }
+  ]
+}
+
+## probe 1 — CROSS-TENANT CONFIGURE: petra (Acme) configures Northwind's ins-0402:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/configure" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402","config":{"vwo010CrossTenant":"petra-overwrote-northwind"}}'
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (vwo010CrossTenant).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {
+      "zones": "A",
+      "vwo010CrossTenant": "petra-overwrote-northwind"
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T18:33:09.753Z",
+    "entitlementId": "ent-0503",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.753Z",
+        "byId": "u-3"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "1.2.0",
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.792Z",
+        "byId": "u-6",
+        "configKeys": [
+          "vwo010CrossTenant"
+        ]
+      }
+    ]
+  }
+}
+(http 200)
+
+## probe 2 — CROSS-TENANT UPGRADE (PIN MOVE): petra upgrades Northwind's ins-0402 1.2.0 -> 1.3.0:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402","targetVersion":"1.3.0","expectedCurrentVersion":"1.2.0"}'
+{
+  "ok": true,
+  "message": "Install ins-0402 upgraded 1.2.0 → 1.3.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.3.0",
+    "status": "active",
+    "config": {
+      "zones": "A",
+      "vwo010CrossTenant": "petra-overwrote-northwind"
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T18:33:09.753Z",
+    "entitlementId": "ent-0503",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.753Z",
+        "byId": "u-3"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "1.2.0",
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.792Z",
+        "byId": "u-6",
+        "configKeys": [
+          "vwo010CrossTenant"
+        ]
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "1.2.0",
+        "toVersion": "1.3.0",
+        "at": "2026-09-12T18:33:09.800Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+(http 200)
+
+## probe 3 — CROSS-TENANT ROLLBACK (PIN MOVE BACK): petra rolls Northwind's ins-0402 back:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/rollback" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402"}'
+{
+  "ok": true,
+  "message": "Install ins-0402 rolled back 1.3.0 → 1.2.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {
+      "zones": "A",
+      "vwo010CrossTenant": "petra-overwrote-northwind"
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T18:33:09.753Z",
+    "entitlementId": "ent-0503",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.753Z",
+        "byId": "u-3"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "1.2.0",
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.792Z",
+        "byId": "u-6",
+        "configKeys": [
+          "vwo010CrossTenant"
+        ]
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "1.2.0",
+        "toVersion": "1.3.0",
+        "at": "2026-09-12T18:33:09.800Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "rolled_back",
+        "fromVersion": "1.3.0",
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T18:33:09.807Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+(http 200)
+
+## post-hoc state — ins-0402 record (iris org-scoped read) + install.* events (actor attribution):
+$ curl -s -H 'Authorization: Bearer <iris-demo-token>' http://127.0.0.1:4105/api/installs   # ins-0402 record
+{
+ "id": "ins-0402",
+ "orgId": "o-1",
+ "version": "1.2.0",
+ "config": {
+  "zones": "A",
+  "vwo010CrossTenant": "petra-overwrote-northwind"
+ },
+ "history": [
+  {
+   "action": "installed",
+   "fromVersion": null,
+   "toVersion": "1.2.0",
+   "at": "2026-09-12T18:33:09.753Z",
+   "byId": "u-3"
+  },
+  {
+   "action": "configured",
+   "fromVersion": "1.2.0",
+   "toVersion": "1.2.0",
+   "at": "2026-09-12T18:33:09.792Z",
+   "byId": "u-6",
+   "configKeys": [
+    "vwo010CrossTenant"
+   ]
+  },
+  {
+   "action": "upgraded",
+   "fromVersion": "1.2.0",
+   "toVersion": "1.3.0",
+   "at": "2026-09-12T18:33:09.800Z",
+   "byId": "u-6"
+  },
+  {
+   "action": "rolled_back",
+   "fromVersion": "1.3.0",
+   "toVersion": "1.2.0",
+   "at": "2026-09-12T18:33:09.807Z",
+   "byId": "u-6"
+  }
+ ]
+}
+
+$ curl -s "http://127.0.0.1:4105/api/events?limit=100"   # events of type install.configured|install.upgraded|install.rolled_back
+{
+ "id": "ev-0012",
+ "type": "install.rolled_back",
+ "actor": "petra.voss",
+ "subject": "ins-0402",
+ "summary": "Northwind Logistics rolled back \"Warehouse Slot Optimizer\" 1.3.0 \u2192 1.2.0"
+}
+{
+ "id": "ev-0010",
+ "type": "install.upgraded",
+ "actor": "petra.voss",
+ "subject": "ins-0402",
+ "summary": "Northwind Logistics upgraded \"Warehouse Slot Optimizer\" 1.2.0 \u2192 1.3.0"
+}
+{
+ "id": "ev-0009",
+ "type": "install.configured",
+ "actor": "petra.voss",
+ "subject": "ins-0402",
+ "summary": "Install ins-0402 (Warehouse Slot Optimizer v1.2.0) reconfigured for Northwind Logistics"
+}
+
+================================================================================
+TRANSCRIPT 2/2 — AFTER (RWO-003 fix applied) — captured 2026-09-12T22:54Z
+================================================================================
+# Family E reproduction (AFTER) — petra.voss (org_admin, Acme Retail o-2) vs Northwind Logistics (o-1) install ins-0402
+# surface: FlowMart JSON API twins (curl) on 127.0.0.1:4105 — same requests as the VWO-010 transcript
+# code state: branch rwo-003/flowmart-org-guard @ 2d37cc0ef; ops-install.js MODIFIED (RWO-003 guard applied)
+
+## setup — iris.chen (Northwind org_admin) installs pk-103, creating ins-0402 (matches the VWO-010 run):
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <iris-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":{"zones":"A"}}'
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {
+      "zones": "A"
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T22:54:40.657Z",
+    "entitlementId": "ent-0503",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-12T22:54:40.657Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0503",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "type": "per-seat",
+    "seats": 25,
+    "status": "active",
+    "validUntil": "2027-01-01",
+    "grantedAt": "2026-09-01",
+    "grantedById": "u-2"
+  }
+}
+(http 200)
+
+## setup — vera.osei (publisher) releases 1.3.0 (matches the VWO-010 run / sweep golden path):
+$ curl -s -X POST "http://127.0.0.1:4105/api/versions/publish" -H 'Authorization: Bearer <vera-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-103","version":"1.3.0","changelog":"cold zones (RWO-003 repro)"}'
+{
+  "ok": true,
+  "message": "Version 1.3.0 of \"Warehouse Slot Optimizer\" published (1 installer(s) notified).",
+  "warning": null,
+  "redirect": "/listings/warehouse-slot-optimizer",
+  "release": {
+    "version": "1.3.0",
+    "releasedAt": "2026-09-12",
+    "changelog": "cold zones (RWO-003 repro)",
+    "manifest": {
+      "name": "warehouse-slot-optimizer",
+      "version": "1.3.0",
+      "entry": "package.json",
+      "files": [
+        "manifest.json",
+        "zones.json"
+      ]
+    },
+    "digest": "sha256:2e9c46167bcb150d",
+    "provenance": {
+      "sourceRepo": "https://git.example.internal/vera/warehouse-slot-optimizer",
+      "commit": "522af84",
+      "builtBy": "vera.osei",
+      "signedBy": "vera.osei"
+    }
+  }
+}
+(http 200)
+
+## probe 0 — org scoping of the read path (petra sees only Acme installs):
+$ curl -s -X GET "http://127.0.0.1:4105/api/installs" -H 'Authorization: Bearer <petra-demo-token>'
+{
+  "ok": true,
+  "orgId": "o-2",
+  "installs": [
+    {
+      "id": "ins-0401",
+      "orgId": "o-2",
+      "packageId": "pk-102",
+      "version": "2.3.1",
+      "status": "active",
+      "config": {
+        "queue": "tier-1",
+        "confidenceThreshold": "0.7"
+      },
+      "installedById": "u-6",
+      "installedAt": "2026-08-31T10:00:00Z",
+      "entitlementId": "ent-0501",
+      "history": [
+        {
+          "action": "installed",
+          "fromVersion": null,
+          "toVersion": "2.3.1",
+          "at": "2026-08-31T10:00:00Z",
+          "byId": "u-6"
+        }
+      ]
+    }
+  ]
+}
+
+## probe 1 — CROSS-TENANT CONFIGURE: petra (Acme) configures Northwind's ins-0402:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/configure" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402","config":{"vwo010CrossTenant":"petra-overwrote-northwind"}}'
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant configure is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+(http 403)
+
+## probe 2 — CROSS-TENANT UPGRADE (PIN MOVE): petra upgrades Northwind's ins-0402 1.2.0 -> 1.3.0:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402","targetVersion":"1.3.0","expectedCurrentVersion":"1.2.0"}'
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant upgrade is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+(http 403)
+
+## probe 3 — CROSS-TENANT ROLLBACK (PIN MOVE BACK): petra rolls Northwind's ins-0402 back:
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/rollback" -H 'Authorization: Bearer <petra-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0402"}'
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant rollback is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+(http 403)
+
+## post-hoc state — ins-0402 record (iris org-scoped read) + install.* events (actor attribution):
+$ curl -s -H 'Authorization: Bearer <iris-demo-token>' http://127.0.0.1:4105/api/installs   # ins-0402 record
+{
+ "id": "ins-0402",
+ "orgId": "o-1",
+ "version": "1.2.0",
+ "config": {
+  "zones": "A"
+ },
+ "history": [
+  {
+   "action": "installed",
+   "fromVersion": null,
+   "toVersion": "1.2.0",
+   "at": "2026-09-12T22:54:40.657Z",
+   "byId": "u-3"
+  }
+ ]
+}
+
+$ curl -s "http://127.0.0.1:4105/api/events?limit=100"   # events of type install.configured|install.upgraded|install.rolled_back

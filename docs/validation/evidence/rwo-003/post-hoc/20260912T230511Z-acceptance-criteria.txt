@@ -1,0 +1,92 @@
+# RWO-003 acceptance-criteria verification
+# code state: branch rwo-003/flowmart-org-guard @ 2d37cc0ef; ops-install.js MODIFIED (RWO-003 guard applied)
+# world: iris.chen (org_admin, Northwind o-1) owns ins-0402; petra.voss (org_admin, Acme o-2) is the cross-tenant attacker
+
+## setup — iris installs pk-103 (ins-0402) and vera publishes 1.3.0:
+  iris install -> HTTP 200: Installed "Warehouse Slot Optimizer" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).
+  vera publish 1.3.0 -> HTTP 200: Version 1.3.0 of "Warehouse Slot Optimizer" published (1 installer(s) notified).
+
+## baseline before attacks: events count=8; ins-0402 = {"version": "1.2.0", "config": {"zones": "A"}, "historyLen": 1}
+
+## AC1 — cross-tenant writes must 403 permission_denied naming install + org + action, with NO state change:
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/configure -H 'Authorization: Bearer <petra-demo-token>' -d '{"installId":"ins-0402","config":{"vwo010CrossTenant":"petra-overwrote-northwind"}}'  -> HTTP 403
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant configure is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+
+  PASS  petra configure -> HTTP 403
+  PASS  code = permission_denied
+  PASS  body names install ins-0402
+  PASS  body names install org o-1
+  PASS  message names owning org (Northwind Logistics)
+  PASS  message names denied action (configure)
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/upgrade -H 'Authorization: Bearer <petra-demo-token>' -d '{"installId":"ins-0402","targetVersion":"1.3.0","expectedCurrentVersion":"1.2.0"}}'  -> HTTP 403
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant upgrade is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+
+  PASS  petra upgrade (pin move) -> HTTP 403
+  PASS  403 names install + org + action (upgrade)
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/rollback -H 'Authorization: Bearer <petra-demo-token>' -d '{"installId":"ins-0402"}'  -> HTTP 403
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "Install ins-0402 belongs to Northwind Logistics — cross-tenant rollback is denied.",
+  "installId": "ins-0402",
+  "installOrg": "o-1"
+}
+
+  PASS  petra rollback (pin move back) -> HTTP 403
+  PASS  403 names install + org + action (rollback)
+$ curl -s http://127.0.0.1:4105/api/events?limit=200   # after attacks: count=8
+$ curl -s -H 'Authorization: Bearer <iris-demo-token>' http://127.0.0.1:4105/api/installs   # ins-0402 after attacks: {"version": "1.2.0", "config": {"zones": "A"}, "historyLen": 1}
+  PASS  no event emitted (count 8 -> 8)
+  PASS  no state change on ins-0402 (version/config/history identical)
+
+## AC2 — same-org operations unchanged (iris.chen, Northwind o-1, on her own ins-0402):
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/configure -H 'Authorization: Bearer <iris-demo-token>' -d '{"installId":"ins-0402","config":{"zones":"B"}}'  -> HTTP 200
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (zones).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+  PASS  iris same-org configure -> HTTP 200 ok:true
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/upgrade -H 'Authorization: Bearer <iris-demo-token>' -d '{"installId":"ins-0402","targetVersion":"1.3.0","expectedCurrentVersion":"1.2.0"}}'  -> HTTP 200
+{
+  "ok": true,
+  "message": "Install ins-0402 upgraded 1.2.0 → 1.3.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+  PASS  iris same-org upgrade 1.2.0 -> 1.3.0 -> HTTP 200 ok:true
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/rollback -H 'Authorization: Bearer <iris-demo-token>' -d '{"installId":"ins-0402"}'  -> HTTP 200
+{
+  "ok": true,
+  "message": "Install ins-0402 rolled back 1.3.0 → 1.2.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+  PASS  iris same-org rollback 1.3.0 -> 1.2.0 -> HTTP 200 ok:true
+
+## AC3 — read path org-scoped and unaffected:
+$ curl -s -H 'Authorization: Bearer <petra-demo-token>' http://127.0.0.1:4105/api/installs   # orgId + install list: o-2|ins-0401/o-2
+$ curl -s -H 'Authorization: Bearer <iris-demo-token>' http://127.0.0.1:4105/api/installs   # orgId + install list: o-1|ins-0402/o-1
+  PASS  petra (o-2) sees ONLY Acme install ins-0401/o-2 (Northwind hidden)
+  PASS  iris (o-1) sees ONLY Northwind install ins-0402/o-1 (Acme hidden)
+
+RESULT: 17 passed, 0 failed

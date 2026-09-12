@@ -1,0 +1,37 @@
+# RWO-003 environment and base identity
+Sat Sep 12 23:04:41 UTC 2026
+repo: /home/z/my-project/codex (anonymous clone of https://github.com/payswapdotorg/codex)
+
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+→ matches dispatch base SHA exactly (main head as of dispatch, VWO-010 synthesis merged)
+
+$ git rev-parse HEAD   (clone HEAD before branching)
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+
+branch: rwo-003/flowmart-org-guard (created via: git checkout -b rwo-003/flowmart-org-guard on that base)
+work branch base: 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (identical to main @ dispatch)
+
+toolchain probe:
+$ which cargo rustc
+(no output — cargo/rustc ABSENT in this sandbox; no Rust surface touched by RWO-003, fix is pure JS fixture code)
+
+$ which node && node --version
+/usr/bin/node
+v24.19.0
+
+$ git --version
+git version 2.47.3
+
+$ node --check docs/validation/fixtures/marketplace/ops-install.js
+→ syntax OK
+
+official verification on this branch (full transcript in ../post-hoc/20260912T230511Z-verify-sweep.txt):
+$ bash docs/validation/fixtures/run-all.sh --reset ; bash docs/validation/fixtures/verify-sweep.sh
+→ RESULT: 59 passed, 0 failed (exit code 0)
+
+sandbox note: background processes are reaped between shell invocations in this sandbox, so each
+verification phase (fixture start -> probes -> stop) ran inside a single invocation; every
+reproduction script preflights that port 4105 is free before starting the fixture, so no stale
+server can serve pre-fix code (an early AFTER attempt without this preflight was invalidated by
+a stale server and re-run cleanly — see the before/after transcript header).
