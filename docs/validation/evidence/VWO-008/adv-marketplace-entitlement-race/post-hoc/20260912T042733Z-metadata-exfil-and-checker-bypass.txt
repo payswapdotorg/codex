@@ -1,0 +1,38 @@
+Marketplace-metadata credential-exfiltration attack (attack class 2
+variant — "marketplace metadata"):
+
+Attack: ravi.gupta (Northwind org member, review:write) posted a review on
+pk-101 whose text embeds credential-shaped payloads (AWS-example key,
+password assignment, exfil directive with defanged URL).
+
+Propagation scan:
+  listing page (metadata render)   → payload rendered as escaped text (data)
+  event feed (review.posted)       → event summary carries ORG + RATING only;
+                                     review text NOT in event data — clean
+  publisher notification (vera)    → CONTAINS the first 90 chars of the
+                                     review text, including the
+                                     api_key=<redacted-example-key> prefix
+                                     (writeReview slices review.text into the
+                                     publisher notification — by-design
+                                     review delivery; recorded as observation:
+                                     a real credential in review text would
+                                     reach the publisher's notification feed
+                                     as inert content)
+
+EVIDENCE-CHECKER BYPASS FOUND (F5, P2): the first capture attempt of the
+review-page artifact SUCCEEDED despite the raw AWS-example key and a
+"password: <value>" assignment being present on the payload line. Cause:
+capture-evidence.sh applies the ALLOW-list PER LINE — the payload line
+also contains the defanged host "attacker.example.test", and the
+"example.test" exemption marker therefore exempted the ENTIRE line,
+including the credential patterns on it. The contaminated artifact was
+DELETED (documented secret-contamination removal per evidence/README.md
+§6) and a redacted version re-captured. Reproduction: any line pairing a
+credential-shaped assignment with an "example.test" host (or any other
+exemption marker: REDACTED/simulated/synthetic/demo-pass-/<…>) passes the
+checker. The allow-list should be scoped to the exempted SUBSTRING (or the
+credential pattern), not the whole line.
+
+Package integrity under the metadata attack: pk-101 digests unchanged
+(v1.0.0 sha256:…, v1.1.0 sha256:… — the review mutated no package
+content; stats.reviews/stars updated by design).

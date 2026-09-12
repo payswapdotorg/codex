@@ -1,0 +1,22 @@
+Post-hoc state + event verification for adv-approval-race (after all attacks):
+
+Event feed (GET /api/events?limit=15):
+  ev-0001 world.reset
+  ev-0002 auth.login dana.reyes
+  ev-0003 auth.login priya.nair
+  ev-0004 invoice.approved inv-9001 by Dana Reyes   ← the ONE winning decision
+  ev-0005 notification.delivered to dana.reyes
+  ev-0006 auth.login lena.hart [post-hoc probe]
+  ev-0007 auth.login dana.reyes [post-hoc probe]
+
+invoice.approved count: 1 (exactly one — no double approval from the race)
+po.issued / procurement.approved count: 0 (no PO side-effect from ANY failed attack:
+  the stale replays, permission-denied probes, unauthenticated probe, and the
+  forced data_conflict race all left the procurement records untouched)
+
+State check (GET /api/procurement state via invoice row): inv-9001 = approved by
+Dana Reyes; inv-9002 = approved by Priya Nair (seed); prq-5001 = submitted
+(undamaged by two failed approve attempts + switch); prq-5002 = po_issued (seed).
+
+Reset verification: POST /api/reset → world restored, world.reset event appended.
+  (see next artifact for the reset transcript)

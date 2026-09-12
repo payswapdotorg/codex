@@ -1,0 +1,157 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Ari Klein · engineer · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Signed in as Ari Klein (engineer)."
+  - heading "ForgeOps — engineering operations" [level=1, ref=e4]
+  - StaticText "Services"
+  - generic
+    - StaticText "4 0 unhealthy"
+  - StaticText "Open PRs"
+  - generic
+    - StaticText "2 awaiting review/merge"
+  - StaticText "Open incidents"
+  - generic
+    - StaticText "1 on-call"
+  - StaticText "Repos"
+  - generic
+    - StaticText "3 git forge"
+  - generic
+    - heading "Service dashboard" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "SERVICE" [ref=e67]
+          - columnheader "TIER" [ref=e68]
+          - columnheader "STATUS" [ref=e69]
+          - columnheader "VERSION" [ref=e70]
+          - columnheader "UPTIME 30D" [ref=e71]
+          - columnheader "P95" [ref=e72]
+          - columnheader "OWNER" [ref=e73]
+      - row
+        - cell "payments-api" [ref=e20]
+        - cell "T1" [ref=e21]
+        - cell "healthy" [ref=e22]
+        - cell "4.8.1" [ref=e23]
+          - code
+            - StaticText "4.8.1"
+        - cell "99.98%" [ref=e24]
+        - cell "84 ms" [ref=e25]
+        - cell "payments-core" [ref=e26]
+      - row
+        - cell "ledger-store" [ref=e27]
+        - cell "T1" [ref=e28]
+        - cell "healthy" [ref=e29]
+        - cell "2.1.0" [ref=e30]
+          - code
+            - StaticText "2.1.0"
+        - cell "99.99%" [ref=e31]
+        - cell "12 ms" [ref=e32]
+        - cell "payments-core" [ref=e33]
+      - row
+        - cell "checkout-web" [ref=e34]
+        - cell "T2" [ref=e35]
+        - cell "healthy" [ref=e36]
+        - cell "14.3.0" [ref=e37]
+          - code
+            - StaticText "14.3.0"
+        - cell "99.91%" [ref=e38]
+        - cell "210 ms" [ref=e39]
+        - cell "web-experience" [ref=e40]
+      - row
+        - cell "search-indexer" [ref=e41]
+        - cell "T2" [ref=e42]
+        - cell "healthy" [ref=e43]
+        - cell "1.4.1" [ref=e44]
+          - code
+            - StaticText "1.4.1"
+        - cell "99.87%" [ref=e45]
+        - cell "145 ms" [ref=e46]
+        - cell "platform-sre" [ref=e47]
+  - generic
+    - heading "Open pull requests" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PR" [ref=e74]
+          - columnheader "REPO" [ref=e75]
+          - columnheader "TITLE" [ref=e76]
+          - columnheader "AUTHOR" [ref=e77]
+          - columnheader "CI" [ref=e78]
+          - columnheader "APPROVALS" [ref=e79]
+          - columnheader "STATUS" [ref=e80]
+      - row
+        - cell "pr-0301 #302" [ref=e48]
+          - link "pr-0301 #302" [ref=e81]
+            - code
+              - StaticText "pr-0301"
+            - StaticText " #302"
+        - cell "payments-service" [ref=e49]
+          - code
+            - StaticText "payments-service"
+        - cell "Refund idempotency keys" [ref=e50]
+        - cell "Ari Klein" [ref=e51]
+        - cell "passed" [ref=e52]
+        - cell "0" [ref=e53]
+        - cell "open" [ref=e54]
+      - row
+        - cell "pr-0302 #148" [ref=e55]
+          - link "pr-0302 #148" [ref=e82]
+            - code
+              - StaticText "pr-0302"
+            - StaticText " #148"
+        - cell "web-checkout" [ref=e56]
+          - code
+            - StaticText "web-checkout"
+        - cell "Checkout caching layer" [ref=e57]
+        - cell "Tobi Oyelaran" [ref=e58]
+        - cell "passed" [ref=e59]
+        - cell "0" [ref=e60]
+        - cell "open" [ref=e61]
+  - generic
+    - heading "Open incidents" [level=2, ref=e18]
+    - table
+      - rowgroup
+        - row
+          - columnheader "INCIDENT" [ref=e83]
+          - columnheader "SEVERITY" [ref=e84]
+          - columnheader "TITLE" [ref=e85]
+          - columnheader "SERVICE" [ref=e86]
+          - columnheader "STATUS" [ref=e87]
+      - row
+        - cell "inc-0902" [ref=e62]
+          - code
+            - StaticText "inc-0902"
+        - cell "sev3" [ref=e63]
+        - cell "Checkout latency spike at peak" [ref=e64]
+        - cell "checkout-web" [ref=e65]
+          - code
+            - StaticText "checkout-web"
+        - cell "mitigated" [ref=e66]
+  - paragraph
+    - StaticText "Terminal desktop console: "
+    - code
+      - StaticText "node deploy-console.js"
+    - StaticText " in this directory. Docs: "
+    - link "failure switches" [ref=e19]
+    - StaticText " · "
+    - code
+      - StaticText "fixtures/software/FAILURES.md"
+    - StaticText "."
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

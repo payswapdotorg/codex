@@ -1,0 +1,264 @@
+//! VWO-008 adversarial probe — attacks the codex workflow/execution engine
+//! contracts AS LIBRARIES (no codex-rs modification). Each probe prints
+//! ATTACK → RESULT. The probe binary is ephemeral; its transcript is the
+//! evidence artifact.
+
+use codex_execution_contracts::*;
+use codex_workflow_contracts::{
+    CapabilityId, ContentDigest, EvidenceKind, EvidenceReference, WorkflowRole, RoleId,
+    ApprovalRequirement, ResourceTypeId,
+};
+
+use serde_json::json;
+use std::sync::Arc;
+
+// ---------------------------------------------------------------- adapter --
+
+/// Minimal always-ready adapter, mirroring the engine's own test helper.
+struct ProbeAdapter {
+    descriptor: AdapterDescriptor,
+}
+
+impl ProbeAdapter {
+    fn arc(self) -> Arc<dyn EnvironmentAdapter> {
+        Arc::new(self)
+    }
+}
+
+impl EnvironmentAdapter for ProbeAdapter {
+    fn descriptor(&self) -> &AdapterDescriptor {
+        &self.descriptor
+    }
+    fn probe(&self) -> AdapterProbeFuture<'_> {
+        Box::pin(async move { Ok(ProbeReport::ready()) })
+    }
+    fn prepare(&self, request: PrepareRequest) -> AdapterPrepareFuture<'_> {
+        let binding = request.binding.clone();
+        Box::pin(async move {
+            Ok(PreparedSession {
+                binding,
+                session: SessionHandle::parse("probe-session-1").expect("valid handle"),
+            })
+        })
+    }
+    fn execute<'a>(
+        &'a self,
+        session: &'a SessionHandle,
+        action: Action,
+    ) -> AdapterExecuteFuture<'a> {
+        let _ = session;
+        let binding = CapabilityBindingId::parse("codex-browser-use:navigate_web").unwrap();
+        let op_name = String::from(action.operation);
+        let declared = self
+            .descriptor
+            .provides
+            .iter()
+            .any(|p| String::from(p.capability.clone()).ends_with(&op_name));
+        if declared {
+            Box::pin(async move { ActionResult::succeeded(binding) })
+        } else {
+            let failure =
+                ExecutionFailure::new(FailureKind::Permanent, "operation not declared by adapter")
+                    .expect("failure");
+            Box::pin(async move { ActionResult::failed(binding, failure) })
+        }
+    }
+}
+
+fn descriptor(adapter: &str, provides: &str, resources: &[&str]) -> AdapterDescriptor {
+    let provides = provides
+        .split(',')
+        .map(|op| ProvidedCapability {
+            capability: CapabilityId::parse(op.trim()).expect("capability"),
+            resources: resources
+                .iter()
+                .map(|r| ResourceTypeId::parse(r.trim()).expect("resource type"))
+                .collect(),
+        })
+        .collect();
+    AdapterDescriptor {
+        adapter: AdapterId::parse(adapter).expect("adapter id"),
+        environment: ExecutionEnvironment::parse("browser").expect("env"),
+        class: BindingClass::CodexNative,
+        provides,
+    }
+}
+
+fn browser_binding() -> CapabilityBindingId {
+    CapabilityBindingId::parse("codex-browser-use:navigate_web").expect("binding")
+}
+
+fn approval_evidence(locator: &str) -> EvidenceReference {
+    EvidenceReference {
+        kind: EvidenceKind::Approval,
+        locator: locator.to_owned(),
+        digest: ContentDigest::of(&json!({ "decision": "approved" })).expect("digestable"),
+    }
+}
+
+fn other_evidence(kind: EvidenceKind, locator: &str) -> EvidenceReference {
+    EvidenceReference {
+        kind,
+        locator: locator.to_owned(),
+        digest: ContentDigest::of(&json!({ "kind": format!("{kind:?}") })).expect("digestable"),
+    }
+}
+
+async fn fresh_registry(adapter: ProbeAdapter) -> CapabilityRegistry {
+    let mut registry = CapabilityRegistry::new();
+    registry
+        .register_adapter(adapter.arc())
+        .expect("registered");
+    registry.refresh_readiness().await.expect("refreshed");
+    registry
+}
+
+fn outcome<T>(label: &str, result: Result<T, ExecutionContractError>) {
+    match result {
+        Ok(_) => println!("ATTACK  {label}\n  -> EXECUTED (engine permitted it)"),
+        Err(e) => println!("ATTACK  {label}\n  -> REPELLED: {e}"),
+    }
+}
+
+// ------------------------------------------------------------------- main --
+
+#[tokio::main]
+async fn main() {
+    println!("VWO-008 engine adversarial probe - library attacks on the");
+    println!("capability/authorization/readiness contract layer (base d198a00).");
+    println!();
+
+    // A. Forged grant: authorization resting on NON-approval evidence.
+    let binding = browser_binding();
+    for kind in [EvidenceKind::Observation, EvidenceKind::Artifact, EvidenceKind::Trace] {
+        let forged = AuthorizationGrant::new(binding.clone(), other_evidence(kind, "attacker/evidence/1"));
+        outcome(&format!("A. forged grant on {kind:?} evidence (must never authorize)"), forged.map(|_| ()));
+    }
+
+    // B. Foreign-binding grant: approval for binding X applied to binding Y.
+    let mut registry = fresh_registry(ProbeAdapter {
+        descriptor: descriptor("codex-browser-use", "navigate_web", &[]),
+    })
+    .await;
+    let foreign = AuthorizationGrant::new(
+        CapabilityBindingId::parse("terminal.local:run_terminal_command").expect("other"),
+        approval_evidence("approvals/1"),
+    )
+    .expect("valid grant for other binding");
+    outcome(
+        "B. foreign-binding grant replay (approval for another binding)",
+        registry.advance(&browser_binding(), TransitionCause::Authorized(foreign)).map(|_| ()),
+    );
+
+    // C. Premature authorization before READY (skip the readiness ladder).
+    let mut unrefreshed = CapabilityRegistry::new();
+    unrefreshed
+        .register_adapter(ProbeAdapter { descriptor: descriptor("codex-browser-use", "navigate_web", &[]) }.arc())
+        .expect("registered");
+    let grant = AuthorizationGrant::new(browser_binding(), approval_evidence("approvals/2")).expect("valid grant");
+    outcome(
+        "C. authorize a DECLARED (never-refreshed) binding - pre-READY grant",
+        unrefreshed.advance(&browser_binding(), TransitionCause::Authorized(grant)).map(|_| ()),
+    );
+
+    // D. Dispatch while only READY (not BOUND): execution without binding.
+    let action = Action::new(OperationId::parse("navigate_web").expect("op"));
+    match registry.dispatch(&browser_binding(), action.clone()).await {
+        Ok(_) => println!(
+            "ATTACK  D. dispatch a READY-but-unbound binding (skip AUTHORIZED/BOUND)\n  -> EXECUTED (engine permitted it)"
+        ),
+        Err(e) => println!(
+            "ATTACK  D. dispatch a READY-but-unbound binding (skip AUTHORIZED/BOUND)\n  -> REPELLED: {e}"
+        ),
+    }
+
+    // E. STALE GRANT REPLAY on an executed binding: is a used grant single-use?
+    let mut cyc = fresh_registry(ProbeAdapter {
+        descriptor: descriptor("codex-browser-use", "navigate_web", &[]),
+    })
+    .await;
+    let g1 = AuthorizationGrant::new(browser_binding(), approval_evidence("approvals/3")).expect("grant");
+    cyc.advance(&browser_binding(), TransitionCause::Authorized(g1.clone())).expect("authorized");
+    cyc.bind(&browser_binding()).expect("bound");
+    let _ = cyc.dispatch(&browser_binding(), action.clone()).await;
+    match cyc.advance(&browser_binding(), TransitionCause::Authorized(g1.clone())) {
+        Ok(_) => println!(
+            "ATTACK  E. replay of an already-consumed grant on an executed binding\n  -> EXECUTED (engine permits grant replay - grants are not single-use;\n     engine observation OE-1: replay re-authorizes the SAME binding id only;\n     a changed binding definition carries a different id and is rejected by B)"
+        ),
+        Err(e) => println!("ATTACK  E. replay of an already-consumed grant\n  -> REPELLED: {e}"),
+    }
+
+    // F. Re-register the same binding id with an EXPANDED capability set,
+    //    then replay the grant minted for the narrower declaration.
+    let mut reg2 = CapabilityRegistry::new();
+    reg2
+        .register_adapter(ProbeAdapter { descriptor: descriptor("codex-browser-use", "navigate_web", &[]) }.arc())
+        .expect("registered v1");
+    reg2.refresh_readiness().await.expect("refresh v1");
+    let gf = AuthorizationGrant::new(browser_binding(), approval_evidence("approvals/4")).expect("grant v1");
+    reg2.advance(&browser_binding(), TransitionCause::Authorized(gf.clone())).expect("authorized v1");
+    match reg2.register_adapter(ProbeAdapter { descriptor: descriptor("codex-browser-use", "navigate_web,scrape_page", &[]) }.arc()) {
+        Ok(_) => println!(
+            "ATTACK  F. re-register adapter under the same binding id with an EXPANDED capability set\n  -> EXECUTED (re-registration permitted; follow-up oracle F2 below)"
+        ),
+        Err(e) => println!("ATTACK  F. re-register adapter with expanded capability set\n  -> REPELLED: {e}"),
+    }
+    match reg2.advance(&browser_binding(), TransitionCause::Authorized(gf)) {
+        Ok(_) => println!(
+            "  F2. old grant replayed on the re-registered (expanded) binding -> PERMITTED\n      (engine observation OE-2: the grant binds to the binding ID, not to the\n      declaration content; dispatch still must pass the full ladder, and the\n      adapter itself rejects undeclared operations - oracle G)"
+        ),
+        Err(e) => println!("  F2. old grant replay -> REPELLED: {e}"),
+    }
+
+    // G. Dispatch an operation NOT declared by the adapter.
+    let mut reg3 = fresh_registry(ProbeAdapter {
+        descriptor: descriptor("codex-browser-use", "navigate_web", &[]),
+    })
+    .await;
+    let g3 = AuthorizationGrant::new(browser_binding(), approval_evidence("approvals/5")).expect("grant");
+    reg3.advance(&browser_binding(), TransitionCause::Authorized(g3)).expect("authorized");
+    reg3.bind(&browser_binding()).expect("bound");
+    let rogue = Action::new(OperationId::parse("delete_filesystem").expect("rogue op"));
+    let res = reg3.dispatch(&browser_binding(), rogue).await;
+    match res {
+        Ok(r) if r.outcome == ActionOutcome::Succeeded => println!(
+            "ATTACK  G. dispatch an UNDECLARED operation through a bound binding\n  -> EXECUTED (registry did not reject it - engine observation OE-3)"
+        ),
+        Ok(r) => println!(
+            "ATTACK  G. dispatch an UNDECLARED operation\n  -> refused: {:?}",
+            r.failure.map(|f| f.message)
+        ),
+        Err(e) => println!("ATTACK  G. dispatch an UNDECLARED operation\n  -> REPELLED: {e}"),
+    }
+
+    // H. Resource-without-permission: bind without the required resource.
+    let mut reg4 = fresh_registry(ProbeAdapter {
+        descriptor: descriptor("codex-browser-use", "navigate_web", &["browser_profile"]),
+    })
+    .await;
+    let g4 = AuthorizationGrant::new(browser_binding(), approval_evidence("approvals/6")).expect("grant");
+    reg4.advance(&browser_binding(), TransitionCause::Authorized(g4)).expect("authorized");
+    outcome(
+        "H. bind a binding whose required resource was never bound",
+        reg4.bind(&browser_binding()).map(|_| ()),
+    );
+
+    // I. ApprovalRequirement contract: serde round-trip must not erode gates.
+    let role = WorkflowRole {
+        role: RoleId::parse("approver").expect("role"),
+        name: "Approver".into(),
+        objective: "Approves payments".into(),
+        allowed_capabilities: vec![CapabilityId::parse("payments_approve").expect("cap")],
+        approval: ApprovalRequirement::Required,
+    };
+    let s = serde_json::to_string(&role).expect("serde");
+    let back: WorkflowRole = serde_json::from_str(&s).expect("deser");
+    if back.approval == ApprovalRequirement::Required {
+        println!("ATTACK  I. serde round-trip erosion of an approval gate\n  -> REPELLED (ApprovalRequirement::Required survived the round-trip)");
+    } else {
+        println!("ATTACK  I. serde round-trip erosion of an approval gate\n  -> EXECUTED (gate eroded!)");
+    }
+
+    println!();
+    println!("probe complete - see report for per-attack dispositions.");
+}

@@ -1,0 +1,51 @@
+FINDING F4 (P1) — cross-tenant install writes: FlowMart's install
+mutation ops (configure/upgrade/rollback) resolve the install by id and
+check the INSTALL'S org entitlement, but NEVER verify that the acting
+user belongs to that org. The /installs UI is org-scoped (iris.chen, the
+Northwind admin, sees ZERO install rows — Acme's ins-0401 is invisible),
+but the API twins accept cross-tenant writes by install id:
+
+  iris.chen (Northwind org admin, install:manage + install:configure):
+    POST /api/installs/configure {installId: ins-0401 (ACME), ...}
+      → 200 ok — Acme's install config gained "attackerKey":"iris-was-here"
+    POST /api/installs/upgrade {ins-0401 → 2.4.0}
+      → 200 ok — Acme's pin moved to 2.4.0 (history: upgraded)
+    POST /api/installs/rollback {ins-0401}
+      → 200 ok — Acme's pin moved back to 2.3.1 (history: rolled_back)
+
+  (First probe round was incidentally blocked by dan's revocation of
+  ent-0501 — the commercial gate fired BEFORE any tenant check would
+  have; on fresh seed with an ACTIVE entitlement every write succeeds,
+  proving the tenant check does not exist at all.)
+
+Contrast — the org-scoped surfaces that DO hold:
+  GET /api/installs filters by the actor's org (iris sees none);
+  the /installs UI renders no foreign rows;
+  ravi.gupta (org member, install:read) → install attempt permission_denied
+  [install:manage required];
+  iris installing pk-101 under the EXPIRED Northwind trial → 409
+  stale_entitlement naming ent-0502 (fail-closed).
+
+Trust boundary violated: tenant isolation of org-scoped resources.
+Severity: P1 (major authorization defect; UI path closed — a normal
+person cannot trigger it — but any API-capable actor can move another
+org's install pin and mutate its configuration; all writes ARE audited
+via install.* events and history entries).
+Root cause: ops-install.js configureInstall/upgradeInstall/rollbackInstall
+perform no actor-org ↔ install-org comparison (installPackage does — it
+resolves orgForUser for the actor).
+Cross-tenant probe on FRESH SEED (ent-0501 ACTIVE — the commercial gate
+cannot mask the tenant check):
+
+iris.chen (Northwind org admin) reconfigures ACME's ins-0401 by id:
+  -> ok: True | config: {"queue": "tier-1", "confidenceThreshold": "0.7", "attackerKey": "iris-was-here"} | msg: Install ins-0401 configured (attackerKey).
+Cross-tenant escalation chain on fresh seed (continuing the finding):
+
+a) vera.osei (publisher) releases pk-102 v2.4.0 (legitimate):
+   -> ok: True | Version 2.4.0 of "Support Ticket Triage Assistant" published (1 installer(s) not
+
+b) iris.chen (NORTHWIND admin) upgrades ACME's ins-0401 to 2.4.0:
+   -> ok: True | install now v 2.4.0 | history tail: ['installed', 'configured', 'upgraded']
+
+c) iris.chen rolls ACME's install back:
+   -> ok: True | install now v 2.3.1 | history tail: ['installed', 'configured', 'upgraded', 'rolled_back']

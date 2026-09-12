@@ -1,0 +1,48 @@
+VWO-008 engine adversarial probe - library attacks on the
+capability/authorization/readiness contract layer (base d198a00).
+
+ATTACK  A. forged grant on Observation evidence (must never authorize)
+  -> REPELLED: approval evidence is required, got evidence kind Observation
+ATTACK  A. forged grant on Artifact evidence (must never authorize)
+  -> REPELLED: approval evidence is required, got evidence kind Artifact
+ATTACK  A. forged grant on Trace evidence (must never authorize)
+  -> REPELLED: approval evidence is required, got evidence kind Trace
+ATTACK  B. foreign-binding grant replay (approval for another binding)
+  -> REPELLED: authorization grant subject `terminal.local:run_terminal_command` does not match binding `codex-browser-use:navigate_web`
+ATTACK  C. authorize a DECLARED (never-refreshed) binding - pre-READY grant
+  -> REPELLED: illegal readiness transition: cannot apply `authorized` from declared
+ATTACK  D. dispatch a READY-but-unbound binding (skip AUTHORIZED/BOUND)
+  -> REPELLED: binding `codex-browser-use:navigate_web` is ready, expected bound
+ATTACK  E. replay of an already-consumed grant
+  -> REPELLED: illegal readiness transition: cannot apply `authorized` from bound
+ATTACK  F. re-register adapter with expanded capability set
+  -> REPELLED: duplicate adapter registration: codex-browser-use
+  F2. old grant replay -> REPELLED: illegal readiness transition: cannot apply `authorized` from authorized
+ATTACK  G. dispatch an UNDECLARED operation
+  -> refused: Some("operation not declared by adapter")
+ATTACK  H. bind a binding whose required resource was never bound
+  -> REPELLED: binding `codex-browser-use:navigate_web` is missing required resources: browser_profile
+ATTACK  I. serde round-trip erosion of an approval gate
+  -> REPELLED (ApprovalRequirement::Required survived the round-trip)
+
+probe complete - see report for per-attack dispositions.
+
+---
+Probe provenance: standalone crate at /home/z/vwo008-probe (NOT part of
+codex-rs; no codex-rs file was modified — the crates were attacked as
+libraries via path dependencies). Dependencies:
+codex-execution-contracts (path), codex-workflow-contracts (path), tokio,
+serde_json. rama* transitive deps pinned to 0.3.0-alpha.4 to match the
+workspace's Cargo.lock under rustc 1.95.0 (the pinned toolchain).
+
+Probe dispositions vs the VWO-008 attack classes:
+- A (forged grant / non-approval evidence)        → class: capability-without-authorization (engine)  REPELLED ×3
+- B (foreign-binding grant)                        → class: stale approval reused for changed binding  REPELLED
+- C (pre-READY authorization / ladder skip)        → class: capability-without-authorization          REPELLED
+- D (dispatch while READY, unbound)                → class: capability-without-authorization          REPELLED
+- E (grant replay after executed binding)          → class: stale approval reuse                      REPELLED
+- F (re-register same binding id, expanded caps)   → class: dependency permission escalation          REPELLED
+- F2 (old grant on re-registered binding)          → class: dependency permission escalation          REPELLED
+- G (undeclared operation dispatch)                → class: resource/capability confusion             refused at adapter boundary
+- H (bind without required resource)               → class: resource-without-permission               REPELLED
+- I (serde round-trip approval-gate erosion)       → class: gate erosion                              REPELLED

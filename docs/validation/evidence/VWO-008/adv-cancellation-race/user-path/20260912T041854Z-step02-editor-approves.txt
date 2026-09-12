@@ -1,0 +1,115 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Camille Dubois · editor_in_chief · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Story st-0206 approved for publication."
+  - heading "Waterfront park phase two opens approved" [level=1, ref=e4]
+    - StaticText "Waterfront park phase two opens approved"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e28]
+        - cell "st-0206" [ref=e29]
+          - code
+            - StaticText "st-0206"
+      - row
+        - cell "Slug" [ref=e30]
+        - cell "waterfront-park-phase-two-opens" [ref=e31]
+          - code
+            - StaticText "waterfront-park-phase-two-opens"
+      - row
+        - cell "Section" [ref=e32]
+        - cell "metro" [ref=e33]
+      - row
+        - cell "Author" [ref=e34]
+        - cell "Hana Kim" [ref=e35]
+      - row
+        - cell "Status" [ref=e36]
+        - cell "approved" [ref=e37]
+      - row
+        - cell "Version" [ref=e38]
+        - cell "v1" [ref=e39]
+      - row
+        - cell "Word count" [ref=e40]
+        - cell "29" [ref=e41]
+      - row
+        - cell "Approved by" [ref=e42]
+        - cell "Camille Dubois" [ref=e43]
+      - row
+        - cell "Published at" [ref=e44]
+        - cell "—" [ref=e45]
+      - row
+        - cell "Channels" [ref=e46]
+        - cell "—" [ref=e47]
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The waterfront park's second phase opened Saturday, adding twelve acres of lawns, tide pools and a ferry landing. City officials say phase three depends on next year's budget cycle."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e54]
+          - columnheader "KIND" [ref=e55]
+          - columnheader "NAME" [ref=e56]
+          - columnheader "CREDIT" [ref=e57]
+          - columnheader "RENDITIONS" [ref=e58]
+      - row
+        - cell "a-0301 hero" [ref=e48]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e49]
+        - cell "harbor-bridge-aerial.jpg" [ref=e50]
+        - cell "City Photo Desk" [ref=e51]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e52]
+          - StaticText "thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+          - StaticText " hero:"
+          - StaticText "ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - generic
+    - heading "Publish" [level=2, ref=e19]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Channels"
+      - checkbox " web-front-page" [checked=true, ref=e23]
+      - checkbox " morning-newsletter" [checked=false, ref=e24]
+      - checkbox " rss-feed" [checked=false, ref=e25]
+      - checkbox " regional-syndication" [checked=false, ref=e26]
+      - checkbox " partner-app ⚠ license expired" [checked=false, ref=e27]
+      - button "Publish" [ref=e53]
+      - StaticText "Requires a hero image. Channels with expired licenses fail with stale_entitlement (seed: partner-app)."
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - paragraph
+      - StaticText "No distribution jobs."
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

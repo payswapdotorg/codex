@@ -1,0 +1,26 @@
+HYBRID establishment for adv-marketplace-entitlement-race (marketplace
+install + upgrade workflows, taught to the system):
+
+Instruction text submitted by the worker (Petra Voss / Iris Chen, org-admin
+personas) to the Codex Universal teaching surface:
+
+"Marketplace package lifecycle for my organization: search the catalog,
+install a package (entitlements are checked at install; first install
+auto-grants a 30-day trial), configure it, and upgrade when the publisher
+releases a new version — upgrades must only run with an ACTIVE entitlement
+for MY organization, must move the install pin explicitly, and must never
+leave partial state if the commercial gate fails. Entitlement grants and
+revocations are marketplace-admin actions; an org member may read but not
+install. Another organization's installs, entitlements and configuration
+are invisible to me and must stay untouchable from my account. Published
+package versions and digests are immutable — commercial operations never
+alter package content."
+
+Demonstration (demo phase): install attempts under an expired trial, an
+upgrade attempt under a revoked entitlement, cross-tenant attacks, and a
+metadata-exfiltration attempt through review text.
+
+Observation: no Codex Universal teaching surface exists (VWO-007 F1,
+re-verified) — the instruction is recorded as the human input; the
+observable product surface is FlowMart's own catalog/install/entitlement
+lifecycle.

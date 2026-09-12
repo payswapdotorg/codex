@@ -1,0 +1,24 @@
+Mid-upgrade revocation state verification (after dan.kowalski revoked
+ent-0501 while petra.voss held the upgrade form for ins-0401 → 2.4.0):
+
+Direct state read (post-hoc diagnostic, marketplace/data/state.json):
+  ins-0401 → version 2.3.1 (UNCHANGED — pin never moved), status active,
+             history: exactly 1 entry (the seed 'installed' entry; no
+             partial upgrade, no config mutation, no rollback residue)
+  ent-0501 → status 'revoked', revokedAt 2026-09-12T04:23:40Z,
+             revokedById u-2 (dan), reason "Commercial decision."
+  pk-102 v2.3.1 digest sha256:04cf049e110cc2cc  (unchanged by revocation)
+  pk-102 v2.4.0 digest sha256:cadb075e36500b7c  (as published by vera.osei;
+             equals the digest minted at publish — the catalog API's
+             latestDigest matches)
+
+Event feed for the attack window:
+  ev-0004 version.published 2.4.0 by Vera Osei
+  ev-0005 notification "Upgrade available" → petra
+  ev-0008 entitlement.revoked ent-0501 by Dan Kowalski
+  ev-0009 notification "Your entitlement ... was revoked" → petra
+  NO install.upgraded event — the blocked upgrade changed no state; the
+  failure is clean, auditable, and names the entitlement id.
+
+Verdict: commercial gate fails closed mid-operation; install pin, package
+digests, and install history are untouched by the failed commercial move.
