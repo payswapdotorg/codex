@@ -1,0 +1,40 @@
+VWO-006 / adv-environment-failure-rebinding — HYBRID phase 1: instruct-phase text
+Date (UTC): 2026-09-11T21:57Z
+
+The consumer (Iris Chen, Northwind Logistics org admin) gives the system initial
+instructions:
+
+"Teach Codex my install-and-rebind routine for marketplace automation packages:
+ I discover a package in the catalog, inspect what it needs before installing,
+ install the exact published version into our organization with our resource and
+ account bindings — our tier-1 support queue, our ops notification channel — and
+ keep that install pinned to the exact version I chose. When the publisher
+ releases a new version, I upgrade the pin explicitly after checking the release
+ notes and digest. If the registry or the environment we depend on fails during
+ an install or upgrade, nothing partial should be left behind — I retry once the
+ provider is healthy. When our bound environment changes — for example we move
+ from the northwind-ops channel to the new northwind-ops-eu channel — I rebind
+ the install to the compatible new environment through configuration only: the
+ rebinding must change the binding values, never the workflow's semantic source,
+ never its pinned version, never its digest. If I ever try to use a rebinding to
+ change what the package IS rather than where it POINTS, stop me."
+
+Evaluation fields the inference must carry (per TEACHING-MODE-MATRIX.md §3):
+semantics: discover → inspect → install pinned → explicit upgrade → provider-failure
+  retry → environment rebinding as configuration-only.
+dependencies: marketplace listing, install record, entitlement, registry blob store
+  (the provider that can fail), bound environments/channels.
+resources: org account (Northwind), tier-1 queue, northwind-ops channel (rebindable).
+conditions: entitlement active; registry healthy (retry on failure); compatible
+  environment for rebinding.
+approvals: org-admin authority for install/upgrade/rebind (install:manage /
+  install:configure).
+triggers: upgrade-available signal on new version publish; provider-failure
+  recovery path (manual retry).
+
+SUBMISSION ATTEMPT: no Codex Universal instruction/teaching surface exists in this
+environment (probe evidence: marketplace-discover-install-configure post-hoc/
+…codex-teaching-surface-probe.txt, same repo state). Recorded verbatim as
+user-path evidence per TEACHING-MODE-MATRIX.md §4 (HYBRID phase 1); the
+inference/reconciliation steps cannot be performed — recorded as missing-surface
+findings (see report), not fabricated.

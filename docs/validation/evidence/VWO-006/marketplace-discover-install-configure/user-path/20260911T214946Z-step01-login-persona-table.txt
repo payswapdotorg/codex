@@ -1,0 +1,99 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e4]
+    - link "Catalog" [ref=e5]
+    - link "Publisher" [ref=e6]
+    - link "Installs" [ref=e7]
+    - link "Entitlements" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - link "sign in" [ref=e3]
+- main
+  - generic
+    - heading "Sign in" [level=2, ref=e12]
+    - form
+      - LabelText
+        - StaticText "Username"
+      - textbox "e.g. vera.osei" [required, ref=e14]
+      - LabelText
+        - StaticText "Password"
+      - textbox [required, ref=e15]
+      - button "Sign in" [ref=e16]
+  - generic
+    - heading "Demo world" [level=2, ref=e13]
+    - paragraph
+      - StaticText "This is a fake enterprise used by the Codex Universal validation program. No real credentials exist: demo passwords are assembled at runtime from fragments. Pick any persona below."
+    - group
+      - DisclosureTriangle "Show demo personas & passwords" [expanded=true]
+        - StaticText "Show demo personas & passwords"
+      - paragraph
+        - StaticText "Persona list (also available at "
+        - code
+          - StaticText "GET /api/demo-hints"
+        - StaticText "):"
+      - table
+        - rowgroup
+          - row
+            - columnheader "USERNAME" [ref=e41]
+            - columnheader "PASSWORD (FAKE)" [ref=e42]
+            - columnheader "ROLE" [ref=e43]
+            - columnheader "NAME" [ref=e44]
+        - row
+          - cell "vera.osei" [ref=e17]
+            - code
+              - StaticText "vera.osei"
+          - cell "demo-pass-vera" [ref=e18]
+            - code
+              - StaticText "demo-pass-vera"
+          - cell "publisher" [ref=e19]
+          - cell "Vera Osei" [ref=e20]
+        - row
+          - cell "dan.kowalski" [ref=e21]
+            - code
+              - StaticText "dan.kowalski"
+          - cell "demo-pass-dan" [ref=e22]
+            - code
+              - StaticText "demo-pass-dan"
+          - cell "marketplace_admin" [ref=e23]
+          - cell "Dan Kowalski" [ref=e24]
+        - row
+          - cell "iris.chen" [ref=e25]
+            - code
+              - StaticText "iris.chen"
+          - cell "demo-pass-iris" [ref=e26]
+            - code
+              - StaticText "demo-pass-iris"
+          - cell "org_admin" [ref=e27]
+          - cell "Iris Chen" [ref=e28]
+        - row
+          - cell "ravi.gupta" [ref=e29]
+            - code
+              - StaticText "ravi.gupta"
+          - cell "demo-pass-ravi" [ref=e30]
+            - code
+              - StaticText "demo-pass-ravi"
+          - cell "org_member" [ref=e31]
+          - cell "Ravi Gupta" [ref=e32]
+        - row
+          - cell "mia.torres" [ref=e33]
+            - code
+              - StaticText "mia.torres"
+          - cell "demo-pass-mia" [ref=e34]
+            - code
+              - StaticText "demo-pass-mia"
+          - cell "auditor" [ref=e35]
+          - cell "Mia Torres" [ref=e36]
+        - row
+          - cell "petra.voss" [ref=e37]
+            - code
+              - StaticText "petra.voss"
+          - cell "demo-pass-petra" [ref=e38]
+            - code
+              - StaticText "demo-pass-petra"
+          - cell "org_admin" [ref=e39]
+          - cell "Petra Voss" [ref=e40]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

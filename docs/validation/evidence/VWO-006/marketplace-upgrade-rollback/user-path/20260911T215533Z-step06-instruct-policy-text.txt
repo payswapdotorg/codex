@@ -1,0 +1,34 @@
+VWO-006 / marketplace-upgrade-rollback — INSTRUCT-phase instruction text (what the human gives the system)
+Date (UTC): 2026-09-11T21:55Z
+
+The consumer (Petra Voss, Acme Retail org admin) describes the desired process in words:
+
+"Teach Codex my upgrade-and-rollback policy for installed marketplace packages:
+ when a publisher releases a new version of a package we have installed, show me
+ that an upgrade is available on my installs page, but never move our install to
+ the new version unless I explicitly confirm the upgrade — and when I do, pin the
+ install to the exact new version, record the change in the install history, and
+ verify the version digest matches the published digest. If the upgrade fails —
+ because our entitlement is expired or revoked, because another admin moved the
+ install while I was acting, or because the registry is unavailable — leave our
+ install exactly at its previous pinned version with no half-applied state, show
+ me a clear error naming the reason, and let me retry after fixing the cause.
+ Rolling back must also be an explicit action I confirm, recorded in history as
+ its own entry, returning the install to the prior pinned version. I should never
+ end up on a version I did not explicitly choose, and the audit history must show
+ who moved the install, when, and between which versions."
+
+Evaluation fields the inference must carry (per TEACHING-MODE-MATRIX.md §3):
+semantics: upgrade-available signal; explicit confirm-gated upgrade; explicit rollback; history record per move.
+dependencies: marketplace listing (pk-102), install record (ins-0401), entitlement record, registry blob store.
+resources: org account (Acme Retail), install:manage authority of the org admin.
+conditions: entitlement active; expectedCurrentVersion matches current pin; registry available.
+approvals: org-admin explicit confirmation for BOTH upgrade and rollback (never automatic).
+triggers: new-version-published event creating the upgrade-available signal (no auto-upgrade).
+
+SUBMISSION ATTEMPT: no Codex Universal instruction/teaching surface exists in this
+environment (probe evidence: post-hoc/…codex-teaching-surface-probe.txt in the
+marketplace-discover-install-configure directory, same repo state). The instruction
+text is recorded verbatim as user-path evidence per TEACHING-MODE-MATRIX.md §3; the
+inference-evaluation step cannot be performed — recorded as a missing-surface
+finding (see report), not fabricated.

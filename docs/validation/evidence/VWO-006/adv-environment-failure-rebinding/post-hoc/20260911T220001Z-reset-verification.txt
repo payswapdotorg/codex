@@ -1,0 +1,11 @@
+VWO-006 / adv-environment-failure-rebinding — reset verification
+Date (UTC): 2026-09-11T22:00:01Z
+== post-reset: Northwind installs (expect seed: none) ==
+{
+    "ok": true,
+    "orgId": "o-1",
+    "installs": []
+}
+== post-reset: pk-102 versions (expect seed: only 2.3.1) ==
+version: 2.3.1
+(token withheld — token=<redacted>)

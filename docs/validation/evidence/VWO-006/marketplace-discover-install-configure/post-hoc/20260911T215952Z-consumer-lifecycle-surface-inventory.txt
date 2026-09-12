@@ -1,0 +1,41 @@
+VWO-006 — consumer lifecycle surface inventory (what exists vs missing)
+Date (UTC): 2026-09-11T21:59:52Z
+Repo: 0d314fd09cec70d000f33c81286edcd8cbf72501
+
+MISSION lifecycle elements probed against every observable surface in this environment:
+
+1. DISCOVER + COMPARE marketplace workflows — EXISTS (FlowMart /catalog search + listing compare: name/summary/license/stars/digest)
+   evidence: user-path step01 catalog search + step02 listing snapshots.
+
+2. INSPECT capabilities/resources/compatibility BEFORE install — PARTIAL:
+   - EXISTS: digest, provenance (repo/commit/builder/signer), immutable version history, license model, prose description.
+   - MISSING: no machine-readable capabilities/resources/compatibility contract on the listing (FlowMart packages are opaque artifacts BY DESIGN — VWO-002 scope note); the surface that would declare them belongs to the missing Codex Universal consumer surface.
+
+3. INSTALL with explicit resource/account bindings — PARTIAL (fixture):
+   - install itself works through the UI (install:manage gate + entitlement gate) but the install form carries NO binding fields (bindings only settable post-install via configure);
+   - configure-with-bindings through the UI is broken by fixture defect F-2 (string vs object) — bindings only applicable via the API twin.
+
+4. SCHEDULE a workflow — MISSING EVERYWHERE:
+   - FlowMart install card: no schedule section (user-path snapshots show install card fields: Organization/Entitlement/Latest/Installed by/Installed at/Config/History only).
+   - FlowMart route list (docs/validation/fixtures/marketplace/server.js): no /schedule, /trigger, /webhook routes.
+   - Codex Universal: workflow-triggers crate implements ScheduleSpec + poll_schedules as a LIBRARY (codex-rs/workflow-triggers/src/schedule.rs) with no binary/UI wiring.
+
+5. TRIGGER by webhook/event — MISSING EVERYWHERE:
+   - No webhook URL surface, no event-subscription configuration surface in FlowMart;
+   - the only trigger-adjacent signal is the 'Upgrade available' notification on version.published (passive, not configurable);
+   - Codex Universal: IncomingTrigger/event ingest exists as a LIBRARY (codex-rs/workflow-triggers/src/event.rs) with no surface.
+
+6. EXECUTION + monitoring — MISSING for workflow execution:
+   - installs are commercial records; FlowMart never executes packages (VWO-002 forbidden list);
+   - the observable monitoring surface is the /events feed + /notifications (captured); there is no run/instance/execution view because nothing executes.
+
+7. UNINSTALL/REINSTALL — MISSING:
+   - FlowMart route list has installs/install, configure, upgrade, rollback — NO uninstall;
+   - no uninstall button on the install card (user-path snapshots); only rollback exists.
+
+8. REBIND without semantic mutation — EXISTS (invariant verified):
+   - configure surface merges binding values; version pin + digest immutable; smuggling attempt stored as inert data (post-hoc rebind-invariant-oracle evidence).
+
+9. Non-creator user path without repository internals:
+   - On the FlowMart surface: YES for discover/inspect/install/upgrade/rollback (all executed by non-creator personas through the UI only).
+   - Through Codex Universal: IMPOSSIBLE — no product surface exists at all (library-only crates; see codex-teaching-surface-probe).

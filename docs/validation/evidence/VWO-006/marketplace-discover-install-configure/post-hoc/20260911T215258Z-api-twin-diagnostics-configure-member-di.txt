@@ -1,0 +1,165 @@
+VWO-006 / marketplace-discover-install-configure — post-hoc diagnostics
+Date (UTC): 2026-09-11T21:52:53Z
+NOTE: API twins used as DIAGNOSTICS ONLY, after the human path (UI) was attempted per catalog runbook rule 1.
+
+(auth tokens obtained for iris.chen + ravi.gupta; values withheld — token=<redacted>)
+
+== A. install state BEFORE diagnostic configure (via /api/installs) ==
+{
+    "ok": true,
+    "orgId": "o-1",
+    "installs": [
+        {
+            "id": "ins-0402",
+            "orgId": "o-1",
+            "packageId": "pk-102",
+            "version": "2.3.1",
+            "status": "active",
+            "config": {},
+            "installedById": "u-3",
+            "installedAt": "2026-09-11T21:50:33.883Z",
+            "entitlementId": "ent-0504",
+            "history": [
+                {
+                    "action": "installed",
+                    "fromVersion": null,
+                    "toVersion": "2.3.1",
+                    "at": "2026-09-11T21:50:33.883Z",
+                    "byId": "u-3"
+                },
+                {
+                    "action": "configured",
+                    "fromVersion": "2.3.1",
+                    "toVersion": "2.3.1",
+                    "at": "2026-09-11T21:51:22.084Z",
+                    "byId": "u-3",
+                    "configKeys": []
+                }
+            ]
+        }
+    ]
+}
+
+== B. DIAGNOSTIC configure via API twin (fixture-defect workaround, marked): apply explicit resource/account bindings ==
+{
+    "ok": true,
+    "message": "Install ins-0402 configured (queue, confidenceThreshold, routingMode, notifyChannel).",
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-102",
+        "version": "2.3.1",
+        "status": "active",
+        "config": {
+            "queue": "tier-1",
+            "confidenceThreshold": "0.75",
+            "routingMode": "topic-urgency",
+            "notifyChannel": "northwind-ops"
+        },
+        "installedById": "u-3",
+        "installedAt": "2026-09-11T21:50:33.883Z",
+        "entitlementId": "ent-0504",
+        "history": [
+            {
+                "action": "installed",
+                "fromVersion": null,
+                "toVersion": "2.3.1",
+                "at": "2026-09-11T21:50:33.883Z",
+                "byId": "u-3"
+            },
+            {
+                "action": "configured",
+                "fromVersion": "2.3.1",
+                "toVersion": "2.3.1",
+                "at": "2026-09-11T21:51:22.084Z",
+                "byId": "u-3",
+                "configKeys": []
+            },
+            {
+                "action": "configured",
+                "fromVersion": "2.3.1",
+                "toVersion": "2.3.1",
+                "at": "2026-09-11T21:52:53.413Z",
+                "byId": "u-3",
+                "configKeys": [
+                    "queue",
+                    "confidenceThreshold",
+                    "routingMode",
+                    "notifyChannel"
+                ]
+            }
+        ]
+    }
+}
+
+== C. install state AFTER diagnostic configure (config persisted; version pin 2.3.1 unchanged) ==
+{
+    "ok": true,
+    "orgId": "o-1",
+    "installs": [
+        {
+            "id": "ins-0402",
+            "orgId": "o-1",
+            "packageId": "pk-102",
+            "version": "2.3.1",
+            "status": "active",
+            "config": {
+                "queue": "tier-1",
+                "confidenceThreshold": "0.75",
+                "routingMode": "topic-urgency",
+                "notifyChannel": "northwind-ops"
+            },
+            "installedById": "u-3",
+            "installedAt": "2026-09-11T21:50:33.883Z",
+            "entitlementId": "ent-0504",
+            "history": [
+                {
+                    "action": "installed",
+                    "fromVersion": null,
+                    "toVersion": "2.3.1",
+                    "at": "2026-09-11T21:50:33.883Z",
+                    "byId": "u-3"
+                },
+                {
+                    "action": "configured",
+                    "fromVersion": "2.3.1",
+                    "toVersion": "2.3.1",
+                    "at": "2026-09-11T21:51:22.084Z",
+                    "byId": "u-3",
+                    "configKeys": []
+                },
+                {
+                    "action": "configured",
+                    "fromVersion": "2.3.1",
+                    "toVersion": "2.3.1",
+                    "at": "2026-09-11T21:52:53.413Z",
+                    "byId": "u-3",
+                    "configKeys": [
+                        "queue",
+                        "confidenceThreshold",
+                        "routingMode",
+                        "notifyChannel"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+== D. member (ravi.gupta) install attempt via API twin — natural permission_denied oracle ==
+HTTP 403
+{
+    "ok": false,
+    "error": "permission_denied",
+    "message": "User \"ravi.gupta\" (role \"org_member\") lacks permission \"install:manage\".",
+    "required": "install:manage",
+    "role": "org_member",
+    "user": "ravi.gupta"
+}
+
+== E. digest equality check (listing page vs package API) ==
+latest version: 2.3.1
+digest: sha256:04cf049e110cc2cc
+provenance: {'sourceRepo': 'https://git.example.internal/vera/support-triage-assistant', 'commit': 'c7d8e9f', 'builtBy': 'vera.osei', 'signedBy': 'vera.osei'}
+(listing page showed: Latest digest sha256:04cf049e110cc2cc — equal)

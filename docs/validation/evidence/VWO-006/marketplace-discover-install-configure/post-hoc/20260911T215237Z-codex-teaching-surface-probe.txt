@@ -1,0 +1,45 @@
+VWO-006 — Codex Universal consumer/teaching surface probe
+Date (UTC): 2026-09-11T21:52:33Z
+Repo: 0d314fd09cec70d000f33c81286edcd8cbf72501 (branch vwo-006/consumer-automation-validation)
+
+== 1. Running application processes on this sandbox (excluding fixture apps + platform dev server) ==
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   2564  1024 pts/0    Ss   20:53   0:00 /usr/bin/tini -- /start.sh
+root         2  0.0  1.1 1267756 48500 pts/0   Sl+  20:53   0:01 caddy run --config /app/Caddyfile --adapter caddyfile
+root       909  0.0  0.9 231008 41264 pts/0    Sl+  20:53   0:00 uv run main.py
+root       925  0.4  3.4 174756 145540 pts/0   S+   20:53   0:15 /app/.venv/bin/python3 main.py
+z         1156  0.0  0.0   2972  1136 ?        S    21:41   0:00 tee dev.log
+root      4128  0.0  0.0   2672  1040 ?        Ss   21:52   0:00 /bin/sh -c su z -c '/bin/bash --noprofile --norc'
+root      4129  0.0  0.0   7424  4224 ?        S    21:52   0:00 su z -c /bin/bash --noprofile --norc
+z         4131  0.0  0.0   4444  3176 ?        Ss   21:52   0:00 /bin/bash --noprofile --norc
+z         4135  0.0  0.0   6796  4032 ?        R    21:52   0:00 ps aux
+z         4137  0.0  0.0   2976  1060 ?        S    21:52   0:00 head -15
+
+== 2. Ports listening ==
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                    
+LISTEN 0      4096       127.0.0.1:43629      0.0.0.0:*    users:(("agent-browser-l",pid=2793,fd=9)) 
+LISTEN 0      2048       127.0.0.1:12600      0.0.0.0:*                                              
+LISTEN 0      128        127.0.0.1:19001      0.0.0.0:*                                              
+LISTEN 0      1024         0.0.0.0:19005      0.0.0.0:*                                              
+LISTEN 0      128          0.0.0.0:19006      0.0.0.0:*                                              
+LISTEN 0      10         127.0.0.1:33443      0.0.0.0:*    users:(("chrome",pid=3620,fd=83))         
+LISTEN 0      4096       127.0.0.1:46563      0.0.0.0:*    users:(("agent-browser-l",pid=3612,fd=9)) 
+LISTEN 0      10         127.0.0.1:35491      0.0.0.0:*    users:(("chrome",pid=2797,fd=84))         
+LISTEN 0      511        127.0.0.1:4101       0.0.0.0:*    users:(("MainThread",pid=1679,fd=21))     
+LISTEN 0      511        127.0.0.1:4102       0.0.0.0:*    users:(("MainThread",pid=1704,fd=21))     
+LISTEN 0      511        127.0.0.1:4103       0.0.0.0:*    users:(("MainThread",pid=1681,fd=21))     
+
+== 3. codex CLI / app-server workflow-related subcommands ==
+rg: zero matches for 'workflow' in codex-rs CLI entrypoints
+
+== 4. app-server-protocol methods mentioning workflow ==
+rg: zero files mention 'workflow' in app-server-protocol/src
+
+== 5. Which crates depend on codex-workflow-* (user-facing binaries?) ==
+none of cli/tui/app-server/exec depend on any codex-workflow-* crate
+
+== 6. [[bin]] targets in workflow crates ==
+no [[bin]] target in any workflow crate — library-only
+
+CONCLUSION: no Codex Universal consumer/teaching product surface is exposed in this environment;
+the M4 workflow family exists as library crates only (no CLI/TUI/app-server wiring).

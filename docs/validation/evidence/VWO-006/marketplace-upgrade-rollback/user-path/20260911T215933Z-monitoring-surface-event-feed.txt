@@ -1,0 +1,154 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Petra Voss · org_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Event feed" [level=1, ref=e4]
+  - paragraph
+    - StaticText "Every important operation appends an event. Machine feed: "
+    - code
+      - StaticText "GET /events?format=json"
+    - StaticText " or "
+    - code
+      - StaticText "GET /api/events?limit=&since=&type="
+    - StaticText ". Newest first."
+  - table
+    - rowgroup
+      - row
+        - columnheader "TIME" [ref=e88]
+        - columnheader "TYPE" [ref=e89]
+        - columnheader "ACTOR" [ref=e90]
+        - columnheader "SUBJECT" [ref=e91]
+        - columnheader "SUMMARY" [ref=e92]
+    - row
+      - cell "2026-09-11T21:59:04.787Z" [ref=e13]
+      - cell "install.configured" [ref=e14]
+        - code
+          - StaticText "install.configured"
+      - cell "iris.chen" [ref=e15]
+      - cell "ins-0402" [ref=e16]
+      - cell "Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics" [ref=e17]
+    - row
+      - cell "2026-09-11T21:59:04.697Z" [ref=e18]
+      - cell "install.configured" [ref=e19]
+        - code
+          - StaticText "install.configured"
+      - cell "iris.chen" [ref=e20]
+      - cell "ins-0402" [ref=e21]
+      - cell "Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics" [ref=e22]
+    - row
+      - cell "2026-09-11T21:59:04.652Z" [ref=e23]
+      - cell "auth.login" [ref=e24]
+        - code
+          - StaticText "auth.login"
+      - cell "iris.chen" [ref=e25]
+      - cell "user:u-3" [ref=e26]
+      - cell "iris.chen signed in" [ref=e27]
+    - row
+      - cell "2026-09-11T21:58:32.172Z" [ref=e28]
+      - cell "install.configured" [ref=e29]
+        - code
+          - StaticText "install.configured"
+      - cell "iris.chen" [ref=e30]
+      - cell "ins-0402" [ref=e31]
+      - cell "Install ins-0402 (Support Ticket Triage Assistant v2.4.0) reconfigured for Northwind Logistics" [ref=e32]
+    - row
+      - cell "2026-09-11T21:58:20.665Z" [ref=e33]
+      - cell "notification.delivered" [ref=e34]
+        - code
+          - StaticText "notification.delivered"
+      - cell "iris.chen" [ref=e35]
+      - cell "notification:n-0004" [ref=e36]
+      - cell "Notification \"Support Ticket Triage Assistant upgraded to 2.4.0\" delivered to iris.chen" [ref=e37]
+    - row
+      - cell "2026-09-11T21:58:20.665Z" [ref=e38]
+      - cell "install.upgraded" [ref=e39]
+        - code
+          - StaticText "install.upgraded"
+      - cell "iris.chen" [ref=e40]
+      - cell "ins-0402" [ref=e41]
+      - cell "Northwind Logistics upgraded \"Support Ticket Triage Assistant\" 2.3.1 → 2.4.0" [ref=e42]
+    - row
+      - cell "2026-09-11T21:57:58.371Z" [ref=e43]
+      - cell "notification.delivered" [ref=e44]
+        - code
+          - StaticText "notification.delivered"
+      - cell "vera.osei" [ref=e45]
+      - cell "notification:n-0003" [ref=e46]
+      - cell "Notification \"Upgrade available: Support Ticket Triage Assistant 2.4.0\" delivered to iris.chen" [ref=e47]
+    - row
+      - cell "2026-09-11T21:57:58.371Z" [ref=e48]
+      - cell "notification.delivered" [ref=e49]
+        - code
+          - StaticText "notification.delivered"
+      - cell "vera.osei" [ref=e50]
+      - cell "notification:n-0002" [ref=e51]
+      - cell "Notification \"Upgrade available: Support Ticket Triage Assistant 2.4.0\" delivered to petra.voss" [ref=e52]
+    - row
+      - cell "2026-09-11T21:57:58.370Z" [ref=e53]
+      - cell "version.published" [ref=e54]
+        - code
+          - StaticText "version.published"
+      - cell "vera.osei" [ref=e55]
+      - cell "pk-102@2.4.0" [ref=e56]
+      - cell "\"Support Ticket Triage Assistant\" 2.4.0 released by Vera Osei: Adds sentiment-aware escalation routing and queue-level SLA thresholds." [ref=e57]
+    - row
+      - cell "2026-09-11T21:57:51.554Z" [ref=e58]
+      - cell "auth.login" [ref=e59]
+        - code
+          - StaticText "auth.login"
+      - cell "vera.osei" [ref=e60]
+      - cell "user:u-1" [ref=e61]
+      - cell "vera.osei signed in" [ref=e62]
+    - row
+      - cell "2026-09-11T21:57:34.666Z" [ref=e63]
+      - cell "notification.delivered" [ref=e64]
+        - code
+          - StaticText "notification.delivered"
+      - cell "iris.chen" [ref=e65]
+      - cell "notification:n-0001" [ref=e66]
+      - cell "Notification \"Northwind Logistics installed Support Ticket Triage Assistant\" delivered to vera.osei" [ref=e67]
+    - row
+      - cell "2026-09-11T21:57:34.666Z" [ref=e68]
+      - cell "package.installed" [ref=e69]
+        - code
+          - StaticText "package.installed"
+      - cell "iris.chen" [ref=e70]
+      - cell "ins-0402" [ref=e71]
+      - cell "Northwind Logistics installed \"Support Ticket Triage Assistant\" v2.3.1 (ins-0402)" [ref=e72]
+    - row
+      - cell "2026-09-11T21:57:34.666Z" [ref=e73]
+      - cell "entitlement.granted" [ref=e74]
+        - code
+          - StaticText "entitlement.granted"
+      - cell "iris.chen" [ref=e75]
+      - cell "ent-0504" [ref=e76]
+      - cell "Trial entitlement for \"Support Ticket Triage Assistant\" auto-granted to Northwind Logistics (until 2026-10-12)" [ref=e77]
+    - row
+      - cell "2026-09-11T21:57:26.973Z" [ref=e78]
+      - cell "auth.login" [ref=e79]
+        - code
+          - StaticText "auth.login"
+      - cell "iris.chen" [ref=e80]
+      - cell "user:u-3" [ref=e81]
+      - cell "iris.chen signed in" [ref=e82]
+    - row
+      - cell "2026-09-11T21:57:16.570Z" [ref=e83]
+      - cell "world.reset" [ref=e84]
+        - code
+          - StaticText "world.reset"
+      - cell "system" [ref=e85]
+      - cell "state" [ref=e86]
+      - cell "Demo world reset to seed state (reset #1)" [ref=e87]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

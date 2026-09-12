@@ -1,0 +1,10 @@
+2026-09-11T21:52:53.413Z | install.configured | ins-0402 | Install ins-0402 (Support Ticket Triage Assistant v2.3.1) reconfigured for Northwind Logistics
+2026-09-11T21:52:53.351Z | auth.login | user:u-4 | ravi.gupta signed in
+2026-09-11T21:52:53.310Z | auth.login | user:u-3 | iris.chen signed in
+2026-09-11T21:51:22.084Z | install.configured | ins-0402 | Install ins-0402 (Support Ticket Triage Assistant v2.3.1) reconfigured for Northwind Logistics
+2026-09-11T21:51:04.700Z | auth.login | user:u-4 | ravi.gupta signed in
+2026-09-11T21:50:33.883Z | notification.delivered | notification:n-0001 | Notification "Northwind Logistics installed Support Ticket Triage Assistant" delivered to vera.osei
+2026-09-11T21:50:33.883Z | package.installed | ins-0402 | Northwind Logistics installed "Support Ticket Triage Assistant" v2.3.1 (ins-0402)
+2026-09-11T21:50:33.883Z | entitlement.granted | ent-0504 | Trial entitlement for "Support Ticket Triage Assistant" auto-granted to Northwind Logistics (until 2026-10-12)
+2026-09-11T21:49:50.046Z | auth.login | user:u-3 | iris.chen signed in
+2026-09-11T21:49:29.575Z | world.reset | state | Demo world reset to seed state (reset #1)
