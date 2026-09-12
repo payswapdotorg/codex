@@ -1,0 +1,63 @@
+# Families C/D + VWO-006 F-4 reproduction — fork/lineage, improvement-candidate, and schedule/trigger/execution surfaces absent from every product surface
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b
+
+## probe 1 — FlowMart (the only marketplace product surface) route inventory — no fork, no lineage, no improvement-proposal, no schedule/webhook/uninstall routes:
+$ rg -n "'/api/|pattern:'" docs/validation/fixtures/marketplace/server.js (route list)
+    32:  { kind: 'page', method: 'GET', pattern: '/', auth: false, handler: ui.dashboard },
+    33:  { kind: 'page', method: 'GET', pattern: '/catalog', auth: false, handler: ui.catalog },
+    34:  { kind: 'page', method: 'GET', pattern: '/listings/:slug', auth: false, handler: ui.listing },
+    35:  { kind: 'page', method: 'GET', pattern: '/publisher', auth: false, handler: ui.publisher },
+    36:  { kind: 'page', method: 'GET', pattern: '/installs', auth: false, handler: ui.installs },
+    37:  { kind: 'page', method: 'GET', pattern: '/entitlements', auth: false, handler: ui.entitlements },
+    38:  { kind: 'page', method: 'GET', pattern: '/notifications', handler: ui.notifications },
+    41:  { kind: 'api', method: 'GET', pattern: '/api/catalog', auth: false, op: (ctx) => ops.searchCatalog(ctx) },
+    42:  { kind: 'api', method: 'GET', pattern: '/api/packages/:id', auth: false, op: (ctx) => {
+    47:  { kind: 'api', method: 'GET', pattern: '/api/installs', op: (ctx) => {
+    51:  { kind: 'api', method: 'GET', pattern: '/api/entitlements', op: (ctx) => ({
+    57:  { kind: 'api', method: 'GET', pattern: '/api/orgs', auth: false, op: (ctx) => ({ orgs: ctx.state.orgs }) },
+    58:  { kind: 'api', method: 'GET', pattern: '/api/reviews', auth: false, op: (ctx) => ({ reviews: ctx.state.reviews }) },
+    59:  { kind: 'api', method: 'GET', pattern: '/api/notifications', op: (ctx) => ({
+    64:  { kind: 'api', method: 'POST', pattern: '/api/listings/publish', perm: 'listing:publish',
+    66:  { kind: 'form', method: 'POST', pattern: '/ui/listings/publish', perm: 'listing:publish',
+    68:  { kind: 'api', method: 'POST', pattern: '/api/versions/publish', perm: 'version:publish', op: ops.publishVersion },
+    69:  { kind: 'form', method: 'POST', pattern: '/ui/versions/publish', perm: 'version:publish', op: ops.publishVersion, back: '/publisher' },
+    70:  { kind: 'api', method: 'POST', pattern: '/api/provenance/verify', perm: 'audit:verify', op: ops.verifyProvenance },
+    71:  { kind: 'form', method: 'POST', pattern: '/ui/provenance/verify', perm: 'audit:verify', op: ops.verifyProvenance, back: '/catalog' },
+    72:  { kind: 'api', method: 'POST', pattern: '/api/reviews/create', perm: 'review:write',
+    74:  { kind: 'form', method: 'POST', pattern: '/ui/reviews/create', perm: 'review:write',
+    76:  { kind: 'api', method: 'POST', pattern: '/api/installs/install', perm: 'install:manage', op: inst.installPackage },
+    77:  { kind: 'form', method: 'POST', pattern: '/ui/installs/install', perm: 'install:manage', op: inst.installPackage, back: '/installs' },
+    78:  { kind: 'api', method: 'POST', pattern: '/api/installs/configure', perm: 'install:configure', op: inst.configureInstall },
+    79:  { kind: 'form', method: 'POST', pattern: '/ui/installs/configure', perm: 'install:configure', op: inst.configureInstall, back: '/installs' },
+    80:  { kind: 'api', method: 'POST', pattern: '/api/installs/upgrade', perm: 'install:manage', op: inst.upgradeInstall },
+    81:  { kind: 'form', method: 'POST', pattern: '/ui/installs/upgrade', perm: 'install:manage', op: inst.upgradeInstall, back: '/installs' },
+    82:  { kind: 'api', method: 'POST', pattern: '/api/installs/rollback', perm: 'install:manage', op: inst.rollbackInstall },
+    83:  { kind: 'form', method: 'POST', pattern: '/ui/installs/rollback', perm: 'install:manage', op: inst.rollbackInstall, back: '/installs' },
+    84:  { kind: 'api', method: 'POST', pattern: '/api/entitlements/revoke', perm: 'entitlement:revoke', op: inst.revokeEntitlement },
+    85:  { kind: 'form', method: 'POST', pattern: '/ui/entitlements/revoke', perm: 'entitlement:revoke', op: inst.revokeEntitlement, back: '/entitlements' },
+    86:  { kind: 'api', method: 'POST', pattern: '/api/entitlements/grant', perm: 'entitlement:grant', op: inst.grantEntitlement },
+    87:  { kind: 'form', method: 'POST', pattern: '/ui/entitlements/grant', perm: 'entitlement:grant', op: inst.grantEntitlement, back: '/entitlements' },
+
+## probe 2 — engine implements fork/lineage (forge+distribution) but nothing user-facing calls it:
+$ rg -l 'fork' codex-rs/workflow-distribution/src/*.rs codex-rs/workflow-forge/src/*.rs
+    codex-rs/workflow-forge/src/test_support.rs
+    codex-rs/workflow-forge/src/lib.rs
+    codex-rs/workflow-forge/src/memory.rs
+    codex-rs/workflow-forge/src/github.rs
+    codex-rs/workflow-forge/src/error.rs
+    codex-rs/workflow-forge/src/discovery.rs
+    codex-rs/workflow-forge/src/collaboration.rs
+    codex-rs/workflow-distribution/src/memory.rs
+    (engine-side fork exists — VWO-009 engine probe attacked it — but the FlowMart route list above has no fork path; VWO-005 F4 confirmed: fork surface + lineage data model absent from the product)
+
+## probe 3 — evolution crate (improvement candidates + approval-before-publish) is library-only with no consumer:
+$ rg -l 'codex-workflow-evolution' codex-rs/*/Cargo.toml (excluding own)
+    codex-rs/workflow-evolution/Cargo.toml
+
+## probe 4 — triggers crate implements ScheduleSpec/IncomingTrigger/poll_schedules but no product route exists:
+$ rg -n 'ScheduleSpec|IncomingTrigger|poll_schedules' codex-rs/workflow-triggers/src/lib.rs | head -4
+    codex-rs/workflow-triggers/src/schedule.rs:36:pub enum ScheduleSpec {
+    codex-rs/workflow-triggers/src/event.rs:86:pub struct IncomingTrigger {
+    (FlowMart route list has no schedule/webhook/monitoring/uninstall path — VWO-006 F-4 confirmed at fixture level; engine mount absence is Family A)
+
+## conclusion — Families C and D (and VWO-006 F-4) REPRODUCED by surface-absence at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b: the semantic layers EXIST in the engine (forge fork, evolution candidate/approval, triggers ScheduleSpec) but no product surface mounts them. RWO-001 (engine mount) is the owning remediation for the mount; RWO-005/RWO-006 propose the FlowMart-side fork/improvement fixtures only if the Tech Lead wants the marketplace lifecycle human-testable before the mount lands.

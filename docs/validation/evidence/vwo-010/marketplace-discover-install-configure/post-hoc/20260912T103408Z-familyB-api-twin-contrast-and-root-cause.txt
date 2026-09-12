@@ -1,0 +1,15 @@
+# Family B reproduction — post-hoc diagnostics (API-twin contrast + root cause + conclusion)
+# (companion to user-path/20260912T103408Z-step-configure-form-silent-noop-browser-path.txt)
+## step 4 — root-cause confirmation (API twin contrast, marked diagnostic):
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/configure -H 'Authorization: Bearer <redacted-demo-token>' -H 'Content-Type: application/json' -d '{"installId":"ins-0402","config":{"vwo010ApiTwin":"json-object-path-works"}}'
+{
+    "ok": true,
+    "message": "Install ins-0402 configured (vwo010ApiTwin).",
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+
+## conclusion — REPRODUCED at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b:
+  HTML form path (urlencoded string config) → silent no-op with success flash 'configured (no keys)' + misleading history entry; config unchanged.
+  JSON API path (object config) → keys merged. Root cause confirmed: _lib/runtime.js parses urlencoded bodies into STRING values; ops-install.js configureInstall requires typeof b.config === 'object' (marketplace/ops-install.js:107) and silently substitutes {}.
+## source citation: docs/validation/fixtures/_lib/runtime.js (urlencoded branch, ~line 267-272), docs/validation/fixtures/marketplace/ops-install.js configureInstall (line 100-115)

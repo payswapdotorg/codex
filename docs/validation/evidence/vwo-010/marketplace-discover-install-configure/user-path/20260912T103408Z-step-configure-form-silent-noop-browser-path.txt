@@ -1,0 +1,33 @@
+# Family B human-path reproduction (VWO-005 F2 / VWO-006 F-2) — FlowMart configure form silently drops JSON input
+# (browser/user-path half; base main @ 0f89393c60403e423a91cffc3055af07e31a0c0b)
+
+# Family B human-path reproduction (VWO-005 F2 / VWO-006 F-2) — FlowMart configure form silently drops JSON input
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b (branch vwo-010/validation-synthesis)
+surface: agent-browser 0.35.0 over Playwright chromium (headless) → http://127.0.0.1:4105
+
+## step 1 — sign in as iris.chen (Northwind org_admin) via /login form
+- link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+- navigation "Main" [ref=e2]
+  - link "Dashboard" [ref=e5]
+  - link "Catalog" [ref=e6]
+  - link "Publisher" [ref=e7]
+  - link "Installs" [ref=e8]
+  - link "Entitlements" [ref=e9]
+  - link "Notifications" [ref=e10]
+  - link "Events" [ref=e11]
+  - link "Failure switches" [ref=e12]
+- link "sign out" [ref=e3]
+- heading "FlowMart — automation package marketplace" [level=1, ref=e4]
+- heading "Your organization installs" [level=2, ref=e13]
+- columnheader "INSTALL" [ref=e37]
+- columnheader "PACKAGE" [ref=e38]
+
+## step 2 — /installs shows install ins-0402 (Northwind) with Config cell: {"zones":"A"}
+## step 3 — paste JSON {"vwo010":"familyB-probe","opsChannel":"east"} into the 'Config keys to merge (JSON)' textarea and click Apply config
+
+## observed — flash (URL query): ok=Install ins-0402 configured (no keys)
+## observed — Config cell after apply (page dump):
+http://127.0.0.1:4105/installs?ok=Install+ins-0402+configured+%28no+keys%29.
+"{\"zones\":\"A\"}"
+"configured 1.2.0 → 1.2.0 by Iris Chen at 2026-09-12T10:34:18.552Z"
+

@@ -1,0 +1,99 @@
+# Family A reproduction (VWO-004 F1 · VWO-005 F1 · VWO-006 F-1 · VWO-007 F1 · VWO-008 F1 · VWO-009 F1) — workflow/teaching engine mounted in NO user-facing surface
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b; method: static source probes (cargo/rustc ABSENT in this sandbox — which cargo returns nothing; the Tech Lead independently compiles and runs everything; prior merged reports' cargo-test transcripts are cited below)
+
+## probe 1 — reverse dependencies of each workflow-family crate (who depends on it):
+$ rg -l "codex-workflow-contracts" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-triggers/Cargo.toml
+    codex-rs/workflow-forge/Cargo.toml
+    codex-rs/workflow-evolution/Cargo.toml
+    codex-rs/workflow-durable/Cargo.toml
+    codex-rs/workflow-distribution/Cargo.toml
+    codex-rs/workflow-app/Cargo.toml
+    codex-rs/teaching-compiler/Cargo.toml
+    codex-rs/resource-providers/Cargo.toml
+    codex-rs/execution-contracts/Cargo.toml
+    codex-rs/env-adapters/Cargo.toml
+    codex-rs/eval-compat/Cargo.toml
+    codex-rs/computer-use-adapter/Cargo.toml
+    codex-rs/browser-use-adapter/Cargo.toml
+$ rg -l "codex-workflow-forge" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-triggers/Cargo.toml
+    codex-rs/workflow-evolution/Cargo.toml
+    codex-rs/workflow-durable/Cargo.toml
+    codex-rs/workflow-distribution/Cargo.toml
+    codex-rs/workflow-app/Cargo.toml
+    codex-rs/resource-providers/Cargo.toml
+    codex-rs/env-adapters/Cargo.toml
+    codex-rs/eval-compat/Cargo.toml
+$ rg -l "codex-workflow-app" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-triggers/Cargo.toml
+    codex-rs/workflow-durable/Cargo.toml
+    codex-rs/workflow-evolution/Cargo.toml
+    codex-rs/workflow-distribution/Cargo.toml
+    codex-rs/resource-providers/Cargo.toml
+    codex-rs/env-adapters/Cargo.toml
+    codex-rs/eval-compat/Cargo.toml
+$ rg -l "codex-workflow-durable" codex-rs/*/Cargo.toml (excluding own crate)
+$ rg -l "codex-workflow-triggers" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-evolution/Cargo.toml
+    codex-rs/workflow-durable/Cargo.toml
+    codex-rs/workflow-distribution/Cargo.toml
+$ rg -l "codex-workflow-distribution" codex-rs/*/Cargo.toml (excluding own crate)
+$ rg -l "codex-workflow-evolution" codex-rs/*/Cargo.toml (excluding own crate)
+$ rg -l "codex-teaching-compiler" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-triggers/Cargo.toml
+    codex-rs/workflow-app/Cargo.toml
+    codex-rs/resource-providers/Cargo.toml
+    codex-rs/env-adapters/Cargo.toml
+    codex-rs/eval-compat/Cargo.toml
+$ rg -l "codex-execution-contracts" codex-rs/*/Cargo.toml (excluding own crate)
+    codex-rs/workflow-triggers/Cargo.toml
+    codex-rs/workflow-durable/Cargo.toml
+    codex-rs/workflow-evolution/Cargo.toml
+    codex-rs/workflow-app/Cargo.toml
+    codex-rs/resource-providers/Cargo.toml
+    codex-rs/eval-compat/Cargo.toml
+    codex-rs/env-adapters/Cargo.toml
+
+## probe 2 — user-facing crates' Cargo.toml reference NO workflow-family crate:
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/cli/Cargo.toml
+    (no matches — NONE)
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/tui/Cargo.toml
+    (no matches — NONE)
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/app-server/Cargo.toml
+    (no matches — NONE)
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/app-server-protocol/Cargo.toml
+    (no matches — NONE)
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/app-server-daemon/Cargo.toml
+    (no matches — NONE)
+$ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/exec/Cargo.toml
+    (no matches — NONE)
+
+## probe 3 — app-server-protocol exposes ZERO workflow methods:
+$ rg -c 'workflow' codex-rs/app-server-protocol/src/*.rs
+    (no matches — zero workflow mentions in the whole protocol crate)
+
+## probe 4 — CLI has NO workflow subcommand:
+$ rg -n 'workflow' codex-rs/cli/src/main.rs codex-rs/cli/src/app_cmd.rs
+    (no matches)
+
+## probe 5 — no workflow crate ships a [[bin]] target (library-only):
+$ rg -l '\[\[bin\]\]' codex-rs/workflow-*/Cargo.toml codex-rs/teaching-compiler/Cargo.toml codex-rs/execution-contracts/Cargo.toml
+    (no matches — all nine crates are library-only)
+
+## probe 6 — tui 'workflow' matches are incidental (test comments / plugin blurb):
+    codex-rs/tui/src/bottom_pane/textarea.rs:338:    /// workflows reset mode after submissions without first branching on the
+    codex-rs/tui/src/bottom_pane/chat_composer.rs:3270:        // the workflow: type a prefix ("/di"), press Tab to complete to
+    codex-rs/tui/src/bottom_pane/chat_composer.rs:3470:    /// workflows start carrying those through in the future.
+    codex-rs/tui/src/bottom_pane/chat_composer.rs:7804:                        "Plugin that includes the Figma MCP server and Skills for common workflows"
+    codex-rs/tui/src/get_git_diff.rs:394:    async fn get_git_diff_preserves_builtin_fsmonitor_for_diff_workflow() {
+
+## probe 7 — the engine library tests pass at the merged bases per the prior reports' own cargo transcripts (this sandbox has no cargo — honest limitation; NOT re-run here):
+  - VWO-007 evidence _infra/post-hoc: 20260912T002217Z-durable-library-test-results.txt (codex-workflow-durable 46 tests), 20260912T002900Z-app-library-test-results.txt (codex-workflow-app 36), 20260912T002913Z-triggers-library-test-results.txt (codex-workflow-triggers 23) — all passing at 0d314fd.
+  - VWO-008 report Actual: cargo test -p codex-execution-contracts --lib → 112 passed / 0 failed; -p codex-workflow-contracts --lib → 90 passed / 0 failed at d198a00.
+  - VWO-009 report Program-Level Summary: contracts 90/0, forge 44/0, distribution 10+8/0 passing at 7736a42.
+  → the engine exists and its own tests are green; what is absent is ANY user-facing mount. Family A is an integration/mounting gap, not an engine defect.
+
+## conclusion — Family A REPRODUCED at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b (6th independent confirmation; 5th at merged-report level):
+  No user-facing crate (cli/tui/app-server/app-server-protocol/app-server-daemon/exec) depends on any workflow-family crate; app-server-protocol contains zero workflow methods; the CLI has no workflow subcommand; no workflow crate ships a binary target. A normal person using Codex today cannot reach teaching/compile/review/approve/publish, durable instances, triggers, distribution or evolution — matching all six reports' F1/F-1 records.
+  Root cause (documented): the implementation WOs (docs/work-orders/WO-009/010/011 etc.) landed the workflow family library-first; WO-010's required outcome 'Expose workflow lifecycle through the existing Codex application/app-server surfaces where appropriate' was never satisfied by a follow-up mount — see RWO-001 (proposed) for the bounded mount fix.

