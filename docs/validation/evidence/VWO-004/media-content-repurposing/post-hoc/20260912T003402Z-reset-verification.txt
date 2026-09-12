@@ -1,0 +1,2 @@
+=== reset verification: media-content-repurposing ===
+{"posts":2,"st0201v":3}

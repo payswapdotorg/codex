@@ -1,0 +1,54 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Tobi Oyelaran · intern · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Internal documentation" [level=1, ref=e4]
+  - generic
+    - heading "All docs" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DOC" [ref=e29]
+          - columnheader "PATH" [ref=e30]
+          - columnheader "OWNER TEAM" [ref=e31]
+          - columnheader "VERSION" [ref=e32]
+      - row
+        - cell "Runbook: payments deploys" [ref=e17]
+          - link "Runbook: payments deploys" [ref=e33]
+        - cell "/docs/runbooks/payments-deploys" [ref=e18]
+          - code
+            - StaticText "/docs/runbooks/payments-deploys"
+        - cell "platform-sre" [ref=e19]
+        - cell "v3" [ref=e20]
+      - row
+        - cell "On-call rotation & escalation" [ref=e21]
+          - link "On-call rotation & escalation" [ref=e34]
+        - cell "/docs/oncall/rotation" [ref=e22]
+          - code
+            - StaticText "/docs/oncall/rotation"
+        - cell "platform-sre" [ref=e23]
+        - cell "v2" [ref=e24]
+      - row
+        - cell "Service ownership directory" [ref=e25]
+          - link "Service ownership directory" [ref=e35]
+        - cell "/docs/ownership/services" [ref=e26]
+          - code
+            - StaticText "/docs/ownership/services"
+        - cell "payments-core" [ref=e27]
+        - cell "v1" [ref=e28]
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

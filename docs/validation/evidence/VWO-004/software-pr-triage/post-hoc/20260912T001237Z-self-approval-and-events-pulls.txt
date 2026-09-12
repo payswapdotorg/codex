@@ -1,0 +1,15 @@
+=== post-hoc diagnostics: software-pr-triage ===
+captured: 2026-09-12T00:12:37Z
+
+--- natural self-approval check: POST /api/prs/approve pr-0301 as ari.klein (author; API twin — UI renders no approve form for the author) ---
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"ari.klein\" (role \"engineer\") lacks permission \"pr:review\".",
+  "required": "pr:review",
+  "role": "engineer",
+  "user": "ari.klein"
+}
+HTTP 403
+
+--- GET /api/events?limit=14 (pr.approved / pr.merged / deployment.* / service.version_bumped) ---

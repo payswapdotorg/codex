@@ -1,0 +1,12 @@
+=== post-hoc: finance analyst attempts surge (natural permission) ===
+captured: 2026-09-12T00:28:59Z
+(UI renders no surge form for kwame.mensah — finance_analyst; API twin check after the human-path attempt)
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"kwame.mensah\" (role \"finance_analyst\") lacks permission \"surge:adjust\".",
+  "required": "surge:adjust",
+  "role": "finance_analyst",
+  "user": "kwame.mensah"
+}
+HTTP 403

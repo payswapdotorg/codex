@@ -1,0 +1,14 @@
+=== post-hoc (corrected): natural permission check — foreman attempts close via API twin ===
+captured: 2026-09-12T00:10:23Z
+(request URL carried the real session token; redacted here per evidence/README.md §5)
+
+POST /api/safety/close {incidentId: si-2001} as marco.silva (role site_foreman, permissions: progress:create, safety:report):
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"marco.silva\" (role \"site_foreman\") lacks permission \"safety:close\".",
+  "required": "safety:close",
+  "role": "site_foreman",
+  "user": "marco.silva"
+}
+HTTP 403

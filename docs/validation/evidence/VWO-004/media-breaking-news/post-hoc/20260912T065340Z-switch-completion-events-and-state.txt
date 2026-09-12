@@ -1,0 +1,78 @@
+=== post-hoc diagnostics: media-breaking-news (switch completion run) ===
+captured: 2026-09-12T06:53:40Z
+purpose: catalog-listed switches completed post-primary-run — notification_failure on publish, data_conflict on correction (recovery verified)
+--- events (type counts, limit 40) ---
+      9 "type": "auth.login"
+      4 "type": "editorial"
+      4 "type": "distribution.sent"
+      3 "type": "notification.delivered"
+      1 "type": "world.reset"
+      1 "type": "story.submitted_for_review"
+      1 "type": "story.published"
+      1 "type": "story.created"
+      1 "type": "story.asset_attached"
+      1 "type": "story.approved"
+      1 "type": "notification.failed"
+      1 "type": "correction.applied"
+--- story state (st-0206) ---
+[
+ {
+  "id": "st-0206",
+  "status": "corrected",
+  "version": 3
+ }
+]
+--- notifications as hana.kim (demo token redacted) ---
+[
+ {
+  "to": "hana.kim",
+  "subject": "Correction applied to \"BREAKING: Waterfront stadium referend",
+  "status": "delivered"
+ },
+ {
+  "to": "hana.kim",
+  "subject": "Your story \"BREAKING: Waterfront stadium referendum petition",
+  "status": "failed"
+ },
+ {
+  "to": "hana.kim",
+  "subject": "Your story \"BREAKING: Waterfront stadium referendum petition",
+  "status": "delivered"
+ },
+ {
+  "to": "hana.kim",
+  "subject": "Your story st-0204 was approved",
+  "status": "delivered"
+ }
+]
+--- distribution jobs (st-0206) ---
+[
+ {
+  "id": "dj-0607",
+  "story": "st-0206",
+  "channel": "ch-3",
+  "status": "sent",
+  "correction": "c-800802"
+ },
+ {
+  "id": "dj-0606",
+  "story": "st-0206",
+  "channel": "ch-1",
+  "status": "sent",
+  "correction": "c-800802"
+ },
+ {
+  "id": "dj-0605",
+  "story": "st-0206",
+  "channel": "ch-3",
+  "status": "sent",
+  "correction": null
+ },
+ {
+  "id": "dj-0604",
+  "story": "st-0206",
+  "channel": "ch-1",
+  "status": "sent",
+  "correction": null
+ }
+]

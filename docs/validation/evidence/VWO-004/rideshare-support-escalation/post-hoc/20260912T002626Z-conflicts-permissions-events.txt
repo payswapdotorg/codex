@@ -1,0 +1,43 @@
+=== post-hoc diagnostics: rideshare-support-escalation ===
+captured: 2026-09-12T00:26:25Z
+(requests carried real session tokens; redacted here per evidence/README.md §5)
+
+--- step 5 natural conflict: re-escalate tk-0702 (already escalated) as ana.silva — UI renders no escalate form for non-open tickets, so the server-side conflict is checked via the API twin AFTER the human path ---
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Ticket tk-0702 is \"escalated\" — only open tickets can be escalated.",
+  "ticketId": "tk-0702",
+  "status": "escalated"
+}
+HTTP 409
+
+--- step 7 natural permission: ana.silva attempts to screen driver application da-0301 — UI renders no Decide form for the agent; API twin check ---
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"ana.silva\" (role \"support_agent\") lacks permission \"driver:screen\".",
+  "required": "driver:screen",
+  "role": "support_agent",
+  "user": "ana.silva"
+}
+HTTP 403
+
+--- events (ticket.*, notification.failed) ---
+"type": "auth.login"
+"summary": "ana.silva signed in
+"type": "support.ticket_resolved"
+"summary": "Ticket tk-0701 (Charged twice for a cancelled trip) resolved by Jules Moreau
+"type": "auth.login"
+"summary": "jules.moreau signed in
+"type": "notification.failed"
+"summary": "Notification \
+"type": "support"
+"type": "support.ticket_escalated"
+"summary": "Ticket tk-0701 escalated by Ana Silva — Needs ops attention
+"type": "support.message_added"
+"summary": "Ana Silva replied on ticket tk-0701 (Charged twice for a cancelled trip)
+"type": "auth.login"
+"summary": "ana.silva signed in
+"type": "world.reset"
+"summary": "Demo world reset to seed state (reset #1)

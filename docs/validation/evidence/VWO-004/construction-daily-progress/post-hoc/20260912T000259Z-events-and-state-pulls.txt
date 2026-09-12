@@ -1,0 +1,126 @@
+=== post-hoc diagnostics: construction-daily-progress ===
+captured: 2026-09-12T00:02:59Z
+
+--- GET /api/events?type=progress.submitted&limit=10 ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 2,
+  "events": [
+    {
+      "id": "ev-0007",
+      "ts": "2026-09-12T00:01:58.928Z",
+      "type": "progress.submitted",
+      "actor": "marco.silva",
+      "subject": "p-102",
+      "summary": "Daily progress 2026-09-12 for Eastside Interchange: 40% (0 tasks, 0 photos)",
+      "data": {
+        "reportId": "pr-4003",
+        "projectId": "p-102",
+        "percentComplete": 40,
+        "taskIds": [],
+        "photoIds": []
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-11T23:58:46.151Z",
+      "type": "progress.submitted",
+      "actor": "marco.silva",
+      "subject": "p-101",
+      "summary": "Daily progress 2026-09-12 for Harborview Tower: 68% (1 tasks, 1 photos)",
+      "data": {
+        "reportId": "pr-4002",
+        "projectId": "p-101",
+        "percentComplete": 68,
+        "taskIds": [
+          "t-101c"
+        ],
+        "photoIds": [
+          "a-101"
+        ]
+      }
+    }
+  ]
+}
+--- GET /api/events?type=notification.failed&limit=5 ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 1,
+  "events": [
+    {
+      "id": "ev-0008",
+      "ts": "2026-09-12T00:01:58.928Z",
+      "type": "notification.failed",
+      "actor": "marco.silva",
+      "subject": "notification:n-0002",
+      "summary": "Notification \"Daily progress 2026-09-12 — Eastside Interchange\" to dana.reyes FAILED to deliver (simulated switch)",
+      "data": {
+        "notificationId": "n-0002",
+        "to": "dana.reyes",
+        "type": "progress"
+      }
+    }
+  ]
+}
+--- GET /api/projects/p-101 (state: percent updated 62->68) ---
+{
+  "ok": true,
+  "project": {
+    "id": "p-101",
+    "code": "HVT",
+    "name": "Harborview Tower",
+    "site": "400 Pier Ave, Bay District",
+    "status": "active",
+    "phase": "structural",
+    "percentComplete": 68,
+    "budgetUsd": 4250000,
+    "spentUsd": 2641000,
+    "managerId": "u-1",
+    "contractorIds": [
+      "c-1",
+      "c-2"
+    ],
+    "dueDate": "2027-03-15"
+  },
+  "tasks": [
+    {
+      "id": "t-101a",
+      "projectId": "p-101",
+      "title": "Pour level-12 slab",
+      "trade": "concrete",
+      "status": "done",
+      "assigneeId": "u-2"
+    },
+    {
+      "id": "t-101b",
+      "projectId": "p-101",
+      "title": "Erect tower crane B",
+      "trade": "rigging",
+      
+--- GET /api/projects/p-102 (state: percent updated 35->40) ---
+{
+  "ok": true,
+  "project": {
+    "id": "p-102",
+    "code": "ESI",
+    "name": "Eastside Interchange",
+    "site": "Exit 14, Route 9",
+    "status": "active",
+    "phase": "earthwork",
+    "percentComplete": 40,
+    "budgetUsd": 8900000,
+    "spentUsd": 3115000,
+    "managerId": "u-1",
+    "contractorIds": [
+      "c-1"
+    ],
+    "dueDate": "2028-01-20"
+  },
+  "tasks": [
+    {
+      "id": "t-102a",
+      "projectId": "p-102",
+      "title": "Utility relocation — north loop",
+      "trade": 

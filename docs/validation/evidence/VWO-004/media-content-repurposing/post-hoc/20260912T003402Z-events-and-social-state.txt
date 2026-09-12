@@ -1,0 +1,52 @@
+=== post-hoc diagnostics: media-content-repurposing ===
+captured: 2026-09-12T00:34:02Z
+--- events (social.*, story.*, distribution.*) ---
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "correction.applied"
+"summary": "Correction applied to \
+"type": "distribution.sent"
+"summary": "Re-sent corrected \
+"type": "distribution.sent"
+"summary": "Re-sent corrected \
+"type": "distribution.sent"
+"summary": "Re-sent corrected \
+"type": "auth.login"
+"summary": "camille.dubois signed in
+"type": "social.posted"
+"summary": "linkup post published for story st-0201 by Nia Roberts
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "social"
+"type": "social.scheduled"
+"summary": "linkup post scheduled for \
+"type": "auth.login"
+"summary": "nia.roberts signed in
+"type": "rendition.ready"
+"summary": "Rendition \
+--- social + story state ---
+{
+ "posts": [
+  {
+   "id": "sp-0101",
+   "net": "feedbook",
+   "status": "posted"
+  },
+  {
+   "id": "sp-0102",
+   "net": "chirp",
+   "status": "scheduled"
+  },
+  {
+   "id": "sp-0103",
+   "net": "linkup",
+   "status": "posted"
+  }
+ ],
+ "st0201": {
+  "status": "corrected",
+  "version": 4
+ },
+ "jobs": 6
+}

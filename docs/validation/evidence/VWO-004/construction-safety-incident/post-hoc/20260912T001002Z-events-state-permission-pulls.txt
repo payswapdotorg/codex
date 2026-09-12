@@ -1,0 +1,90 @@
+=== post-hoc diagnostics: construction-safety-incident ===
+captured: 2026-09-12T00:10:02Z
+
+--- natural permission check: POST /api/safety/close si-2001 as marco.silva (foreman; API twin, post-hoc diagnostic — the UI renders no close form for this role) ---
+{
+  "ok": false,
+  "error": "authentication_required",
+  "message": "Sign in to perform this operation."
+}
+HTTP 401
+
+--- GET /api/events?type=safety.incident_reported&limit=4 ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 2,
+  "events": [
+    {
+      "id": "ev-0005",
+      "ts": "2026-09-12T00:09:09.060Z",
+      "type": "safety.incident_reported",
+      "actor": "marco.silva",
+      "subject": "si-2004",
+      "summary": "Safety incident (minor/equipment) reported on Eastside Interchange",
+      "data": {
+        "incidentId": "si-2004",
+        "projectId": "p-102",
+        "severity": "minor",
+        "category": "equipment"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-12T00:08:44.426Z",
+      "type": "safety.incident_reported",
+      "actor": "marco.silva",
+      "subject": "si-2003",
+      "summary": "Safety incident (moderate/near-miss) reported on Harborview Tower",
+      "data": {
+        "incidentId": "si-2003",
+        "projectId": "p-101",
+        "severity": "moderate",
+        "category": "near-miss"
+      }
+    }
+  ]
+}
+--- GET /api/events?type=safety.incident_closed&limit=4 ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 1,
+  "events": [
+    {
+      "id": "ev-0008",
+      "ts": "2026-09-12T00:09:40.460Z",
+      "type": "safety.incident_closed",
+      "actor": "sam.oconnell",
+      "subject": "si-2003",
+      "summary": "Safety incident si-2003 closed by Sam O’Connell",
+      "data": {
+        "incidentId": "si-2003",
+        "projectId": "p-101"
+      }
+    }
+  ]
+}
+--- register state ---
+[
+ {
+  "id": "si-2001",
+  "status": "investigating",
+  "actions": 1
+ },
+ {
+  "id": "si-2002",
+  "status": "closed",
+  "actions": 1
+ },
+ {
+  "id": "si-2003",
+  "status": "closed",
+  "actions": 1
+ },
+ {
+  "id": "si-2004",
+  "status": "open",
+  "actions": 0
+ }
+]

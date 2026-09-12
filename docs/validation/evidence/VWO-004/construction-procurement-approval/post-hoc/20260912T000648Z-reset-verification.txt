@@ -1,0 +1,9 @@
+=== reset verification: construction-procurement-approval ===
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+prq-5001 status after reset: submitted
+purchaseOrders after reset: 1

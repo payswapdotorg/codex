@@ -1,0 +1,40 @@
+=== post-hoc diagnostics: media-breaking-news ===
+captured: 2026-09-12T00:36:01Z
+--- events (story.*, distribution.*) ---
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "story.approved"
+"summary": "\
+"type": "auth.login"
+"summary": "camille.dubois signed in
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "story.submitted_for_review"
+"summary": "\
+"type": "story.created"
+"summary": "Story \
+"type": "auth.login"
+"summary": "hana.kim signed in
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "correction.applied"
+"summary": "Correction applied to \
+"type": "distribution.sent"
+--- story state ---
+[
+ {
+  "id": "st-0206",
+  "status": "corrected",
+  "version": 3,
+  "hero": 1
+ },
+ {
+  "id": "st-0207",
+  "status": "approved",
+  "version": 1,
+  "hero": 0
+ }
+]

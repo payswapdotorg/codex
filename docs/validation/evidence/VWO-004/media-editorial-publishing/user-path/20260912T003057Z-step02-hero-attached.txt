@@ -1,0 +1,145 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Hana Kim · staff_writer · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Asset a-0301 attached as hero."
+  - heading "City council approves Harbor Bridge night closures for resurfacing draft" [level=1, ref=e4]
+    - StaticText "City council approves Harbor Bridge night closures for resurfacing draft"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e28]
+        - cell "st-0206" [ref=e29]
+          - code
+            - StaticText "st-0206"
+      - row
+        - cell "Slug" [ref=e30]
+        - cell "city-council-approves-harbor-bridge-night-closures-for-resur" [ref=e31]
+          - code
+            - StaticText "city-council-approves-harbor-bridge-night-closures-for-resur"
+      - row
+        - cell "Section" [ref=e32]
+        - cell "news" [ref=e33]
+      - row
+        - cell "Author" [ref=e34]
+        - cell "Hana Kim" [ref=e35]
+      - row
+        - cell "Status" [ref=e36]
+        - cell "draft" [ref=e37]
+      - row
+        - cell "Version" [ref=e38]
+        - cell "v1" [ref=e39]
+      - row
+        - cell "Word count" [ref=e40]
+        - cell "62" [ref=e41]
+      - row
+        - cell "Approved by" [ref=e42]
+        - cell "—" [ref=e43]
+      - row
+        - cell "Published at" [ref=e44]
+        - cell "—" [ref=e45]
+      - row
+        - cell "Channels" [ref=e46]
+        - cell "—" [ref=e47]
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The city council voted 9–2 on Thursday night to approve the Harbor Bridge resurfacing plan, closing the span to traffic between 22:00 and 05:00 for two months starting October 3. Transit officials say ferries will add late-evening sailings; freight groups asked for a daytime window instead. The vote followed a six-week pilot on the approach spans that cut pothole reports by 38%."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e56]
+          - columnheader "KIND" [ref=e57]
+          - columnheader "NAME" [ref=e58]
+          - columnheader "CREDIT" [ref=e59]
+          - columnheader "RENDITIONS" [ref=e60]
+      - row
+        - cell "a-0301 hero" [ref=e48]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e49]
+        - cell "harbor-bridge-aerial.jpg" [ref=e50]
+        - cell "City Photo Desk" [ref=e51]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e52]
+          - StaticText "thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+          - StaticText " hero:"
+          - StaticText "ready"
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Asset"
+      - combobox [expanded=false, ref=e23]: a-0301 — harbor-bridge-aerial.jpg (image)
+        - MenuListPopup
+          - option "a-0301 — harbor-bridge-aerial.jpg (image)" [selected, ref=e61]
+          - option "a-0302 — budget-hearing-chamber.jpg (image)" [ref=e62]
+          - option "a-0303 — ferry-terminal-render.png (image)" [ref=e63]
+          - option "a-0304 — terminal-timelapse.mp4 (video)" [ref=e64]
+      - StaticText ","
+      - LabelText
+        - StaticText "Role"
+      - combobox [expanded=false, ref=e24]: Hero (required to publish)
+        - MenuListPopup
+          - option "Hero (required to publish)" [selected, ref=e65]
+          - option "Inline" [ref=e66]
+          - option "Video" [ref=e67]
+      - button "Attach asset" [ref=e53]
+      - StaticText "missing_asset: attaching an unknown id fails with 404."
+  - generic
+    - heading "Edit" [level=2, ref=e16]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Title"
+      - textbox [ref=e25]: City council approves Harbor Bridge night closures for resurfacing
+        - StaticText "City council approves Harbor Bridge night closures for resurfacing"
+      - StaticText ","
+      - LabelText
+        - StaticText "Dek"
+      - textbox [ref=e26]: Two-month night resurfacing plan will close the bridge 22:00–05:00 starting October 3.
+        - StaticText "Two-month night resurfacing plan will close the bridge 22:00–05:00 starting October 3."
+      - StaticText ","
+      - LabelText
+        - StaticText "Body (v1)"
+      - textbox [ref=e27]: The city council voted 9–2 on Thursday night to approve the Harbor Bridge resurfacing plan, closing the span to traffic between 22:00 and 05:00 for two months starting October 3. Transit officials say ferries will add late-evening sailings; freight groups asked for a daytime window instead. The vote followed a six-week pilot on the approach spans that cut pothole reports by 38%.
+        - StaticText "The city council voted 9–2 on Thursday night to approve the Harbor Bridge resurfacing plan, closing the span to traffic between 22:00 and 05:00 for two months starting October 3. Transit officials say ferries will add late-evening sailings; freight groups asked for a daytime window instead. The vote followed a six-week pilot on the approach spans that cut pothole reports by 38%."
+      - button "Save new version" [ref=e54]
+      - StaticText "Optimistic concurrency: saving a stale version returns data_conflict."
+  - generic
+    - heading "Submit for review" [level=2, ref=e17]
+    - form
+      - button "Submit for review" [ref=e55]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - paragraph
+      - StaticText "No distribution jobs."
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

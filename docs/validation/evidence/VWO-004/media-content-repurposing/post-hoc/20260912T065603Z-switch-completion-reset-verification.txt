@@ -1,0 +1,21 @@
+=== reset verification: media-content-repurposing (after rendition switch completion run) ===
+captured: 2026-09-12T06:56:03Z
+--- asset renditions match media/seed.js exactly (a-0301: thumbnail+social-card+hero; a-0302: thumbnail) ---
+[
+{
+"id": "a-0301",
+"renditions": [
+"thumbnail:ready",
+"social-card:ready",
+"hero:ready"
+]
+},
+{
+"id": "a-0302",
+"renditions": [
+"thumbnail:ready"
+]
+}
+]
+--- world.reset event present (latest event) ---
+"type": "world.reset"

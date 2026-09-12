@@ -1,0 +1,11 @@
+=== step 4: writer self-approval attempt (natural) — UI renders no Decide form for the author; API twin check after the human-path attempt ===
+captured: 2026-09-12T00:30:08Z
+{
+  "ok": false,
+  "error": "permission_denied",
+  "message": "User \"hana.kim\" (role \"staff_writer\") lacks permission \"story:approve\".",
+  "required": "story:approve",
+  "role": "staff_writer",
+  "user": "hana.kim"
+}
+HTTP 403

@@ -1,0 +1,52 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Hana Kim · staff_writer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your notifications" [level=1, ref=e4]
+  - generic
+    - heading "Inbox" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e29]
+          - columnheader "TYPE" [ref=e30]
+          - columnheader "SUBJECT" [ref=e31]
+          - columnheader "TEXT" [ref=e32]
+          - columnheader "STATUS" [ref=e33]
+      - row
+        - cell "n-0003" [ref=e14]
+          - code
+            - StaticText "n-0003"
+        - cell "editorial" [ref=e15]
+        - cell "Your story \"BREAKING: Waterfront stadium referendum petition filed\" is live" [ref=e16]
+        - cell "Camille Dubois published \"BREAKING: Waterfront stadium referendum petition filed\"." [ref=e17]
+        - cell "failed" [ref=e18]
+      - row
+        - cell "n-0002" [ref=e19]
+          - code
+            - StaticText "n-0002"
+        - cell "editorial" [ref=e20]
+        - cell "Your story \"BREAKING: Waterfront stadium referendum petition filed\" was approved" [ref=e21]
+        - cell "Camille Dubois approved \"BREAKING: Waterfront stadium referendum petition filed\" for publication." [ref=e22]
+        - cell "delivered" [ref=e23]
+      - row
+        - cell "n-1" [ref=e24]
+          - code
+            - StaticText "n-1"
+        - cell "editorial" [ref=e25]
+        - cell "Your story st-0204 was approved" [ref=e26]
+        - cell "Camille Dubois approved \"Marathon route changes draw mixed reviews\" for publication." [ref=e27]
+        - cell "delivered" [ref=e28]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

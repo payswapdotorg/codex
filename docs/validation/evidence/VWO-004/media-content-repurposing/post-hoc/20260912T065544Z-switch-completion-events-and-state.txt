@@ -1,0 +1,32 @@
+=== post-hoc diagnostics: media-content-repurposing (rendition switch completion run) ===
+captured: 2026-09-12T06:55:37Z
+purpose: catalog-listed rendition failure switch completed post-primary-run; missing_asset non-application documented (see mismatch note)
+--- events (type counts, limit 20) ---
+      2 "type": "rendition.ready"
+      1 "type": "world.reset"
+      1 "type": "auth.login"
+--- natural unresolvable-asset rendition (API twin, demo token redacted) ---
+POST /api/assets/rendition assetId=a-9999 rendition=social-card:
+HTTP 404
+{
+  "ok": false,
+  "error": "asset_not_found",
+  "message": "Asset \"a-9999\" does not exist."
+}--- asset state (a-0301/a-0302 renditions) ---
+[
+ {
+  "id": "a-0301",
+  "renditions": [
+   "thumbnail:ready",
+   "hero:ready",
+   "social-card:ready"
+  ]
+ },
+ {
+  "id": "a-0302",
+  "renditions": [
+   "thumbnail:ready",
+   "social-card:ready"
+  ]
+ }
+]

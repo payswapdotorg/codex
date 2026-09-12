@@ -1,0 +1,38 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Noor Haddad · code_owner · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Document \"Runbook: payments deploys\" saved as v4."
+  - heading "Runbook: payments deploys v4 · /docs/runbooks/payments-deploys" [level=1, ref=e4]
+    - StaticText "Runbook: payments deploys v4 · /docs/runbooks/payments-deploys"
+  - generic
+    - heading "Contents" [level=2, ref=e16]
+    - paragraph
+      - StaticText "Deploy windows: Mon-Thu 10:00-16:00. Verify staging health BEFORE promote (fixes runbook typo; see issue i-0504). Rollback: use the deployment console rollback action; ledger migrations are forward-only. Escalate to payments-core if reconcile drifts."
+  - generic
+    - heading "Edit document" [level=2, ref=e17]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Body (v4 → v5)"
+      - textbox [ref=e18]: Deploy windows: Mon-Thu 10:00-16:00. Verify staging health BEFORE promote (fixes runbook typo; see issue i-0504). Rollback: use the deployment console rollback action; ledger migrations are forward-only. Escalate to payments-core if reconcile drifts.
+        - StaticText "Deploy windows: Mon-Thu 10:00-16:00. Verify staging health BEFORE promote (fixes runbook typo; see issue i-0504). Rollback: use the deployment console rollback action; ledger migrations are forward-only. Escalate to payments-core if reconcile drifts."
+      - button "Save new version" [ref=e19]
+      - StaticText "Optimistic concurrency: saving a stale version returns data_conflict."
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

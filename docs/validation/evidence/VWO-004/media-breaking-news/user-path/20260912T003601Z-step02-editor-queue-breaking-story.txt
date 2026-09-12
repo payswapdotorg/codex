@@ -1,0 +1,121 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Camille Dubois · editor_in_chief · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Editorial desk" [level=1, ref=e4]
+  - generic
+    - heading "Create a story" [level=2, ref=e13]
+    - form
+      - LabelText
+        - StaticText "Title"
+      - textbox [required, ref=e15]
+      - StaticText ","
+      - LabelText
+        - StaticText "Section"
+      - combobox [expanded=false, ref=e16]: news
+        - MenuListPopup
+          - option "news" [selected, ref=e62]
+          - option "business" [ref=e63]
+          - option "culture" [ref=e64]
+          - option "sports" [ref=e65]
+          - option "metro" [ref=e66]
+      - StaticText ","
+      - LabelText
+        - StaticText "Dek (subtitle)"
+      - textbox [ref=e17]
+      - StaticText ","
+      - LabelText
+        - StaticText "Body"
+      - textbox [ref=e18]
+      - button "Create draft" [ref=e19]
+  - generic
+    - heading "All stories" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "STORY" [ref=e67]
+          - columnheader "ID" [ref=e68]
+          - columnheader "SECTION" [ref=e69]
+          - columnheader "AUTHOR" [ref=e70]
+          - columnheader "STATUS" [ref=e71]
+          - columnheader "VERSION" [ref=e72]
+          - columnheader "DEK" [ref=e73]
+      - row
+        - cell "Harbor bridge retrofit begins Monday" [ref=e20]
+          - link "Harbor bridge retrofit begins Monday" [ref=e74]
+        - cell "st-0201" [ref=e21]
+          - code
+            - StaticText "st-0201"
+        - cell "news" [ref=e22]
+        - cell "Hana Kim" [ref=e23]
+        - cell "published" [ref=e24]
+        - cell "v3" [ref=e25]
+        - cell "Two-year closure plan for the upper deck starts with night work." [ref=e26]
+      - row
+        - cell "City budget hearings: five things to watch" [ref=e27]
+          - link "City budget hearings: five things to watch" [ref=e75]
+        - cell "st-0202" [ref=e28]
+          - code
+            - StaticText "st-0202"
+        - cell "metro" [ref=e29]
+        - cell "Hana Kim" [ref=e30]
+        - cell "in_review" [ref=e31]
+        - cell "v2" [ref=e32]
+        - cell "Housing, transit and the library levy dominate a long agenda." [ref=e33]
+      - row
+        - cell "New ferry terminal designs unveiled" [ref=e34]
+          - link "New ferry terminal designs unveiled" [ref=e76]
+        - cell "st-0203" [ref=e35]
+          - code
+            - StaticText "st-0203"
+        - cell "news" [ref=e36]
+        - cell "Hana Kim" [ref=e37]
+        - cell "draft" [ref=e38]
+        - cell "v1" [ref=e39]
+        - cell "Three concepts, one very public fight about sightlines." [ref=e40]
+      - row
+        - cell "Marathon route changes draw mixed reviews" [ref=e41]
+          - link "Marathon route changes draw mixed reviews" [ref=e77]
+        - cell "st-0204" [ref=e42]
+          - code
+            - StaticText "st-0204"
+        - cell "sports" [ref=e43]
+        - cell "Hana Kim" [ref=e44]
+        - cell "approved" [ref=e45]
+        - cell "v2" [ref=e46]
+        - cell "Runners like the flatter course; downtown merchants do not." [ref=e47]
+      - row
+        - cell "Council votes on stadium funding tonight" [ref=e48]
+          - link "Council votes on stadium funding tonight" [ref=e78]
+        - cell "st-0205" [ref=e49]
+          - code
+            - StaticText "st-0205"
+        - cell "metro" [ref=e50]
+        - cell "Hana Kim" [ref=e51]
+        - cell "approved" [ref=e52]
+        - cell "v1" [ref=e53]
+        - cell "A late amendment could delay the vote again." [ref=e54]
+      - row
+        - cell "BREAKING: Council votes 8–1 to advance waterfront stadium plan" [ref=e55]
+          - link "BREAKING: Council votes 8–1 to advance waterfront stadium plan" [ref=e79]
+        - cell "st-0206" [ref=e56]
+          - code
+            - StaticText "st-0206"
+        - cell "news" [ref=e57]
+        - cell "Hana Kim" [ref=e58]
+        - cell "in_review" [ref=e59]
+        - cell "v1" [ref=e60]
+        - cell "First reading passes after four-hour debate; final vote expected next month." [ref=e61]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

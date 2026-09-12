@@ -1,0 +1,174 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Camille Dubois · editor_in_chief · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Story st-0206 published (3/4 channels delivered)."
+  - alert
+    - StaticText "Published, but distribution to these channels failed (stale license): partner-app."
+  - heading "City council approves Harbor Bridge night closures for resurfacing published" [level=1, ref=e4]
+    - StaticText "City council approves Harbor Bridge night closures for resurfacing published"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e26]
+        - cell "st-0206" [ref=e27]
+          - code
+            - StaticText "st-0206"
+      - row
+        - cell "Slug" [ref=e28]
+        - cell "city-council-approves-harbor-bridge-night-closures-for-resur" [ref=e29]
+          - code
+            - StaticText "city-council-approves-harbor-bridge-night-closures-for-resur"
+      - row
+        - cell "Section" [ref=e30]
+        - cell "news" [ref=e31]
+      - row
+        - cell "Author" [ref=e32]
+        - cell "Hana Kim" [ref=e33]
+      - row
+        - cell "Status" [ref=e34]
+        - cell "published" [ref=e35]
+      - row
+        - cell "Version" [ref=e36]
+        - cell "v2" [ref=e37]
+      - row
+        - cell "Word count" [ref=e38]
+        - cell "62" [ref=e39]
+      - row
+        - cell "Approved by" [ref=e40]
+        - cell "Camille Dubois" [ref=e41]
+      - row
+        - cell "Published at" [ref=e42]
+        - cell "2026-09-12T00:30:32.107Z" [ref=e43]
+      - row
+        - cell "Channels" [ref=e44]
+        - cell "web-front-page, morning-newsletter, rss-feed" [ref=e45]
+          - code
+            - StaticText "web-front-page"
+          - StaticText ", "
+          - code
+            - StaticText "morning-newsletter"
+          - StaticText ", "
+          - code
+            - StaticText "rss-feed"
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The city council voted 9–2 on Thursday night to approve the Harbor Bridge resurfacing plan, closing the span to traffic between 22:00 and 05:00 for two months starting October 3. Transit officials say ferries will add late-evening sailings; freight groups asked for a daytime window instead. The vote followed a six-week pilot on the approach spans that cut pothole reports by 38%."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e72]
+          - columnheader "KIND" [ref=e73]
+          - columnheader "NAME" [ref=e74]
+          - columnheader "CREDIT" [ref=e75]
+          - columnheader "RENDITIONS" [ref=e76]
+      - row
+        - cell "a-0301 hero" [ref=e46]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e47]
+        - cell "harbor-bridge-aerial.jpg" [ref=e48]
+        - cell "City Photo Desk" [ref=e49]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e50]
+          - StaticText "thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+          - StaticText " hero:"
+          - StaticText "ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Correction summary"
+      - textbox [required, ref=e23]
+      - StaticText ","
+      - LabelText
+        - StaticText "Replace text (before)"
+      - textbox [ref=e24]
+      - StaticText ","
+      - LabelText
+        - StaticText "With (after)"
+      - textbox [ref=e25]
+      - button "Apply correction" [ref=e51]
+      - StaticText "Applies the correction, bumps the version and re-distributes to the story channels."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - table
+      - rowgroup
+        - row
+          - columnheader "JOB" [ref=e77]
+          - columnheader "CHANNEL" [ref=e78]
+          - columnheader "STATUS" [ref=e79]
+          - columnheader "AT" [ref=e80]
+          - columnheader "ERROR" [ref=e81]
+      - row
+        - cell "dj-0607" [ref=e52]
+          - code
+            - StaticText "dj-0607"
+        - cell "partner-app" [ref=e53]
+          - code
+            - StaticText "partner-app"
+        - cell "failed" [ref=e54]
+        - cell "2026-09-12T00:30:32.107Z" [ref=e55]
+        - cell "stale_entitlement: distribution license for channel \"partner-app\" expired 2026-06-01" [ref=e56]
+      - row
+        - cell "dj-0606" [ref=e57]
+          - code
+            - StaticText "dj-0606"
+        - cell "rss-feed" [ref=e58]
+          - code
+            - StaticText "rss-feed"
+        - cell "sent" [ref=e59]
+        - cell "2026-09-12T00:30:32.107Z" [ref=e60]
+        - cell "—" [ref=e61]
+      - row
+        - cell "dj-0605" [ref=e62]
+          - code
+            - StaticText "dj-0605"
+        - cell "morning-newsletter" [ref=e63]
+          - code
+            - StaticText "morning-newsletter"
+        - cell "sent" [ref=e64]
+        - cell "2026-09-12T00:30:32.107Z" [ref=e65]
+        - cell "—" [ref=e66]
+      - row
+        - cell "dj-0604" [ref=e67]
+          - code
+            - StaticText "dj-0604"
+        - cell "web-front-page" [ref=e68]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e69]
+        - cell "2026-09-12T00:30:32.107Z" [ref=e70]
+        - cell "—" [ref=e71]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

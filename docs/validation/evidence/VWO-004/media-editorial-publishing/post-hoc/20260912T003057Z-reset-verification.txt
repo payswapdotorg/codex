@@ -1,0 +1,2 @@
+=== reset verification: media-editorial-publishing ===
+[{"id":"st-0201","status":"published"},{"id":"st-0202","status":"in_review"},{"id":"st-0203","status":"draft"},{"id":"st-0204","status":"approved"},{"id":"st-0205","status":"approved"}]

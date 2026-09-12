@@ -1,0 +1,21 @@
+=== post-hoc diagnostics: rideshare-surge-ops ===
+captured: 2026-09-12T00:29:15Z
+--- events (region.surge_set, broadcast.*, notification.failed) ---
+"type": "auth.login"
+"summary": "kwame.mensah signed in
+"type": "auth.login"
+"summary": "kwame.mensah signed in
+"type": "notification.failed"
+"summary": "Surge broadcast to Riverside drivers FAILED to deliver (simulated switch)
+"type": "ops.surge_adjusted"
+"summary": "Riverside surge 1.2× → 1.5× by Farah Khan
+"type": "auth.login"
+"summary": "jules.moreau signed in
+"type": "ops.surge_adjusted"
+"summary": "Airport Corridor surge 1.8× → 2.2× by Farah Khan
+"type": "auth.login"
+"summary": "farah.khan signed in
+"type": "world.reset"
+"summary": "Demo world reset to seed state (reset #1)
+--- region state ---
+[{"id":"rg-1","surge":1.4},{"id":"rg-2","surge":2.2},{"id":"rg-3","surge":1},{"id":"rg-4","surge":1.5}]

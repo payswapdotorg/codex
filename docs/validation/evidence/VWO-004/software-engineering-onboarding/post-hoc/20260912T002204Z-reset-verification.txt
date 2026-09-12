@@ -1,0 +1,4 @@
+=== reset verification: software-engineering-onboarding ===
+"version": 3
+"version": 2
+"version": 1

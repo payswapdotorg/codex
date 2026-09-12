@@ -1,0 +1,112 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Farah Khan · ops_director · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "RidePilot — rideshare operations" [level=1, ref=e4]
+  - StaticText "Active regions"
+  - generic
+    - StaticText "4 1 in surge"
+  - StaticText "Applications awaiting screening"
+  - generic
+    - StaticText "2 onboarding"
+  - StaticText "Open support tickets"
+  - generic
+    - StaticText "2 support"
+  - StaticText "Pending payouts"
+  - generic
+    - StaticText "2 finance"
+  - generic
+    - heading "Regions & surge" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "REGION" [ref=e50]
+          - columnheader "CODE" [ref=e51]
+          - columnheader "SURGE" [ref=e52]
+          - columnheader "ACTIVE DRIVERS" [ref=e53]
+          - columnheader "DEMAND" [ref=e54]
+          - columnheader "STATUS" [ref=e55]
+      - row
+        - cell "Downtown Core" [ref=e20]
+        - cell "DT" [ref=e21]
+          - code
+            - StaticText "DT"
+        - cell "1.4×" [ref=e22]
+        - cell "34" [ref=e23]
+        - cell "82" [ref=e24]
+          - StaticText "82"
+        - cell "normal" [ref=e25]
+      - row
+        - cell "Airport Corridor" [ref=e26]
+        - cell "AP" [ref=e27]
+          - code
+            - StaticText "AP"
+        - cell "1.8×" [ref=e28]
+        - cell "12" [ref=e29]
+        - cell "71" [ref=e30]
+          - StaticText "71"
+        - cell "surge" [ref=e31]
+      - row
+        - cell "Northside" [ref=e32]
+        - cell "NS" [ref=e33]
+          - code
+            - StaticText "NS"
+        - cell "1.0×" [ref=e34]
+        - cell "9" [ref=e35]
+        - cell "24" [ref=e36]
+          - StaticText "24"
+        - cell "normal" [ref=e37]
+      - row
+        - cell "Riverside" [ref=e38]
+        - cell "RV" [ref=e39]
+          - code
+            - StaticText "RV"
+        - cell "1.2×" [ref=e40]
+        - cell "15" [ref=e41]
+        - cell "38" [ref=e42]
+          - StaticText "38"
+        - cell "normal" [ref=e43]
+  - generic
+    - heading "Recent activity" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "TIME" [ref=e56]
+          - columnheader "TYPE" [ref=e57]
+          - columnheader "SUMMARY" [ref=e58]
+      - row
+        - cell "2026-09-12T00:26:58.754Z" [ref=e44]
+        - cell "auth.login" [ref=e45]
+          - code
+            - StaticText "auth.login"
+        - cell "farah.khan signed in" [ref=e46]
+      - row
+        - cell "2026-09-12T00:26:58.277Z" [ref=e47]
+        - cell "world.reset" [ref=e48]
+          - code
+            - StaticText "world.reset"
+        - cell "Demo world reset to seed state (reset #1)" [ref=e49]
+  - paragraph
+    - link "Live region map" [ref=e18]
+    - StaticText " · "
+    - link "failure switches" [ref=e19]
+    - StaticText " · repository: "
+    - code
+      - StaticText "docs/validation/fixtures/rideshare/"
+    - StaticText "."
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

@@ -1,0 +1,18 @@
+=== post-hoc diagnostics: software-engineering-onboarding ===
+captured: 2026-09-12T00:22:04Z
+
+--- GET /api/events?limit=10 (issue.created, doc.updated) ---
+"type": "doc.updated"
+"type": "auth.login"
+"type": "auth.login"
+"type": "issue.created"
+"type": "bug"
+"type": "auth.login"
+"type": "world.reset"
+
+--- doc state (v4 body) ---
+{
+  "ok": false,
+  "error": "not_found",
+  "message": "No route for GET /api/docs/doc-1."
+}

@@ -1,0 +1,81 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Farah Khan · ops_director · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Live region map" [level=1, ref=e4]
+  - generic
+    - heading "Regions, surge state and driver presence" [level=2, ref=e16]
+    - image "Region map with driver presence"
+      - StaticText "DT — Downtown Core"
+      - StaticText "surge 1.4× · 34 drivers · demand 82"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - StaticText "AP — Airport Corridor"
+      - StaticText "surge 1.8× · 12 drivers · demand 71"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - StaticText "NS — Northside"
+      - StaticText "surge 1.0× · 9 drivers · demand 24"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - StaticText "RV — Riverside"
+      - StaticText "surge 1.2× · 15 drivers · demand 38"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+      - graphics-symbol "driver"
+    - paragraph
+      - StaticText "Driver dots are deterministic per region driver count (capped at 12 for readability). Amber regions are in surge."
+  - paragraph
+    - link "← Operations dashboard" [ref=e17]
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

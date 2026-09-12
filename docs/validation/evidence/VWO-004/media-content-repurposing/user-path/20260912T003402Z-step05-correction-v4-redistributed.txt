@@ -1,0 +1,255 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Camille Dubois · editor_in_chief · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Correction c-800802 applied; story re-distributed to 3 channel(s)."
+  - heading "Harbor bridge retrofit begins Monday corrected" [level=1, ref=e4]
+    - StaticText "Harbor bridge retrofit begins Monday corrected"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e26]
+        - cell "st-0201" [ref=e27]
+          - code
+            - StaticText "st-0201"
+      - row
+        - cell "Slug" [ref=e28]
+        - cell "harbor-bridge-retrofit-begins" [ref=e29]
+          - code
+            - StaticText "harbor-bridge-retrofit-begins"
+      - row
+        - cell "Section" [ref=e30]
+        - cell "news" [ref=e31]
+      - row
+        - cell "Author" [ref=e32]
+        - cell "Hana Kim" [ref=e33]
+      - row
+        - cell "Status" [ref=e34]
+        - cell "corrected" [ref=e35]
+      - row
+        - cell "Version" [ref=e36]
+        - cell "v4" [ref=e37]
+      - row
+        - cell "Word count" [ref=e38]
+        - cell "210" [ref=e39]
+      - row
+        - cell "Approved by" [ref=e40]
+        - cell "Camille Dubois" [ref=e41]
+      - row
+        - cell "Published at" [ref=e42]
+        - cell "2026-09-10T06:30:00Z" [ref=e43]
+      - row
+        - cell "Channels" [ref=e44]
+        - cell "web-front-page, morning-newsletter, rss-feed" [ref=e45]
+          - code
+            - StaticText "web-front-page"
+          - StaticText ", "
+          - code
+            - StaticText "morning-newsletter"
+          - StaticText ", "
+          - code
+            - StaticText "rss-feed"
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The long-planned retrofit of the Harbor Bridge begins Monday night, with lane closures on the upper deck from 22:00. Engineers say the deck truss needs replacing after inspection reports flagged corrosion in 2024.\n\nCyclists will keep a widened shared path for the first phase; bus routes 12 and 44 will shift to the tunnel during night work."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e109]
+          - columnheader "KIND" [ref=e110]
+          - columnheader "NAME" [ref=e111]
+          - columnheader "CREDIT" [ref=e112]
+          - columnheader "RENDITIONS" [ref=e113]
+      - row
+        - cell "a-0301 hero" [ref=e46]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e47]
+        - cell "harbor-bridge-aerial.jpg" [ref=e48]
+        - cell "City Photo Desk" [ref=e49]
+        - cell "hero: ready thumbnail: ready social-card: ready" [ref=e50]
+          - StaticText "hero:"
+          - StaticText "ready"
+          - StaticText " thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - table
+      - rowgroup
+        - row
+          - columnheader "CORRECTION" [ref=e114]
+          - columnheader "SUMMARY" [ref=e115]
+          - columnheader "BEFORE" [ref=e116]
+          - columnheader "AFTER" [ref=e117]
+          - columnheader "BY" [ref=e118]
+          - columnheader "AT" [ref=e119]
+      - row
+        - cell "c-800802" [ref=e51]
+          - code
+            - StaticText "c-800802"
+        - cell "Correction: the free-window for cancellation fee waivers is 10 minutes, not 15." [ref=e52]
+        - cell "15 minutes" [ref=e53]
+          - code
+            - StaticText "15 minutes"
+        - cell "10 minutes" [ref=e54]
+          - code
+            - StaticText "10 minutes"
+        - cell "Camille Dubois" [ref=e55]
+        - cell "2026-09-12T00:33:45.650Z" [ref=e56]
+      - row
+        - cell "c-0801" [ref=e57]
+          - code
+            - StaticText "c-0801"
+        - cell "Fixed bus route numbers (12 and 44, not 14 and 42)" [ref=e58]
+        - cell "bus routes 14 and 42" [ref=e59]
+          - code
+            - StaticText "bus routes 14 and 42"
+        - cell "bus routes 12 and 44" [ref=e60]
+          - code
+            - StaticText "bus routes 12 and 44"
+        - cell "Diego Morales" [ref=e61]
+        - cell "2026-09-10T11:05:00Z" [ref=e62]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Correction summary"
+      - textbox [required, ref=e23]
+      - StaticText ","
+      - LabelText
+        - StaticText "Replace text (before)"
+      - textbox [ref=e24]
+      - StaticText ","
+      - LabelText
+        - StaticText "With (after)"
+      - textbox [ref=e25]
+      - button "Apply correction" [ref=e63]
+      - StaticText "Applies the correction, bumps the version and re-distributes to the story channels."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - table
+      - rowgroup
+        - row
+          - columnheader "JOB" [ref=e120]
+          - columnheader "CHANNEL" [ref=e121]
+          - columnheader "STATUS" [ref=e122]
+          - columnheader "AT" [ref=e123]
+          - columnheader "ERROR" [ref=e124]
+      - row
+        - cell "dj-0606" [ref=e64]
+          - code
+            - StaticText "dj-0606"
+        - cell "rss-feed" [ref=e65]
+          - code
+            - StaticText "rss-feed"
+        - cell "sent" [ref=e66]
+        - cell "2026-09-12T00:33:45.650Z" [ref=e67]
+        - cell "—" [ref=e68]
+      - row
+        - cell "dj-0605" [ref=e69]
+          - code
+            - StaticText "dj-0605"
+        - cell "morning-newsletter" [ref=e70]
+          - code
+            - StaticText "morning-newsletter"
+        - cell "sent" [ref=e71]
+        - cell "2026-09-12T00:33:45.650Z" [ref=e72]
+        - cell "—" [ref=e73]
+      - row
+        - cell "dj-0604" [ref=e74]
+          - code
+            - StaticText "dj-0604"
+        - cell "web-front-page" [ref=e75]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e76]
+        - cell "2026-09-12T00:33:45.650Z" [ref=e77]
+        - cell "—" [ref=e78]
+      - row
+        - cell "dj-0603" [ref=e79]
+          - code
+            - StaticText "dj-0603"
+        - cell "rss-feed" [ref=e80]
+          - code
+            - StaticText "rss-feed"
+        - cell "sent" [ref=e81]
+        - cell "2026-09-10T06:31:00Z" [ref=e82]
+        - cell "—" [ref=e83]
+      - row
+        - cell "dj-0602" [ref=e84]
+          - code
+            - StaticText "dj-0602"
+        - cell "morning-newsletter" [ref=e85]
+          - code
+            - StaticText "morning-newsletter"
+        - cell "sent" [ref=e86]
+        - cell "2026-09-10T06:31:00Z" [ref=e87]
+        - cell "—" [ref=e88]
+      - row
+        - cell "dj-0601" [ref=e89]
+          - code
+            - StaticText "dj-0601"
+        - cell "web-front-page" [ref=e90]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e91]
+        - cell "2026-09-10T06:30:00Z" [ref=e92]
+        - cell "—" [ref=e93]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - table
+      - rowgroup
+        - row
+          - columnheader "POST" [ref=e125]
+          - columnheader "NETWORK" [ref=e126]
+          - columnheader "TEXT" [ref=e127]
+          - columnheader "STATUS" [ref=e128]
+          - columnheader "ENGAGEMENT" [ref=e129]
+      - row
+        - cell "sp-0101" [ref=e94]
+          - code
+            - StaticText "sp-0101"
+        - cell "feedbook" [ref=e95]
+        - cell "The Harbor Bridge retrofit starts Monday night — what it means for your commute." [ref=e96]
+        - cell "posted" [ref=e97]
+        - cell "842 likes · 61 reposts · 3102 clicks" [ref=e98]
+      - row
+        - cell "sp-0102" [ref=e99]
+          - code
+            - StaticText "sp-0102"
+        - cell "chirp" [ref=e100]
+        - cell "Upper deck closes nightly at 22:00 starting Monday. Cyclists keep the path." [ref=e101]
+        - cell "scheduled" [ref=e102]
+        - cell "—" [ref=e103]
+      - row
+        - cell "sp-0103" [ref=e104]
+          - code
+            - StaticText "sp-0103"
+        - cell "linkup" [ref=e105]
+        - cell "Harbor Bridge retrofit begins Monday — night closures and added ferry sailings, explained in 90 seconds." [ref=e106]
+        - cell "posted" [ref=e107]
+        - cell "0 likes · 0 reposts · 0 clicks" [ref=e108]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

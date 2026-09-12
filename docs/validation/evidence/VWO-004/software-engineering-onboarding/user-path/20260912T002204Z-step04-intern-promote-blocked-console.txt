@@ -1,0 +1,11 @@
+=== step 4: intern attempts a privileged action (promote) via the terminal console ===
+captured: 2026-09-12T00:21:06Z
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Tobi Oyelaran (intern). token stored for this session.
+deployments (2):
+  dep-1102  production 4.8.1     succeeded  artifact=art-0901 repo=r-1
+  dep-1101  staging    4.8.1     promoted   artifact=art-0901 repo=r-1
+FAILED 403: permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "deploy:promote".

@@ -1,0 +1,25 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Ana Silva · support_agent · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your notifications" [level=1, ref=e4]
+  - generic
+    - heading "Inbox" [level=2, ref=e16]
+    - paragraph
+      - StaticText "No notifications."
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

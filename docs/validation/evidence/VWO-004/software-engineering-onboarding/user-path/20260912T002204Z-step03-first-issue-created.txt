@@ -1,0 +1,142 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Tobi Oyelaran · intern · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Issue i-0504 created."
+  - heading "Issue tracker" [level=1, ref=e4]
+  - generic
+    - heading "All issues" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e77]
+          - columnheader "REPO" [ref=e78]
+          - columnheader "TITLE" [ref=e79]
+          - columnheader "TYPE" [ref=e80]
+          - columnheader "PRIORITY" [ref=e81]
+          - columnheader "STATUS" [ref=e82]
+          - columnheader "ASSIGNEE" [ref=e83]
+          - columnheader "LABELS" [ref=e84]
+          - columnheader "ACTION" [ref=e85]
+      - row
+        - cell "i-0501" [ref=e25]
+          - code
+            - StaticText "i-0501"
+        - cell "web-checkout" [ref=e26]
+          - code
+            - StaticText "web-checkout"
+        - cell "Checkout latency spike at peak" [ref=e27]
+        - cell "bug" [ref=e28]
+        - cell "p1" [ref=e29]
+        - cell "open" [ref=e30]
+        - cell "Mei Chen" [ref=e31]
+        - cell "performance" [ref=e32]
+        - cell "—" [ref=e33]
+      - row
+        - cell "i-0502" [ref=e34]
+          - code
+            - StaticText "i-0502"
+        - cell "payments-service" [ref=e35]
+          - code
+            - StaticText "payments-service"
+        - cell "Add idempotency keys to refunds" [ref=e36]
+        - cell "feature" [ref=e37]
+        - cell "p2" [ref=e38]
+        - cell "open" [ref=e39]
+        - cell "Ari Klein" [ref=e40]
+        - cell "reliability" [ref=e41]
+        - cell "—" [ref=e42]
+      - row
+        - cell "i-0503" [ref=e43]
+          - code
+            - StaticText "i-0503"
+        - cell "payments-service" [ref=e44]
+          - code
+            - StaticText "payments-service"
+        - cell "Flaky integration test: ledger reconcile" [ref=e45]
+        - cell "bug" [ref=e46]
+        - cell "p3" [ref=e47]
+        - cell "in_progress" [ref=e48]
+        - cell "Ari Klein" [ref=e49]
+        - cell "flaky ci" [ref=e50]
+          - StaticText "flaky"
+          - StaticText "ci"
+        - cell "—" [ref=e51]
+      - row
+        - cell "i-0504" [ref=e52]
+          - code
+            - StaticText "i-0504"
+        - cell "payments-service" [ref=e53]
+          - code
+            - StaticText "payments-service"
+        - cell "Typo in payments runbook step 4 (staging promote order)" [ref=e54]
+        - cell "bug" [ref=e55]
+        - cell "p3" [ref=e56]
+        - cell "open" [ref=e57]
+        - cell "—" [ref=e58]
+        - cell "Runbook /docs/runbooks/payments-deploys v3 says 'promote then verify' — should be 'verify then promote'." [ref=e59]
+        - cell "—" [ref=e60]
+  - generic
+    - heading "File an issue" [level=2, ref=e17]
+    - form
+      - LabelText
+        - StaticText "Repo"
+      - combobox [expanded=false, ref=e18]: payments-service
+        - MenuListPopup
+          - option "payments-service" [selected, ref=e61]
+          - option "web-checkout" [ref=e62]
+          - option "search-indexer" [ref=e63]
+      - StaticText ","
+      - LabelText
+        - StaticText "Title"
+      - textbox [required, ref=e19]
+      - StaticText ","
+      - LabelText
+        - StaticText "Type"
+      - combobox [expanded=false, ref=e20]: Bug
+        - MenuListPopup
+          - option "Bug" [selected, ref=e64]
+          - option "Feature" [ref=e65]
+          - option "Task" [ref=e66]
+      - StaticText ","
+      - LabelText
+        - StaticText "Priority"
+      - combobox [expanded=false, ref=e21]: P0
+        - MenuListPopup
+          - option "P0" [selected, ref=e67]
+          - option "P1" [ref=e68]
+          - option "P2" [ref=e69]
+          - option "P3" [ref=e70]
+      - StaticText ","
+      - LabelText
+        - StaticText "Assignee"
+      - combobox [expanded=false, ref=e22]: — unassigned —
+        - MenuListPopup
+          - option "— unassigned —" [selected, ref=e71]
+          - option "Ari Klein" [ref=e72]
+          - option "Noor Haddad" [ref=e73]
+          - option "Raj Patel" [ref=e74]
+          - option "Mei Chen" [ref=e75]
+          - option "Tobi Oyelaran" [ref=e76]
+      - StaticText ","
+      - LabelText
+        - StaticText "Labels (comma-sep)"
+      - textbox [ref=e23]
+      - button "File issue" [ref=e24]
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."
