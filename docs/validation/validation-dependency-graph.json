@@ -149,7 +149,7 @@
       ]
     },
     "VWO-010": {
-      "status": "ready",
+      "status": "merged",
       "depends_on": [
         "VWO-004",
         "VWO-005",
@@ -166,7 +166,7 @@
       ]
     },
     "VWO-011": {
-      "status": "blocked",
+      "status": "ready",
       "depends_on": [
         "VWO-010"
       ],
