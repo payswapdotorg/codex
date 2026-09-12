@@ -1,0 +1,145 @@
+=== VWO-004 sandbox environment verification (single invocation) ===
+date: 2026-09-11T23:56:07Z
+repo: 0d314fd09cec70d000f33c81286edcd8cbf72501 (branch vwo-004/enterprise-ops-validation)
+
+--- capability_check.sh (exit code recorded separately; raw output) ---
+
+=== 1/9 terminal ===
+[PASS] terminal executes commands and returns stdout (/bin/bash)
+
+=== 2/9 file-API (project root) ===
+[PASS] project root visible and writable: /home/z/my-project
+
+=== 3/9 repository reachability ===
+[PASS] git present (git version 2.47.3) and payswapdotorg/codex reachable (HEAD 0d314fd09cec70d000f33c81286edcd8cbf72501)
+
+=== 4/9 Rust toolchain (pinned by codex-rs/rust-toolchain.toml) ===
+[FAIL] cargo not on PATH  <== FAILING CHECK: Rust toolchain absent (run: curl https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.95.0)
+
+=== 5/9 browser availability ===
+[PASS] platform browser automation CLI present: agent-browser agent-browser 0.35.0
+[PASS] Playwright chromium present: /home/z/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome
+
+=== 6/9 headless render (live) ===
+[PASS] chromium headless rendered CAPCHECK-RENDER-MARKER into DOM
+
+=== 7/9 E2B/Composio connected integration (fidelity check) ===
+[NOTE] credential env var E2B_API_KEY not set
+[NOTE] credential env var E2B_ACCESS_TOKEN not set
+[NOTE] credential env var E2B_TEAM_ID not set
+[NOTE] CLI 'e2b' absent
+[NOTE] CLI 'composio' absent
+[FAIL] E2B/Composio connected integration ABSENT — no credentials, no CLI, no config.
+       This is the recorded VWO-001 fallback condition; see README.md §2 (Fidelity Limitations).
+
+=== 8/9 desktop capability (fidelity check) ===
+[PASS] Xvfb present (virtual X framebuffer)
+[PASS] virtual display :137 live; ffmpeg x11grab captured a frame (3172 bytes)
+[FAIL] xdotool absent (system and user-space) — no synthetic input injection  <== FAILING CHECK: desktop input injection (see README.md §3.6 for user-space acquisition)
+[NOTE] VNC server binary 'Xvnc' absent (no interactive human-observable desktop)
+[NOTE] VNC server binary 'x11vnc' absent (no interactive human-observable desktop)
+[NOTE] VNC server binary 'vncserver' absent (no interactive human-observable desktop)
+[NOTE] desktop capability level: virtual-display+capture
+
+=== 9/9 human gate (operator channel) ===
+[PASS] no session/chat identifiers exported into worker env (human gate stays in the operator channel)
+[NOTE] human gate = operator chat session (IM gateway); documented in README.md §1
+
+=== FIDELITY PROFILE ===
+required failures : 1
+fidelity failures : 2 (strict gates exit code only with --strict)
+
+RESULT: FAIL — required proving-ground capabilities are missing; fix them before Wave 1+ dispatch.
+
+--- fixture startup: run-all.sh ---
+started construction on http://localhost:4101/ (pid 2568)
+started rideshare on http://localhost:4103/ (pid 2570)
+started media on http://localhost:4104/ (pid 2573)
+started marketplace on http://localhost:4105/ (pid 2590)
+started software on http://localhost:4102/ (pid 2592)
+healthy: construction -> http://localhost:4101/
+healthy: rideshare -> http://localhost:4103/
+healthy: media -> http://localhost:4104/
+healthy: marketplace -> http://localhost:4105/
+healthy: software -> http://localhost:4102/
+
+All five VWO-002 fixture apps are running:
+  construction (SiteBuild)   http://localhost:4101/
+  software    (ForgeOps)     http://localhost:4102/   terminal console: (cd software && node deploy-console.js)
+  rideshare   (RidePilot)    http://localhost:4103/
+  media       (PressRoom)    http://localhost:4104/
+  marketplace (FlowMart)     http://localhost:4105/
+Demo personas: GET http://localhost:<port>/api/demo-hints  (also on each /login page)
+Stop with: ./run-all.sh --stop
+
+--- verify-sweep.sh ---
+== construction (SiteBuild, 4101) ==
+  PASS  golden: submit daily progress (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (SteelCo contract expired) (HTTP 409)
+== software (ForgeOps, 4102) ==
+  PASS  golden: open PR + auto-CI (HTTP 200)
+  PASS  golden: code owner approves (HTTP 200)
+  PASS  golden: merge → staging deploy (HTTP 200)
+  PASS  golden: promote to production (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural permission_denied (self-approval blocked) (HTTP 403)
+== rideshare (RidePilot, 4103) ==
+  PASS  golden: public intake (no auth) (HTTP 200)
+  PASS  golden: screening approval (HTTP 200)
+  PASS  golden: driver activation (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (da-0303 expired permit) (HTTP 409)
+  PASS  natural duplicate_event (same plate twice) (HTTP 409)
+== media (PressRoom, 4104) ==
+  PASS  golden: writer creates draft (HTTP 200)
+  PASS  golden: attach hero image (HTTP 200)
+  PASS  golden: submit for review (HTTP 200)
+  PASS  golden: editor approves (HTTP 200)
+  PASS  golden: publish to channels (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 200)
+  PASS  natural missing_asset (approved, no hero) (HTTP 404)
+== marketplace (FlowMart, 4105) ==
+  PASS  golden: Northwind installs (active entitlement) (HTTP 200)
+  PASS  golden: publisher releases 1.3.0 (HTTP 200)
+  PASS  golden: upgrade 1.2.0 → 1.3.0 (HTTP 200)
+  PASS  golden: rollback to 1.2.0 (HTTP 200)
+  PASS  golden: provenance digest verifies (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (Northwind expired trial) (HTTP 409)
+
+RESULT: 59 passed, 0 failed
+
+capability_check.sh real exit code: 1 (REQUIRED check 4/9 Rust toolchain absent in this worker sandbox; browser/terminal/file-API/repo PASS; E2B absent = recorded VWO-001 fallback; desktop = virtual-display+capture, xdotool absent)
+run-all.sh exit: 0
+verify-sweep.sh exit: 0 — RESULT: 59 passed, 0 failed

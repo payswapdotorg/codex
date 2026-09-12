@@ -1,0 +1,100 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Sam O’Connell · safety_officer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Safety incidents" [level=1, ref=e4]
+  - generic
+    - heading "All incidents" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e42]
+          - columnheader "PROJECT" [ref=e43]
+          - columnheader "SEVERITY" [ref=e44]
+          - columnheader "CATEGORY" [ref=e45]
+          - columnheader "STATUS" [ref=e46]
+          - columnheader "DESCRIPTION" [ref=e47]
+          - columnheader "REPORTED BY" [ref=e48]
+          - columnheader "RESOLUTION / ACTION" [ref=e49]
+      - row
+        - cell "si-2004" [ref=e13]
+          - code
+            - StaticText "si-2004"
+        - cell "p-102" [ref=e14]
+          - code
+            - StaticText "p-102"
+        - cell "minor" [ref=e15]
+        - cell "equipment" [ref=e16]
+        - cell "open" [ref=e17]
+        - cell "Trench shoring jack showed hydraulic weep; tagged out pending inspection." [ref=e18]
+        - cell "Marco Silva" [ref=e19]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Resolution"
+            - textbox [ref=e50]
+            - button "Close incident" [ref=e53]
+      - row
+        - cell "si-2003" [ref=e20]
+          - code
+            - StaticText "si-2003"
+        - cell "p-101" [ref=e21]
+          - code
+            - StaticText "p-101"
+        - cell "moderate" [ref=e22]
+        - cell "near-miss" [ref=e23]
+        - cell "open" [ref=e24]
+        - cell "Crane B sling slipped while repositioning on level 13; load landed inside barricaded zone; no personnel nearby; tag and inspection completed." [ref=e25]
+        - cell "Marco Silva" [ref=e26]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Resolution"
+            - textbox [ref=e51]
+            - button "Close incident" [ref=e54]
+      - row
+        - cell "si-2002" [ref=e27]
+          - code
+            - StaticText "si-2002"
+        - cell "p-102" [ref=e28]
+          - code
+            - StaticText "p-102"
+        - cell "moderate" [ref=e29]
+        - cell "utility-strike" [ref=e30]
+        - cell "closed" [ref=e31]
+        - cell "Telecom duct nicked during trenching; service restored same day." [ref=e32]
+        - cell "Marco Silva" [ref=e33]
+        - cell "Closed after utility sign-off." [ref=e34]
+      - row
+        - cell "si-2001" [ref=e35]
+          - code
+            - StaticText "si-2001"
+        - cell "p-101" [ref=e36]
+          - code
+            - StaticText "p-101"
+        - cell "minor" [ref=e37]
+        - cell "near-miss" [ref=e38]
+        - cell "investigating" [ref=e39]
+        - cell "Scaffold clamp dropped from level 8 barricaded zone; no injuries." [ref=e40]
+        - cell "Marco Silva" [ref=e41]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Resolution"
+            - textbox [ref=e52]
+            - button "Close incident" [ref=e55]
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

@@ -1,0 +1,33 @@
+=== reset verification: construction-daily-progress ===
+captured: 2026-09-12T00:03:05Z
+
+--- POST /api/reset ---
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+--- GET /api/projects (seed percents must be 62/35/88) ---
+"percentComplete": 62
+"percentComplete": 35
+"percentComplete": 88
+--- GET /api/events?limit=3 (world.reset recorded) ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 1,
+  "events": [
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-12T00:03:05.443Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "construction"
+      }
+    }
+  ]
+}

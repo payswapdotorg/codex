@@ -1,0 +1,172 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Ari Klein · engineer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "payments-service Go · base main · owner payments-core" [level=1, ref=e4]
+    - code
+      - StaticText "payments-service"
+    - StaticText " Go · base main · owner payments-core"
+  - generic
+    - heading "Versions" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Staging" [ref=e27]
+        - cell "4.8.1" [ref=e28]
+          - code
+            - StaticText "4.8.1"
+      - row
+        - cell "Production" [ref=e29]
+        - cell "4.8.1" [ref=e30]
+          - code
+            - StaticText "4.8.1"
+      - row
+        - cell "Service" [ref=e31]
+        - cell "payments-api" [ref=e32]
+          - code
+            - StaticText "payments-api"
+  - generic
+    - heading "Open a pull request" [level=2, ref=e17]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Title"
+      - textbox "Refund idempotency keys" [required, ref=e21]
+      - StaticText ","
+      - LabelText
+        - StaticText "Source branch"
+      - textbox [required, ref=e22]: ari/feature
+        - StaticText "ari/feature"
+      - StaticText ","
+      - LabelText
+        - StaticText "Base"
+      - textbox [ref=e23]: main
+        - StaticText "main"
+      - StaticText ","
+      - LabelText
+        - StaticText "Additions / deletions"
+      - textbox [ref=e24]: 120
+        - StaticText "120"
+      - textbox [ref=e25]: 18
+        - StaticText "18"
+      - StaticText ","
+      - LabelText
+        - StaticText "Summary"
+      - textbox [ref=e26]: What does this change do?
+        - StaticText "What does this change do?"
+      - button "Open PR" [ref=e33]
+      - StaticText "Opening a PR automatically runs CI (lint, unit, integration) and requests review."
+  - generic
+    - heading "Pull requests" [level=2, ref=e18]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PR" [ref=e64]
+          - columnheader "TITLE" [ref=e65]
+          - columnheader "AUTHOR" [ref=e66]
+          - columnheader "CI" [ref=e67]
+          - columnheader "APPROVALS" [ref=e68]
+          - columnheader "STATUS" [ref=e69]
+      - row
+        - cell "pr-0301 #302" [ref=e34]
+          - link "pr-0301 #302" [ref=e70]
+            - code
+              - StaticText "pr-0301"
+            - StaticText " #302"
+        - cell "Refund idempotency keys" [ref=e35]
+        - cell "Ari Klein" [ref=e36]
+        - cell "passed" [ref=e37]
+        - cell "0" [ref=e38]
+        - cell "open" [ref=e39]
+      - row
+        - cell "pr-0303 #298" [ref=e40]
+          - link "pr-0303 #298" [ref=e71]
+            - code
+              - StaticText "pr-0303"
+            - StaticText " #298"
+        - cell "Ledger reconcile fix" [ref=e41]
+        - cell "Ari Klein" [ref=e42]
+        - cell "passed" [ref=e43]
+        - cell "1" [ref=e44]
+        - cell "merged" [ref=e45]
+  - generic
+    - heading "Deployments" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DEPLOYMENT" [ref=e72]
+          - columnheader "PR" [ref=e73]
+          - columnheader "ENV" [ref=e74]
+          - columnheader "VERSION" [ref=e75]
+          - columnheader "ARTIFACT" [ref=e76]
+          - columnheader "STATUS" [ref=e77]
+          - columnheader "ACTION" [ref=e78]
+      - row
+        - cell "dep-1102" [ref=e46]
+          - code
+            - StaticText "dep-1102"
+        - cell "pr-0303" [ref=e47]
+          - code
+            - StaticText "pr-0303"
+        - cell "info production" [ref=e48]
+          - StaticText "info production"
+        - cell "4.8.1" [ref=e49]
+          - code
+            - StaticText "4.8.1"
+        - cell "art-0901" [ref=e50]
+          - code
+            - StaticText "art-0901"
+        - cell "succeeded" [ref=e51]
+        - cell "—" [ref=e52]
+      - row
+        - cell "dep-1101" [ref=e53]
+          - code
+            - StaticText "dep-1101"
+        - cell "pr-0303" [ref=e54]
+          - code
+            - StaticText "pr-0303"
+        - cell "neutral staging" [ref=e55]
+          - StaticText "neutral staging"
+        - cell "4.8.1" [ref=e56]
+          - code
+            - StaticText "4.8.1"
+        - cell "art-0901" [ref=e57]
+          - code
+            - StaticText "art-0901"
+        - cell "promoted" [ref=e58]
+        - cell "—" [ref=e59]
+  - generic
+    - heading "Build artifacts (registry)" [level=2, ref=e20]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ARTIFACT" [ref=e79]
+          - columnheader "DIGEST" [ref=e80]
+          - columnheader "SIZE" [ref=e81]
+          - columnheader "BUILT FROM" [ref=e82]
+      - row
+        - cell "art-0901" [ref=e60]
+          - code
+            - StaticText "art-0901"
+        - cell "sha256:9f2c41ab77e0" [ref=e61]
+          - code
+            - StaticText "sha256:9f2c41ab77e0"
+        - cell "14.0 MB" [ref=e62]
+        - cell "pr-0303" [ref=e63]
+          - code
+            - StaticText "pr-0303"
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

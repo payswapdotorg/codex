@@ -1,0 +1,25 @@
+=== post-hoc diagnostics: media-editorial-publishing ===
+captured: 2026-09-12T00:30:57Z
+--- events (story.*, distribution.*) ---
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "story.published"
+"summary": "\
+"type": "distribution.failed"
+"summary": "FAILED \
+"type": "distribution.sent"
+"summary": "Sent \
+"type": "distribution.sent"
+"summary": "Sent \
+"type": "distribution.sent"
+"summary": "Sent \
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "editorial"
+"type": "story.approved"
+"summary": "\
+"type": "auth.login"
+"summary": "camille.dubois signed in
+--- story state ---
+{"id":"st-0206","status":"published","version":2,"channels":["ch-1","ch-2","ch-3"]}

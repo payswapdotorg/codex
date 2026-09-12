@@ -1,0 +1,161 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+    - StaticText "ForgeOpssoftware fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Tobi Oyelaran · intern · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Ownership directory" [level=1, ref=e4]
+  - generic
+    - heading "Team: payments-core" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Mission" [ref=e20]
+        - cell "Payments and ledger services" [ref=e21]
+      - row
+        - cell "Members" [ref=e22]
+        - cell "Ari Klein, Noor Haddad, Raj Patel" [ref=e23]
+      - row
+        - cell "Owns repos" [ref=e24]
+        - cell "payments-service, search-indexer" [ref=e25]
+          - code
+            - StaticText "payments-service"
+          - StaticText ", "
+          - code
+            - StaticText "search-indexer"
+      - row
+        - cell "Owns services" [ref=e26]
+        - cell "payments-api, ledger-store" [ref=e27]
+          - code
+            - StaticText "payments-api"
+          - StaticText ", "
+          - code
+            - StaticText "ledger-store"
+  - generic
+    - heading "Team: web-experience" [level=2, ref=e17]
+    - table
+      - row
+        - cell "Mission" [ref=e28]
+        - cell "Storefront and checkout" [ref=e29]
+      - row
+        - cell "Members" [ref=e30]
+        - cell "Ari Klein, Tobi Oyelaran" [ref=e31]
+      - row
+        - cell "Owns repos" [ref=e32]
+        - cell "web-checkout" [ref=e33]
+          - code
+            - StaticText "web-checkout"
+      - row
+        - cell "Owns services" [ref=e34]
+        - cell "checkout-web" [ref=e35]
+          - code
+            - StaticText "checkout-web"
+  - generic
+    - heading "Team: platform-sre" [level=2, ref=e18]
+    - table
+      - row
+        - cell "Mission" [ref=e36]
+        - cell "Reliability, deploys, on-call" [ref=e37]
+      - row
+        - cell "Members" [ref=e38]
+        - cell "Mei Chen, Raj Patel" [ref=e39]
+      - row
+        - cell "Owns repos" [ref=e40]
+        - cell "—" [ref=e41]
+      - row
+        - cell "Owns services" [ref=e42]
+        - cell "search-indexer" [ref=e43]
+          - code
+            - StaticText "search-indexer"
+  - generic
+    - heading "Users & permissions" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "NAME" [ref=e64]
+          - columnheader "USERNAME" [ref=e65]
+          - columnheader "ROLE" [ref=e66]
+          - columnheader "PERMISSIONS" [ref=e67]
+      - row
+        - cell "Ari Klein" [ref=e44]
+        - cell "ari.klein" [ref=e45]
+          - code
+            - StaticText "ari.klein"
+        - cell "engineer" [ref=e46]
+        - cell "repo:read pr:create ci:run issue:read issue:create issue:close doc:read" [ref=e47]
+          - StaticText "repo:read"
+          - StaticText "pr:create"
+          - StaticText "ci:run"
+          - StaticText "issue:read"
+          - StaticText "issue:create"
+          - StaticText "issue:close"
+          - StaticText "doc:read"
+      - row
+        - cell "Noor Haddad" [ref=e48]
+        - cell "noor.haddad" [ref=e49]
+          - code
+            - StaticText "noor.haddad"
+        - cell "code_owner" [ref=e50]
+        - cell "repo:read pr:review pr:merge ci:run issue:read issue:create issue:close doc:read doc:write service:read" [ref=e51]
+          - StaticText "repo:read"
+          - StaticText "pr:review"
+          - StaticText "pr:merge"
+          - StaticText "ci:run"
+          - StaticText "issue:read"
+          - StaticText "issue:create"
+          - StaticText "issue:close"
+          - StaticText "doc:read"
+          - StaticText "doc:write"
+          - StaticText "service:read"
+      - row
+        - cell "Raj Patel" [ref=e52]
+        - cell "raj.patel" [ref=e53]
+          - code
+            - StaticText "raj.patel"
+        - cell "release_manager" [ref=e54]
+        - cell "repo:read ci:run pr:merge deploy:promote deploy:rollback service:read doc:read doc:write" [ref=e55]
+          - StaticText "repo:read"
+          - StaticText "ci:run"
+          - StaticText "pr:merge"
+          - StaticText "deploy:promote"
+          - StaticText "deploy:rollback"
+          - StaticText "service:read"
+          - StaticText "doc:read"
+          - StaticText "doc:write"
+      - row
+        - cell "Mei Chen" [ref=e56]
+        - cell "mei.chen" [ref=e57]
+          - code
+            - StaticText "mei.chen"
+        - cell "sre_oncall" [ref=e58]
+        - cell "service:read incident:open incident:resolve deploy:read doc:read doc:write repo:read" [ref=e59]
+          - StaticText "service:read"
+          - StaticText "incident:open"
+          - StaticText "incident:resolve"
+          - StaticText "deploy:read"
+          - StaticText "doc:read"
+          - StaticText "doc:write"
+          - StaticText "repo:read"
+      - row
+        - cell "Tobi Oyelaran" [ref=e60]
+        - cell "tobi.oyelaran" [ref=e61]
+          - code
+            - StaticText "tobi.oyelaran"
+        - cell "intern" [ref=e62]
+        - cell "repo:read issue:create doc:read" [ref=e63]
+          - StaticText "repo:read"
+          - StaticText "issue:create"
+          - StaticText "doc:read"
+- contentinfo
+  - StaticText "ForgeOps is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

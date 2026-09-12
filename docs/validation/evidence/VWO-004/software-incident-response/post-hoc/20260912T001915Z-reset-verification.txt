@@ -1,0 +1,7 @@
+=== reset verification: software-incident-response ===
+"version": "4.8.1"
+"version": "2.1.0"
+"version": "14.3.0"
+"version": "1.4.1"
+"status": "resolved"
+"status": "mitigated"

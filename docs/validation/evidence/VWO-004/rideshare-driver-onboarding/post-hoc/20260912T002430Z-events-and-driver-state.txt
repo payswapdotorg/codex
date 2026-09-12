@@ -1,0 +1,58 @@
+=== post-hoc diagnostics: rideshare-driver-onboarding ===
+captured: 2026-09-12T00:24:30Z
+--- GET /api/events?limit=10 ---
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "onboarding"
+"type": "driver.activated"
+"summary": "Driver Priya Raman activated in Downtown Core by Jules Moreau (permit until 2027-09-12)
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "onboarding"
+"type": "driver.application_approved"
+"summary": "Driver application da-0304 (Priya Raman) approved by Jules Moreau
+"type": "auth.login"
+"summary": "jules.moreau signed in
+"type": "notification.delivered"
+"summary": "Notification \
+"type": "onboarding"
+"type": "driver.application_submitted"
+--- driver state ---
+{
+ "applications": [
+  {
+   "id": "da-0301",
+   "status": "submitted"
+  },
+  {
+   "id": "da-0302",
+   "status": "screening"
+  },
+  {
+   "id": "da-0303",
+   "status": "approved"
+  },
+  {
+   "id": "da-0304",
+   "status": "activated"
+  }
+ ],
+ "drivers": [
+  {
+   "id": "dr-0501",
+   "name": "Aisha Nasser"
+  },
+  {
+   "id": "dr-0502",
+   "name": "Ben Okafor"
+  },
+  {
+   "id": "dr-0503",
+   "name": "Lena Marsh"
+  },
+  {
+   "id": "dr-0504",
+   "name": "Priya Raman"
+  }
+ ]
+}

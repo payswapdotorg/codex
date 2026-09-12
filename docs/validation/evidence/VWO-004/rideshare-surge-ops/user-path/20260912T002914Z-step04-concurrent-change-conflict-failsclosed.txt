@@ -1,0 +1,75 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Jules Moreau · regional_ops_manager · "
+  - link "sign out" [ref=e3]
+- main
+  - alert
+    - StaticText "Another ops manager adjusted Airport Corridor surge while you were saving (simulated). [data_conflict]"
+  - heading "Operations dashboard" [level=1, ref=e4]
+  - generic
+    - heading "Adjust surge (ops decision workflow)" [level=2, ref=e16]
+    - form
+      - LabelText
+        - StaticText "Region"
+      - combobox [expanded=false, ref=e19]: Downtown Core (1.4×)
+        - MenuListPopup
+          - option "Downtown Core (1.4×)" [selected, ref=e36]
+          - option "Airport Corridor (2.2×)" [ref=e37]
+          - option "Northside (1.0×)" [ref=e38]
+          - option "Riverside (1.2×)" [ref=e39]
+      - StaticText ","
+      - LabelText
+        - StaticText "New surge level (1.0 – 3.0)"
+      - spinbutton [ref=e20]: 1.5
+        - StaticText "1.5"
+      - button "Apply surge" [ref=e21]
+      - StaticText "Broadcasts the change to region drivers (notification_failure makes the broadcast fail)."
+  - generic
+    - heading "Driver broadcasts (communications)" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "BROADCAST" [ref=e40]
+          - columnheader "REGION" [ref=e41]
+          - columnheader "CHANNEL" [ref=e42]
+          - columnheader "MESSAGE" [ref=e43]
+          - columnheader "STATUS" [ref=e44]
+          - columnheader "SENT BY" [ref=e45]
+          - columnheader "AT" [ref=e46]
+      - row
+        - cell "b-0402" [ref=e22]
+          - code
+            - StaticText "b-0402"
+        - cell "Airport Corridor" [ref=e23]
+        - cell "drivers" [ref=e24]
+        - cell "Surge in Airport Corridor is now 2.2× (was 1.8×)." [ref=e25]
+        - cell "sent" [ref=e26]
+        - cell "Farah Khan" [ref=e27]
+        - cell "2026-09-12T00:27:46.565Z" [ref=e28]
+      - row
+        - cell "b-0401" [ref=e29]
+          - code
+            - StaticText "b-0401"
+        - cell "Downtown Core" [ref=e30]
+        - cell "drivers" [ref=e31]
+        - cell "High demand expected 17:00–19:00 in Downtown Core — position near transit hubs." [ref=e32]
+        - cell "sent" [ref=e33]
+        - cell "Jules Moreau" [ref=e34]
+        - cell "2026-09-11T15:45:00Z" [ref=e35]
+  - paragraph
+    - link "Live region map →" [ref=e18]
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

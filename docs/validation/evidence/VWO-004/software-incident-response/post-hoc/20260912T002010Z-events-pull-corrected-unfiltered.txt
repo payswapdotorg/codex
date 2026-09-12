@@ -1,0 +1,224 @@
+=== post-hoc events pull (corrected: unfiltered, newest-first) ===
+captured: 2026-09-12T00:20:10Z — coherent re-run: incident open -> approve+merge -> console promote -> resolve
+NOTE: earlier pull in events-and-service-state.txt used ?type= prefix filters that matched nothing (types are exact: incident.opened, deployment.promoted, ...) — recorded transparently.
+
+--- GET /api/events?limit=18 ---
+{
+  "ok": true,
+  "family": "software",
+  "count": 17,
+  "events": [
+    {
+      "id": "ev-0017",
+      "ts": "2026-09-12T00:20:09.181Z",
+      "type": "notification.delivered",
+      "actor": "mei.chen",
+      "subject": "notification:n-0005",
+      "summary": "Notification \"Incident inc-0903 resolved\" delivered to mei.chen",
+      "data": {
+        "notificationId": "n-0005",
+        "to": "mei.chen",
+        "type": "incident"
+      }
+    },
+    {
+      "id": "ev-0016",
+      "ts": "2026-09-12T00:20:09.181Z",
+      "type": "incident.resolved",
+      "actor": "mei.chen",
+      "subject": "inc-0903",
+      "summary": "Incident inc-0903 \"Refund API latency regression\" resolved by Mei Chen",
+      "data": {
+        "incidentId": "inc-0903",
+        "serviceId": "s-1"
+      }
+    },
+    {
+      "id": "ev-0015",
+      "ts": "2026-09-12T00:20:07.584Z",
+      "type": "auth.login",
+      "actor": "mei.chen",
+      "subject": "user:u-4",
+      "summary": "mei.chen signed in",
+      "data": {
+        "role": "sre_oncall"
+      }
+    },
+    {
+      "id": "ev-0014",
+      "ts": "2026-09-12T00:20:07.222Z",
+      "type": "notification.delivered",
+      "actor": "raj.patel",
+      "subject": "notification:n-0004",
+      "summary": "Notification \"payments-service 4.8.2 is live in production\" delivered to ari.klein",
+      "data": {
+        "notificationId": "n-0004",
+        "to": "ari.klein",
+        "type": "deploy"
+      }
+    },
+    {
+      "id": "ev-0013",
+      "ts": "2026-09-12T00:20:07.222Z",
+      "type": "service.version_bumped",
+      "actor": "raj.patel",
+      "subject": "s-1",
+      "summary": "Service payments-api now serving version 4.8.2",
+      "data": {
+        "serviceId": "s-1",
+        "version": "4.8.2"
+      }
+    },
+    {
+      "id": "ev-0012",
+      "ts": "2026-09-12T00:20:07.222Z",
+      "type": "deployment.promoted",
+      "actor": "raj.patel",
+      "subject": "dep-1105",
+      "summary": "payments-service 4.8.2 promoted to production by Raj Patel (from dep-1104)",
+      "data": {
+        "deploymentId": "dep-1105",
+        "fromDeploymentId": "dep-1104",
+        "repoId": "r-1",
+        "version": "4.8.2",
+        "artifactId": "art-0902"
+      }
+    },
+    {
+      "id": "ev-0011",
+      "ts": "2026-09-12T00:20:07.214Z",
+      "type": "auth.login",
+      "actor": "raj.patel",
+      "subject": "user:u-3",
+      "summary": "raj.patel signed in",
+      "data": {
+        "role": "release_manager"
+      }
+    },
+    {
+      "id": "ev-0010",
+      "ts": "2026-09-12T00:20:06.107Z",
+      "type": "notification.delivered",
+      "actor": "noor.haddad",
+      "subject": "notification:n-0003",
+      "summary": "Notification \"payments-service 4.8.2 staged — promotion approval needed\" delivered to raj.patel",
+      "data": {
+        "notificationId": "n-0003",
+        "to": "raj.patel",
+        "type": "deploy"
+      }
+    },
+    {
+      "id": "ev-0009",
+      "ts": "2026-09-12T00:20:06.107Z",
+      "type": "deployment.created",
+      "actor": "noor.haddad",
+      "subject": "dep-1104",
+      "summary": "Staging deployment dep-1104 of payments-service 4.8.2 (artifact art-0902)",
+      "data": {
+        "deploymentId": "dep-1104",
+        "repoId": "r-1",
+        "env": "staging",
+        "version": "4.8.2",
+        "artifactId": "art-0902"
+      }
+    },
+    {
+      "id": "ev-0008",
+      "ts": "2026-09-12T00:20:06.107Z",
+      "type": "pr.merged",
+      "actor": "noor.haddad",
+      "subject": "pr-0301",
+      "summary": "PR #302 \"Refund idempotency keys\" merged by Noor Haddad; payments-service staging → 4.8.2",
+      "data": {
+        "prId": "pr-0301",
+        "repoId": "r-1",
+        "version": "4.8.2"
+      }
+    },
+    {
+      "id": "ev-0007",
+      "ts": "2026-09-12T00:20:04.999Z",
+      "type": "notification.delivered",
+      "actor": "noor.haddad",
+      "subject": "notification:n-0002",
+      "summary": "Notification \"Your PR #302 was approved\" delivered to ari.klein",
+      "data": {
+        "notificationId": "n-0002",
+        "to": "ari.klein",
+        "type": "pr"
+      }
+    },
+    {
+      "id": "ev-0006",
+      "ts": "2026-09-12T00:20:04.999Z",
+      "type": "pr.approved",
+      "actor": "noor.haddad",
+      "subject": "pr-0301",
+      "summary": "PR #302 \"Refund idempotency keys\" approved by Noor Haddad",
+      "data": {
+        "prId": "pr-0301",
+        "approvals": 1
+      }
+    },
+    {
+      "id": "ev-0005",
+      "ts": "2026-09-12T00:20:03.389Z",
+      "type": "auth.login",
+      "actor": "noor.haddad",
+      "subject": "user:u-2",
+      "summary": "noor.haddad signed in",
+      "data": {
+        "role": "code_owner"
+      }
+    },
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-12T00:20:02.002Z",
+      "type": "notification.delivered",
+      "actor": "mei.chen",
+      "subject": "notification:n-0001",
+      "summary": "Notification \"sev2: Refund API latency regression\" delivered to mei.chen",
+      "data": {
+        "notificationId": "n-0001",
+        "to": "mei.chen",
+        "type": "incident"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-12T00:20:02.002Z",
+      "type": "incident.opened",
+      "actor": "mei.chen",
+      "subject": "inc-0903",
+      "summary": "sev2 incident \"Refund API latency regression\" opened on payments-api by Mei Chen",
+      "data": {
+        "incidentId": "inc-0903",
+        "serviceId": "s-1",
+        "severity": "sev2"
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-12T00:20:00.233Z",
+      "type": "auth.login",
+      "actor": "mei.chen",
+      "subject": "user:u-4",
+      "summary": "mei.chen signed in",
+      "data": {
+        "role": "sre_oncall"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-12T00:19:59.826Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "software"
+      }
+    }
+  ]
+}

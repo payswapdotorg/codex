@@ -1,0 +1,33 @@
+=== post-hoc diagnostics: software-incident-response ===
+captured: 2026-09-12T00:19:14Z
+
+--- GET /api/events?type=incident (lifecycle) ---
+{
+  "ok": true,
+  "family": "software",
+  "count": 0,
+  "events": []
+}
+--- GET /api/events?type=deployment (exactly one deployment.promoted from the clean retry; the 503/404 sessions contributed none) ---
+{
+  "ok": true,
+  "family": "software",
+  "count": 0,
+  "events": []
+}
+--- GET /api/events?type=service&limit=4 ---
+{
+  "ok": true,
+  "family": "software",
+  "count": 0,
+  "events": []
+}
+--- services state (payments-api healthy, version) ---
+"name": "payments-api"
+"version": "4.8.2"
+"name": "ledger-store"
+"version": "2.1.0"
+"name": "checkout-web"
+"version": "14.3.0"
+"name": "search-indexer"
+"version": "1.4.1"

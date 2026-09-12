@@ -1,0 +1,98 @@
+=== post-hoc events pull (corrected extraction; re-run of approve+merge after reset) ===
+captured: 2026-09-12T00:14:43Z
+--- GET /api/events?limit=12 ---
+{
+  "ok": true,
+  "family": "software",
+  "count": 7,
+  "events": [
+    {
+      "id": "ev-0007",
+      "ts": "2026-09-12T00:14:42.653Z",
+      "type": "notification.delivered",
+      "actor": "noor.haddad",
+      "subject": "notification:n-0002",
+      "summary": "Notification \"payments-service 4.8.2 staged — promotion approval needed\" delivered to raj.patel",
+      "data": {
+        "notificationId": "n-0002",
+        "to": "raj.patel",
+        "type": "deploy"
+      }
+    },
+    {
+      "id": "ev-0006",
+      "ts": "2026-09-12T00:14:42.653Z",
+      "type": "deployment.created",
+      "actor": "noor.haddad",
+      "subject": "dep-1104",
+      "summary": "Staging deployment dep-1104 of payments-service 4.8.2 (artifact art-0902)",
+      "data": {
+        "deploymentId": "dep-1104",
+        "repoId": "r-1",
+        "env": "staging",
+        "version": "4.8.2",
+        "artifactId": "art-0902"
+      }
+    },
+    {
+      "id": "ev-0005",
+      "ts": "2026-09-12T00:14:42.653Z",
+      "type": "pr.merged",
+      "actor": "noor.haddad",
+      "subject": "pr-0301",
+      "summary": "PR #302 \"Refund idempotency keys\" merged by Noor Haddad; payments-service staging → 4.8.2",
+      "data": {
+        "prId": "pr-0301",
+        "repoId": "r-1",
+        "version": "4.8.2"
+      }
+    },
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-12T00:14:41.546Z",
+      "type": "notification.delivered",
+      "actor": "noor.haddad",
+      "subject": "notification:n-0001",
+      "summary": "Notification \"Your PR #302 was approved\" delivered to ari.klein",
+      "data": {
+        "notificationId": "n-0001",
+        "to": "ari.klein",
+        "type": "pr"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-12T00:14:41.546Z",
+      "type": "pr.approved",
+      "actor": "noor.haddad",
+      "subject": "pr-0301",
+      "summary": "PR #302 \"Refund idempotency keys\" approved by Noor Haddad",
+      "data": {
+        "prId": "pr-0301",
+        "approvals": 1
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-12T00:14:39.829Z",
+      "type": "auth.login",
+      "actor": "noor.haddad",
+      "subject": "user:u-2",
+      "summary": "noor.haddad signed in",
+      "data": {
+        "role": "code_owner"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-12T00:14:39.475Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "software"
+      }
+    }
+  ]
+}

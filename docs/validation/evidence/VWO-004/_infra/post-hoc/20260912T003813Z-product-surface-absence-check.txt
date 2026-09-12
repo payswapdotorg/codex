@@ -1,0 +1,23 @@
+=== Codex Universal product-surface existence check (repo-level, base 0d314fd09cec70d000f33c81286edcd8cbf72501) ===
+run: 2026-09-12T00:38:13Z
+
+1) crates consuming the workflow family (workflow-app / teaching-compiler / workflow-forge / workflow-durable / workflow-triggers / workflow-evolution / workflow-distribution):
+  codex-teaching-compiler -> product consumers: NONE (library crates only)
+  codex-workflow-app -> product consumers: NONE (library crates only)
+  codex-workflow-contracts -> product consumers: codex-rs/browser-use-adapter/Cargo.toml
+codex-rs/computer-use-adapter/Cargo.toml
+codex-rs/execution-contracts/Cargo.toml
+  codex-workflow-distribution -> product consumers: NONE (library crates only)
+  codex-workflow-durable -> product consumers: NONE (library crates only)
+  codex-workflow-evolution -> product consumers: NONE (library crates only)
+  codex-workflow-forge -> product consumers: NONE (library crates only)
+  codex-workflow-triggers -> product consumers: NONE (library crates only)
+
+2) CLI subcommands mentioning workflow/teach:
+  (empty = none)
+
+3) app-server protocol mentions:
+  (empty = none)
+
+4) [[bin]] targets in the workflow family:
+  (empty = all [lib] only)

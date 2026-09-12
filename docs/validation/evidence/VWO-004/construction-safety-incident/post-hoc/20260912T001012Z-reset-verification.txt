@@ -1,0 +1,2 @@
+=== reset verification: construction-safety-incident ===
+[{"id":"si-2001","status":"investigating"},{"id":"si-2002","status":"closed"}]

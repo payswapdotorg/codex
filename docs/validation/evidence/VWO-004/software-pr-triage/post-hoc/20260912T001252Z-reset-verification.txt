@@ -1,0 +1,4 @@
+=== reset verification: software-pr-triage ===
+"name": "payments-service"
+"name": "web-checkout"
+"name": "search-indexer"

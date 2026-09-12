@@ -1,0 +1,2 @@
+=== reset verification: media-breaking-news ===
+["published","in_review","draft","approved","approved"]

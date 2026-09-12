@@ -1,0 +1,40 @@
+=== software-incident-response — HYBRID demo phase: terminal console (deploy-console.js) ===
+captured: 2026-09-12T00:18:23Z
+console: ForgeOps deploy-console.js — the family's desktop-capable terminal surface (all commands via the real HTTP API)
+
+--- session A: raj.patel logs in and lists r-1 deployments ---
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+deployments (3):
+  dep-1104  staging    4.8.2     succeeded  artifact=art-0902 repo=r-1
+  dep-1102  production 4.8.1     succeeded  artifact=art-0901 repo=r-1
+  dep-1101  staging    4.8.1     promoted   artifact=art-0901 repo=r-1
+
+--- session B: promote dep-1104 with service_unavailable armed (CI runner pool down) — expect fail-safe 503 ---
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+failure switch armed for next command: service_unavailable
+FAILED 503: service_unavailable — The "ci-runner-pool" service is unavailable (simulated). State-changing requests are rejected; read requests still work.
+
+--- session C: promote dep-1104 with missing_asset armed (artifact 404) — expect named artifact failure ---
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+failure switch armed for next command: missing_asset
+FAILED 404: missing_asset — Release artifact "art-0902" could not be resolved in the artifact registry (simulated dangling reference).
+
+--- session D: clean retry after provider recovery — expect success + version bump ---
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+OK: payments-service 4.8.2 promoted to production (deployment dep-1105).

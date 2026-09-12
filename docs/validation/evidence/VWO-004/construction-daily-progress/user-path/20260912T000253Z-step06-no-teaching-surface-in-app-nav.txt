@@ -1,0 +1,142 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Dana Reyes · project_manager · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Construction operations dashboard" [level=1, ref=e4]
+  - StaticText "Active projects"
+  - generic
+    - StaticText "3 seeded"
+  - StaticText "Purchase requests awaiting decision"
+  - generic
+    - StaticText "1 procurement"
+  - StaticText "Open safety incidents"
+  - generic
+    - StaticText "1 safety"
+  - StaticText "Your notifications"
+  - generic
+    - StaticText "3 1 failed"
+  - generic
+    - heading "Projects" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "CODE" [ref=e58]
+          - columnheader "PROJECT" [ref=e59]
+          - columnheader "PHASE" [ref=e60]
+          - columnheader "PROGRESS" [ref=e61]
+          - columnheader "SPEND / BUDGET" [ref=e62]
+          - columnheader "DUE" [ref=e63]
+      - row
+        - cell "HVT" [ref=e15]
+          - code
+            - StaticText "HVT"
+        - cell "Harborview Tower" [ref=e16]
+          - link "Harborview Tower" [ref=e64]
+        - cell "structural" [ref=e17]
+        - cell "68%" [ref=e18]
+          - StaticText "68%"
+        - cell "$2,641,000 / $4,250,000" [ref=e19]
+        - cell "2027-03-15" [ref=e20]
+      - row
+        - cell "ESI" [ref=e21]
+          - code
+            - StaticText "ESI"
+        - cell "Eastside Interchange" [ref=e22]
+          - link "Eastside Interchange" [ref=e65]
+        - cell "earthwork" [ref=e23]
+        - cell "40%" [ref=e24]
+          - StaticText "40%"
+        - cell "$3,115,000 / $8,900,000" [ref=e25]
+        - cell "2028-01-20" [ref=e26]
+      - row
+        - cell "RVC" [ref=e27]
+          - code
+            - StaticText "RVC"
+        - cell "Riverside Clinic" [ref=e28]
+          - link "Riverside Clinic" [ref=e66]
+        - cell "finishes" [ref=e29]
+        - cell "88%" [ref=e30]
+          - StaticText "88%"
+        - cell "$1,542,000 / $1,750,000" [ref=e31]
+        - cell "2026-12-05" [ref=e32]
+  - generic
+    - heading "Recent activity (event feed)" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "TIME" [ref=e67]
+          - columnheader "TYPE" [ref=e68]
+          - columnheader "SUMMARY" [ref=e69]
+      - row
+        - cell "2026-09-12T00:02:08.725Z" [ref=e33]
+        - cell "auth.login" [ref=e34]
+          - code
+            - StaticText "auth.login"
+        - cell "dana.reyes signed in" [ref=e35]
+      - row
+        - cell "2026-09-12T00:01:58.928Z" [ref=e36]
+        - cell "notification.failed" [ref=e37]
+          - code
+            - StaticText "notification.failed"
+        - cell "Notification \"Daily progress 2026-09-12 — Eastside Interchange\" to dana.reyes FAILED to deliver (simulated switch)" [ref=e38]
+      - row
+        - cell "2026-09-12T00:01:58.928Z" [ref=e39]
+        - cell "progress.submitted" [ref=e40]
+          - code
+            - StaticText "progress.submitted"
+        - cell "Daily progress 2026-09-12 for Eastside Interchange: 40% (0 tasks, 0 photos)" [ref=e41]
+      - row
+        - cell "2026-09-12T00:00:19.245Z" [ref=e42]
+        - cell "auth.login" [ref=e43]
+          - code
+            - StaticText "auth.login"
+        - cell "marco.silva signed in" [ref=e44]
+      - row
+        - cell "2026-09-12T00:00:00.717Z" [ref=e45]
+        - cell "auth.login" [ref=e46]
+          - code
+            - StaticText "auth.login"
+        - cell "dana.reyes signed in" [ref=e47]
+      - row
+        - cell "2026-09-11T23:58:46.151Z" [ref=e48]
+        - cell "notification.delivered" [ref=e49]
+          - code
+            - StaticText "notification.delivered"
+        - cell "Notification \"Daily progress 2026-09-12 — Harborview Tower\" delivered to dana.reyes" [ref=e50]
+      - row
+        - cell "2026-09-11T23:58:46.151Z" [ref=e51]
+        - cell "progress.submitted" [ref=e52]
+          - code
+            - StaticText "progress.submitted"
+        - cell "Daily progress 2026-09-12 for Harborview Tower: 68% (1 tasks, 1 photos)" [ref=e53]
+      - row
+        - cell "2026-09-11T23:58:29.353Z" [ref=e54]
+        - cell "auth.login" [ref=e55]
+          - code
+            - StaticText "auth.login"
+        - cell "marco.silva signed in" [ref=e56]
+      - row
+        - cell "Full event feed · machine: GET /api/events" [ref=e57]
+          - link "Full event feed" [ref=e70]
+          - StaticText " · machine: "
+          - code
+            - StaticText "GET /api/events"
+  - paragraph
+    - StaticText "Docs: "
+    - link "failure switches" [ref=e14]
+    - StaticText " · repository: "
+    - code
+      - StaticText "docs/validation/fixtures/construction/"
+    - StaticText " (FAILURES.md + catalog in fixtures/README.md)."
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

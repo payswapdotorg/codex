@@ -1,0 +1,57 @@
+=== post-hoc events pull (corrected type names) ===
+captured: 2026-09-12T00:07:34Z (after a fresh reset+reject re-run; the earlier pull used a wrong ?type= filter)
+--- GET /api/events?limit=8 ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 4,
+  "events": [
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-12T00:07:33.345Z",
+      "type": "notification.delivered",
+      "actor": "dana.reyes",
+      "subject": "notification:n-0001",
+      "summary": "Notification \"PR prq-5001 rejected\" delivered to marco.silva",
+      "data": {
+        "notificationId": "n-0001",
+        "to": "marco.silva",
+        "type": "procurement"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-12T00:07:33.345Z",
+      "type": "procurement.rejected",
+      "actor": "dana.reyes",
+      "subject": "prq-5001",
+      "summary": "PR prq-5001 (High-tensile rebar Grade 60) rejected by Dana Reyes",
+      "data": {
+        "requestId": "prq-5001",
+        "note": ""
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-12T00:07:31.582Z",
+      "type": "auth.login",
+      "actor": "dana.reyes",
+      "subject": "user:u-1",
+      "summary": "dana.reyes signed in",
+      "data": {
+        "role": "project_manager"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-12T00:07:31.252Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "construction"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Dana Reyes · project_manager · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your notifications" [level=1, ref=e4]
+  - paragraph
+    - StaticText "In-app notification inbox. Failed deliveries stay visible with a "
+    - StaticText "failed"
+    - StaticText " badge — that is the observable symptom of the "
+    - code
+      - StaticText "notification_failure"
+    - StaticText " switch."
+  - generic
+    - heading "Inbox" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e25]
+          - columnheader "TYPE" [ref=e26]
+          - columnheader "SUBJECT" [ref=e27]
+          - columnheader "TEXT" [ref=e28]
+          - columnheader "STATUS" [ref=e29]
+          - columnheader "AT" [ref=e30]
+      - row
+        - cell "n-0001" [ref=e13]
+          - code
+            - StaticText "n-0001"
+        - cell "progress" [ref=e14]
+        - cell "Daily progress 2026-09-12 — Harborview Tower" [ref=e15]
+        - cell "Marco Silva reported 68% complete. Tasks: t-101c." [ref=e16]
+        - cell "delivered" [ref=e17]
+        - cell "2026-09-11T23:58:46.151Z" [ref=e18]
+      - row
+        - cell "n-1" [ref=e19]
+          - code
+            - StaticText "n-1"
+        - cell "procurement" [ref=e20]
+        - cell "PR prq-5001 awaiting approval" [ref=e21]
+        - cell "Purchase request prq-5001 (High-tensile rebar) needs your decision." [ref=e22]
+        - cell "delivered" [ref=e23]
+        - cell "2026-09-11T08:00:00Z" [ref=e24]
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

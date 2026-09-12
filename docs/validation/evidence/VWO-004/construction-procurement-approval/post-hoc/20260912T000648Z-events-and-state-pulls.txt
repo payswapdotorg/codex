@@ -1,0 +1,40 @@
+=== post-hoc diagnostics: construction-procurement-approval (2nd coherent run) ===
+captured: 2026-09-12T00:06:48Z
+
+--- GET /api/events?type=procurement (limit 12) ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 0,
+  "events": []
+}
+--- GET /api/events?type=notification (limit 6) ---
+{
+  "ok": true,
+  "family": "construction",
+  "count": 0,
+  "events": []
+}
+--- purchase-order count check (no double PO): state purchaseOrders ---
+{
+ "purchaseRequests": [
+  {
+   "id": "prq-5001",
+   "status": "rejected",
+   "approvals": 1,
+   "poNumber": null
+  },
+  {
+   "id": "prq-5002",
+   "status": "po_issued",
+   "approvals": 1,
+   "poNumber": "po-2041"
+  }
+ ],
+ "purchaseOrders": [
+  {
+   "id": "po-2041",
+   "requestId": "prq-5002"
+  }
+ ]
+}

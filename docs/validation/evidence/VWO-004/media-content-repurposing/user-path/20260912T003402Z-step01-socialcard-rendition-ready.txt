@@ -1,0 +1,179 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Omar Bhatt · photo_editor · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Rendition \"social-card\" rendered for a-0301."
+  - heading "Asset repository" [level=1, ref=e4]
+  - generic
+    - heading "All assets" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e55]
+          - columnheader "KIND" [ref=e56]
+          - columnheader "NAME" [ref=e57]
+          - columnheader "SIZE" [ref=e58]
+          - columnheader "DIMENSIONS" [ref=e59]
+          - columnheader "CREDIT" [ref=e60]
+          - columnheader "LICENSE" [ref=e61]
+          - columnheader "RENDITIONS" [ref=e62]
+          - columnheader "RENDER" [ref=e63]
+      - row
+        - cell "a-0301" [ref=e22]
+          - code
+            - StaticText "a-0301"
+        - cell "image" [ref=e23]
+        - cell "harbor-bridge-aerial.jpg" [ref=e24]
+        - cell "4.2 MB" [ref=e25]
+        - cell "4096×2304" [ref=e26]
+        - cell "City Photo Desk" [ref=e27]
+        - cell "editorial" [ref=e28]
+        - cell "hero: ready thumbnail: ready social-card: ready" [ref=e29]
+          - StaticText "hero:"
+          - StaticText "ready"
+          - StaticText " thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Rendition"
+            - combobox [expanded=false, ref=e70]: thumbnail
+              - MenuListPopup
+                - option "thumbnail" [selected, ref=e78]
+                - option "social-card" [ref=e79]
+                - option "hero" [ref=e80]
+                - option "web-1080p" [ref=e81]
+            - button "Render" [ref=e74]
+      - row
+        - cell "a-0302" [ref=e30]
+          - code
+            - StaticText "a-0302"
+        - cell "image" [ref=e31]
+        - cell "budget-hearing-chamber.jpg" [ref=e32]
+        - cell "3.1 MB" [ref=e33]
+        - cell "3840×2560" [ref=e34]
+        - cell "Staff" [ref=e35]
+        - cell "editorial" [ref=e36]
+        - cell "thumbnail: ready" [ref=e37]
+          - StaticText "thumbnail:ready"
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Rendition"
+            - combobox [expanded=false, ref=e71]: thumbnail
+              - MenuListPopup
+                - option "thumbnail" [selected, ref=e82]
+                - option "social-card" [ref=e83]
+                - option "hero" [ref=e84]
+                - option "web-1080p" [ref=e85]
+            - button "Render" [ref=e75]
+      - row
+        - cell "a-0303" [ref=e38]
+          - code
+            - StaticText "a-0303"
+        - cell "image" [ref=e39]
+        - cell "ferry-terminal-render.png" [ref=e40]
+        - cell "2.4 MB" [ref=e41]
+        - cell "3000×2000" [ref=e42]
+        - cell "Port Authority (handout)" [ref=e43]
+        - cell "editorial" [ref=e44]
+        - cell "hero: ready" [ref=e45]
+          - StaticText "hero:ready"
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Rendition"
+            - combobox [expanded=false, ref=e72]: thumbnail
+              - MenuListPopup
+                - option "thumbnail" [selected, ref=e86]
+                - option "social-card" [ref=e87]
+                - option "hero" [ref=e88]
+                - option "web-1080p" [ref=e89]
+            - button "Render" [ref=e76]
+      - row
+        - cell "a-0304" [ref=e46]
+          - code
+            - StaticText "a-0304"
+        - cell "video" [ref=e47]
+        - cell "terminal-timelapse.mp4" [ref=e48]
+        - cell "82 MB" [ref=e49]
+        - cell "1920×1080" [ref=e50]
+        - cell "City Photo Desk" [ref=e51]
+        - cell "editorial" [ref=e52]
+        - cell "web-1080p: processing" [ref=e53]
+          - StaticText "web-1080p:processing"
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Rendition"
+            - combobox [expanded=false, ref=e73]: thumbnail
+              - MenuListPopup
+                - option "thumbnail" [selected, ref=e90]
+                - option "social-card" [ref=e91]
+                - option "hero" [ref=e92]
+                - option "web-1080p" [ref=e93]
+            - button "Render" [ref=e77]
+  - generic
+    - heading "Upload asset" [level=2, ref=e14]
+    - form
+      - LabelText
+        - StaticText "Kind"
+      - combobox [expanded=false, ref=e15]: Image
+        - MenuListPopup
+          - option "Image" [selected, ref=e64]
+          - option "Video" [ref=e65]
+          - option "Audio" [ref=e66]
+      - StaticText ","
+      - LabelText
+        - StaticText "File name"
+      - textbox [required, ref=e16]: city-hall-presser.jpg
+        - StaticText "city-hall-presser.jpg"
+      - StaticText ","
+      - LabelText
+        - StaticText "Size (MB)"
+      - spinbutton [ref=e17]: 2.5
+        - StaticText "2.5"
+      - StaticText ","
+      - LabelText
+        - StaticText "Width"
+      - spinbutton [ref=e18]: 3840
+        - StaticText "3840"
+      - StaticText ","
+      - LabelText
+        - StaticText "Height"
+      - spinbutton [ref=e19]: 2560
+        - StaticText "2560"
+      - StaticText ","
+      - LabelText
+        - StaticText "Credit"
+      - textbox [ref=e20]: Staff
+        - StaticText "Staff"
+      - StaticText ","
+      - LabelText
+        - StaticText "License"
+      - combobox [expanded=false, ref=e21]: Editorial
+        - MenuListPopup
+          - option "Editorial" [selected, ref=e67]
+          - option "Handout" [ref=e68]
+          - option "Purchased" [ref=e69]
+      - button "Upload" [ref=e54]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

@@ -1,0 +1,32 @@
+=== reset verification: media-breaking-news (after switch completion run) ===
+captured: 2026-09-12T06:53:48Z
+--- story statuses (seed restored: st-0201 published v3, st-0206 absent) ---
+[
+{
+"id": "st-0201",
+"status": "published",
+"version": 3
+},
+{
+"id": "st-0202",
+"status": "in_review",
+"version": 2
+},
+{
+"id": "st-0203",
+"status": "draft",
+"version": 1
+},
+{
+"id": "st-0204",
+"status": "approved",
+"version": 2
+},
+{
+"id": "st-0205",
+"status": "approved",
+"version": 1
+}
+]
+--- world.reset event present ---
+"type": "world.reset"

@@ -1,0 +1,92 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Marco Silva · site_foreman · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Safety incidents" [level=1, ref=e4]
+  - generic
+    - heading "All incidents" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e35]
+          - columnheader "PROJECT" [ref=e36]
+          - columnheader "SEVERITY" [ref=e37]
+          - columnheader "CATEGORY" [ref=e38]
+          - columnheader "STATUS" [ref=e39]
+          - columnheader "DESCRIPTION" [ref=e40]
+          - columnheader "REPORTED BY" [ref=e41]
+          - columnheader "LAST ACTION" [ref=e42]
+      - row
+        - cell "si-2002" [ref=e18]
+          - code
+            - StaticText "si-2002"
+        - cell "p-102" [ref=e19]
+          - code
+            - StaticText "p-102"
+        - cell "moderate" [ref=e20]
+        - cell "utility-strike" [ref=e21]
+        - cell "closed" [ref=e22]
+        - cell "Telecom duct nicked during trenching; service restored same day." [ref=e23]
+        - cell "Marco Silva" [ref=e24]
+        - cell "Closed after utility sign-off." [ref=e25]
+      - row
+        - cell "si-2001" [ref=e26]
+          - code
+            - StaticText "si-2001"
+        - cell "p-101" [ref=e27]
+          - code
+            - StaticText "p-101"
+        - cell "minor" [ref=e28]
+        - cell "near-miss" [ref=e29]
+        - cell "investigating" [ref=e30]
+        - cell "Scaffold clamp dropped from level 8 barricaded zone; no injuries." [ref=e31]
+        - cell "Marco Silva" [ref=e32]
+        - cell "Barricade re-inspected; toolbox talk scheduled." [ref=e33]
+  - generic
+    - heading "Report a safety incident" [level=2, ref=e13]
+    - form
+      - LabelText
+        - StaticText "Project"
+      - combobox [expanded=false, ref=e14]: HVT — Harborview Tower
+        - MenuListPopup
+          - option "HVT — Harborview Tower" [selected, ref=e43]
+          - option "ESI — Eastside Interchange" [ref=e44]
+          - option "RVC — Riverside Clinic" [ref=e45]
+      - StaticText ","
+      - LabelText
+        - StaticText "Severity"
+      - combobox [expanded=false, ref=e15]: Minor
+        - MenuListPopup
+          - option "Minor" [selected, ref=e46]
+          - option "Moderate" [ref=e47]
+          - option "Major" [ref=e48]
+      - StaticText ","
+      - LabelText
+        - StaticText "Category"
+      - combobox [expanded=false, ref=e16]: near-miss
+        - MenuListPopup
+          - option "near-miss" [selected, ref=e49]
+          - option "utility-strike" [ref=e50]
+          - option "fall-protection" [ref=e51]
+          - option "equipment" [ref=e52]
+          - option "environmental" [ref=e53]
+          - option "other" [ref=e54]
+      - StaticText ","
+      - LabelText
+        - StaticText "Description"
+      - textbox [ref=e17]: What happened, where, who was involved.
+        - StaticText "What happened, where, who was involved."
+      - button "Report incident" [ref=e34]
+      - StaticText "Records the incident and notifies the safety officer."
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

@@ -1,0 +1,140 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Hana Kim · staff_writer · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Asset a-0302 attached as hero."
+  - heading "BREAKING: Council votes 8–1 to advance waterfront stadium plan draft" [level=1, ref=e4]
+    - StaticText "BREAKING: Council votes 8–1 to advance waterfront stadium plan draft"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e28]
+        - cell "st-0206" [ref=e29]
+          - code
+            - StaticText "st-0206"
+      - row
+        - cell "Slug" [ref=e30]
+        - cell "breaking-council-votes-8-1-to-advance-waterfront-stadium-pla" [ref=e31]
+          - code
+            - StaticText "breaking-council-votes-8-1-to-advance-waterfront-stadium-pla"
+      - row
+        - cell "Section" [ref=e32]
+        - cell "news" [ref=e33]
+      - row
+        - cell "Author" [ref=e34]
+        - cell "Hana Kim" [ref=e35]
+      - row
+        - cell "Status" [ref=e36]
+        - cell "draft" [ref=e37]
+      - row
+        - cell "Version" [ref=e38]
+        - cell "v1" [ref=e39]
+      - row
+        - cell "Word count" [ref=e40]
+        - cell "43" [ref=e41]
+      - row
+        - cell "Approved by" [ref=e42]
+        - cell "—" [ref=e43]
+      - row
+        - cell "Published at" [ref=e44]
+        - cell "—" [ref=e45]
+      - row
+        - cell "Channels" [ref=e46]
+        - cell "—" [ref=e47]
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The city council voted 8–1 late Thursday to advance the waterfront stadium plan past first reading, following a four-hour public debate. Councilmember Rodriguez cast the lone dissent. A final vote is expected at the October session. Stadium opponents pledged a referendum petition overnight."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e56]
+          - columnheader "KIND" [ref=e57]
+          - columnheader "NAME" [ref=e58]
+          - columnheader "CREDIT" [ref=e59]
+          - columnheader "RENDITIONS" [ref=e60]
+      - row
+        - cell "a-0302 hero" [ref=e48]
+          - code
+            - StaticText "a-0302"
+          - StaticText "hero"
+        - cell "image" [ref=e49]
+        - cell "budget-hearing-chamber.jpg" [ref=e50]
+        - cell "Staff" [ref=e51]
+        - cell "thumbnail: ready" [ref=e52]
+          - StaticText "thumbnail:ready"
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Asset"
+      - combobox [expanded=false, ref=e23]: a-0301 — harbor-bridge-aerial.jpg (image)
+        - MenuListPopup
+          - option "a-0301 — harbor-bridge-aerial.jpg (image)" [selected, ref=e61]
+          - option "a-0302 — budget-hearing-chamber.jpg (image)" [ref=e62]
+          - option "a-0303 — ferry-terminal-render.png (image)" [ref=e63]
+          - option "a-0304 — terminal-timelapse.mp4 (video)" [ref=e64]
+      - StaticText ","
+      - LabelText
+        - StaticText "Role"
+      - combobox [expanded=false, ref=e24]: Hero (required to publish)
+        - MenuListPopup
+          - option "Hero (required to publish)" [selected, ref=e65]
+          - option "Inline" [ref=e66]
+          - option "Video" [ref=e67]
+      - button "Attach asset" [ref=e53]
+      - StaticText "missing_asset: attaching an unknown id fails with 404."
+  - generic
+    - heading "Edit" [level=2, ref=e16]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Title"
+      - textbox [ref=e25]: BREAKING: Council votes 8–1 to advance waterfront stadium plan
+        - StaticText "BREAKING: Council votes 8–1 to advance waterfront stadium plan"
+      - StaticText ","
+      - LabelText
+        - StaticText "Dek"
+      - textbox [ref=e26]: First reading passes after four-hour debate; final vote expected next month.
+        - StaticText "First reading passes after four-hour debate; final vote expected next month."
+      - StaticText ","
+      - LabelText
+        - StaticText "Body (v1)"
+      - textbox [ref=e27]: The city council voted 8–1 late Thursday to advance the waterfront stadium plan past first reading, following a four-hour public debate. Councilmember Rodriguez cast the lone dissent. A final vote is expected at the October session. Stadium opponents pledged a referendum petition overnight.
+        - StaticText "The city council voted 8–1 late Thursday to advance the waterfront stadium plan past first reading, following a four-hour public debate. Councilmember Rodriguez cast the lone dissent. A final vote is expected at the October session. Stadium opponents pledged a referendum petition overnight."
+      - button "Save new version" [ref=e54]
+      - StaticText "Optimistic concurrency: saving a stale version returns data_conflict."
+  - generic
+    - heading "Submit for review" [level=2, ref=e17]
+    - form
+      - button "Submit for review" [ref=e55]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - paragraph
+      - StaticText "No distribution jobs."
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

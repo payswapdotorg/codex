@@ -1,0 +1,201 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Jules Moreau · regional_ops_manager · "
+  - link "sign out" [ref=e3]
+- main
+  - alert
+    - StaticText "Required document \"insurance\" is not on file for application da-0302 — approval blocked. [missing_asset]"
+  - heading "Driver onboarding" [level=1, ref=e4]
+  - generic
+    - heading "Applications" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e76]
+          - columnheader "NAME" [ref=e77]
+          - columnheader "PLATE" [ref=e78]
+          - columnheader "REGION" [ref=e79]
+          - columnheader "DOCUMENTS" [ref=e80]
+          - columnheader "BACKGROUND" [ref=e81]
+          - columnheader "STATUS" [ref=e82]
+          - columnheader "PERMIT" [ref=e83]
+          - columnheader "SCREEN" [ref=e84]
+          - columnheader "ACTIVATE" [ref=e85]
+      - row
+        - cell "da-0301" [ref=e19]
+          - code
+            - StaticText "da-0301"
+        - cell "Marcus Webb" [ref=e20]
+        - cell "WEB-2481" [ref=e21]
+          - code
+            - StaticText "WEB-2481"
+        - cell "Downtown Core" [ref=e22]
+        - cell "license: ok insurance: ok vehicle-inspection: ok" [ref=e23]
+          - StaticText "license:"
+          - StaticText "ok"
+          - StaticText " insurance:"
+          - StaticText "ok"
+          - StaticText " vehicle-inspection:"
+          - StaticText "ok"
+        - cell "passed" [ref=e24]
+        - cell "submitted" [ref=e25]
+        - cell "permit until 2027-09-01" [ref=e26]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Decision"
+            - combobox [expanded=false, ref=e93]: Approve
+              - MenuListPopup
+                - option "Approve" [selected, ref=e101]
+                - option "Reject" [ref=e102]
+            - StaticText ","
+            - LabelText
+              - StaticText "Notes"
+            - textbox [ref=e94]
+            - button "Decide" [ref=e97]
+        - cell "—" [ref=e27]
+      - row
+        - cell "da-0302" [ref=e28]
+          - code
+            - StaticText "da-0302"
+        - cell "Elena Petrova" [ref=e29]
+        - cell "PET-7702" [ref=e30]
+          - code
+            - StaticText "PET-7702"
+        - cell "Airport Corridor" [ref=e31]
+        - cell "license: ok insurance: missing vehicle-inspection: ok" [ref=e32]
+          - StaticText "license:"
+          - StaticText "ok"
+          - StaticText " insurance:"
+          - StaticText "missing"
+          - StaticText " vehicle-inspection:"
+          - StaticText "ok"
+        - cell "pending" [ref=e33]
+        - cell "screening" [ref=e34]
+        - cell "permit until 2027-09-01" [ref=e35]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Decision"
+            - combobox [expanded=false, ref=e95]: Approve
+              - MenuListPopup
+                - option "Approve" [selected, ref=e103]
+                - option "Reject" [ref=e104]
+            - StaticText ","
+            - LabelText
+              - StaticText "Notes"
+            - textbox [ref=e96]
+            - button "Decide" [ref=e98]
+        - cell "—" [ref=e36]
+      - row
+        - cell "da-0303" [ref=e37]
+          - code
+            - StaticText "da-0303"
+        - cell "Tomás Rivera" [ref=e38]
+        - cell "RIV-2210" [ref=e39]
+          - code
+            - StaticText "RIV-2210"
+        - cell "Northside" [ref=e40]
+        - cell "license: ok insurance: ok vehicle-inspection: ok" [ref=e41]
+          - StaticText "license:"
+          - StaticText "ok"
+          - StaticText " insurance:"
+          - StaticText "ok"
+          - StaticText " vehicle-inspection:"
+          - StaticText "ok"
+        - cell "passed" [ref=e42]
+        - cell "approved" [ref=e43]
+        - cell "permit until 2026-08-01" [ref=e44]
+        - cell "—" [ref=e45]
+        - cell
+          - form
+            - button "Activate driver" [ref=e99]
+      - row
+        - cell "da-0304" [ref=e46]
+          - code
+            - StaticText "da-0304"
+        - cell "Priya Raman" [ref=e47]
+        - cell "RAM-0142" [ref=e48]
+          - code
+            - StaticText "RAM-0142"
+        - cell "Downtown Core" [ref=e49]
+        - cell "license: ok insurance: ok vehicle-inspection: ok" [ref=e50]
+          - StaticText "license:"
+          - StaticText "ok"
+          - StaticText " insurance:"
+          - StaticText "ok"
+          - StaticText " vehicle-inspection:"
+          - StaticText "ok"
+        - cell "passed" [ref=e51]
+        - cell "approved" [ref=e52]
+        - cell "permit until 2027-09-12" [ref=e53]
+        - cell "—" [ref=e54]
+        - cell
+          - form
+            - button "Activate driver" [ref=e100]
+  - generic
+    - heading "Active drivers" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DRIVER" [ref=e86]
+          - columnheader "REGION" [ref=e87]
+          - columnheader "STATUS" [ref=e88]
+          - columnheader "RATING" [ref=e89]
+          - columnheader "TRIPS" [ref=e90]
+          - columnheader "EARNINGS" [ref=e91]
+          - columnheader "PERMIT VALID" [ref=e92]
+      - row
+        - cell "dr-0501 Aisha Nasser" [ref=e55]
+          - code
+            - StaticText "dr-0501"
+          - StaticText " Aisha Nasser"
+        - cell "Downtown Core" [ref=e56]
+        - cell "online" [ref=e57]
+        - cell "4.92" [ref=e58]
+        - cell "1284" [ref=e59]
+        - cell "$18240.50" [ref=e60]
+        - cell "2027-03-01" [ref=e61]
+      - row
+        - cell "dr-0502 Ben Okafor" [ref=e62]
+          - code
+            - StaticText "dr-0502"
+          - StaticText " Ben Okafor"
+        - cell "Riverside" [ref=e63]
+        - cell "offline" [ref=e64]
+        - cell "4.71" [ref=e65]
+        - cell "642" [ref=e66]
+        - cell "$9021.00" [ref=e67]
+        - cell "2026-10-15" [ref=e68]
+      - row
+        - cell "dr-0503 Lena Marsh" [ref=e69]
+          - code
+            - StaticText "dr-0503"
+          - StaticText " Lena Marsh"
+        - cell "Downtown Core" [ref=e70]
+        - cell "online" [ref=e71]
+        - cell "4.85" [ref=e72]
+        - cell "901" [ref=e73]
+        - cell "$12887.00" [ref=e74]
+        - cell "2026-07-01" [ref=e75]
+  - paragraph
+    - StaticText "Public application intake: "
+    - link "/intake" [ref=e18]
+    - StaticText " (no sign-in required — like the real apply page)."
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

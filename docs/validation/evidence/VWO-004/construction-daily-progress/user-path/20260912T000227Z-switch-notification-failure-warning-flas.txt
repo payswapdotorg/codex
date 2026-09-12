@@ -1,0 +1,208 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Marco Silva · site_foreman · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Progress report pr-4003 saved for Eastside Interchange (40%)."
+  - alert
+    - StaticText "Saved, but the notification to the project manager could not be delivered (check /notifications and the event feed for notification.failed)."
+  - heading "Eastside Interchange ESI" [level=1, ref=e4]
+    - StaticText "Eastside Interchange ESI"
+  - generic
+    - heading "Overview" [level=2, ref=e12]
+    - table
+      - row
+        - cell "Site" [ref=e28]
+        - cell "Exit 14, Route 9" [ref=e29]
+      - row
+        - cell "Phase" [ref=e30]
+        - cell "earthwork" [ref=e31]
+      - row
+        - cell "Progress" [ref=e32]
+        - cell "40%" [ref=e33]
+          - StaticText "40%"
+      - row
+        - cell "Budget" [ref=e34]
+        - cell "$3,115,000 of $8,900,000" [ref=e35]
+      - row
+        - cell "Manager" [ref=e36]
+        - cell "Dana Reyes" [ref=e37]
+      - row
+        - cell "Contractors" [ref=e38]
+        - cell "ConcreteWorks LLC until 2027-06-30" [ref=e39]
+          - StaticText "ConcreteWorks LLC until 2027-06-30"
+      - row
+        - cell "Due" [ref=e40]
+        - cell "2028-01-20" [ref=e41]
+  - generic
+    - heading "Tasks" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "TASK" [ref=e74]
+          - columnheader "TRADE" [ref=e75]
+          - columnheader "STATUS" [ref=e76]
+          - columnheader "ASSIGNEE" [ref=e77]
+      - row
+        - cell "t-102a Utility relocation — north loop" [ref=e42]
+          - code
+            - StaticText "t-102a"
+          - StaticText " Utility relocation — north loop"
+        - cell "civil" [ref=e43]
+        - cell "in_progress" [ref=e44]
+        - cell "Marco Silva" [ref=e45]
+      - row
+        - cell "t-102b Retaining wall pour 2" [ref=e46]
+          - code
+            - StaticText "t-102b"
+          - StaticText " Retaining wall pour 2"
+        - cell "concrete" [ref=e47]
+        - cell "todo" [ref=e48]
+        - cell "—" [ref=e49]
+  - generic
+    - heading "Photos on file" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e78]
+          - columnheader "NAME" [ref=e79]
+          - columnheader "CAPTION" [ref=e80]
+          - columnheader "SIZE" [ref=e81]
+      - row
+        - cell "a-103" [ref=e50]
+          - code
+            - StaticText "a-103"
+        - cell "eastside-excavation.jpg" [ref=e51]
+        - cell "North loop utility trench" [ref=e52]
+        - cell "2100 kb" [ref=e53]
+  - generic
+    - heading "Submit daily progress report (foreman)" [level=2, ref=e15]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Report date"
+      - Date: 2026-09-12
+        - generic
+          - spinbutton "Month" [ref=e99]: 9
+            - StaticText "09"
+          - StaticText "/"
+          - spinbutton "Day" [ref=e100]: 12
+            - StaticText "12"
+          - StaticText "/"
+          - spinbutton "Year" [ref=e101]: 2026
+            - StaticText "2026"
+        - button "Show date picker" [ref=e54]
+      - StaticText ","
+      - LabelText
+        - StaticText "Tasks completed"
+      - listbox [ref=e21]
+        - option "t-102a — Utility relocation — north loop" [ref=e55]
+        - option "t-102b — Retaining wall pour 2" [ref=e56]
+      - StaticText "Ctrl/Cmd-click to multi-select"
+      - StaticText ","
+      - LabelText
+        - StaticText "Percent complete"
+      - spinbutton [ref=e22]: 40
+        - StaticText "40"
+      - StaticText ","
+      - LabelText
+        - StaticText "Photos attached"
+      - combobox [expanded=false, ref=e23]: 0 selected
+        - MenuListPopup
+          - option "a-103 — eastside-excavation.jpg" [ref=e82]
+      - StaticText "Optional; pick site photos"
+      - StaticText ","
+      - LabelText
+        - StaticText "Notes"
+      - textbox [ref=e24]
+      - button "Submit daily report" [ref=e57]
+      - StaticText "Creates the report, marks tasks done, updates project %, notifies the PM. The API twin POST /api/progress accepts the same fields plus ?failure= switches."
+  - generic
+    - heading "Upload site photo" [level=2, ref=e16]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "File name"
+      - textbox [required, ref=e25]: level13-formwork.jpg
+        - StaticText "level13-formwork.jpg"
+      - StaticText ","
+      - LabelText
+        - StaticText "Caption"
+      - textbox [ref=e26]
+      - StaticText ","
+      - LabelText
+        - StaticText "Size (kb)"
+      - spinbutton [ref=e27]: 1500
+        - StaticText "1500"
+      - button "Upload photo" [ref=e58]
+      - StaticText "Simulated upload — records the asset and emits asset.uploaded."
+  - generic
+    - heading "Progress reports" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "REPORT" [ref=e83]
+          - columnheader "DATE" [ref=e84]
+          - columnheader "BY" [ref=e85]
+          - columnheader "%" [ref=e86]
+          - columnheader "TASKS" [ref=e87]
+          - columnheader "PHOTOS" [ref=e88]
+          - columnheader "NOTES" [ref=e89]
+      - row
+        - cell "pr-4003" [ref=e59]
+          - code
+            - StaticText "pr-4003"
+        - cell "2026-09-12" [ref=e60]
+        - cell "Marco Silva" [ref=e61]
+        - cell "40%" [ref=e62]
+        - cell "—" [ref=e63]
+        - cell "—" [ref=e64]
+        - cell
+  - generic
+    - heading "Procurement" [level=2, ref=e18]
+    - paragraph
+      - StaticText "No purchase requests."
+  - generic
+    - heading "Safety incidents" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e90]
+          - columnheader "SEVERITY" [ref=e91]
+          - columnheader "CATEGORY" [ref=e92]
+          - columnheader "STATUS" [ref=e93]
+          - columnheader "DESCRIPTION" [ref=e94]
+      - row
+        - cell "si-2002" [ref=e65]
+          - code
+            - StaticText "si-2002"
+        - cell "moderate" [ref=e66]
+        - cell "utility-strike" [ref=e67]
+        - cell "closed" [ref=e68]
+        - cell "Telecom duct nicked during trenching; service restored same day." [ref=e69]
+  - generic
+    - heading "Documents" [level=2, ref=e20]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DOCUMENT" [ref=e95]
+          - columnheader "VERSION" [ref=e96]
+          - columnheader "OWNER" [ref=e97]
+          - columnheader "ASSET" [ref=e98]
+      - row
+        - cell "Traffic control plan" [ref=e70]
+        - cell "v2" [ref=e71]
+        - cell "Dana Reyes" [ref=e72]
+        - cell "not attached" [ref=e73]
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."
