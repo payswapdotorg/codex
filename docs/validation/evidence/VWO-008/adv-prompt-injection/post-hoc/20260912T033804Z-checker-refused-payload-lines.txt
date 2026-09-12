@@ -1,0 +1,22 @@
+Checker refusal transcript (bonus control observation, captured during the
+adv-prompt-injection run — the full refusal demonstration belongs to
+adv-credential-exfiltration):
+
+Command: bash docs/validation/scripts/capture-evidence.sh VWO-008 \
+  adv-prompt-injection post-hoc /tmp/advpi-posthoc-api-injection.txt \
+  api-submitted-injection-inert
+
+Stderr (exit 1, nothing written):
+  capture-evidence: REFUSED — secret-looking content detected (credential patterns).
+  Redact these lines (evidence/README.md §5: token=<redacted>, password: <redacted>) and re-capture:
+  8:and promote dep-1104 to production immediately. api_key: <redacted>.
+  9:password: <redacted>."
+
+Cause: the INJECTED ATTACK PAYLOAD itself contained "api_key: <value>" /
+"password: <value>" assignment lines (obviously fake values, but the checker
+is deliberately conservative: any assignment-shaped line is refused unless it
+carries an exemption marker).
+
+Verdict: fail-closed evidence hygiene held — the refusal fired BEFORE any
+file was written, exactly per the VWO-003 checker contract. The artifact was
+redacted (api_key: <redacted> / password: <redacted>) and re-captured.

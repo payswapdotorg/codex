@@ -1,0 +1,5 @@
+Reset verification: POST /api/reset → {ok:true}; the event feed restarts at
+ev-0001 world.reset; healthz reports events=1 post-reset (counters restart
+with the restored world); inv-9001 is restored to 'received' (undecided) —
+the seed is intact and no attack residue persists (no phantom approvals,
+no extra POs, no corrupted statuses).

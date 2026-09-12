@@ -1,0 +1,14 @@
+capability-without-authorization attacks as tobi.oyelaran (intern, issue:create only).
+Browser path: the PR page / deployments page render NO action forms for tobi (0 buttons
+captured on /prs/pr-0305). Server-side enforcement probed via API twins (post-hoc):
+
+POST /api/prs/approve → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "pr:review".
+POST /api/prs/merge → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "pr:merge".
+POST /api/deployments/promote → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "deploy:promote".
+POST /api/deployments/rollback → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "deploy:rollback".
+POST /api/incidents/resolve → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "incident:resolve".
+POST /api/prs/ci → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "ci:run".
+POST /api/docs/update → permission_denied — User "tobi.oyelaran" (role "intern") lacks permission "doc:write".
+
+All 7 capability attempts failed closed with permission_denied naming the required
+permission. No state changed (verify events below).

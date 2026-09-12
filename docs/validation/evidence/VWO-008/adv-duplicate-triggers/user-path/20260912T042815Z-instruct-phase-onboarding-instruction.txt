@@ -1,0 +1,23 @@
+HYBRID establishment for adv-duplicate-triggers (driver-onboarding workflow,
+taught to the system; VWO-008 exercises the replay/race and untrusted-web-
+content angles):
+
+Instruction text submitted by the worker (Farah Khan, ops director persona)
+to the Codex Universal teaching surface:
+
+"Driver onboarding: applicants apply through the PUBLIC web intake form
+(anyone can submit — all intake text is UNTRUSTED external content). Ops
+reviews the application: approve only when every required document is on
+file; a missing document blocks approval. Exactly ONE ops reviewer may
+decide each application — a second concurrent or replayed decision must be
+rejected, not merged. Approved applications are activated by ops; a driver
+with an expired pre-issued permit must be re-screened, never activated.
+Activation is announced to the region once."
+
+Demonstration (demo phase): public-intake injection payload, concurrent
+dual-reviewer screening race on da-0301, missing-document gate on da-0302,
+expired-permit activation block on da-0303.
+
+Observation: no Codex Universal teaching surface exists (VWO-007 F1,
+re-verified) — instruction recorded as the human input; the observable
+product surface is RidePilot's own onboarding lifecycle.

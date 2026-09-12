@@ -1,0 +1,119 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Hana Kim · staff_writer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Waterfront park phase two opens published" [level=1, ref=e4]
+    - StaticText "Waterfront park phase two opens published"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e23]
+        - cell "st-0206" [ref=e24]
+          - code
+            - StaticText "st-0206"
+      - row
+        - cell "Slug" [ref=e25]
+        - cell "waterfront-park-phase-two-opens" [ref=e26]
+          - code
+            - StaticText "waterfront-park-phase-two-opens"
+      - row
+        - cell "Section" [ref=e27]
+        - cell "metro" [ref=e28]
+      - row
+        - cell "Author" [ref=e29]
+        - cell "Hana Kim" [ref=e30]
+      - row
+        - cell "Status" [ref=e31]
+        - cell "published" [ref=e32]
+      - row
+        - cell "Version" [ref=e33]
+        - cell "v3" [ref=e34]
+      - row
+        - cell "Word count" [ref=e35]
+        - cell "48" [ref=e36]
+      - row
+        - cell "Approved by" [ref=e37]
+        - cell "Camille Dubois" [ref=e38]
+      - row
+        - cell "Published at" [ref=e39]
+        - cell "2026-09-12T04:18:59.140Z" [ref=e40]
+      - row
+        - cell "Channels" [ref=e41]
+        - cell "web-front-page" [ref=e42]
+          - code
+            - StaticText "web-front-page"
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "The waterfront park's second phase opened Saturday, adding twelve acres of lawns, tide pools and a ferry landing. WRITER'S LATE EDIT: the ferry landing will open a week late due to welding inspections, officials confirmed Sunday evening. City officials say phase three depends on next year's budget cycle."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e53]
+          - columnheader "KIND" [ref=e54]
+          - columnheader "NAME" [ref=e55]
+          - columnheader "CREDIT" [ref=e56]
+          - columnheader "RENDITIONS" [ref=e57]
+      - row
+        - cell "a-0301 hero" [ref=e43]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e44]
+        - cell "harbor-bridge-aerial.jpg" [ref=e45]
+        - cell "City Photo Desk" [ref=e46]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e47]
+          - StaticText "thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+          - StaticText " hero:"
+          - StaticText "ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - table
+      - rowgroup
+        - row
+          - columnheader "JOB" [ref=e58]
+          - columnheader "CHANNEL" [ref=e59]
+          - columnheader "STATUS" [ref=e60]
+          - columnheader "AT" [ref=e61]
+          - columnheader "ERROR" [ref=e62]
+      - row
+        - cell "dj-0604" [ref=e48]
+          - code
+            - StaticText "dj-0604"
+        - cell "web-front-page" [ref=e49]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e50]
+        - cell "2026-09-12T04:18:59.140Z" [ref=e51]
+        - cell "—" [ref=e52]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

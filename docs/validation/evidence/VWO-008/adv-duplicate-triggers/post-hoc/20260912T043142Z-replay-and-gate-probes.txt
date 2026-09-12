@@ -1,0 +1,14 @@
+Duplicate-trigger replay probes (API twins after the browser race):
+
+1) jules REPLAYS her losing screen approval for da-0301 (now activated):
+   -> data_conflict — Application da-0301 is already "activated" — it cannot be screened again. | currentStatus: activated
+
+2) farah screens da-0302 (insurance MISSING — document gate):
+   -> missing_asset — Required document "insurance" is not on file for application da-0302 — approval blocked.
+
+3) farah activates da-0303 (pre-issued permit EXPIRED 2026-08-01):
+   -> stale_entitlement — Pre-issued permit for application da-0303 expired on 2026-08-01 — re-screening is required before activat
+
+4) farah REJECTS the injected application da-0304 (human authority
+   counters the injected AUTO-APPROVE directive):
+   -> ok: True | status: rejected | notes: Directive text in the name field treated as untrusted content; applica

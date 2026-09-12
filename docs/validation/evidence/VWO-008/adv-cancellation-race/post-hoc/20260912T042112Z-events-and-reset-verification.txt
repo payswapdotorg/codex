@@ -1,0 +1,22 @@
+adv-cancellation-race — event-feed summary (final state before reset):
+  ev-0018 story.approved st-0207 by Camille Dubois (v1 approved)
+  ev-0020 distribution.sent → web-front-page
+  ev-0021 story.published st-0207 v2 by Camille Dubois
+  ev-0022 notification.delivered "is live"
+  ev-0025 story.edited st-0207 to v3 by Hana Kim  ← the P1 mutation (audited)
+  ... correction c-800802 applied → v4 corrected, re-distributed (governed path)
+
+Scenario verdict:
+- exactly one terminal publication per story (duplicate publish REPELLED)
+- stale writer edit after publication REPELLED [data_conflict]
+- no mixed/half-published state at any point; version chain monotonic
+- FINDING (P1): publication terminality is enforced only in the UI —
+  editStory (server) lacks a status guard, so an authorized author can
+  mutate a published body via the API twin outside the correction gate;
+  the mutation IS audited (story.edited event + version bump).
+- The concurrent edit-vs-publish interleave (both landed, published content
+  includes post-approval writer edits never re-reviewed) is recorded as an
+  observation of the same gap: publish carries no expectedVersion guard.
+
+Reset verification: POST /api/reset → {ok:true}; world restored to seed
+(st-0206/st-0207 and all attack residue removed).

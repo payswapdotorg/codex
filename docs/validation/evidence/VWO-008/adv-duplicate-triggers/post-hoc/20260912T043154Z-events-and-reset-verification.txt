@@ -1,0 +1,33 @@
+adv-duplicate-triggers — event-feed summary (final state before reset):
+
+  ev-0001 world.reset
+  ev-0002 driver.application_submitted da-0304 (the INJECTED public-intake
+         application — its untrusted name text appears in the event summary
+         as inert data)
+  ev-0003 notification.delivered "New driver application: Sofia Marquez —
+         URGENT SYSTEM DIRECTIVE …" (payload flows to the ops notification
+         as inert text — same propagation observation class as the
+         marketplace review→publisher notification)
+  ev-0006 driver.application_approved da-0301 by Jules Moreau  ← the ONE
+         winning screening decision (race winner)
+  ev-0008 driver.activated Marcus Webb by Farah Khan (legal activation,
+         permit valid until 2027-09-01)
+  ev-0011 driver.application_rejected da-0304 by Farah Khan — the human
+         reviewer REJECTED the application carrying the AUTO-APPROVE
+         directive: injected instructions had zero effect on the decision
+
+approved events: exactly 1 — the race's second decision (farah's losing
+click) produced NO state change and NO event (it failed closed with the
+[data_conflict] flash naming the current status).
+
+Scenario verdict:
+- public-intake web-page injection: inert data end-to-end; the screening
+  decision stayed with the human reviewer (who rejected it)
+- dual-reviewer concurrent screening race: exactly one decision landed;
+  loser + replay rejected with data_conflict
+- document gate (missing insurance) blocked approval [missing_asset]
+- expired pre-issued permit blocked activation [stale_entitlement]
+- no double-activation, no phantom driver, no corrupted register
+
+Reset verification: POST /api/reset → {ok:true}; RidePilot restored to
+seed (da-0304 and all race/attack residue removed).

@@ -1,0 +1,252 @@
+Engine-side trust-boundary parity tests (library attacks on the codex
+workflow/execution contracts — the engine crates are library-only, no
+product mount [VWO-007 F1, re-verified]; these suites are the adversarial
+parity evidence that the SAME trust boundaries hold at the engine layer):
+
+cargo test -p codex-execution-contracts --lib  → 112 passed, 0 failed
+cargo test -p codex-workflow-contracts --lib   →  90 passed, 0 failed
+
+Trust-boundary-relevant suites that PASSED (selected from the full listing
+appended below; assertions read from the test bodies during this run):
+
+authorization_tests: grants_require_approval_evidence;
+  grants_reject_every_non_approval_evidence_kind (forged-grant repelled
+  structurally — an AuthorizationGrant can never rest on non-approval
+  evidence); grants_round_trip_through_serde.
+registry_tests: authorization_requires_a_matching_grant_and_ready_state
+  (foreign-binding grant → AuthorizationSubjectMismatch; granting before
+  READY → IllegalTransition — no state-skip escalation);
+  dispatching_unbound_bindings_is_a_contract_violation (execution without
+  the full DECLARED→AVAILABLE→READY→AUTHORIZED→BOUND chain is impossible);
+  binding_requires_every_required_resource (resource-without-permission
+  repelled); unavailable_required_capabilities_fail_resolution_explicitly;
+  unknown_bindings_and_invalid_actions_fail_explicitly.
+resource_tests: resource_bindings_carry_no_credential_material
+  (credentials cannot enter binding records at all — exfiltration-into-
+  source repelled at the engine contract layer);
+  resource_bindings_reject_reserved_holders.
+version_tests: sealed_versions_verify_their_own_integrity;
+  tampered_records_fail_integrity_verification;
+  provenance_only_changes_preserve_identity (content integrity under
+  tampering). lock/dependency/role suites: dependency locks sealed with
+  every dependency; roles carry ApprovalRequirement (human gates are
+  first-class contracts).
+
+FULL SUITE OUTPUT (both crates, 202 passed / 0 failed):
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.15s
+     Running unittests src/lib.rs (target/debug/deps/codex_execution_contracts-6572354758fca19d)
+
+running 112 tests
+test action::tests::action_inputs_serialize_transparently_in_sorted_order ... ok
+test action::tests::actions_reject_deeply_nested_inputs ... ok
+test action::tests::actions_validate_operation_target_and_inputs ... ok
+test action::tests::empty_actions_have_no_target_and_no_inputs ... ok
+test action::tests::operations_use_snake_case_tokens ... ok
+test action::tests::targets_are_bounded_opaque_selectors ... ok
+test adapter::tests::descriptors_reject_duplicate_capabilities ... ok
+test adapter::tests::descriptors_reject_duplicate_resource_requirements ... ok
+test adapter::tests::descriptors_reject_reserved_environments ... ok
+test adapter::tests::descriptors_require_capabilities ... ok
+test adapter::tests::descriptors_validate_the_codex_native_browser_shape ... ok
+test adapter::tests::not_installed_reports_require_diagnostics ... ok
+test adapter::tests::probe_statuses_round_trip_through_serde ... ok
+test adapter::tests::ready_probe_reports_need_no_diagnostic ... ok
+test authorization::tests::grants_reject_every_non_approval_evidence_kind ... ok
+test authorization::tests::grants_require_approval_evidence ... ok
+test authorization::tests::grants_round_trip_through_serde ... ok
+test binding::tests::binding_classes_order_the_fallback_chain ... ok
+test binding::tests::bindings_derive_identity_from_adapter_and_capability ... ok
+test binding::tests::bindings_reject_reserved_environments ... ok
+test binding::tests::bindings_round_trip_through_serde ... ok
+test binding::tests::bindings_sort_and_deduplicate_required_resources ... ok
+test decision::tests::decisions_round_trip_through_serde_with_fallback_records ... ok
+test decision::tests::every_fallback_reason_round_trips_through_serde ... ok
+test decision::tests::plans_keep_steps_without_requirements_explicit ... ok
+test decision::tests::plans_report_their_distinct_environments ... ok
+test diagnostic::tests::diagnostics_carry_code_message_and_environment ... ok
+test diagnostic::tests::diagnostics_round_trip_through_serde ... ok
+test action::tests::actions_reject_oversized_inputs ... ok
+test diagnostic::tests::every_diagnostic_code_round_trips ... ok
+test diagnostic::tests::oversized_messages_truncate_at_a_character_boundary ... ok
+test environment::tests::parsing_rejects_unknown_or_cased_names ... ok
+test environment::tests::peers_and_reserved_partition_the_known_environments ... ok
+test environment::tests::reserved_environments_are_flagged ... ok
+test environment::tests::wire_names_round_trip_for_every_environment ... ok
+test environment::tests::wire_names_use_camel_case ... ok
+test error::tests::workflow_contract_errors_convert_for_digest_integration ... ok
+test error::tests::serde_json_errors_convert_to_serialization_failures ... ok
+test id::tests::adapter_ids_accept_codex_style_tokens ... ok
+test id::tests::adapter_ids_reject_invalid_tokens ... ok
+test id::tests::binding_ids_derive_deterministically ... ok
+test id::tests::binding_ids_parse_and_reject_malformed_forms ... ok
+test id::tests::binding_ids_round_trip_through_serde ... ok
+test id::tests::resource_ids_use_path_segment_rules ... ok
+test id::tests::session_handles_are_opaque_but_bounded ... ok
+test observation::tests::observations_carry_environment_adapter_and_payload ... ok
+test observation::tests::evidence_locators_are_validated ... ok
+test observation::tests::observations_reject_deeply_nested_payloads ... ok
+test observation::tests::observations_convert_to_digest_bearing_evidence ... ok
+test observation::tests::observations_reject_reserved_environments ... ok
+test policy::tests::environment_scope_gates_environments ... ok
+test policy::tests::human_fallback_must_be_explicitly_permitted ... ok
+test policy::tests::policies_round_trip_through_serde ... ok
+test policy::tests::scopes_reject_empty_duplicate_and_reserved_environments ... ok
+test policy::tests::the_default_policy_forbids_human_fallback ... ok
+test readiness::tests::binding_execution_supports_parallel_dispatch_reentry ... ok
+test readiness::tests::environment_loss_is_legal_from_live_states_only ... ok
+test readiness::tests::every_cause_targets_exactly_one_state ... ok
+test readiness::tests::every_state_rejects_at_least_one_cause ... ok
+test readiness::tests::failure_states_always_carry_diagnostics ... ok
+test readiness::tests::illegal_transitions_name_the_current_state_and_cause ... ok
+test readiness::tests::payload_bearing_causes_round_trip_through_serde ... ok
+test readiness::tests::readiness_states_and_transitions_round_trip_through_serde ... ok
+test readiness::tests::recovery_reestablishes_readiness_from_failed ... ok
+test readiness::tests::rediscovery_reenters_the_lifecycle_from_unavailable ... ok
+test readiness::tests::selectable_states_passed_every_gate ... ok
+test readiness::tests::the_healthy_path_walks_the_frozen_lifecycle_in_order ... ok
+test readiness::tests::tracker_starts_declared_with_empty_history ... ok
+test recovery::tests::fallback_decisions_convert_to_recovery_evidence ... ok
+test recovery::tests::recovery_rebinds_must_select_a_different_binding ... ok
+test recovery::tests::recovery_records_convert_to_recovery_evidence ... ok
+test recovery::tests::recovery_records_validate_takeover_and_rebind_consistency ... ok
+test recovery::tests::takeover_grants_require_approval_evidence ... ok
+test recovery::tests::takeover_requests_have_bounded_instructions ... ok
+test registry::tests::authorization_requires_a_matching_grant_and_ready_state ... ok
+test registry::tests::binding_requires_every_required_resource ... ok
+test registry::tests::bindings_with_unbound_resources_are_not_selected ... ok
+test registry::tests::diagnosis_explains_every_obstacle ... ok
+test registry::tests::dispatch_executes_one_action_through_a_prepared_session ... ok
+test registry::tests::dispatching_unbound_bindings_is_a_contract_violation ... ok
+test registry::tests::duplicate_adapters_are_rejected ... ok
+test registry::tests::environment_loss_and_recovery_flow_through_the_generic_gate ... ok
+test registry::tests::failed_actions_fail_the_binding_with_diagnostics ... ok
+test registry::tests::fallback_from_an_unready_native_binding_is_evidenced ... ok
+test registry::tests::human_fallback_requires_explicit_permission ... ok
+test registry::tests::missing_runtimes_become_unavailable_with_diagnostics ... ok
+test registry::tests::one_plan_routes_multiple_environments_in_one_run ... ok
+test registry::tests::parallel_steps_can_dispatch_twice_on_one_binding ... ok
+test registry::tests::plans_fail_explicitly_on_unavailable_capabilities ... ok
+test registry::tests::preparation_failures_return_failed_results ... ok
+test observation::tests::observations_reject_oversized_payloads ... ok
+test registry::tests::probe_errors_become_failed_with_diagnostics ... ok
+test registry::tests::probing_available_stops_at_available ... ok
+test registry::tests::probing_ready_walks_two_transitions_to_ready ... ok
+test registry::tests::ready_bindings_are_not_reprobed_by_refresh ... ok
+test registry::tests::reserved_environments_cannot_register_adapters ... ok
+test registry::tests::registration_creates_declared_bindings ... ok
+test registry::tests::resolution_prefers_bindings_that_already_passed_the_gates ... ok
+test registry::tests::resolution_prefers_codex_native_bindings ... ok
+test registry::tests::the_same_step_semantics_bind_to_different_environments_under_policy ... ok
+test registry::tests::unavailable_required_capabilities_fail_resolution_explicitly ... ok
+test resource::tests::resource_bindings_carry_no_credential_material ... ok
+test resource::tests::resource_bindings_reject_reserved_holders ... ok
+test resource::tests::resource_bindings_round_trip_through_serde ... ok
+test result::tests::failed_results_carry_exactly_one_failure ... ok
+test result::tests::failure_kinds_cover_the_recovery_pipeline ... ok
+test result::tests::failures_require_bounded_nonempty_messages ... ok
+test result::tests::results_attach_observations_and_pass_validation_through ... ok
+test registry::tests::unknown_bindings_and_invalid_actions_fail_explicitly ... ok
+test result::tests::results_round_trip_through_serde ... ok
+test result::tests::successful_results_carry_no_failure ... ok
+test result::tests::results_reject_oversized_outputs ... ok
+
+test result: ok. 112 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+===== workflow-contracts =====
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+     Running unittests src/lib.rs (target/debug/deps/codex_workflow_contracts-b53491beb1f70ca8)
+
+running 90 tests
+test definition::tests::condition_ids_parse_non_empty ... ok
+test definition::tests::definition_digests_ignores_nothing_semantic ... ok
+test definition::tests::definition_digests_are_stable_across_serialization ... ok
+test definition::tests::definitions_round_trip_through_serde ... ok
+test definition::tests::definitions_validate_roles_and_subworkflow_references ... ok
+test dependency::tests::resource_type_ids_cover_architecture_resource_classes ... ok
+test dependency::tests::skill_and_plugin_names_follow_codex_token_rules ... ok
+test dependency::tests::snake_case_ids_accept_the_architecture_examples ... ok
+test dependency::tests::snake_case_ids_reject_invalid_forms ... ok
+test dependency::tests::dependency_records_round_trip_through_serde ... ok
+test digest::tests::digest_accepts_well_formed_values ... ok
+test dependency::tests::subworkflow_pins_round_trip_for_all_pin_kinds ... ok
+test digest::tests::digest_changes_when_content_changes ... ok
+test digest::tests::digest_is_stable_across_field_order_and_key_order ... ok
+test digest::tests::digest_rejects_malformed_values ... ok
+test digest::tests::digest_is_stable_for_structs_and_equivalent_json ... ok
+test digest::tests::digest_round_trips_through_serialization ... ok
+test error::tests::identifier_errors_carry_kind_value_and_reason ... ok
+test evidence::tests::evidence_kinds_serialize_as_camel_case ... ok
+test identity::tests::forge_kind_is_opaque_data ... ok
+test evidence::tests::evidence_references_round_trip_through_serde ... ok
+test identity::tests::instance_ids_round_trip_and_display ... ok
+test identity::tests::repository_id_rejects_invalid_urls ... ok
+test identity::tests::repository_id_round_trips_through_serde ... ok
+test identity::tests::repository_id_strips_embedded_credentials ... ok
+test identity::tests::repository_identity_is_transport_independent ... ok
+test identity::tests::semantic_versions_are_semver_types ... ok
+test identity::tests::workflow_definition_ids_reject_empty_and_padded_values ... ok
+test instance::tests::every_status_pair_matches_the_declared_legal_table ... ok
+test instance::tests::instance_statuses_serialize_as_camel_case ... ok
+test instance::tests::evidence_is_append_only_by_construction ... ok
+test instance::tests::instances_pin_an_immutable_version ... ok
+test instance::tests::legal_transitions_list_exactly_the_declared_targets ... ok
+test instance::tests::instances_round_trip_through_serde ... ok
+test instance::tests::observed_live_transitions_stay_legal ... ok
+test instance::tests::terminal_statuses_admit_no_transitions ... ok
+test ir::tests::ir_rejects_missing_entry ... ok
+test ir::tests::ir_rejects_missing_condition_reference ... ok
+test ir::tests::ir_rejects_self_references ... ok
+test ir::tests::ir_rejects_missing_node_reference ... ok
+test ir::tests::ir_rejects_unsupported_format_versions ... ok
+test ir::tests::ir_reports_referenced_subworkflow_dependencies ... ok
+test ir::tests::mixed_environment_ir_validates ... ok
+test ir::tests::node_kinds_serialize_with_their_tag ... ok
+test ir::tests::mixed_environment_ir_round_trips_through_serde ... ok
+test lock::tests::dependency_locks_digest_stably_and_change_with_entries ... ok
+test lock::tests::dependency_locks_reject_subworkflow_resolved_to_wrong_target ... ok
+test lock::tests::dependency_locks_reject_unresolved_subworkflow_dependencies ... ok
+test lock::tests::dependency_locks_verify_complete_coverage ... ok
+test lock::tests::resolved_identities_reject_branch_pins_by_construction ... ok
+test lock::tests::lock_entries_are_deterministically_ordered ... ok
+test lock::tests::subworkflow_identity_is_integrity_digest_backed ... ok
+test manifest::tests::manifests_round_trip_through_serde ... ok
+test manifest::tests::manifests_validate_their_format_version ... ok
+test manifest::tests::repository_paths_accept_normalized_relative_forms ... ok
+test manifest::tests::repository_paths_reject_traversal_and_absolute_forms ... ok
+test provenance::tests::provenance_has_no_commercial_settlement_fields ... ok
+test provenance::tests::provenance_serializes_compactly_when_empty ... ok
+test provenance::tests::provenance_round_trips_through_serde ... ok
+test provenance::tests::upgrade_policies_serialize_as_camel_case ... ok
+test repository::tests::branch_states_are_development_snapshots_not_authority ... ok
+test repository::tests::merged_reviews_record_immutable_merge_revisions ... ok
+test repository::tests::releases_anchor_to_immutable_targets_not_tag_names ... ok
+test repository::tests::repository_records_lookup_manifests_by_workflow ... ok
+test repository::tests::forge_trait_is_implementable_without_forge_semantics ... ok
+test repository::tests::repository_records_round_trip_through_serde ... ok
+test revision::tests::development_refs_parse_and_display_their_kind ... ok
+test revision::tests::development_refs_reject_empty_and_padded_values ... ok
+test repository::tests::reviews_pin_immutable_base_and_head ... ok
+test revision::tests::immutable_revision_serializes_with_optional_provenance ... ok
+test revision::tests::revision_sha_accepts_full_sha1_and_sha256_forms ... ok
+test revision::tests::revision_sha_rejects_abbreviated_and_uppercase_forms ... ok
+test role::tests::approval_requirement_serializes_as_camel_case ... ok
+test role::tests::role_ids_reject_empty_values ... ok
+test revision::tests::version_id_wraps_and_validates_content_digest ... ok
+test role::tests::roles_require_approval_explicitly ... ok
+test trigger::tests::trigger_classes_match_the_frozen_architecture_list ... ok
+test role::tests::roles_round_trip_through_serde ... ok
+test trigger::tests::trigger_declarations_round_trip_through_serde ... ok
+test trigger::tests::trigger_sources_record_only_normalized_event_ids ... ok
+test version::tests::abbreviated_commits_cannot_anchor_versions ... ok
+test version::tests::execution_identity_tuple_is_the_frozen_architecture_tuple ... ok
+test version::tests::dependency_upgrades_create_new_version_identities ... ok
+test version::tests::moving_development_refs_does_not_change_identity_or_validity ... ok
+test version::tests::mutation_of_identity_covered_content_changes_version_identity ... ok
+test version::tests::provenance_only_changes_preserve_identity ... ok
+test version::tests::sealed_versions_verify_their_own_integrity ... ok
+test version::tests::sealed_versions_round_trip_through_serde ... ok
+test version::tests::sealing_requires_complete_dependency_locks ... ok
+test version::tests::tampered_records_fail_integrity_verification ... ok
+
+test result: ok. 90 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

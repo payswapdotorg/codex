@@ -1,0 +1,20 @@
+resource-without-permission + stale-decision-on-changed-record attacks (SiteBuild).
+Browser path first: priya (finance) sees NO decide form on purchase requests
+(only /logout + /ui/invoices/approve forms render for her — UI withholds po:approve
+surface). Probes below are API twins (post-hoc diagnostics).
+
+1) lena.hart (read-only contractor) attempts to decide prq-5001:
+   → permission_denied — User "lena.hart" (role "contractor_lead") lacks permission "po:approve". | required: po:approve
+
+2) lena.hart attempts invoice approval (inv-9001 already approved — record gate first?):
+   → permission_denied — User "lena.hart" (role "contractor_lead") lacks permission "invoice:approve". | required: invoice:approve
+
+3) UNAUTHENTICATED attempt to decide prq-5001 (no token/cookie):
+   → authentication_required — Sign in to perform this operation.
+
+4) dana REPLAYS her stale decide on prq-5002 (record changed to po_issued at seed):
+   → data_conflict — Purchase request prq-5002 is already in status "po_issued" — it cannot be decided again. | currentStatus: po_issued
+
+5) dana attempts to approve prq-5001 (expired contract) with the race switched on
+   (deterministic data_conflict forced second race):
+   → data_conflict — Purchase request prq-5001 was already decisioned by another approver while you were reviewing it (si | simulated: True

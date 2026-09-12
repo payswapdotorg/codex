@@ -1,0 +1,113 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Priya Nair · finance_accountant · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Procurement & finance" [level=1, ref=e4]
+  - generic
+    - heading "Purchase requests" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PR" [ref=e52]
+          - columnheader "ITEM" [ref=e53]
+          - columnheader "QTY" [ref=e54]
+          - columnheader "TOTAL" [ref=e55]
+          - columnheader "VENDOR" [ref=e56]
+          - columnheader "CONTRACT" [ref=e57]
+          - columnheader "PROJECT" [ref=e58]
+          - columnheader "STATUS" [ref=e59]
+          - columnheader "HISTORY" [ref=e60]
+      - row
+        - cell "prq-5001" [ref=e15]
+          - code
+            - StaticText "prq-5001"
+        - cell "High-tensile rebar Grade 60" [ref=e16]
+        - cell "1200 tonne" [ref=e17]
+        - cell "$1,104,000" [ref=e18]
+        - cell "SteelCo Fabrication" [ref=e19]
+        - cell "until 2026-08-01" [ref=e20]
+        - cell "p-101" [ref=e21]
+          - code
+            - StaticText "p-101"
+        - cell "submitted" [ref=e22]
+        - cell "—" [ref=e23]
+      - row
+        - cell "prq-5002" [ref=e24]
+          - code
+            - StaticText "prq-5002"
+        - cell "Low-e glazing panels" [ref=e25]
+        - cell "300 panel" [ref=e26]
+        - cell "$144,000" [ref=e27]
+        - cell "GlassWorks NW" [ref=e28]
+        - cell "until 2027-01-15" [ref=e29]
+        - cell "p-103" [ref=e30]
+          - code
+            - StaticText "p-103"
+        - cell "po_issued" [ref=e31]
+        - cell "approve by Dana Reyes" [ref=e32]
+  - generic
+    - heading "Purchase orders" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PO" [ref=e61]
+          - columnheader "VENDOR" [ref=e62]
+          - columnheader "TOTAL" [ref=e63]
+          - columnheader "STATUS" [ref=e64]
+          - columnheader "ISSUED BY" [ref=e65]
+      - row
+        - cell "po-2041" [ref=e33]
+          - code
+            - StaticText "po-2041"
+        - cell "GlassWorks NW" [ref=e34]
+        - cell "$144,000" [ref=e35]
+        - cell "issued" [ref=e36]
+        - cell "Dana Reyes" [ref=e37]
+  - generic
+    - heading "Invoices — approve as finance" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "INVOICE" [ref=e66]
+          - columnheader "VENDOR" [ref=e67]
+          - columnheader "PO" [ref=e68]
+          - columnheader "AMOUNT" [ref=e69]
+          - columnheader "DUE" [ref=e70]
+          - columnheader "STATUS" [ref=e71]
+          - columnheader "ACTION" [ref=e72]
+      - row
+        - cell "inv-9001" [ref=e38]
+          - code
+            - StaticText "inv-9001"
+        - cell "ConcreteWorks LLC" [ref=e39]
+        - cell "po-2038" [ref=e40]
+          - code
+            - StaticText "po-2038"
+        - cell "$182,400" [ref=e41]
+        - cell "2026-10-01" [ref=e42]
+        - cell "approved" [ref=e43]
+        - cell "Dana Reyes" [ref=e44]
+      - row
+        - cell "inv-9002" [ref=e45]
+          - code
+            - StaticText "inv-9002"
+        - cell "GlassWorks NW" [ref=e46]
+        - cell "po-2041" [ref=e47]
+          - code
+            - StaticText "po-2041"
+        - cell "$96,000" [ref=e48]
+        - cell "—" [ref=e49]
+        - cell "approved" [ref=e50]
+        - cell "Priya Nair" [ref=e51]
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

@@ -1,0 +1,121 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Dan Kowalski · marketplace_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Entitlement ent-0501 revoked."
+  - heading "Entitlements & licenses" [level=1, ref=e4]
+  - generic
+    - heading "All entitlements" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e44]
+          - columnheader "ORG" [ref=e45]
+          - columnheader "PACKAGE" [ref=e46]
+          - columnheader "TYPE" [ref=e47]
+          - columnheader "SEATS" [ref=e48]
+          - columnheader "STATUS" [ref=e49]
+          - columnheader "VALID UNTIL" [ref=e50]
+          - columnheader "ACTION" [ref=e51]
+      - row
+        - cell "ent-0501" [ref=e19]
+          - code
+            - StaticText "ent-0501"
+        - cell "Acme Retail" [ref=e20]
+        - cell "Support Ticket Triage Assistant" [ref=e21]
+          - link "Support Ticket Triage Assistant" [ref=e52]
+        - cell "subscription" [ref=e22]
+        - cell "—" [ref=e23]
+        - cell "revoked" [ref=e24]
+        - cell "2027-05-01" [ref=e25]
+        - cell "—" [ref=e26]
+      - row
+        - cell "ent-0502" [ref=e27]
+          - code
+            - StaticText "ent-0502"
+        - cell "Northwind Logistics" [ref=e28]
+        - cell "Invoice Autofill for ERPs" [ref=e29]
+          - link "Invoice Autofill for ERPs" [ref=e53]
+        - cell "trial" [ref=e30]
+        - cell "—" [ref=e31]
+        - cell "expired" [ref=e32]
+        - cell "2026-08-01" [ref=e33]
+        - cell "—" [ref=e34]
+      - row
+        - cell "ent-0503" [ref=e35]
+          - code
+            - StaticText "ent-0503"
+        - cell "Northwind Logistics" [ref=e36]
+        - cell "Warehouse Slot Optimizer" [ref=e37]
+          - link "Warehouse Slot Optimizer" [ref=e54]
+        - cell "per-seat" [ref=e38]
+        - cell "25" [ref=e39]
+        - cell "active" [ref=e40]
+        - cell "2027-01-01" [ref=e41]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Reason"
+            - textbox [ref=e63]: Commercial decision.
+              - StaticText "Commercial decision."
+            - button "Revoke" [ref=e67]
+  - generic
+    - heading "Grant an entitlement (admin)" [level=2, ref=e14]
+    - form
+      - LabelText
+        - StaticText "Organization"
+      - combobox [expanded=false, ref=e15]: Northwind Logistics
+        - MenuListPopup
+          - option "Northwind Logistics" [selected, ref=e55]
+          - option "Acme Retail" [ref=e56]
+      - StaticText ","
+      - LabelText
+        - StaticText "Package"
+      - combobox [expanded=false, ref=e16]: Invoice Autofill for ERPs (invoice-autofill)
+        - MenuListPopup
+          - option "Invoice Autofill for ERPs (invoice-autofill)" [selected, ref=e57]
+          - option "Support Ticket Triage Assistant (support-triage-assistant)" [ref=e58]
+          - option "Warehouse Slot Optimizer (warehouse-slot-optimizer)" [ref=e59]
+      - StaticText ","
+      - LabelText
+        - StaticText "Type"
+      - combobox [expanded=false, ref=e17]: Subscription
+        - MenuListPopup
+          - option "Subscription" [selected, ref=e60]
+          - option "Per-seat" [ref=e61]
+          - option "Trial" [ref=e62]
+      - StaticText ","
+      - LabelText
+        - StaticText "Seats (per-seat only)"
+      - spinbutton [ref=e18]: 10
+        - StaticText "10"
+      - StaticText ","
+      - LabelText
+        - StaticText "Valid until"
+      - Date: 2027-09-12
+        - generic
+          - spinbutton "Month" [ref=e64]: 9
+            - StaticText "09"
+          - StaticText "/"
+          - spinbutton "Day" [ref=e65]: 12
+            - StaticText "12"
+          - StaticText "/"
+          - spinbutton "Year" [ref=e66]: 2027
+            - StaticText "2027"
+        - button "Show date picker" [ref=e42]
+      - button "Grant" [ref=e43]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

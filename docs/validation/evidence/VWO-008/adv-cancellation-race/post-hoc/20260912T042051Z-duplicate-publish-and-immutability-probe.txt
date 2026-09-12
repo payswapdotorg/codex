@@ -1,0 +1,27 @@
+Duplicate-publish attack (API twin, after the UI was observed to withhold the
+publish form on a published story — only /ui/stories/correct renders):
+  -> duplicate_event — Story st-0207 is already published — use a correction instead.
+
+Published-content immutability probe — AUTHOR attempts a direct edit on the
+PUBLISHED story st-0207 via the API twin (UI hides the edit form for
+published stories; the browser path is closed):
+  -> ok: True | story v 3 status published | body mutated: True
+
+Event-feed check after the mutation: the story.edited event WAS recorded
+(audit trail intact) — the mutation is auditable, but the trust boundary
+(publication terminality: changes to published content only via the editor
+correction gate) was crossed by an authorized author through the API twin
+without any editor approval. FINDING (see report): P1 — server-side
+editStory lacks a status guard; the UI path is correctly closed.
+
+Verdict for the scenario's canonical steps:
+- duplicate second publish → REPELLED [duplicate_event] (fail-closed, oracle met)
+- stale writer edit after publication → REPELLED [data_conflict] (oracle met)
+- concurrent edit-vs-publish race → BOTH landed in sequence (edit v1→v2,
+  then publish v2→v3): no mixed state, version chain clean — but the
+  published content includes writer changes made AFTER editor approval and
+  never re-reviewed (editor-side expectedVersion/refresh gap; recorded as
+  an observation within the P1 finding — the publish op carries no
+  optimistic-concurrency guard against edits that land between approval
+  and publication).
+- author mutation of published body via API → EXECUTED (P1 finding).

@@ -1,0 +1,19 @@
+HYBRID reconciliation verdict (instruction vs demonstration):
+- Instruction-level rules that HELD after the demonstrations: entitlements
+  checked at install (iris/pk-101 → expired-trial block naming ent-0502);
+  upgrades require an ACTIVE entitlement (petra blocked mid-upgrade after
+  dan's revocation, pin unchanged at 2.3.1, no partial state); org member
+  may read but not install (ravi → permission_denied install:manage);
+  another org's installs invisible in the UI (iris sees zero rows).
+- Instruction-level rule VIOLATED by the attack (finding F4): "Another
+  organization's installs ... must stay untouchable from my account" —
+  iris.chen reconfigured/upgraded/rolled back ACME's ins-0401 through the
+  API twins (no actor-org check server-side).
+- No silent override: every commercial-gate failure was explicit, audited,
+  and left package digests immutable (pk-101 v1.0.0/v1.1.0 digests
+  unchanged after the metadata attack; pk-102 pin/digests verified during
+  the revocation race).
+
+Reset verification: POST /api/reset → {ok:true}; marketplace restored to
+seed (review rv-0202, cross-tenant install history, revocation and version
+2.4.0 all removed with the world).

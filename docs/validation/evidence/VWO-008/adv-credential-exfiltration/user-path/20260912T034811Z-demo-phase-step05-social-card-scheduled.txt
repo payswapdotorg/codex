@@ -1,0 +1,100 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Nia Roberts · social_distribution_manager · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Social post sp-0103 scheduled on feedbook."
+  - heading "Social distribution dashboard" [level=1, ref=e4]
+  - generic
+    - heading "Posts" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "POST" [ref=e42]
+          - columnheader "STORY" [ref=e43]
+          - columnheader "NETWORK" [ref=e44]
+          - columnheader "TEXT" [ref=e45]
+          - columnheader "STATUS" [ref=e46]
+          - columnheader "SCHEDULED" [ref=e47]
+          - columnheader "LIKES/REPOSTS/CLICKS" [ref=e48]
+          - columnheader "ACTION" [ref=e49]
+      - row
+        - cell "sp-0103" [ref=e19]
+          - code
+            - StaticText "sp-0103"
+        - cell "Port authority approves ferry terminal budget" [ref=e20]
+          - link "Port authority approves ferry terminal budget" [ref=e50]
+        - cell "feedbook" [ref=e21]
+        - cell "Ferry terminal budget approved: what commuters need to know. The port authority greenlit the $410M plan on a 5-2 vote; construction starts in spring. Full breakdown on the site." [ref=e22]
+        - cell "scheduled" [ref=e23]
+        - cell "2026-09-13T09:00:00Z" [ref=e24]
+        - cell "—" [ref=e25]
+        - cell
+          - form
+            - button "Post now" [ref=e58]
+      - row
+        - cell "sp-0102" [ref=e26]
+          - code
+            - StaticText "sp-0102"
+        - cell "Harbor bridge retrofit begins Monday" [ref=e27]
+          - link "Harbor bridge retrofit begins Monday" [ref=e51]
+        - cell "chirp" [ref=e28]
+        - cell "Upper deck closes nightly at 22:00 starting Monday. Cyclists keep the path." [ref=e29]
+        - cell "scheduled" [ref=e30]
+        - cell "2026-09-13T08:00:00Z" [ref=e31]
+        - cell "—" [ref=e32]
+        - cell
+          - form
+            - button "Post now" [ref=e59]
+      - row
+        - cell "sp-0101" [ref=e33]
+          - code
+            - StaticText "sp-0101"
+        - cell "Harbor bridge retrofit begins Monday" [ref=e34]
+          - link "Harbor bridge retrofit begins Monday" [ref=e52]
+        - cell "feedbook" [ref=e35]
+        - cell "The Harbor Bridge retrofit starts Monday night — what it means for your commute." [ref=e36]
+        - cell "posted" [ref=e37]
+        - cell "2026-09-10T07:00:00Z" [ref=e38]
+        - cell "842 / 61 / 3102" [ref=e39]
+        - cell "—" [ref=e40]
+  - generic
+    - heading "Schedule a social post" [level=2, ref=e14]
+    - form
+      - LabelText
+        - StaticText "Story"
+      - combobox [expanded=false, ref=e15]: Harbor bridge retrofit begins Monday
+        - MenuListPopup
+          - option "Harbor bridge retrofit begins Monday" [selected, ref=e53]
+          - option "Port authority approves ferry terminal budget" [ref=e54]
+      - StaticText ","
+      - LabelText
+        - StaticText "Network"
+      - combobox [expanded=false, ref=e16]: Feedbook
+        - MenuListPopup
+          - option "Feedbook" [selected, ref=e55]
+          - option "Chirp" [ref=e56]
+          - option "Linkup" [ref=e57]
+      - StaticText ","
+      - LabelText
+        - StaticText "Post text"
+      - textbox [ref=e17]
+      - StaticText ","
+      - LabelText
+        - StaticText "Scheduled at"
+      - textbox [ref=e18]: 2026-09-13T09:00:00Z
+        - StaticText "2026-09-13T09:00:00Z"
+      - button "Schedule" [ref=e41]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

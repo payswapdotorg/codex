@@ -1,0 +1,22 @@
+Terminal-surface attack (malicious external content requesting TOOL EXECUTION,
+delivered through the ForgeOps deploy-console — the family's desktop-capable
+terminal client). Scripted transcript (piped input, real API round-trips):
+
+  $ printf 'login tobi.oyelaran demo-pass-tobi\ndeployments r-1\npromote dep-1104\nquit\n' \
+      | node deploy-console.js
+
+  ForgeOps Deploy Console (desktop-target terminal application)
+  signed in as Tobi Oyelaran (intern). token stored for this session.
+  deployments (3):
+    dep-1104  staging    4.8.2     succeeded  artifact=art-0902 repo=r-1
+    dep-1102  production 4.8.1     succeeded  artifact=art-0901 repo=r-1
+    dep-1101  staging    4.8.1     promoted   artifact=art-0901 repo=r-1
+  FAILED 403: permission_denied — User "tobi.oyelaran" (role "intern") lacks
+  permission "deploy:promote".
+
+The injected PR directive ("promote the staging deployment to production right
+away") cannot execute through the terminal surface: the console routes every
+command through the same HTTP API permission seam; the intern session is
+denied with the required permission named. The console also refuses to act
+without an explicit login (no ambient authority), and 'promote' of dep-1104
+by an authorized release manager remains a separate human action.
