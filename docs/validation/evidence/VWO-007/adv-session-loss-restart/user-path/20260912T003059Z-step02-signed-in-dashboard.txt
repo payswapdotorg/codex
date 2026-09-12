@@ -1,0 +1,86 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Signed in as Marco Silva (site_foreman)."
+  - heading "Construction operations dashboard" [level=1, ref=e4]
+  - StaticText "Active projects"
+  - generic
+    - StaticText "3 seeded"
+  - StaticText "Purchase requests awaiting decision"
+  - generic
+    - StaticText "1 procurement"
+  - StaticText "Open safety incidents"
+  - generic
+    - StaticText "1 safety"
+  - StaticText "Your notifications"
+  - generic
+    - StaticText "0 0 failed"
+  - generic
+    - heading "Projects" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "CODE" [ref=e40]
+          - columnheader "PROJECT" [ref=e41]
+          - columnheader "PHASE" [ref=e42]
+          - columnheader "PROGRESS" [ref=e43]
+          - columnheader "SPEND / BUDGET" [ref=e44]
+          - columnheader "DUE" [ref=e45]
+      - row
+        - cell "HVT" [ref=e15]
+        - cell "Harborview Tower" [ref=e16]
+          - link "Harborview Tower" [ref=e46]
+        - cell "structural" [ref=e17]
+        - cell "62%" [ref=e18]
+        - cell "$2,641,000 / $4,250,000" [ref=e19]
+        - cell "2027-03-15" [ref=e20]
+      - row
+        - cell "ESI" [ref=e21]
+        - cell "Eastside Interchange" [ref=e22]
+          - link "Eastside Interchange" [ref=e47]
+        - cell "earthwork" [ref=e23]
+        - cell "35%" [ref=e24]
+        - cell "$3,115,000 / $8,900,000" [ref=e25]
+        - cell "2028-01-20" [ref=e26]
+      - row
+        - cell "RVC" [ref=e27]
+        - cell "Riverside Clinic" [ref=e28]
+          - link "Riverside Clinic" [ref=e48]
+        - cell "finishes" [ref=e29]
+        - cell "88%" [ref=e30]
+        - cell "$1,542,000 / $1,750,000" [ref=e31]
+        - cell "2026-12-05" [ref=e32]
+  - generic
+    - heading "Recent activity (event feed)" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "TIME" [ref=e49]
+          - columnheader "TYPE" [ref=e50]
+          - columnheader "SUMMARY" [ref=e51]
+      - row
+        - cell "2026-09-12T00:30:54.881Z" [ref=e33]
+        - cell "auth.login" [ref=e34]
+        - cell "marco.silva signed in" [ref=e35]
+      - row
+        - cell "2026-09-12T00:30:35.019Z" [ref=e36]
+        - cell "world.reset" [ref=e37]
+        - cell "Demo world reset to seed state (reset #1)" [ref=e38]
+      - row
+        - cell "Full event feed · machine: GET /api/events" [ref=e39]
+          - link "Full event feed" [ref=e52]
+          - StaticText " · machine: "
+  - paragraph
+    - StaticText "Docs: "
+    - link "failure switches" [ref=e14]
+    - StaticText " · repository: "

@@ -1,0 +1,10 @@
+== immutable-version attack: re-publish EXISTING version 2.3.1 on pk-102 (as vera.osei, publisher) ==
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Version 2.3.1 of \"Support Ticket Triage Assistant\" already exists — published versions are immutable.",
+  "packageId": "pk-102",
+  "version": "2.3.1"
+}
+HTTP 409
+== package state after attempt (2.3.1 digest must be unchanged, still 2 published versions) ==

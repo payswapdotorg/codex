@@ -1,0 +1,8 @@
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (Northwind expired trial) (HTTP 409)
+
+RESULT: 43 passed, 16 failed

@@ -1,0 +1,11 @@
+== duplicate-publish attack on terminal state (post-hoc API twin after the human path: the Publish form no longer renders for a published story) ==
+POST /api/stories/publish {storyId: st-0202, channels:[ch-1]} as camille.dubois (editor-in-chief)
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Story st-0202 is already published — use a correction instead.",
+  "storyId": "st-0202"
+}
+HTTP 409
+== story state after duplicate-publish attempt ==
+status: published | version: 3 | publishedAt: 2026-09-12T00:48:25.132Z

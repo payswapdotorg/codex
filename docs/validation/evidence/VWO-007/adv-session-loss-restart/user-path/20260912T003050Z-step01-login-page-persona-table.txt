@@ -1,0 +1,66 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e4]
+    - link "Projects" [ref=e5]
+    - link "Procurement" [ref=e6]
+    - link "Safety" [ref=e7]
+    - link "Notifications" [ref=e8]
+    - link "Events" [ref=e9]
+    - link "Failure switches" [ref=e10]
+  - link "sign in" [ref=e3]
+- main
+  - generic
+    - heading "Sign in" [level=2, ref=e11]
+    - form
+      - LabelText
+        - StaticText "Username"
+      - textbox "e.g. dana.reyes" [required, ref=e13]
+      - LabelText
+        - StaticText "Password"
+      - textbox [required, ref=e14]
+      - button "Sign in" [ref=e15]
+  - generic
+    - heading "Demo world" [level=2, ref=e12]
+    - paragraph
+      - StaticText "This is a fake enterprise used by the Codex Universal validation program. No real credentials exist: demo passwords are assembled at runtime from fragments. Pick any persona below."
+    - group
+      - DisclosureTriangle "Show demo personas & passwords" [expanded=true]
+        - StaticText "Show demo personas & passwords"
+      - paragraph
+        - StaticText "Persona list (also available at "
+        - code
+          - StaticText "GET /api/demo-hints"
+        - StaticText "):"
+      - table
+        - rowgroup
+          - row
+            - columnheader "USERNAME" [ref=e36]
+            - columnheader "PASSWORD (FAKE)" [ref=e37]
+            - columnheader "ROLE" [ref=e38]
+            - columnheader "NAME" [ref=e39]
+        - row
+          - cell "dana.reyes" [ref=e16]
+          - cell "demo-pass-dana" [ref=e17]
+          - cell "project_manager" [ref=e18]
+          - cell "Dana Reyes" [ref=e19]
+        - row
+          - cell "marco.silva" [ref=e20]
+          - cell "demo-pass-marco" [ref=e21]
+          - cell "site_foreman" [ref=e22]
+          - cell "Marco Silva" [ref=e23]
+        - row
+          - cell "priya.nair" [ref=e24]
+          - cell "demo-pass-priya" [ref=e25]
+          - cell "finance_accountant" [ref=e26]
+          - cell "Priya Nair" [ref=e27]
+        - row
+          - cell "sam.oconnell" [ref=e28]
+          - cell "demo-pass-sam" [ref=e29]
+          - cell "safety_officer" [ref=e30]
+          - cell "Sam O’Connell" [ref=e31]
+        - row
+          - cell "lena.hart" [ref=e32]
+          - cell "demo-pass-lena" [ref=e33]
+          - cell "contractor_lead" [ref=e34]
+          - cell "Lena Hart" [ref=e35]

@@ -1,0 +1,12 @@
+== ATTACK 1: provider death under the promote operation (ci-runner-pool 503) ==
+$ printf 'login raj.patel demo-pass-raj\nswitch service_unavailable\npromote dep-1101\ndeployments r-1\nquit\n' | node deploy-console.js
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+failure switch armed for next command: service_unavailable
+FAILED 503: service_unavailable — The "ci-runner-pool" service is unavailable (simulated). State-changing requests are rejected; read requests still work.
+deployments (2):
+  dep-1102  production 4.8.1     succeeded  artifact=art-0901 repo=r-1
+  dep-1101  staging    4.8.1     promoted   artifact=art-0901 repo=r-1

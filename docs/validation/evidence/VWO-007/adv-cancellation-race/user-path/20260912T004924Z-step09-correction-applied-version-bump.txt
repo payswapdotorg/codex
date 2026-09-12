@@ -1,0 +1,222 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Camille Dubois · editor_in_chief · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Correction c-800802 applied; story re-distributed to 3 channel(s)."
+  - heading "City budget hearings: five things to watch corrected" [level=1, ref=e4]
+    - StaticText "City budget hearings: five things to watch corrected"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e26]
+        - cell "st-0202" [ref=e27]
+          - code
+            - StaticText "st-0202"
+      - row
+        - cell "Slug" [ref=e28]
+        - cell "city-budget-hearings-five-things" [ref=e29]
+          - code
+            - StaticText "city-budget-hearings-five-things"
+      - row
+        - cell "Section" [ref=e30]
+        - cell "metro" [ref=e31]
+      - row
+        - cell "Author" [ref=e32]
+        - cell "Hana Kim" [ref=e33]
+      - row
+        - cell "Status" [ref=e34]
+        - cell "corrected" [ref=e35]
+      - row
+        - cell "Version" [ref=e36]
+        - cell "v4" [ref=e37]
+      - row
+        - cell "Word count" [ref=e38]
+        - cell "168" [ref=e39]
+      - row
+        - cell "Approved by" [ref=e40]
+        - cell "Camille Dubois" [ref=e41]
+      - row
+        - cell "Published at" [ref=e42]
+        - cell "2026-09-12T00:48:25.132Z" [ref=e43]
+      - row
+        - cell "Channels" [ref=e44]
+        - cell "web-front-page, morning-newsletter, rss-feed" [ref=e45]
+          - code
+            - StaticText "web-front-page"
+          - StaticText ", "
+          - code
+            - StaticText "morning-newsletter"
+          - StaticText ", "
+          - code
+            - StaticText "rss-feed"
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "Five storylines will shape this month’s budget hearings: the housing trust top-up, transit fare freezes, the library levy, stormwater fees, and a contested police overtime line, which the council trimmed by 4%.\n\nEach has a bloc of council allies and a fiscal note that will be picked apart line by line."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e93]
+          - columnheader "KIND" [ref=e94]
+          - columnheader "NAME" [ref=e95]
+          - columnheader "CREDIT" [ref=e96]
+          - columnheader "RENDITIONS" [ref=e97]
+      - row
+        - cell "a-0302 inline" [ref=e46]
+          - code
+            - StaticText "a-0302"
+          - StaticText "inline"
+        - cell "image" [ref=e47]
+        - cell "budget-hearing-chamber.jpg" [ref=e48]
+        - cell "Staff" [ref=e49]
+        - cell "thumbnail: ready" [ref=e50]
+          - StaticText "thumbnail:ready"
+      - row
+        - cell "a-0301 hero" [ref=e51]
+          - code
+            - StaticText "a-0301"
+          - StaticText "hero"
+        - cell "image" [ref=e52]
+        - cell "harbor-bridge-aerial.jpg" [ref=e53]
+        - cell "City Photo Desk" [ref=e54]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e55]
+          - StaticText "thumbnail:"
+          - StaticText "ready"
+          - StaticText " social-card:"
+          - StaticText "ready"
+          - StaticText " hero:"
+          - StaticText "ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - table
+      - rowgroup
+        - row
+          - columnheader "CORRECTION" [ref=e98]
+          - columnheader "SUMMARY" [ref=e99]
+          - columnheader "BEFORE" [ref=e100]
+          - columnheader "AFTER" [ref=e101]
+          - columnheader "BY" [ref=e102]
+          - columnheader "AT" [ref=e103]
+      - row
+        - cell "c-800802" [ref=e56]
+          - code
+            - StaticText "c-800802"
+        - cell "Clarifies police overtime figure after publication." [ref=e57]
+        - cell "a contested police overtime line" [ref=e58]
+          - code
+            - StaticText "a contested police overtime line"
+        - cell "a contested police overtime line, which the council trimmed by 4%" [ref=e59]
+          - code
+            - StaticText "a contested police overtime line, which the council trimmed by 4%"
+        - cell "Camille Dubois" [ref=e60]
+        - cell "2026-09-12T00:49:23.530Z" [ref=e61]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Correction summary"
+      - textbox [required, ref=e23]
+      - StaticText ","
+      - LabelText
+        - StaticText "Replace text (before)"
+      - textbox [ref=e24]
+      - StaticText ","
+      - LabelText
+        - StaticText "With (after)"
+      - textbox [ref=e25]
+      - button "Apply correction" [ref=e62]
+      - StaticText "Applies the correction, bumps the version and re-distributes to the story channels."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - table
+      - rowgroup
+        - row
+          - columnheader "JOB" [ref=e104]
+          - columnheader "CHANNEL" [ref=e105]
+          - columnheader "STATUS" [ref=e106]
+          - columnheader "AT" [ref=e107]
+          - columnheader "ERROR" [ref=e108]
+      - row
+        - cell "dj-0609" [ref=e63]
+          - code
+            - StaticText "dj-0609"
+        - cell "rss-feed" [ref=e64]
+          - code
+            - StaticText "rss-feed"
+        - cell "sent" [ref=e65]
+        - cell "2026-09-12T00:49:23.530Z" [ref=e66]
+        - cell "—" [ref=e67]
+      - row
+        - cell "dj-0608" [ref=e68]
+          - code
+            - StaticText "dj-0608"
+        - cell "morning-newsletter" [ref=e69]
+          - code
+            - StaticText "morning-newsletter"
+        - cell "sent" [ref=e70]
+        - cell "2026-09-12T00:49:23.530Z" [ref=e71]
+        - cell "—" [ref=e72]
+      - row
+        - cell "dj-0607" [ref=e73]
+          - code
+            - StaticText "dj-0607"
+        - cell "web-front-page" [ref=e74]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e75]
+        - cell "2026-09-12T00:49:23.530Z" [ref=e76]
+        - cell "—" [ref=e77]
+      - row
+        - cell "dj-0606" [ref=e78]
+          - code
+            - StaticText "dj-0606"
+        - cell "rss-feed" [ref=e79]
+          - code
+            - StaticText "rss-feed"
+        - cell "sent" [ref=e80]
+        - cell "2026-09-12T00:48:25.132Z" [ref=e81]
+        - cell "—" [ref=e82]
+      - row
+        - cell "dj-0605" [ref=e83]
+          - code
+            - StaticText "dj-0605"
+        - cell "morning-newsletter" [ref=e84]
+          - code
+            - StaticText "morning-newsletter"
+        - cell "sent" [ref=e85]
+        - cell "2026-09-12T00:48:25.132Z" [ref=e86]
+        - cell "—" [ref=e87]
+      - row
+        - cell "dj-0604" [ref=e88]
+          - code
+            - StaticText "dj-0604"
+        - cell "web-front-page" [ref=e89]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e90]
+        - cell "2026-09-12T00:48:25.131Z" [ref=e91]
+        - cell "—" [ref=e92]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

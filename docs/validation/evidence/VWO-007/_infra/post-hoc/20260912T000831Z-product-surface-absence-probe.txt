@@ -1,0 +1,9 @@
+== CLI subcommand surface (codex-rs/cli) ==
+cli/src/doctor/sandbox.rs:276:                            "use an elevated shell or your organization's approved elevation workflow"
+== app-server-protocol workflow methods ==
+== TUI workflow surface ==
+tui/src/bottom_pane/snapshots/codex_tui__bottom_pane__chat_composer__tests__plugin_mention_popup.snap:11:"  Sample Plugin  [Plugin] Plugin that includes the Figma MCP server and Skills for common workflows "
+tui/src/bottom_pane/chat_composer.rs:7804:                        "Plugin that includes the Figma MCP server and Skills for common workflows"
+tui/src/snapshots/codex_tui__markdown_render__markdown_render_tests__table_wraps_file_paths_before_collapsing_narrative_columns_snapshot.snap:7: Suggestion engine and unit coverage        codex-rs/core/     704          0    Sampling workflow, stable-history
+tui/src/get_git_diff.rs:394:    async fn get_git_diff_preserves_builtin_fsmonitor_for_diff_workflow() {
+tui/src/chatwidget/snapshots/codex_tui__chatwidget__tests__user_prompt_submit_app_server_hook_notifications_render_snapshot.snap:6:  └ go-workflow must start from PlanMode

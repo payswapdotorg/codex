@@ -1,0 +1,11 @@
+== retry promote dep-1106 after kill+restart (provider + process both recovered) ==
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+OK: web-checkout 14.3.1 promoted to production (deployment dep-1107).
+deployments (3):
+  dep-1107  production 14.3.1    succeeded  artifact=art-0903 repo=r-2
+  dep-1106  staging    14.3.1    promoted   artifact=art-0903 repo=r-2
+  dep-1103  production 14.3.0    succeeded  artifact=art-0884 repo=r-2

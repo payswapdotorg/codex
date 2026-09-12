@@ -1,0 +1,30 @@
+== idempotency-key replay attack across restart ==
+STEP A: submit progress (new date 2026-09-13) with idempotencyKey=VWO007-KEY-1
+{
+  "ok": true,
+  "message": "Progress report pr-4003 saved for Harborview Tower (71%).",
+  "warning": null,
+  "redirect": "/projects/p-101",
+  "report": {
+    "id": "pr-4003",
+    "projectId": "p-101",
+    "reportDate": "2026-09-13",
+    "authorId": "u-2",
+    "taskIds": [],
+    "percentComplete": 71,
+    "notes": "idempotency-key attack A",
+    "photoIds": [
+      "a-101"
+    ]
+  },
+  "notificat
+STEP B: replay the SAME idempotencyKey immediately (expect duplicate_event)
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Rejected as duplicate event: signature \"POST /api/progress:VWO007-KEY-1\" was first seen 2026-09-12T00:36:52.667Z.",
+  "key": "POST /api/progress:VWO007-KEY-1",
+  "firstSeenAt": "2026-09-12T00:36:52.667Z"
+}
+HTTP 409
+STEP C: restart the app process (no reseed), then replay the SAME key again

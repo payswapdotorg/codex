@@ -1,0 +1,34 @@
+== STORM B: 8 PARALLEL intake submissions, DISTINCT plates (no two alike) — all must be accepted ==
+B8:200
+B7:200
+B6:200
+B4:200
+B2:200
+B5:200
+B3:200
+B1:200
+--- storm B outcomes:
+B1: {
+  "ok": true,
+  "message": "Application da-0313 submitted for Downtown Core. Screening usually completes wit
+B2: {
+  "ok": true,
+  "message": "Application da-0309 submitted for Downtown Core. Screening usually completes wit
+B3: {
+  "ok": true,
+  "message": "Application da-0312 submitted for Downtown Core. Screening usually completes wit
+B4: {
+  "ok": true,
+  "message": "Application da-0308 submitted for Downtown Core. Screening usually completes wit
+B5: {
+  "ok": true,
+  "message": "Application da-0311 submitted for Downtown Core. Screening usually completes wit
+B6: {
+  "ok": true,
+  "message": "Application da-0310 submitted for Downtown Core. Screening usually completes wit
+B7: {
+  "ok": true,
+  "message": "Application da-0307 submitted for Downtown Core. Screening usually completes wit
+B8: {
+  "ok": true,
+  "message": "Application da-0306 submitted for Downtown Core. Screening usually completes wit

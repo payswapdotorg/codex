@@ -1,0 +1,6 @@
+== DURABLE STATE INSPECTION AFTER SIGKILL (kill -9 pid 13962 @ 2026-09-12T00:32:59Z) ==
+kill: kill -9 13962 (node construction/server.js --port 4101, elapsed 02:24, PPID 1)
+progress reports on disk: [('pr-4001', 'p-101', '2026-09-10', 60), ('pr-4002', 'p-101', '2026-09-12', 68)]
+p-101 percentComplete: 68
+events on disk: 4 ['world.reset', 'auth.login', 'progress.submitted', 'notification.delivered']
+notification rows: [('n-1', 'dana.reyes', 'delivered'), ('n-0001', 'dana.reyes', 'delivered')]

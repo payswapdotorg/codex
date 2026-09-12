@@ -1,0 +1,20 @@
+== event-feed continuity after kill+restart+session-loss (adv-session-loss-restart) ==
+total: None
+ev-0009 auth.login None 
+ev-0008 notification.delivered None 
+ev-0007 progress.submitted None pr-4003
+ev-0006 auth.login None 
+ev-0005 auth.login None 
+ev-0004 notification.delivered None 
+ev-0003 progress.submitted None pr-4002
+ev-0002 auth.login None 
+ev-0001 world.reset None 
+
+== reset verification (scenario end) ==
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+post-reset events: ['world.reset']

@@ -1,0 +1,27 @@
+== post-hoc integrity check: writer's held edit must NEVER appear; correction must be the only body change after publication ==
+status: corrected | version: 4
+writer held-edit landed: False
+correction landed: True
+body: Five storylines will shape this month’s budget hearings: the housing trust top-up, transit fare freezes, the library levy, stormwater fees, and a police overtime line revised after reissuance.
+
+Each h
+
+== corrections table ==
+{
+  "ok": true,
+  "corrections": [
+    {
+      "id": "c-0801",
+      "storyId": "st-0201",
+      "summary": "Fixed bus route numbers (12 and 44, not 14 and 42)",
+      "beforeText": "bus routes 14 and 42",
+      "afterText": "bus routes 12 and 44",
+      "byId": "u-2",
+      "at": "2026-09-10T11:05:00Z",
+      "status": "published"
+    },
+    {
+      "id": "c-800802",
+      "storyId": "st-0202",
+      "summary": "Corrects the police-overtime line after the fiscal office reissuance.",
+      "befo

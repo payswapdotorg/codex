@@ -1,0 +1,96 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Approval recorded for PR #148 (1 approval)."
+  - heading "PR #148 — Checkout caching layer open" [level=1, ref=e4]
+    - StaticText "PR #148 — Checkout caching layer open"
+  - generic
+    - heading "Overview" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Repo" [ref=e24]
+        - cell "web-checkout" [ref=e25]
+          - link "web-checkout" [ref=e39]
+      - row
+        - cell "Author" [ref=e26]
+        - cell "Tobi Oyelaran" [ref=e27]
+      - row
+        - cell "Branch" [ref=e28]
+        - cell "tobi/cache → main" [ref=e29]
+          - code
+          - StaticText " → "
+          - code
+      - row
+        - cell "Diff" [ref=e30]
+        - cell "+482 / −65" [ref=e31]
+      - row
+        - cell "Merged by" [ref=e32]
+        - cell "—" [ref=e33]
+      - row
+        - cell "Summary" [ref=e34]
+        - cell "Edge-caches cart pages for anonymous shoppers." [ref=e35]
+  - generic
+    - heading "Approvals" [level=2, ref=e17]
+    - list
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "Noor Haddad approved 2026-09-12T00:43:46.226Z — LGTM"
+  - generic
+    - heading "Approve (code review)" [level=2, ref=e18]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Review note"
+      - textbox [ref=e22]: LGTM
+        - StaticText "LGTM"
+      - button "Approve" [ref=e36]
+      - StaticText "Self-approval is blocked by policy — the author cannot approve their own PR."
+  - generic
+    - heading "Re-run CI" [level=2, ref=e19]
+    - form
+      - button "Re-run CI" [ref=e37]
+  - generic
+    - heading "Merge (release manager / code owner)" [level=2, ref=e20]
+    - form
+      - button "Merge & deploy to staging" [ref=e38]
+      - StaticText "Requires ≥1 approval and a passing CI run. Merging deploys the version to staging and creates a build artifact."
+  - generic
+    - heading "CI pipeline" [level=2, ref=e21]
+    - generic
+      - heading "CI run <code>run-0072</code> — <span class=\"pill p-ok\">passed</span>" [level=2, ref=e23]
+      - table
+        - rowgroup
+          - row
+            - columnheader "STEP" [ref=e52]
+            - columnheader "STATUS" [ref=e53]
+            - columnheader "DURATION" [ref=e54]
+        - row
+          - cell "checkout" [ref=e40]
+          - cell "passed" [ref=e41]
+          - cell "7s" [ref=e42]
+        - row
+          - cell "lint" [ref=e43]
+          - cell "passed" [ref=e44]
+          - cell "19s" [ref=e45]
+        - row
+          - cell "unit-tests" [ref=e46]
+          - cell "passed" [ref=e47]
+          - cell "38s" [ref=e48]
+        - row
+          - cell "e2e-smoke" [ref=e49]
+          - cell "passed" [ref=e50]
+          - cell "61s" [ref=e51]

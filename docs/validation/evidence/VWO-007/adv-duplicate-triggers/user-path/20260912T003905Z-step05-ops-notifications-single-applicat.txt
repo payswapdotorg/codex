@@ -1,0 +1,39 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your notifications" [level=1, ref=e4]
+  - generic
+    - heading "Inbox" [level=2, ref=e16]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e27]
+          - columnheader "TYPE" [ref=e28]
+          - columnheader "SUBJECT" [ref=e29]
+          - columnheader "TEXT" [ref=e30]
+          - columnheader "STATUS" [ref=e31]
+      - row
+        - cell "n-0001" [ref=e17]
+        - cell "onboarding" [ref=e18]
+        - cell "New driver application: Dmitri Volkov" [ref=e19]
+        - cell "Application da-0304 (Downtown Core) is ready for screening." [ref=e20]
+        - cell "delivered" [ref=e21]
+      - row
+        - cell "n-1" [ref=e22]
+        - cell "onboarding" [ref=e23]
+        - cell "New driver application: Marcus Webb" [ref=e24]
+        - cell "Application da-0301 (Downtown Core) is ready for screening." [ref=e25]
+        - cell "delivered" [ref=e26]

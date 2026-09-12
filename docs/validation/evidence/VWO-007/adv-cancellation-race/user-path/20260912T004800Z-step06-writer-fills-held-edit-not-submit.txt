@@ -1,0 +1,121 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Asset a-0301 attached as hero."
+  - heading "City budget hearings: five things to watch in_review" [level=1, ref=e4]
+    - StaticText "City budget hearings: five things to watch in_review"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e28]
+        - cell "st-0202" [ref=e29]
+      - row
+        - cell "Slug" [ref=e30]
+        - cell "city-budget-hearings-five-things" [ref=e31]
+      - row
+        - cell "Section" [ref=e32]
+        - cell "metro" [ref=e33]
+      - row
+        - cell "Author" [ref=e34]
+        - cell "Hana Kim" [ref=e35]
+      - row
+        - cell "Status" [ref=e36]
+        - cell "in_review" [ref=e37]
+      - row
+        - cell "Version" [ref=e38]
+        - cell "v2" [ref=e39]
+      - row
+        - cell "Word count" [ref=e40]
+        - cell "168" [ref=e41]
+      - row
+        - cell "Approved by" [ref=e42]
+        - cell "—" [ref=e43]
+      - row
+        - cell "Published at" [ref=e44]
+        - cell "—" [ref=e45]
+      - row
+        - cell "Channels" [ref=e46]
+        - cell "—" [ref=e47]
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "Five storylines will shape this month’s budget hearings: the housing trust top-up, transit fare freezes, the library levy, stormwater fees, and a contested police overtime line.\n\nEach has a bloc of council allies and a fiscal note that will be picked apart line by line."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e60]
+          - columnheader "KIND" [ref=e61]
+          - columnheader "NAME" [ref=e62]
+          - columnheader "CREDIT" [ref=e63]
+          - columnheader "RENDITIONS" [ref=e64]
+      - row
+        - cell "a-0302 inline" [ref=e48]
+        - cell "image" [ref=e49]
+        - cell "budget-hearing-chamber.jpg" [ref=e50]
+        - cell "Staff" [ref=e51]
+        - cell "thumbnail: ready" [ref=e52]
+      - row
+        - cell "a-0301 hero" [ref=e53]
+        - cell "image" [ref=e54]
+        - cell "harbor-bridge-aerial.jpg" [ref=e55]
+        - cell "City Photo Desk" [ref=e56]
+        - cell "thumbnail: ready social-card: ready hero: ready" [ref=e57]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Asset"
+      - combobox [expanded=false, ref=e23]: a-0301 — harbor-bridge-aerial.jpg (image)
+        - MenuListPopup
+          - option "a-0301 — harbor-bridge-aerial.jpg (image)" [selected, ref=e65]
+          - option "a-0302 — budget-hearing-chamber.jpg (image)" [ref=e66]
+          - option "a-0303 — ferry-terminal-render.png (image)" [ref=e67]
+          - option "a-0304 — terminal-timelapse.mp4 (video)" [ref=e68]
+      - StaticText ","
+      - LabelText
+        - StaticText "Role"
+      - combobox [expanded=false, ref=e24]: Hero (required to publish)
+        - MenuListPopup
+          - option "Hero (required to publish)" [selected, ref=e69]
+          - option "Inline" [ref=e70]
+          - option "Video" [ref=e71]
+      - button "Attach asset" [ref=e58]
+      - StaticText "missing_asset: attaching an unknown id fails with 404."
+  - generic
+    - heading "Edit" [level=2, ref=e16]
+    - form
+      - StaticText ",,"
+      - LabelText
+      - textbox [ref=e25]: City budget hearings: five things to watch
+        - StaticText "City budget hearings: five things to watch"
+      - StaticText ","
+      - LabelText
+      - textbox [ref=e26]: Housing, transit and the library levy dominate a long agenda.
+      - StaticText ","
+      - LabelText
+      - textbox [ref=e27]: WRITER HELD EDIT (stale expectedVersion=2): a contested police overtime line remains the sticking point, aides say.
+        - StaticText "WRITER HELD EDIT (stale expectedVersion=2): a contested police overtime line remains the sticking point, aides say."
+      - button "Save new version" [ref=e59]
+      - StaticText "Optimistic concurrency: saving a stale version returns data_conflict."
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]

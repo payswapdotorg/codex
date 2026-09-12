@@ -1,0 +1,24 @@
+== event feed for the cancellation-race scenario ==
+  ev-0016 notification.delivered 
+  ev-0015 correction.applied st-0202
+  ev-0014 distribution.sent st-0202
+  ev-0013 distribution.sent st-0202
+  ev-0012 distribution.sent st-0202
+  ev-0011 auth.login 
+  ev-0010 notification.delivered 
+  ev-0009 story.published st-0202
+  ev-0008 distribution.sent st-0202
+  ev-0007 distribution.sent st-0202
+  ev-0006 distribution.sent st-0202
+  ev-0005 notification.delivered 
+  ev-0004 story.approved st-0202
+  ev-0003 story.asset_attached st-0202
+  ev-0002 auth.login 
+  ev-0001 world.reset 
+== reset verification ==
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}

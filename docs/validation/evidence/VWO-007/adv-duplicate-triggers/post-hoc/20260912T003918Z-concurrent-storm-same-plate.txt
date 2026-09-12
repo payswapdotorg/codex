@@ -1,0 +1,51 @@
+== concurrent trigger storm attack (adv-duplicate-triggers, RidePilot 4103) ==
+STORM A: 8 PARALLEL intake submissions, IDENTICAL payload (same plate ZZVWO-STORM-A)
+A1:404
+A4:404
+A5:404
+A8:404
+A6:404
+A7:404
+A3:404
+A2:404
+--- storm A outcomes:
+A1: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A2: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A3: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A4: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A5: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A6: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A7: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}
+A8: {
+  "ok": false,
+  "error": "region_not_found",
+  "message": "Region \"DT\" does not exist."
+}

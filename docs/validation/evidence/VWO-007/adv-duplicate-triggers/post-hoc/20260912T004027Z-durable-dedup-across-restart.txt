@@ -1,0 +1,18 @@
+== durable dedup across restart: replay storm plate ZZVWO-STORM-A after kill+restart ==
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is rejected.",
+  "plate": "ZZVWO-STORM-A"
+}
+HTTP 409
+== replay human-path duplicate plate ZZVWO-7701 (da-0304) after restart ==
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-7701\" already exists — duplicate intake is rejected.",
+  "plate": "ZZVWO-7701"
+}
+HTTP 409
+== state: applications must be exactly da-0301..da-0313 (13), no extras ==
+count: 13 ['da-0301', 'da-0302', 'da-0303', 'da-0304', 'da-0305', 'da-0306', 'da-0307', 'da-0308', 'da-0309', 'da-0310', 'da-0311', 'da-0312', 'da-0313']

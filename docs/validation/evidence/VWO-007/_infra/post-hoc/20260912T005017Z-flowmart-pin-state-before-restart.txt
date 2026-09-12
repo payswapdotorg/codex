@@ -1,0 +1,5 @@
+== FlowMart install + package pin state BEFORE restart (as petra.voss, Acme org admin) ==
+install: ins-0401 | org: o-2 | package: pk-102 | pinned: 2.3.1 | status: active
+package: pk-101 invoice-autofill | latest: 1.1.0
+package: pk-102 support-triage-assistant | latest: 2.3.1
+package: pk-103 warehouse-slot-optimizer | latest: 1.2.0
