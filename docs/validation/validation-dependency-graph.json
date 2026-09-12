@@ -116,7 +116,7 @@
    ]
   },
   "VWO-007": {
-   "status": "ready",
+   "status": "merged",
    "depends_on": [
     "VWO-001",
     "VWO-002",
