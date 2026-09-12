@@ -1,8 +1,8 @@
 {
- "current_commit": "cc651ffd0",
- "active_agents": [],
- "active_change_surfaces": [],
- "last_verified_sha": "main @ cc651ffd0 (VVO wave-2 1of3: VWO-007 persistence/recovery adversary validation merged via PR #27 — bundle 042765a5 verified on base 0d314fd, 76 files +5130 lines, 75 evidence artifacts, all 4 adversarial catalog scenarios + full WO attack matrix, every attack repelled; Tech Lead re-ran validate-report.py PASS Class A; scope-clean, zero integration fixes)",
- "verification_state": "vvo-wave-2-1of3-complete",
- "notes": "VWO-007 MERGED via PR #27 (squash, cc651ffd0). Wave-2 1/3 complete. VERDICT: every adversarial attack on durable workflow authority REPELLED (durability, idempotency, fail-safe, terminality, version pinning held through SIGKILL/restart/dedup-storms/cancellation-races). F1 (P1): durable engine mounted in no user-facing surface — independently CONFIRMS VWO-005 F1 (cross-wave architectural root cause). F2 (P2): dedup rejections leave no audit event. VWO-008 (security/trust adversary) dispatching next; VWO-009 staged. Wave-1: VWO-004/VWO-006 still mid-mission under overnight capacity rationing (nudge loop armed)."
+  "current_commit": "1b55c0015",
+  "active_agents": [],
+  "active_change_surfaces": [],
+  "last_verified_sha": "main @ 1b55c0015 (VVO wave-2 2of3: VWO-008 security/authorization/trust-boundary adversary validation merged via PR #28 \u2014 bundle 4b417ee verified on base d198a00, 63 files +5883 lines, 62 evidence artifacts (40 user-path + 22 post-hoc), all 10 attack classes on real product interfaces, every attack REPELLED; Tech Lead re-ran validate-report.py PASS Class A 6 blocks; scope-clean, zero integration fixes)",
+  "verification_state": "vvo-wave-2-2of3-complete",
+  "notes": "VWO-008 MERGED via PR #28 (squash, 1b55c0015). Wave-2 2/3 complete. VERDICT: every trust-boundary attack REPELLED \u2014 injected instructions inert data, credential exfiltration zero-propagation, authorization/entitlement/cancellation races fail closed, tenant isolation held, terminal surface enforces same seam. F1 (P1) engine-unmounted re-confirmed (3rd independent confirmation: VWO-005+VWO-007+VWO-008) \u2014 wave-3 synthesis root cause. F3 (P1) publish finality UI-only. F4 (P1) cross-tenant install write. F5 (P2) checker line-scope bypass. F6 (P2) denial audit gap. VWO-009 staged for dispatch; wave-1 VWO-004/VWO-006 mid-mission (stall recovery in progress)."
 }
