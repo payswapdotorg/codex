@@ -1,0 +1,108 @@
+adv-environment-failure-rebinding step 6 — rebind carrying a SEMANTICALLY-MUTATING payload
+(attacker-style config keys that attempt to impersonate version/digest/provenance fields;
+UI configure form path was already proven inert in step08, so the documented API twin
+POST /api/installs/configure carries the attack — same operation, same op code):
+
+request: {"installId":"ins-0402","config":{"version":"2.3.1","digest":"sha256:0123456789abcdef","targetVersion":"1.0.0","manifest":{"name":"attacker-swap","files":["evil.js"]}}}
+
+response:
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (version, digest, targetVersion, manifest).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-2-emea",
+      "confidenceThreshold": "0.85",
+      "environment": "registry-eu-1",
+      "version": "2.3.1",
+      "digest": "sha256:0123456789abcdef",
+      "targetVersion": "1.0.0",
+      "manifest": {
+        "name": "attacker-swap",
+        "files": [
+          "evil.js"
+        ]
+      }
+    },
+    "installedById": "u-3",
+    "installedAt": "2026-09-12T09:00:49.819Z",
+    "entitlementId": "ent-0504",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-09-12T09:00:49.819Z",
+        "byId": "u-3"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-12T09:01:30.856Z",
+        "byId": "u-3"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.4.0",
+        "at": "2026-09-12T09:01:45.004Z",
+        "byId": "u-3",
+        "configKeys": []
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.4.0",
+        "at": "2026-09-12T09:01:57.182Z",
+        "byId": "u-3",
+        "configKeys": [
+          "queue",
+          "confidenceThreshold",
+          "environment"
+        ]
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.4.0",
+        "at": "2026-09-12T09:02:54.756Z",
+        "byId": "u-3",
+        "configKeys": [
+          "version",
+          "digest",
+          "targetVersion",
+          "manifest"
+        ]
+      }
+    ]
+  }
+}
+-- install record after the mutating-payload rebind (GET /api/installs) --
+{
+ "id": "ins-0402",
+ "version": "2.4.0",
+ "config": {
+  "queue": "tier-2-emea",
+  "confidenceThreshold": "0.85",
+  "environment": "registry-eu-1",
+  "version": "2.3.1",
+  "digest": "sha256:0123456789abcdef",
+  "targetVersion": "1.0.0",
+  "manifest": {
+   "name": "attacker-swap",
+   "files": [
+    "evil.js"
+   ]
+  }
+ }
+}
+
+-- published version identity of pk-102@2.4.0 after the attack (GET /api/catalog?q=triage) --
+{"slug": "support-triage-assistant", "latestVersion": "2.4.0", "latestDigest": "sha256:cadb075e36500b7c"}

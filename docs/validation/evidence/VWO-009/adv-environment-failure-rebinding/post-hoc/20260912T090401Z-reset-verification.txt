@@ -1,0 +1,9 @@
+adv-environment-failure-rebinding — supplementary reset verification (the first post-hoc capture's section-4 inline check hit a shell-quoting error after the reset had already succeeded; recorded separately per the immutable-evidence rule).
+
+POST /api/reset response: ok=true, message='Seed state restored.', resets=1
+
+GET /api/installs (as iris.chen) after reset:
+installs after reset: 0 (expect 1 seed install ins-0401)
+
+GET /api/catalog?q=triage (published identity back to seed):
+   support-triage-assistant 2.3.1 sha256:04cf049e110cc2cc

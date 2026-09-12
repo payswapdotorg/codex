@@ -1,0 +1,7 @@
+adv-marketplace-entitlement-race — reset verification (reset-scenario.sh marketplace: restart + reseed)
+2026-09-12T09:38:30Z
+
+pk-102 versions: [('2.3.1', 'sha256:04cf049e110cc2cc')]
+installs: [('ins-0401', 'o-2', '2.3.1', 'active')]
+entitlements: [('ent-0501', 'active')]
+event: world.reset — Demo world reset to seed state (reset #1)

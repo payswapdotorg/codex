@@ -1,0 +1,3 @@
+  PASS  natural stale_entitlement (Northwind expired trial) (HTTP 409)
+
+RESULT: 43 passed, 16 failed

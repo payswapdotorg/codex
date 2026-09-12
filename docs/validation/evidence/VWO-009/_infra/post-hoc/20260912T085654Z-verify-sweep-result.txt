@@ -1,0 +1,196 @@
+== construction (SiteBuild, 4101) ==
+  FAIL  golden: submit daily progress (want HTTP 200, got 409, missing '"percentComplete": 66')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "A progress report for p-101 on 2026-09-14 already exists — daily reports are one per project per day.",
+          "projectId": "p-101",
+          "reportDate": "2026-09-14"
+        }
+        409
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (SteelCo contract expired) (HTTP 409)
+== software (ForgeOps, 4102) ==
+  PASS  golden: open PR + auto-CI (HTTP 200)
+  FAIL  golden: code owner approves (want HTTP 200, got 409, missing 'Approval recorded')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "PR pr-0304 is \"merged\" and can no longer be approved.",
+          "prId": "pr-0304",
+          "status": "merged"
+        }
+        409
+  FAIL  golden: merge → staging deploy (want HTTP 200, got 409, missing 'deployed to staging')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "PR pr-0304 is \"merged\" — only open PRs can be merged.",
+          "prId": "pr-0304",
+          "status": "merged"
+        }
+        409
+  FAIL  golden: promote to production (want HTTP 200, got 409, missing 'promoted to production')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Deployment dep-1104 is env \"staging\" / status \"promoted\" — only successful staging deployments can be promoted.",
+          "deploymentId": "dep-1104",
+          "env": "staging",
+          "status": "promoted"
+        }
+        409
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural permission_denied (self-approval blocked) (HTTP 403)
+== rideshare (RidePilot, 4103) ==
+  FAIL  golden: public intake (no auth) (want HTTP 200, got 200, missing 'da-0304')
+        {
+          "ok": true,
+          "message": "Application da-0306 submitted for Downtown Core. Screening usually completes within 2 business days.",
+          "warning": null,
+          "redirect": "/intake",
+          "application": {
+            "id": "da-0306",
+            "name": "Golden Driver",
+            "phoneMasked": "***-***-0000",
+            "email": "",
+            "regionId": "rg-1",
+            "vehicle": {
+  FAIL  golden: screening approval (want HTTP 200, got 409, missing 'approved')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Application da-0304 is already \"activated\" — it cannot be screened again.",
+          "applicationId": "da-0304",
+          "status": "activated"
+        }
+        409
+  FAIL  golden: driver activation (want HTTP 200, got 409, missing 'activated')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Application da-0304 is \"activated\" — only approved applications can be activated.",
+          "applicationId": "da-0304",
+          "status": "activated"
+        }
+        409
+  PASS  switch service_unavailable (HTTP 503)
+  PASS  switch notification_failure (HTTP 200)
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (da-0303 expired permit) (HTTP 409)
+  PASS  natural duplicate_event (same plate twice) (HTTP 409)
+== media (PressRoom, 4104) ==
+  FAIL  golden: writer creates draft (want HTTP 200, got 409, missing 'st-0206')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "A story titled \"Golden path story\" already exists in the CMS.",
+          "title": "Golden path story"
+        }
+        409
+  PASS  golden: attach hero image (HTTP 200)
+  FAIL  golden: submit for review (want HTTP 200, got 409, missing 'submitted for review')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Story st-0206 is \"published\" — only drafts or changes-requested stories can be submitted.",
+          "storyId": "st-0206",
+          "status": "published"
+        }
+        409
+  FAIL  golden: editor approves (want HTTP 200, got 409, missing 'approved for publication')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Story st-0206 is \"published\" — only in-review stories can be decided.",
+          "storyId": "st-0206",
+          "status": "published"
+        }
+        409
+  FAIL  golden: publish to channels (want HTTP 200, got 409, missing 'published')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "Story st-0206 is already published — use a correction instead.",
+          "storyId": "st-0206"
+        }
+        409
+  PASS  switch service_unavailable (HTTP 503)
+  FAIL  switch notification_failure (want HTTP 200, got 409, missing '"warning"')
+        {
+          "ok": false,
+          "error": "data_conflict",
+          "message": "Story st-0203 is \"in_review\" — only drafts or changes-requested stories can be submitted.",
+          "storyId": "st-0203",
+          "status": "in_review"
+        }
+        409
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  FAIL  switch stale_entitlement (want HTTP 200, got 409, missing 'stale license')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "Story st-0204 is already published — use a correction instead.",
+          "storyId": "st-0204"
+        }
+        409
+  PASS  natural missing_asset (approved, no hero) (HTTP 404)
+== marketplace (FlowMart, 4105) ==
+  FAIL  golden: Northwind installs (active entitlement) (want HTTP 200, got 409, missing 'ins-0402')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "Northwind Logistics already has an active install (ins-0402, v1.2.0) of \"Warehouse Slot Optimizer\" — upgrade it instead of installing again.",
+          "installId": "ins-0402",
+          "packageId": "pk-103"
+        }
+        409
+  FAIL  golden: publisher releases 1.3.0 (want HTTP 200, got 409, missing '1.3.0')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "Version 1.3.0 of \"Warehouse Slot Optimizer\" already exists — published versions are immutable.",
+          "packageId": "pk-103",
+          "version": "1.3.0"
+        }
+        409
+  PASS  golden: upgrade 1.2.0 → 1.3.0 (HTTP 200)
+  PASS  golden: rollback to 1.2.0 (HTTP 200)
+  PASS  golden: provenance digest verifies (HTTP 200)
+  PASS  switch service_unavailable (HTTP 503)
+  FAIL  switch notification_failure (want HTTP 200, got 409, missing '"warning"')
+        {
+          "ok": false,
+          "error": "duplicate_event",
+          "message": "Version 2.4.0 of \"Support Ticket Triage Assistant\" already exists — published versions are immutable.",
+          "packageId": "pk-102",
+          "version": "2.4.0"
+        }
+        409
+  PASS  switch missing_asset (HTTP 404)
+  PASS  switch permission_denied (HTTP 403)
+  PASS  switch data_conflict (HTTP 409)
+  PASS  switch duplicate_event (HTTP 409)
+  PASS  switch stale_entitlement (HTTP 409)
+  PASS  natural stale_entitlement (Northwind expired trial) (HTTP 409)
+
+RESULT: 43 passed, 16 failed

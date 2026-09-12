@@ -1,0 +1,24 @@
+VWO-009 engine-probe extract — adv-marketplace-entitlement-race
+
+Verbatim extract of the full 12-attack engine battery (see
+_infra/post-hoc/20260912T092705Z-engine-probe-12-attacks.txt);
+attacks exercised by this scenario: 5, 6, 7, 10.
+Same probe run, same verdicts — nothing altered.
+
+=== ATTACK 5: fork without attribution/lineage ===
+
+=== ATTACK 6: cross-owner/private-release discovery leakage ===
+[6a anonymous search] REPELLED — 0 results for anonymous principal
+[6b foreign search] REPELLED — 0 results for non-owner principal
+[6c foreign install] REPELLED — ReleaseNotVisible
+[5a empty attribution] REPELLED — InvalidRecord: a fork must carry upstream attribution
+[5b misattributed fork] HOLE — fork accepted with attacker-written attribution; lineage DOES point at upstream sha256:a219b7913e2dd169d98f4d6821d6af393ce9efa3172485ca87c6a98e5f7d2d6a (forked_from chain intact) but attribution content is unverified
+[5c upstream] HELD — upstream record byte-identical after fork
+test attack05_fork_without_attribution_or_lineage ... ok
+
+=== ATTACK 7: entitlement removal during installation ===
+[6d upgrade-path visibility] HOLE — evaluate_upgrade surfaced the PRIVATE release (leaked identity sha256:99b5a40fd2418a75b42d7c67f64adf0bcb268d673c116176684a4b0219a93fc5 to the installer) and decide_upgrade APPROVED it (applied=true): the documented upgrade gate order (visibility -> integrity -> access -> entitlement) skips the visibility gate
+test attack06_private_release_discovery_leakage ... ok
+[7a revoked-entitlement install] REPELLED — InstallRefused, nothing recorded
+
+=== ATTACK 10: marketplace transition altering executable semantics ===

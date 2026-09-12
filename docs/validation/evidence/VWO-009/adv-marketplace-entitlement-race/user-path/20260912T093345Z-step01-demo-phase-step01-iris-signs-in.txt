@@ -1,0 +1,81 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Iris Chen · org_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Signed in as Iris Chen (org_admin)."
+  - heading "FlowMart — automation package marketplace" [level=1, ref=e4]
+  - StaticText "Listings"
+  - generic
+    - StaticText "3 catalog"
+  - StaticText "Published versions"
+  - generic
+    - StaticText "4 immutable"
+  - StaticText "Installs (all orgs)"
+  - generic
+    - StaticText "1 active"
+  - StaticText "Entitlements"
+  - generic
+    - StaticText "3 1 inactive"
+  - generic
+    - heading "Your organization installs" [level=2, ref=e13]
+    - paragraph
+      - StaticText "No installs yet — browse the "
+      - link "catalog" [ref=e19]
+      - StaticText "."
+  - generic
+    - heading "Your organization entitlements" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ENTITLEMENT" [ref=e32]
+          - columnheader "PACKAGE" [ref=e33]
+          - columnheader "TYPE" [ref=e34]
+          - columnheader "SEATS" [ref=e35]
+          - columnheader "STATUS" [ref=e36]
+          - columnheader "VALID UNTIL" [ref=e37]
+      - row
+        - cell "ent-0502" [ref=e20]
+          - code
+            - StaticText "ent-0502"
+        - cell "Invoice Autofill for ERPs" [ref=e21]
+          - link "Invoice Autofill for ERPs" [ref=e38]
+        - cell "trial" [ref=e22]
+        - cell "—" [ref=e23]
+        - cell "expired" [ref=e24]
+        - cell "2026-08-01" [ref=e25]
+      - row
+        - cell "ent-0503" [ref=e26]
+          - code
+            - StaticText "ent-0503"
+        - cell "Warehouse Slot Optimizer" [ref=e27]
+          - link "Warehouse Slot Optimizer" [ref=e39]
+        - cell "per-seat" [ref=e28]
+        - cell "25" [ref=e29]
+        - cell "active" [ref=e30]
+        - cell "2027-01-01" [ref=e31]
+  - paragraph
+    - link "Catalog & search" [ref=e15]
+    - StaticText " · "
+    - link "Publisher console" [ref=e16]
+    - StaticText " · "
+    - link "Entitlements" [ref=e17]
+    - StaticText " · "
+    - link "failure switches" [ref=e18]
+    - StaticText " · repository: "
+    - code
+      - StaticText "docs/validation/fixtures/marketplace/"
+    - StaticText "."
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

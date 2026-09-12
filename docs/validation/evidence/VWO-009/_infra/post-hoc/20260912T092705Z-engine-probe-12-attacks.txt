@@ -1,0 +1,90 @@
+VWO-009 adversarial engine probe — 12 Work-Order attacks against the codex workflow
+versioning/marketplace/distribution contract crates, exercised as LIBRARIES.
+
+probe: vwo009-probe 0.1.0 (/home/z/vwo009-probe) — path dependencies on
+  codex-workflow-contracts, codex-workflow-forge, codex-workflow-distribution
+  (base SHA 7736a42e57a48c67d97b40350001e759e78661ae, working tree clean — no codex-rs modification)
+run: cargo test --nocapture (rustc/cargo 1.95.0); verdict vocabulary per test:
+  REPELLED = attack refused with a typed error;  HELD = invariant held under attack;
+  HOLE = attack succeeded where the WO acceptance requires refusal (report finding)
+captured 2026-09-12T09:27:02Z
+
+
+running 13 tests
+
+=== ATTACK 1: mutate published definition after publication ===
+
+=== ATTACK 2: move/delete development branch after release ===
+[before] release version_id=sha256:ae0de5c562ec61332687bdb6e3f75f4ac2d9f01353dc51705a55c83feb3ca9be @ commit 0000000000000000000000000000000000000032
+[after] branch moved to commit 0000000000000000000000000000000000000033 (new version_id=sha256:d05f113e682e1461fde1970ed8367eab184a618d4ddbc7d638fd966fb95d65f1); released id sha256:ae0de5c562ec61332687bdb6e3f75f4ac2d9f01353dc51705a55c83feb3ca9be still verifies — REPELLED (dev refs are never authority)
+[install pin] HELD — installation stays pinned to the released SHA after branch move; update only via explicit decision
+test attack02_move_delete_dev_branch_after_release ... ok
+[before] version_id=sha256:891e4b88cd46de5640ebfcc00935141e9667be031dfaec06443db65c9ddc6132 definition_digest=sha256:73a5db504f3ae217a52f5e61d62a4a25de7b63a04f1550b53611a0e26450ae4d
+[1a republish tampered] REPELLED — VersionIntegrity on publish
+[1b store-tampered record] REPELLED — verify_integrity fails recomputation
+[after] version_id=sha256:891e4b88cd46de5640ebfcc00935141e9667be031dfaec06443db65c9ddc6132 definition_digest=sha256:73a5db504f3ae217a52f5e61d62a4a25de7b63a04f1550b53611a0e26450ae4d (unchanged); re-publish same identity: REPELLED — AlreadyPublished
+test attack01_mutate_published_definition_after_publication ... ok
+
+=== ATTACK 3: tamper dependency lock ===
+
+=== ATTACK 4: install a moving ref as executable authority ===
+[before] version_id=sha256:d4323d56fcef91ec5d27f4416634bb78987b846efbb34526dc5fad8239a219d4 lock_digest=sha256:809abf5ad0638ba1ad71d04c3c6d511aabbc5085ca4787668951ea6625289645 entries=1 (pdf-extract @ sha 1111…)
+[3a tampered lock] REPELLED — verify_integrity detects lock digest mismatch
+[verdict] REPELLED — install authority is a typed immutable WorkflowVersionId (content digest sha256:159206a6b2cba03bf811979b305836f7037cd6bc0b4df7e6fa5ccb82a9926ed8); stored pin is concrete; no moving-ref field exists on the port
+[after] re-sealed-with-new-lock yields NEW identity sha256:cdd4bb817835a2bb767a0b91110f9ee48621cf6e29dfa90d1e6cf53d7327c761 (no overwrite); pinned release sha256:d4323d56fcef91ec5d27f4416634bb78987b846efbb34526dc5fad8239a219d4 still verifies — HELD (locks are identity-covered)
+[over-install v2] REPELLED — AlreadyInstalled (no silent pin movement)
+[3c incomplete lock] REPELLED — seal refuses a lock that does not cover declared deps
+test attack04_install_moving_ref ... ok
+test attack03_tamper_dependency_lock ... ok
+
+=== ATTACK 5: fork without attribution/lineage ===
+
+=== ATTACK 6: cross-owner/private-release discovery leakage ===
+[6a anonymous search] REPELLED — 0 results for anonymous principal
+[6b foreign search] REPELLED — 0 results for non-owner principal
+[6c foreign install] REPELLED — ReleaseNotVisible
+[5a empty attribution] REPELLED — InvalidRecord: a fork must carry upstream attribution
+[5b misattributed fork] HOLE — fork accepted with attacker-written attribution; lineage DOES point at upstream sha256:a219b7913e2dd169d98f4d6821d6af393ce9efa3172485ca87c6a98e5f7d2d6a (forked_from chain intact) but attribution content is unverified
+[5c upstream] HELD — upstream record byte-identical after fork
+test attack05_fork_without_attribution_or_lineage ... ok
+
+=== ATTACK 7: entitlement removal during installation ===
+[6d upgrade-path visibility] HOLE — evaluate_upgrade surfaced the PRIVATE release (leaked identity sha256:99b5a40fd2418a75b42d7c67f64adf0bcb268d673c116176684a4b0219a93fc5 to the installer) and decide_upgrade APPROVED it (applied=true): the documented upgrade gate order (visibility -> integrity -> access -> entitlement) skips the visibility gate
+test attack06_private_release_discovery_leakage ... ok
+[7a revoked-entitlement install] REPELLED — InstallRefused, nothing recorded
+
+=== ATTACK 8: stale upgrade proposal ===
+[7b sealed record] HELD — executable content byte-identical across entitlement refusal
+test attack07_entitlement_removal_during_install ... ok
+
+=== ATTACK 9: failed upgrade followed by rollback ===
+[replay stale proposal] REPELLED — StaleUpgradeProposal (from != installed)
+[after] pin remains sha256:0cec2f57d2f2e56014d1bd07d02a6398cce56d20697b8386b3abd5a3548264a6 (explicit); history has 1 records
+test attack08_stale_upgrade_proposal ... ok
+[9a gate-refused upgrade] REPELLED — UpgradeRefused; pin unchanged; nothing recorded
+[9b rollback] HELD — failed upgrade left the pin at v1; explicit decisions moved v1->v2->v1; history=2 records; v1/v2 still byte-identical
+test attack09_failed_upgrade_then_rollback ... ok
+
+=== ATTACK 10: marketplace transition altering executable semantics ===
+
+=== ATTACK 11: install v2 while v1 is still running ===
+[over-install (forge)] REPELLED — AlreadyInstalled; only the update path may move the pin
+[forge verdict] HELD — over-install refused; explicit update moved the pin to v2 while the v1 identity sha256:cafb6c387ba5e0f52b9a5dfd17cea6c09b6d8ed4b811d3592fa4529a82e28eda remains a valid immutable record
+[no-op transition] REPELLED — IllegalTransition (scope changes are explicit)
+[verdict] HELD — Public->Private->Shared->Public transitions left the sealed version, its digest, and the installed pin byte-identical
+test attack10_scope_transition_alters_semantics ... ok
+
+=== ATTACK 12: implicit downgrade of a pinned instance ===
+[over-install (distribution)] REPELLED — AlreadyInstalled
+test attack11_install_v2_while_v1_running ... ok
+[before] pin=2.0.0 (sha256:6e7c90116eafd4247598a36895140fc83132f6fb64fa885cefa014927a6a8eeb)
+[downgrade proposal] HOLE — follow policy surfaced 1.5.0 (sha256:b10172ab541dd7dfbe2b0b4f4949f3d3853d9664659e15e0b3f90ee25c5503a2) as an upgrade proposal: semver ordering is not checked
+[after] HOLE — pin moved 2.0.0 -> 1.5.0 via an applied upgrade record; semver ordering is unchecked on the follow path
+test attack12_implicit_downgrade_of_pinned_instance ... ok
+
+=== VWO-009 engine probe summary ===
+probes executed: 12 (attacks 1-12 of the Work Order); REPELLED/HELD verdicts printed per attack above; HOLE verdicts = report findings (fork misattribution, upgrade-path visibility bypass, follow-policy downgrade).
+test zzz_summary ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
