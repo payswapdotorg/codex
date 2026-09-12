@@ -1,0 +1,62 @@
+adv-version-confusion post-hoc — WO attack 'mutate published definition after publication' on the FlowMart product surface
+(API twin POST /api/versions/publish, perm version:publish, as vera.osei — same op code the browser form uses)
+
+== A1a. re-publish the EXISTING version 2.4.0 with tampered content (different changelog) ==
+POST /api/versions/publish {"packageId":"pk-102","version":"2.4.0","changelog":"TAMPERED: silently swaps routing engine"} as vera.osei
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Version 2.4.0 of \"Support Ticket Triage Assistant\" already exists — published versions are immutable.",
+  "packageId": "pk-102",
+  "version": "2.4.0"
+}
+
+== A1b. re-publish the SEED version 2.3.1 (older identity) ==
+POST /api/versions/publish {"packageId":"pk-102","version":"2.3.1","changelog":"TAMPERED: backdoor the queue config"} as vera.osei
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Version 2.3.1 of \"Support Ticket Triage Assistant\" already exists — published versions are immutable.",
+  "packageId": "pk-102",
+  "version": "2.3.1"
+}
+
+== A1c. provenance verification of both published identities (digest equality oracle) ==
+POST /api/provenance/verify {"packageId":"pk-102","version":"2.4.0"} as mia.torres (auditor)
+{
+  "ok": true,
+  "message": "Provenance verified for \"Support Ticket Triage Assistant\"@2.4.0: digest sha256:cadb075e36500b7c matches the published manifest.",
+  "match": true,
+  "package": {
+    "id": "pk-102",
+    "name": "Support Ticket Triage Assistant",
+    "slug": "support-triage-assistant"
+  },
+  "version": "2.4.0",
+  "digest": "sha256:cadb075e36500b7c",
+  "provenance": {
+    "sourceRepo": "https://git.example.internal/vera/support-triage-assistant",
+    "commit": "57408a3",
+    "builtBy": "vera.osei",
+    "signedBy": "vera.osei"
+  }
+}
+POST /api/provenance/verify {"packageId":"pk-102","version":"2.3.1"} as mia.torres (auditor)
+{
+  "ok": true,
+  "message": "Provenance verified for \"Support Ticket Triage Assistant\"@2.3.1: digest sha256:04cf049e110cc2cc matches the published manifest.",
+  "match": true,
+  "package": {
+    "id": "pk-102",
+    "name": "Support Ticket Triage Assistant",
+    "slug": "support-triage-assistant"
+  },
+  "version": "2.3.1",
+  "digest": "sha256:04cf049e110cc2cc",
+  "provenance": {
+    "sourceRepo": "https://git.example.internal/vera/support-triage-assistant",
+    "commit": "c7d8e9f",
+    "builtBy": "vera.osei",
+    "signedBy": "vera.osei"
+  }
+}

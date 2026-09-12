@@ -1,0 +1,159 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Vera Osei · publisher · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Version 2.4.0 of \"Support Ticket Triage Assistant\" published (1 installer(s) notified)."
+  - heading "Support Ticket Triage Assistant support-triage-assistant" [level=1, ref=e4]
+    - StaticText "Support Ticket Triage Assistant support-triage-assistant"
+  - generic
+    - heading "Listing overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e20]
+        - cell "pk-102" [ref=e21]
+          - code
+            - StaticText "pk-102"
+      - row
+        - cell "Publisher" [ref=e22]
+        - cell "Vera Osei" [ref=e23]
+      - row
+        - cell "Category" [ref=e24]
+        - cell "support-ops" [ref=e25]
+      - row
+        - cell "License model" [ref=e26]
+        - cell "subscription" [ref=e27]
+      - row
+        - cell "Latest version" [ref=e28]
+        - cell "2.4.0" [ref=e29]
+          - code
+            - StaticText "2.4.0"
+      - row
+        - cell "Latest digest" [ref=e30]
+        - cell "sha256:cadb075e36500b7c" [ref=e31]
+          - code
+            - StaticText "sha256:cadb075e36500b7c"
+      - row
+        - cell "Stats" [ref=e32]
+        - cell "1290 installs · ★4.8 · 96 reviews" [ref=e33]
+      - row
+        - cell "Tags" [ref=e34]
+        - cell "support routing classification" [ref=e35]
+          - StaticText "support"
+          - StaticText "routing"
+          - StaticText "classification"
+      - row
+        - cell "Description" [ref=e36]
+        - cell "Classifies inbound tickets by topic, urgency and sentiment, then routes them to configured queues. Includes a review step for low-confidence classifications." [ref=e37]
+  - generic
+    - heading "Versions (immutable, newest first)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "VERSION" [ref=e68]
+          - columnheader "RELEASED" [ref=e69]
+          - columnheader "CHANGELOG" [ref=e70]
+          - columnheader "DIGEST" [ref=e71]
+          - columnheader "COMMIT" [ref=e72]
+          - columnheader "BUILT BY" [ref=e73]
+      - row
+        - cell "2.4.0" [ref=e38]
+          - code
+            - StaticText "2.4.0"
+        - cell "2026-09-12" [ref=e39]
+        - cell "Adds sentiment-aware routing and a low-confidence escalation queue." [ref=e40]
+        - cell "sha256:cadb075e36500b7c" [ref=e41]
+          - code
+            - StaticText "sha256:cadb075e36500b7c"
+        - cell "57408a3" [ref=e42]
+          - code
+            - StaticText "57408a3"
+        - cell "vera.osei" [ref=e43]
+      - row
+        - cell "2.3.1" [ref=e44]
+          - code
+            - StaticText "2.3.1"
+        - cell "2026-08-30" [ref=e45]
+        - cell "Fixes queue routing for merged tickets." [ref=e46]
+        - cell "sha256:04cf049e110cc2cc" [ref=e47]
+          - code
+            - StaticText "sha256:04cf049e110cc2cc"
+        - cell "c7d8e9f" [ref=e48]
+          - code
+            - StaticText "c7d8e9f"
+        - cell "vera.osei" [ref=e49]
+  - generic
+    - heading "Provenance & attribution (latest)" [level=2, ref=e15]
+    - table
+      - row
+        - cell "Source repository" [ref=e50]
+        - cell "https://git.example.internal/vera/support-triage-assistant" [ref=e51]
+          - code
+            - StaticText "https://git.example.internal/vera/support-triage-assistant"
+      - row
+        - cell "Commit" [ref=e52]
+        - cell "57408a3" [ref=e53]
+          - code
+            - StaticText "57408a3"
+      - row
+        - cell "Built by" [ref=e54]
+        - cell "vera.osei" [ref=e55]
+      - row
+        - cell "Signed by" [ref=e56]
+        - cell "vera.osei" [ref=e57]
+      - row
+        - cell "Manifest digest" [ref=e58]
+        - cell "sha256:cadb075e36500b7c" [ref=e59]
+          - code
+            - StaticText "sha256:cadb075e36500b7c"
+    - form
+      - StaticText ","
+      - button "Verify provenance" [ref=e60]
+      - StaticText "Recomputes the manifest digest and compares it to the published digest."
+  - generic
+    - heading "Publish a new version (publisher)" [level=2, ref=e16]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Version (semver)"
+      - textbox [ref=e18]: 2.4.1
+        - StaticText "2.4.1"
+      - StaticText ","
+      - LabelText
+        - StaticText "Changelog"
+      - textbox [ref=e19]
+      - button "Publish version" [ref=e61]
+      - StaticText "Published versions are immutable; duplicate versions are rejected."
+  - generic
+    - heading "Reviews" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "REVIEW" [ref=e74]
+          - columnheader "ORG" [ref=e75]
+          - columnheader "BY" [ref=e76]
+          - columnheader "RATING" [ref=e77]
+          - columnheader "TEXT" [ref=e78]
+          - columnheader "AT" [ref=e79]
+      - row
+        - cell "rv-0201" [ref=e62]
+          - code
+            - StaticText "rv-0201"
+        - cell "Northwind Logistics" [ref=e63]
+        - cell "Ravi Gupta" [ref=e64]
+        - cell "5/5" [ref=e65]
+        - cell "Cut our triage time in half." [ref=e66]
+        - cell "2026-09-05T12:00:00Z" [ref=e67]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

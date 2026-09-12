@@ -1,0 +1,15 @@
+VWO-009 — adv-marketplace-entitlement-race — HYBRID instruct-phase text
+(submitted 2026-09-12; no Codex teaching surface exists at base 7736a42 —
+per standing finding VWO-005 F1 / VWO-008 F1 the instruction text is
+recorded here verbatim instead of being submitted to a teaching input):
+
+"Iris Chen (Northwind Logistics org admin):
+Commercial gates must fail closed. If our trial entitlement for a
+package has expired, block the install and say which entitlement and
+why. If a marketplace admin revokes our entitlement while an upgrade is
+in flight, the upgrade must fail with the entitlement id — leaving the
+install pin, the package versions, and the published digests completely
+untouched. No partial state may survive a blocked commercial operation.
+After a blocked operation, once the entitlement is renewed, the same
+upgrade must succeed cleanly. Every grant and revoke must be visible in
+the entitlement ledger and the event feed."

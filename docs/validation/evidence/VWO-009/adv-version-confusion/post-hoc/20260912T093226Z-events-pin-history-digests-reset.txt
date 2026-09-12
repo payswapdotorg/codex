@@ -1,0 +1,44 @@
+adv-version-confusion — post-hoc diagnostics (after user path + attacks)
+base 7736a42e57a48c67d97b40350001e759e78661ae · FlowMart 4105 · fixture clock 2026-09-12
+
+== 1. Event feed (install/upgrade/version events, world.reset onward) ==
+  install.rolled_back        Acme Retail rolled back "Support Ticket Triage Assistant" 2.3.1 → 2.4.0
+  install.upgraded           Acme Retail upgraded "Support Ticket Triage Assistant" 2.4.0 → 2.3.1
+  install.upgraded           Acme Retail upgraded "Support Ticket Triage Assistant" 2.3.1 → 2.4.0
+  install.configured         Install ins-0401 (Support Ticket Triage Assistant v2.3.1) reconfigured for Acme Retail
+  install.configured         Install ins-0401 (Support Ticket Triage Assistant v2.3.1) reconfigured for Acme Retail
+  version.published          "Support Ticket Triage Assistant" 2.4.0 released by Vera Osei: Adds sentiment-aware routing and a low-confiden
+  world.reset                Demo world reset to seed state (reset #1)
+
+== 2. Install pin history (ins-0401) ==
+  pin=2.4.0 status=active entitlement=ent-0501
+  installed    None -> 2.3.1  by u-6 at 2026-08-31T10:00:00Z
+  configured   2.3.1 -> 2.3.1  by u-6 at 2026-09-12T09:29:56.017Z
+  configured   2.3.1 -> 2.3.1  by u-6 at 2026-09-12T09:30:13.979Z
+  upgraded     2.3.1 -> 2.4.0  by u-6 at 2026-09-12T09:30:59.598Z
+  upgraded     2.4.0 -> 2.3.1  by u-6 at 2026-09-12T09:31:24.836Z
+  rolled_back  2.3.1 -> 2.4.0  by u-6 at 2026-09-12T09:31:47.262Z
+
+== 3. Published identities (immutability check) ==
+  2.3.1    digest=sha256:04cf049e110cc2cc released=2026-08-30 commit=c7d8e9f
+  2.4.0    digest=sha256:cadb075e36500b7c released=2026-09-12 commit=57408a3
+
+== 4. moving-ref install probe (package with NO active install: pk-101 latest 1.1.0) ==
+POST /api/installs/install {"packageId":"pk-101","expectedVersion":"latest"} as petra.voss (a moving-ref string as install authority)
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Version mismatch: you selected latest but the latest published version is 1.1.0.",
+  "packageId": "pk-101",
+  "currentVersion": "1.1.0",
+  "yourVersion": "latest"
+}
+POST /api/installs/install {"packageId":"pk-101","expectedVersion":"main"} as petra.voss (branch-head-style ref)
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Version mismatch: you selected main but the latest published version is 1.1.0.",
+  "packageId": "pk-101",
+  "currentVersion": "1.1.0",
+  "yourVersion": "main"
+}

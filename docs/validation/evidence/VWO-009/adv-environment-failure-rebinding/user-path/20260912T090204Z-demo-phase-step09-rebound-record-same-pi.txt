@@ -1,0 +1,79 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Iris Chen · org_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your installs" [level=1, ref=e4]
+  - generic
+    - heading "Install <code>ins-0402</code> — Support Ticket Triage Assistant <code>2.4.0</code> <span class=\"pill p-ok\">active</span>" [level=2, ref=e13]
+    - table
+      - row
+        - cell "Organization" [ref=e15]
+        - cell "Northwind Logistics" [ref=e16]
+      - row
+        - cell "Entitlement" [ref=e17]
+        - cell "ent-0504 active" [ref=e18]
+          - code
+            - StaticText "ent-0504"
+          - StaticText "active"
+      - row
+        - cell "Latest published" [ref=e19]
+        - cell "2.4.0 — up to date" [ref=e20]
+          - code
+            - StaticText "2.4.0"
+          - StaticText " — up to date"
+      - row
+        - cell "Installed by" [ref=e21]
+        - cell "Iris Chen" [ref=e22]
+      - row
+        - cell "Installed at" [ref=e23]
+        - cell "2026-09-12T09:00:49.819Z" [ref=e24]
+      - row
+        - cell "Config" [ref=e25]
+        - cell "{\"queue\":\"tier-2-emea\",\"confidenceThreshold\":\"0.85\",\"environment\":\"registry-eu-1\"}" [ref=e26]
+          - code
+            - StaticText "{\"queue\":\"tier-2-emea\",\"confidenceThreshold\":\"0.85\",\"environment\":\"registry-eu-1\"}"
+    - table
+      - rowgroup
+        - row
+          - columnheader "HISTORY" [ref=e33]
+      - row
+        - cell "installed 2.3.1 by Iris Chen at 2026-09-12T09:00:49.819Z" [ref=e27]
+          - StaticText "installed 2.3.1 by Iris Chen at 2026-09-12T09:00:49.819Z"
+      - row
+        - cell "upgraded 2.3.1 → 2.4.0 by Iris Chen at 2026-09-12T09:01:30.856Z" [ref=e28]
+          - StaticText "upgraded 2.3.1 → 2.4.0 by Iris Chen at 2026-09-12T09:01:30.856Z"
+      - row
+        - cell "configured 2.4.0 → 2.4.0 by Iris Chen at 2026-09-12T09:01:45.004Z" [ref=e29]
+          - StaticText "configured 2.4.0 → 2.4.0 by Iris Chen at 2026-09-12T09:01:45.004Z"
+      - row
+        - cell "configured 2.4.0 → 2.4.0 by Iris Chen at 2026-09-12T09:01:57.182Z" [ref=e30]
+          - StaticText "configured 2.4.0 → 2.4.0 by Iris Chen at 2026-09-12T09:01:57.182Z"
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Config keys to merge (JSON)"
+      - textbox [ref=e14]: {
+  "key": "value"
+}
+        - generic
+          - StaticText "{"
+          - LineBreak "\n"
+          - StaticText "  \"key\": \"value\""
+          - LineBreak "\n"
+          - StaticText "}"
+      - button "Apply config" [ref=e31]
+    - form
+      - button "Rollback to previous" [ref=e32]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

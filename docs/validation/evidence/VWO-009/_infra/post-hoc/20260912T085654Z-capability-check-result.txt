@@ -1,0 +1,1 @@
+bash: docs/validation/scripts/capability_check.sh: No such file or directory

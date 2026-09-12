@@ -1,0 +1,18 @@
+VWO-009 — adv-environment-failure-rebinding — HYBRID instruct-phase text
+(submitted 2026-09-12; no Codex teaching surface exists at base 7736a42 —
+per standing finding VWO-005 F1 / VWO-008 F1 the instruction text is
+recorded here verbatim instead of being submitted to a teaching input):
+
+"Iris Chen (Northwind Logistics org admin):
+We run the Support Ticket Triage Assistant package in production.
+Keep our install pinned to the version we approved — we move pins only
+through explicit upgrades, never by re-installing.
+
+Bind the install to our tier-1 support queue with a 0.7 confidence
+threshold. If the package registry is down when we try to upgrade, the
+upgrade must fail safely with NO partial install and we retry later.
+After a successful upgrade I may re-point our queue binding or threshold
+through configuration — but reconfiguration must never touch the
+installed version, the package digest, or the published provenance.
+If any environment we depend on is replaced by a compatible one, the
+workflow content and its version pin must stay byte-identical."

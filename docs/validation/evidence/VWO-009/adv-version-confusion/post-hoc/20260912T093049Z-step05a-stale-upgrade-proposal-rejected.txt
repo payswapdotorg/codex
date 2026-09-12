@@ -1,0 +1,11 @@
+adv-version-confusion step 5 — stale upgrade proposal (API twin; the browser form always carries a fresh hidden expectedCurrentVersion, so a stale proposal requires the documented API twin — same op code install:manage)
+
+== 5a. upgrade submitted with a STALE expectedCurrentVersion (2.2.0) while ins-0401 is at 2.3.1 ==
+POST /api/installs/upgrade {"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.2.0"} as petra.voss
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Install ins-0401 moved: you expected v2.2.0 but it is at v2.3.1.",
+  "installId": "ins-0401",
+  "currentVersion": "2.3.1"
+}

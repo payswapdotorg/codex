@@ -1,0 +1,22 @@
+VWO-009 — adv-version-confusion — INSTRUCT instruction text
+(submitted 2026-09-12; no Codex teaching surface exists at base 7736a42 —
+per standing finding VWO-005 F1 / VWO-008 F1 the instruction text is
+recorded here verbatim instead of being submitted to a teaching input):
+
+"Petra Voss (Acme Retail org admin):
+We operate install ins-0401 of the Support Ticket Triage Assistant,
+pinned at v2.3.1. Enforce version governance on this install:
+
+1. One active install per package per org — if anyone tries to install
+   the same package again while our install is active, reject it; the
+   only sanctioned way to move to a new version is an explicit upgrade.
+2. Upgrades must move the pin FORWARD to an exactly-published version,
+   with the version we expect; if our install moved underneath us
+   (someone else upgraded first), the stale request must conflict, not
+   silently apply.
+3. Downgrades may happen only as an explicit, labeled rollback decision
+   — never implicitly through the upgrade path.
+4. The published digest of every version must stay immutable and
+   verifiable; upgrading must land exactly on the published artifact.
+5. Moving references (branch heads, 'latest' pointers) are never
+   installation authority — only exact published versions are."

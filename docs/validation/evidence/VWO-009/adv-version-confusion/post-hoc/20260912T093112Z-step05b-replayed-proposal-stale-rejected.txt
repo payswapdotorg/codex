@@ -1,0 +1,10 @@
+adv-version-confusion step 5b — REPLAY of the exact successful upgrade proposal after the pin moved (the natural stale-proposal oracle; API twin, same op code)
+
+POST /api/installs/upgrade {"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"} as petra.voss (verbatim re-issue of the proposal that just succeeded at 09:30:59Z)
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Install ins-0401 moved: you expected v2.3.1 but it is at v2.4.0.",
+  "installId": "ins-0401",
+  "currentVersion": "2.4.0"
+}

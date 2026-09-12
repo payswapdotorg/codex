@@ -1,0 +1,83 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Petra Voss · org_admin · "
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "Install ins-0401 configured (no keys)."
+  - heading "Your installs" [level=1, ref=e4]
+  - generic
+    - heading "Install <code>ins-0401</code> — Support Ticket Triage Assistant <code>2.3.1</code> <span class=\"pill p-ok\">active</span>" [level=2, ref=e13]
+    - table
+      - row
+        - cell "Organization" [ref=e16]
+        - cell "Acme Retail" [ref=e17]
+      - row
+        - cell "Entitlement" [ref=e18]
+        - cell "ent-0501 active" [ref=e19]
+          - code
+            - StaticText "ent-0501"
+          - StaticText "active"
+      - row
+        - cell "Latest published" [ref=e20]
+        - cell "2.4.0 — upgrade available" [ref=e21]
+          - code
+            - StaticText "2.4.0"
+          - StaticText " — upgrade available"
+      - row
+        - cell "Installed by" [ref=e22]
+        - cell "Petra Voss" [ref=e23]
+      - row
+        - cell "Installed at" [ref=e24]
+        - cell "2026-08-31T10:00:00Z" [ref=e25]
+      - row
+        - cell "Config" [ref=e26]
+        - cell "{\"queue\":\"tier-1\",\"confidenceThreshold\":\"0.7\"}" [ref=e27]
+          - code
+            - StaticText "{\"queue\":\"tier-1\",\"confidenceThreshold\":\"0.7\"}"
+    - table
+      - rowgroup
+        - row
+          - columnheader "HISTORY" [ref=e33]
+      - row
+        - cell "installed 2.3.1 by Petra Voss at 2026-08-31T10:00:00Z" [ref=e28]
+          - StaticText "installed 2.3.1 by Petra Voss at 2026-08-31T10:00:00Z"
+      - row
+        - cell "configured 2.3.1 → 2.3.1 by Petra Voss at 2026-09-12T09:29:56.017Z" [ref=e29]
+          - StaticText "configured 2.3.1 → 2.3.1 by Petra Voss at 2026-09-12T09:29:56.017Z"
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Config keys to merge (JSON)"
+      - textbox [ref=e14]: {
+  "key": "value"
+}
+        - generic
+          - StaticText "{"
+          - LineBreak "\n"
+          - StaticText "  \"key\": \"value\""
+          - LineBreak "\n"
+          - StaticText "}"
+      - button "Apply config" [ref=e30]
+    - form
+      - StaticText ",,"
+      - LabelText
+        - StaticText "Target version"
+      - combobox [expanded=false, ref=e15]: 2.4.0 — Adds sentiment-aware routing and a low-confidence escalation queue.
+        - MenuListPopup
+          - option "2.4.0 — Adds sentiment-aware routing and a low-confidence escalation queue." [selected, ref=e34]
+      - button "Upgrade to 2.4.0" [ref=e31]
+    - form
+      - button "Rollback to previous" [ref=e32]
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

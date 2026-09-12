@@ -1,0 +1,10 @@
+adv-version-confusion — reset verification (reset-scenario.sh marketplace: process restart + POST /api/reset)
+2026-09-12T09:33:04Z
+
+GET /api/packages/pk-102 (published identity back to seed — 2.4.0 gone, single immutable 2.3.1):
+  2.3.1 sha256:04cf049e110cc2cc
+  installs: [('ins-0401', '2.3.1', 'active')]
+  entitlements: [('ent-0501', 'active')]
+
+GET /api/events?limit=10 (feed reduced to the world.reset marker):
+  world.reset                Demo world reset to seed state (reset #1)

