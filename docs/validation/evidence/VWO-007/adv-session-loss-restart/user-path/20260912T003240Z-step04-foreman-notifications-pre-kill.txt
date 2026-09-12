@@ -1,0 +1,16 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - link "sign out" [ref=e3]
+- main
+  - heading "Your notifications" [level=1, ref=e4]
+  - paragraph
+  - generic
+    - heading "Inbox" [level=2, ref=e12]

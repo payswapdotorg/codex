@@ -1,0 +1,12 @@
+== post-hoc: deployment events for the provider-failure scenario ==
+  ev-0027 dep-1107  v14.3.1
+  ev-0015 dep-1105  v4.8.2
+== failure events recorded? ==
+event type counts: {'notification.delivered': 6, 'service.version_bumped': 2, 'deployment.promoted': 2, 'auth.login': 12, 'deployment.created': 2, 'pr.merged': 2, 'pr.approved': 2, 'world.reset': 1}
+== reset verification ==
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}

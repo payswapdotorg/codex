@@ -1,0 +1,124 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - StaticText "Hana Kim · staff_writer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "City budget hearings: five things to watch published" [level=1, ref=e4]
+    - StaticText "City budget hearings: five things to watch published"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e23]
+        - cell "st-0202" [ref=e24]
+          - code
+            - StaticText "st-0202"
+      - row
+        - cell "Slug" [ref=e25]
+        - cell "city-budget-hearings-five-things" [ref=e26]
+          - code
+            - StaticText "city-budget-hearings-five-things"
+      - row
+        - cell "Section" [ref=e27]
+        - cell "metro" [ref=e28]
+      - row
+        - cell "Author" [ref=e29]
+        - cell "Hana Kim" [ref=e30]
+      - row
+        - cell "Status" [ref=e31]
+        - cell "published" [ref=e32]
+      - row
+        - cell "Version" [ref=e33]
+        - cell "v3" [ref=e34]
+      - row
+        - cell "Word count" [ref=e35]
+        - cell "168" [ref=e36]
+      - row
+        - cell "Approved by" [ref=e37]
+        - cell "Camille Dubois" [ref=e38]
+      - row
+        - cell "Published at" [ref=e39]
+        - cell "2026-09-12T01:09:09.050Z" [ref=e40]
+      - row
+        - cell "Channels" [ref=e41]
+        - cell "web-front-page" [ref=e42]
+          - code
+            - StaticText "web-front-page"
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "Five storylines will shape this month’s budget hearings: the housing trust top-up, transit fare freezes, the library levy, stormwater fees, and a contested police overtime line.\n\nEach has a bloc of council allies and a fiscal note that will be picked apart line by line."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e58]
+          - columnheader "KIND" [ref=e59]
+          - columnheader "NAME" [ref=e60]
+          - columnheader "CREDIT" [ref=e61]
+          - columnheader "RENDITIONS" [ref=e62]
+      - row
+        - cell "a-0302 inline" [ref=e43]
+          - code
+            - StaticText "a-0302"
+          - StaticText "inline"
+        - cell "image" [ref=e44]
+        - cell "budget-hearing-chamber.jpg" [ref=e45]
+        - cell "Staff" [ref=e46]
+        - cell "thumbnail: ready" [ref=e47]
+          - StaticText "thumbnail:ready"
+      - row
+        - cell "a-0302 hero" [ref=e48]
+          - code
+            - StaticText "a-0302"
+          - StaticText "hero"
+        - cell "image" [ref=e49]
+        - cell "budget-hearing-chamber.jpg" [ref=e50]
+        - cell "Staff" [ref=e51]
+        - cell "thumbnail: ready" [ref=e52]
+          - StaticText "thumbnail:ready"
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+    - paragraph
+      - StaticText "No corrections."
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+    - table
+      - rowgroup
+        - row
+          - columnheader "JOB" [ref=e63]
+          - columnheader "CHANNEL" [ref=e64]
+          - columnheader "STATUS" [ref=e65]
+          - columnheader "AT" [ref=e66]
+          - columnheader "ERROR" [ref=e67]
+      - row
+        - cell "dj-0604" [ref=e53]
+          - code
+            - StaticText "dj-0604"
+        - cell "web-front-page" [ref=e54]
+          - code
+            - StaticText "web-front-page"
+        - cell "sent" [ref=e55]
+        - cell "2026-09-12T01:09:09.050Z" [ref=e56]
+        - cell "—" [ref=e57]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]
+    - paragraph
+      - StaticText "No social posts."
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

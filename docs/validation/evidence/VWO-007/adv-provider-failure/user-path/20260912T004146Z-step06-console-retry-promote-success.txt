@@ -1,0 +1,11 @@
+== ATTACK 2: retry the promote WITHOUT the switch (provider restored) ==
+$ printf 'login raj.patel demo-pass-raj\npromote dep-1101\ndeployments r-1\nquit\n' | node deploy-console.js
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+FAILED 409: data_conflict — Deployment dep-1101 is env "staging" / status "promoted" — only successful staging deployments can be promoted.
+deployments (2):
+  dep-1102  production 4.8.1     succeeded  artifact=art-0901 repo=r-1
+  dep-1101  staging    4.8.1     promoted   artifact=art-0901 repo=r-1

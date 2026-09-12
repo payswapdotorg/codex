@@ -1,0 +1,12 @@
+previous construction not running (stale pid 14976)
+restarted construction pid 15052 port 4101 at 2026-09-12T00:35:16Z — NO reseed performed
+{
+  "ok": true,
+  "family": "construction",
+  "app": "SiteBuild Field Suite",
+  "port": 4101,
+  "version": "1.0.0",
+  "uptimeSec": 1,
+  "events": 4,
+  "resets": 1
+}

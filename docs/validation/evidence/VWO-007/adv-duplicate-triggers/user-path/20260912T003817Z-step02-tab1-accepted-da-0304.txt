@@ -1,0 +1,77 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign in" [ref=e3]
+- main
+  - status
+    - StaticText "Application da-0304 submitted for Downtown Core. Screening usually completes within 2 business days."
+  - heading "Apply to drive with RidePilot" [level=1, ref=e4]
+  - generic
+    - heading "Driver application (public intake)" [level=2, ref=e16]
+    - form
+      - LabelText
+        - StaticText "Full name"
+      - textbox [required, ref=e17]
+      - StaticText ","
+      - LabelText
+        - StaticText "Phone (last 4 shown only)"
+      - textbox [required, ref=e18]
+      - StaticText ","
+      - LabelText
+        - StaticText "Email"
+      - textbox [ref=e19]
+      - StaticText ","
+      - LabelText
+        - StaticText "Region"
+      - combobox [expanded=false, ref=e20]: Downtown Core (DT)
+        - MenuListPopup
+          - option "Downtown Core (DT)" [selected, ref=e28]
+          - option "Airport Corridor (AP)" [ref=e29]
+          - option "Northside (NS)" [ref=e30]
+          - option "Riverside (RV)" [ref=e31]
+      - StaticText ","
+      - LabelText
+        - StaticText "Vehicle: make"
+      - textbox [ref=e21]: Toyota
+        - StaticText "Toyota"
+      - StaticText ","
+      - LabelText
+        - StaticText "Vehicle: model"
+      - textbox [ref=e22]: Corolla
+        - StaticText "Corolla"
+      - StaticText ","
+      - LabelText
+        - StaticText "Vehicle: year"
+      - spinbutton [ref=e23]: 2021
+        - StaticText "2021"
+      - StaticText ","
+      - LabelText
+        - StaticText "Vehicle: plate"
+      - textbox [required, ref=e24]
+      - StaticText ","
+      - LabelText
+        - StaticText "Do you have your license document ready?"
+      - combobox [expanded=false, ref=e25]: Yes
+        - MenuListPopup
+          - option "Yes" [selected, ref=e32]
+          - option "No — not yet" [ref=e33]
+      - StaticText ","
+      - LabelText
+        - StaticText "Do you have your insurance document ready?"
+      - combobox [expanded=false, ref=e26]: Yes
+        - MenuListPopup
+          - option "Yes" [selected, ref=e34]
+          - option "No — not yet" [ref=e35]
+      - button "Submit application" [ref=e27]
+      - StaticText "This public form is the natural duplicate_event case: submitting the same plate twice is rejected."

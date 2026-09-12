@@ -1,0 +1,117 @@
+- banner
+  - link "ForgeOpssoftware fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Repos" [ref=e6]
+    - link "Deployments" [ref=e7]
+    - link "Incidents" [ref=e8]
+    - link "Services" [ref=e9]
+    - link "Issues" [ref=e10]
+    - link "Docs" [ref=e11]
+    - link "Teams" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign out" [ref=e3]
+- main
+  - status
+    - StaticText "PR #148 merged; web-checkout 14.3.1 deployed to staging (deployment dep-1106)."
+  - heading "web-checkout TypeScript · base main · owner web-experience" [level=1, ref=e4]
+    - code
+      - StaticText "web-checkout"
+    - StaticText " TypeScript · base main · owner web-experience"
+  - generic
+    - heading "Versions" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Staging" [ref=e20]
+        - cell "14.3.1" [ref=e21]
+          - code
+      - row
+        - cell "Production" [ref=e22]
+        - cell "14.3.0" [ref=e23]
+          - code
+      - row
+        - cell "Service" [ref=e24]
+        - cell "checkout-web" [ref=e25]
+          - code
+  - generic
+    - heading "Pull requests" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "PR" [ref=e52]
+          - columnheader "TITLE" [ref=e53]
+          - columnheader "AUTHOR" [ref=e54]
+          - columnheader "CI" [ref=e55]
+          - columnheader "APPROVALS" [ref=e56]
+          - columnheader "STATUS" [ref=e57]
+      - row
+        - cell "pr-0302 #148" [ref=e26]
+          - link "pr-0302 #148" [ref=e58]
+        - cell "Checkout caching layer" [ref=e27]
+        - cell "Tobi Oyelaran" [ref=e28]
+        - cell "passed" [ref=e29]
+        - cell "1" [ref=e30]
+        - cell "merged" [ref=e31]
+  - generic
+    - heading "Deployments" [level=2, ref=e18]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DEPLOYMENT" [ref=e59]
+          - columnheader "PR" [ref=e60]
+          - columnheader "ENV" [ref=e61]
+          - columnheader "VERSION" [ref=e62]
+          - columnheader "ARTIFACT" [ref=e63]
+          - columnheader "STATUS" [ref=e64]
+          - columnheader "ACTION" [ref=e65]
+      - row
+        - cell "dep-1106" [ref=e32]
+          - code
+        - cell "pr-0302" [ref=e33]
+          - code
+        - cell "ok staging" [ref=e34]
+          - StaticText "ok staging"
+        - cell "14.3.1" [ref=e35]
+          - code
+        - cell "art-0903" [ref=e36]
+          - code
+        - cell "succeeded" [ref=e37]
+        - cell
+          - form
+            - button "Promote to production" [ref=e70]
+      - row
+        - cell "dep-1103" [ref=e38]
+          - code
+        - cell "pr-141" [ref=e39]
+          - code
+        - cell "info production" [ref=e40]
+          - StaticText "info production"
+        - cell "14.3.0" [ref=e41]
+          - code
+        - cell "art-0884" [ref=e42]
+          - code
+        - cell "succeeded" [ref=e43]
+        - cell
+          - form
+            - button "Rollback" [ref=e71]
+  - generic
+    - heading "Build artifacts (registry)" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ARTIFACT" [ref=e66]
+          - columnheader "DIGEST" [ref=e67]
+          - columnheader "SIZE" [ref=e68]
+          - columnheader "BUILT FROM" [ref=e69]
+      - row
+        - cell "art-0884" [ref=e44]
+        - cell "sha256:31ba90cc4e12" [ref=e45]
+        - cell "8.5 MB" [ref=e46]
+        - cell "pr-141" [ref=e47]
+      - row
+        - cell "art-0903" [ref=e48]
+        - cell "sha256:145e14ea4871" [ref=e49]
+        - cell "12.1 MB" [ref=e50]
+        - cell "pr-0302" [ref=e51]

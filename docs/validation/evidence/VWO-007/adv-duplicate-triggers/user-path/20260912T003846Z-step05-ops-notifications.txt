@@ -1,0 +1,21 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - link "sign in" [ref=e3]
+- main
+  - heading "Something went wrong" [level=1, ref=e4]
+  - StaticText "Sign in to perform this operation."
+  - paragraph
+  - paragraph
+    - link "failure switches" [ref=e16]

@@ -1,0 +1,43 @@
+== concurrent trigger storm attack (adv-duplicate-triggers, RidePilot 4103) ==
+STORM A: 8 PARALLEL intake submissions, IDENTICAL payload (same plate ZZVWO-STORM-A, region rg-1)
+A7:200
+A6:409
+A3:409
+A5:409
+A4:409
+A8:409
+A2:409
+A1:409
+--- storm A outcomes:
+A1: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A2: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A3: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A4: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A5: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A6: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 
+A7: {
+  "ok": true,
+  "message": "Application da-0305 submitted for Downtown Core. Screening usually completes within 2 business days.",
+  "warning": null
+A8: {
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "An active application for plate \"ZZVWO-STORM-A\" already exists — duplicate intake is 

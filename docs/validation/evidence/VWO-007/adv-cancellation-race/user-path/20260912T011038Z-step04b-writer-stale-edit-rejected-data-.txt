@@ -1,0 +1,11 @@
+== writer hana.kim replays her HELD STALE edit form (rendered at v2 in_review) via the documented API twin POST /api/stories/edit, after the story was published as v3 ==
+
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Version mismatch on story st-0202: you worked from v2 but the current version is v3 — reload and reapply.",
+  "storyId": "st-0202",
+  "currentVersion": 3,
+  "yourVersion": 2
+}
+HTTP 409

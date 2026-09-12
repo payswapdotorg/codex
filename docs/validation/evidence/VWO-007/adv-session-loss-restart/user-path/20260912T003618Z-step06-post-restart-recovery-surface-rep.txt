@@ -1,0 +1,214 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - link "sign out" [ref=e3]
+- main
+  - heading "Harborview Tower HVT" [level=1, ref=e4]
+    - StaticText "Harborview Tower HVT"
+  - generic
+    - heading "Overview" [level=2, ref=e12]
+    - table
+      - row
+        - cell "Site" [ref=e28]
+        - cell "400 Pier Ave, Bay District" [ref=e29]
+      - row
+        - cell "Phase" [ref=e30]
+        - cell "structural" [ref=e31]
+      - row
+        - cell "Progress" [ref=e32]
+        - cell "68%" [ref=e33]
+      - row
+        - cell "Budget" [ref=e34]
+        - cell "$2,641,000 of $4,250,000" [ref=e35]
+      - row
+        - cell "Manager" [ref=e36]
+        - cell "Dana Reyes" [ref=e37]
+      - row
+        - cell "Contractors" [ref=e38]
+        - cell "ConcreteWorks LLC until 2027-06-30 SteelCo Fabrication until 2026-08-01" [ref=e39]
+      - row
+        - cell "Due" [ref=e40]
+        - cell "2027-03-15" [ref=e41]
+  - generic
+    - heading "Tasks" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "TASK" [ref=e98]
+          - columnheader "TRADE" [ref=e99]
+          - columnheader "STATUS" [ref=e100]
+          - columnheader "ASSIGNEE" [ref=e101]
+      - row
+        - cell "t-101a Pour level-12 slab" [ref=e42]
+        - cell "concrete" [ref=e43]
+        - cell "done" [ref=e44]
+        - cell "Marco Silva" [ref=e45]
+      - row
+        - cell "t-101b Erect tower crane B" [ref=e46]
+        - cell "rigging" [ref=e47]
+        - cell "done" [ref=e48]
+        - cell "Marco Silva" [ref=e49]
+      - row
+        - cell "t-101c Level-13 formwork" [ref=e50]
+        - cell "formwork" [ref=e51]
+        - cell "done" [ref=e52]
+        - cell "Marco Silva" [ref=e53]
+      - row
+        - cell "t-101d Facade framing" [ref=e54]
+        - cell "envelope" [ref=e55]
+        - cell "todo" [ref=e56]
+        - cell "—" [ref=e57]
+  - generic
+    - heading "Photos on file" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e102]
+          - columnheader "NAME" [ref=e103]
+          - columnheader "CAPTION" [ref=e104]
+          - columnheader "SIZE" [ref=e105]
+      - row
+        - cell "a-101" [ref=e58]
+        - cell "site-overview-l12.jpg" [ref=e59]
+        - cell "Level 12 slab pour — overview" [ref=e60]
+        - cell "2400 kb" [ref=e61]
+      - row
+        - cell "a-102" [ref=e62]
+        - cell "crane-b-erection.jpg" [ref=e63]
+        - cell "Tower crane B certified" [ref=e64]
+        - cell "1850 kb" [ref=e65]
+  - generic
+    - heading "Submit daily progress report (foreman)" [level=2, ref=e15]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Report date"
+      - Date: 2026-09-12
+        - generic
+          - spinbutton "Month" [ref=e123]: 9
+          - spinbutton "Day" [ref=e124]: 12
+          - spinbutton "Year" [ref=e125]: 2026
+        - button "Show date picker" [ref=e66]
+      - StaticText ","
+      - LabelText
+        - StaticText "Tasks completed"
+      - combobox [expanded=false, ref=e21]: 0 selected
+        - MenuListPopup
+          - option "t-101d — Facade framing" [ref=e106]
+      - StaticText "Ctrl/Cmd-click to multi-select"
+      - StaticText ","
+      - LabelText
+        - StaticText "Percent complete"
+      - spinbutton [ref=e22]: 68
+        - StaticText "68"
+      - StaticText ","
+      - LabelText
+        - StaticText "Photos attached"
+      - listbox [ref=e23]
+        - option "a-101 — site-overview-l12.jpg" [ref=e67]
+        - option "a-102 — crane-b-erection.jpg" [ref=e68]
+      - StaticText "Optional; pick site photos"
+      - StaticText ","
+      - LabelText
+        - StaticText "Notes"
+      - textbox [ref=e24]
+      - button "Submit daily report" [ref=e69]
+      - StaticText "Creates the report, marks tasks done, updates project %, notifies the PM. The API twin POST /api/progress accepts the same fields plus ?failure= switches."
+  - generic
+    - heading "Upload site photo" [level=2, ref=e16]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "File name"
+      - textbox [required, ref=e25]: level13-formwork.jpg
+        - StaticText "level13-formwork.jpg"
+      - StaticText ","
+      - LabelText
+        - StaticText "Caption"
+      - textbox [ref=e26]
+      - StaticText ","
+      - LabelText
+        - StaticText "Size (kb)"
+      - spinbutton [ref=e27]: 1500
+        - StaticText "1500"
+      - button "Upload photo" [ref=e70]
+      - StaticText "Simulated upload — records the asset and emits asset.uploaded."
+  - generic
+    - heading "Progress reports" [level=2, ref=e17]
+    - table
+      - rowgroup
+        - row
+          - columnheader "REPORT" [ref=e107]
+          - columnheader "DATE" [ref=e108]
+          - columnheader "BY" [ref=e109]
+          - columnheader "%" [ref=e110]
+          - columnheader "TASKS" [ref=e111]
+          - columnheader "PHOTOS" [ref=e112]
+          - columnheader "NOTES" [ref=e113]
+      - row
+        - cell "pr-4002" [ref=e71]
+        - cell "2026-09-12" [ref=e72]
+        - cell "Marco Silva" [ref=e73]
+        - cell "68%" [ref=e74]
+        - cell "t-101c" [ref=e75]
+        - cell "a-101" [ref=e76]
+        - cell "Formwork on level 13 complete; crane B certified." [ref=e77]
+      - row
+        - cell "pr-4001" [ref=e78]
+        - cell "2026-09-10" [ref=e79]
+        - cell "Marco Silva" [ref=e80]
+        - cell "60%" [ref=e81]
+        - cell "t-101a, t-101b" [ref=e82]
+        - cell "a-101, a-102" [ref=e83]
+        - cell "Slab pour complete; crane B certified and released for ops." [ref=e84]
+  - generic
+    - heading "Procurement" [level=2, ref=e18]
+    - list
+      - listitem [level=1]
+        - ListMarker "• "
+        - code
+        - StaticText " High-tensile rebar Grade 60 — "
+        - StaticText "submitted"
+        - StaticText "$1,104,000 · SteelCo Fabrication · contract until 2026-08-01"
+  - generic
+    - heading "Safety incidents" [level=2, ref=e19]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e114]
+          - columnheader "SEVERITY" [ref=e115]
+          - columnheader "CATEGORY" [ref=e116]
+          - columnheader "STATUS" [ref=e117]
+          - columnheader "DESCRIPTION" [ref=e118]
+      - row
+        - cell "si-2001" [ref=e85]
+        - cell "minor" [ref=e86]
+        - cell "near-miss" [ref=e87]
+        - cell "investigating" [ref=e88]
+        - cell "Scaffold clamp dropped from level 8 barricaded zone; no injuries." [ref=e89]
+  - generic
+    - heading "Documents" [level=2, ref=e20]
+    - table
+      - rowgroup
+        - row
+          - columnheader "DOCUMENT" [ref=e119]
+          - columnheader "VERSION" [ref=e120]
+          - columnheader "OWNER" [ref=e121]
+          - columnheader "ASSET" [ref=e122]
+      - row
+        - cell "Structural report R3" [ref=e90]
+        - cell "v3" [ref=e91]
+        - cell "Dana Reyes" [ref=e92]
+        - cell "a-105" [ref=e93]
+      - row
+        - cell "Site safety plan v4" [ref=e94]
+        - cell "v4" [ref=e95]
+        - cell "Sam O’Connell" [ref=e96]
+        - cell "a-106" [ref=e97]

@@ -1,0 +1,51 @@
+== concurrent trigger storm attack (adv-duplicate-triggers, RidePilot 4103) ==
+STORM A: 8 PARALLEL intake submissions, IDENTICAL payload (same plate ZZVWO-STORM-A, region rg-1)
+A8:400
+A7:400
+A6:400
+A1:400
+A3:400
+A5:400
+A4:400
+A2:400
+--- storm A outcomes (accept=200, duplicate=409):
+A1: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A2: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A3: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A4: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A5: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A6: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A7: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}
+A8: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "Name and vehicle plate are required."
+}

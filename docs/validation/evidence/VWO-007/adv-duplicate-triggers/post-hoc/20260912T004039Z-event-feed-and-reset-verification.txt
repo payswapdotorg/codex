@@ -1,0 +1,20 @@
+== event feed: application submissions (storm dedup observability) ==
+total application_submitted events: 10
+  ev-0021 ZZVWO-STB-1 da-0313
+  ev-0019 ZZVWO-STB-3 da-0312
+  ev-0017 ZZVWO-STB-5 da-0311
+  ev-0015 ZZVWO-STB-6 da-0310
+  ev-0013 ZZVWO-STB-2 da-0309
+  ev-0011 ZZVWO-STB-4 da-0308
+  ev-0009 ZZVWO-STB-7 da-0307
+  ev-0007 ZZVWO-STB-8 da-0306
+  ev-0005 ZZVWO-STORM-A da-0305
+  ev-0002 ZZVWO-7701 da-0304
+== reset verification (scenario end) ==
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+post-reset events: ['world.reset']

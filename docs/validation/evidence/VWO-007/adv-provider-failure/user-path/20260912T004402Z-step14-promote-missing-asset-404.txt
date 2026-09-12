@@ -1,0 +1,12 @@
+== ATTACK C: artifact provider death — missing_asset 404 under promote dep-1106 ==
+$ printf 'login raj.patel demo-pass-raj\nswitch missing_asset\npromote dep-1106\ndeployments r-2\nquit\n' | node deploy-console.js
+ForgeOps Deploy Console (desktop-target terminal application)
+server: http://localhost:4102 — start it with: node server.js --port 4102
+type "help" for commands.
+
+signed in as Raj Patel (release_manager). token stored for this session.
+failure switch armed for next command: missing_asset
+FAILED 404: missing_asset — Release artifact "art-0903" could not be resolved in the artifact registry (simulated dangling reference).
+deployments (2):
+  dep-1106  staging    14.3.1    succeeded  artifact=art-0903 repo=r-2
+  dep-1103  production 14.3.0    succeeded  artifact=art-0884 repo=r-2

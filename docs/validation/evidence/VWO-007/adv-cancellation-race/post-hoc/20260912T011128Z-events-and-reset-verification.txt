@@ -1,0 +1,28 @@
+== event feed for adv-cancellation-race (complete re-run) ==
+total: 17
+  ev-0017 notification.delivered notification:n-0003 Notification "Correction applied to "City budget hearings: five things to watch"
+  ev-0016 correction.applied c-800802 Correction applied to "City budget hearings: five things to watch" (v4) by Camil
+  ev-0015 distribution.sent dj-0605 Re-sent corrected "City budget hearings: five things to watch" to channel ch-1
+  ev-0014 auth.login user:u-1 camille.dubois signed in
+  ev-0013 auth.login user:u-1 camille.dubois signed in
+  ev-0012 auth.login user:u-3 hana.kim signed in
+  ev-0011 auth.login user:u-3 hana.kim signed in
+  ev-0010 auth.login user:u-3 hana.kim signed in
+  ev-0009 notification.delivered notification:n-0002 Notification "Your story "City budget hearings: five things to watch" is live" d
+  ev-0008 story.published st-0202 "City budget hearings: five things to watch" published to 1 channel(s) by Camill
+  ev-0007 distribution.sent dj-0604 Sent "City budget hearings: five things to watch" to channel web-front-page
+  ev-0006 notification.delivered notification:n-0001 Notification "Your story "City budget hearings: five things to watch" was approv
+  ev-0005 story.approved st-0202 "City budget hearings: five things to watch" approved for publication by Camille
+  ev-0004 auth.login user:u-1 camille.dubois signed in
+  ev-0003 story.asset_attached st-0202 Asset a-0302 (budget-hearing-chamber.jpg) attached to "City budget hearings: fiv
+  ev-0002 auth.login user:u-3 hana.kim signed in
+  ev-0001 world.reset state Demo world reset to seed state (reset #1)
+
+== reset verification (scenario end) ==
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+post-reset events: ['world.reset']

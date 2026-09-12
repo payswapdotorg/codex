@@ -1,0 +1,78 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - link "sign in" [ref=e3]
+- main
+  - heading "City budget hearings: five things to watch in_review" [level=1, ref=e4]
+    - StaticText "City budget hearings: five things to watch in_review"
+  - generic
+    - heading "Story overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e23]
+        - cell "st-0202" [ref=e24]
+      - row
+        - cell "Slug" [ref=e25]
+        - cell "city-budget-hearings-five-things" [ref=e26]
+      - row
+        - cell "Section" [ref=e27]
+        - cell "metro" [ref=e28]
+      - row
+        - cell "Author" [ref=e29]
+        - cell "Hana Kim" [ref=e30]
+      - row
+        - cell "Status" [ref=e31]
+        - cell "in_review" [ref=e32]
+      - row
+        - cell "Version" [ref=e33]
+        - cell "v2" [ref=e34]
+      - row
+        - cell "Word count" [ref=e35]
+        - cell "168" [ref=e36]
+      - row
+        - cell "Approved by" [ref=e37]
+        - cell "—" [ref=e38]
+      - row
+        - cell "Published at" [ref=e39]
+        - cell "—" [ref=e40]
+      - row
+        - cell "Channels" [ref=e41]
+        - cell "—" [ref=e42]
+  - generic
+    - heading "Body" [level=2, ref=e14]
+    - paragraph
+      - StaticText "Five storylines will shape this month’s budget hearings: the housing trust top-up, transit fare freezes, the library levy, stormwater fees, and a contested police overtime line.\n\nEach has a bloc of council allies and a fiscal note that will be picked apart line by line."
+  - generic
+    - heading "Assets" [level=2, ref=e15]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ASSET" [ref=e48]
+          - columnheader "KIND" [ref=e49]
+          - columnheader "NAME" [ref=e50]
+          - columnheader "CREDIT" [ref=e51]
+          - columnheader "RENDITIONS" [ref=e52]
+      - row
+        - cell "a-0302 inline" [ref=e43]
+        - cell "image" [ref=e44]
+        - cell "budget-hearing-chamber.jpg" [ref=e45]
+        - cell "Staff" [ref=e46]
+        - cell "thumbnail: ready" [ref=e47]
+  - heading "Edit" [level=2, ref=e16]
+  - heading "Submit for review" [level=2, ref=e17]
+  - heading "Editorial decision" [level=2, ref=e18]
+  - heading "Publish" [level=2, ref=e19]
+  - generic
+    - heading "Corrections" [level=2, ref=e20]
+  - generic
+    - heading "Distribution" [level=2, ref=e21]
+  - generic
+    - heading "Social posts" [level=2, ref=e22]

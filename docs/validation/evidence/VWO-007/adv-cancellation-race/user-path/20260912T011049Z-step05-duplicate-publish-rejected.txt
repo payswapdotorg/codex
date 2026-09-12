@@ -1,0 +1,14 @@
+== duplicate-publish attack on terminal state (as camille.dubois, editor-in-chief; the Publish form no longer renders for a published story — replaying via the documented API twin POST /api/stories/publish) ==
+
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Story st-0202 is already published — use a correction instead.",
+  "storyId": "st-0202"
+}
+HTTP 409
+
+== story state after duplicate-publish attempt (must remain published v3, body unchanged) ==
+status: published | version: 3
+addendum landed: False
+body[:90]: Five storylines will shape this month’s budget hearings: the housing trust top-up, transit

@@ -1,0 +1,14 @@
+== idempotency-key replay attack across restart — STEP C results ==
+restart performed at 2026-09-12T00:37:08Z via bash /home/z/vwo007-restart.sh construction 4101 (no reseed; healthz resets counter unchanged)
+STEP C: after process restart, replay the SAME idempotencyKey VWO007-KEY-1 (expect durable duplicate_event)
+{
+  "ok": false,
+  "error": "duplicate_event",
+  "message": "Rejected as duplicate event: signature \"POST /api/progress:VWO007-KEY-1\" was first seen 2026-09-12T00:36:52.667Z.",
+  "key": "POST /api/progress:VWO007-KEY-1",
+  "firstSeenAt": "2026-09-12T00:36:52.667Z"
+}
+HTTP 409
+STATE CHECK: reports on disk (must be exactly pr-4001, pr-4002, pr-4003 — no fourth report)
+[('pr-4001', '2026-09-10', 60), ('pr-4002', '2026-09-12', 68), ('pr-4003', '2026-09-13', 71)]
+p-101 percentComplete: 71

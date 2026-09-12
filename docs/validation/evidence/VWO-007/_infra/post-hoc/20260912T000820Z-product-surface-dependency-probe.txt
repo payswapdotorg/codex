@@ -1,0 +1,17 @@
+== Workflow-plane crates and their workspace dependents (reverse deps) ==
+--- codex-workflow-app is depended on by:
+./workflow-app/Cargo.toml
+--- codex-workflow-durable is depended on by:
+./workflow-durable/Cargo.toml
+--- codex-workflow-triggers is depended on by:
+./workflow-triggers/Cargo.toml
+--- codex-workflow-forge is depended on by:
+./workflow-forge/Cargo.toml
+--- codex-workflow-contracts is depended on by:
+./workflow-contracts/Cargo.toml
+--- codex-workflow-evolution is depended on by:
+./workflow-evolution/Cargo.toml
+--- codex-workflow-distribution is depended on by:
+./workflow-distribution/Cargo.toml
+--- codex-teaching-compiler is depended on by:
+./teaching-compiler/Cargo.toml
