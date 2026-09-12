@@ -1,0 +1,91 @@
+# VWO-009 P1/P2 write-path hole reproductions at current main — F4 implicit downgrade, F5 rollback direction, F7 entitlement shadowing, F2 config key smuggling
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b; surface: FlowMart JSON API twins (curl)
+state at start: Northwind ins-0402 (pk-103 Warehouse Slot Optimizer) pinned 1.2.0 after Family E probes (1.2.0 → 1.3.0 → rolled back 1.2.0)
+
+## A. VWO-009 F4 — IMPLICIT DOWNGRADE THROUGH THE UPGRADE OP
+iris.chen (Northwind org_admin) pins are: 1.2.0 current, prior released version 1.1.0 exists (see /catalog). The upgrade op is expected to move the pin FORWARD only.
+$ curl -s -X POST http://127.0.0.1:4105/api/installs/upgrade -d '{"installId":"ins-0402","targetVersion":"1.1.0","expectedCurrentVersion":"1.2.0"}'
+{
+    "ok": false,
+    "error": "version_not_found",
+    "message": "Version \"1.1.0\" of \"Warehouse Slot Optimizer\" does not exist.",
+    "installId": "ins-0402",
+    "version": "1.1.0"
+}
+(first attempt used non-existent version 1.1.0 — pk-103 ships 1.2.0 + 1.3.0 only; corrected battery below uses the shipped version pair)
+
+## A2. F4 — same-org implicit downgrade: iris first upgrades ins-0402 1.2.0 → 1.3.0 (legit forward), then calls the SAME upgrade op targeting the OLDER 1.2.0:
+$ POST /api/installs/upgrade {targetVersion:1.3.0, expectedCurrentVersion:1.2.0}
+ok: True | message: Install ins-0402 upgraded 1.2.0 → 1.3.0.
+$ POST /api/installs/upgrade {targetVersion:1.2.0, expectedCurrentVersion:1.3.0}  ← OLDER TARGET
+ok: True | message: Install ins-0402 upgraded 1.3.0 → 1.2.0. | pin now: 1.2.0
+
+## B. VWO-009 F5 — ROLLBACK DIRECTION CONFUSION after the downgrade: pin is 1.2.0; the documented 'rollback to previous' should stay at/restore 1.3.0-forward semantics — observed:
+$ POST /api/installs/rollback {installId:ins-0402}
+ok: True | message: Install ins-0402 rolled back 1.2.0 → 1.3.0. | pin now: 1.3.0
+→ 'rollback' moved the pin 1.2.0 → 1.3.0 (FORWARD), reproducing the order-blind history selection.
+
+## C. VWO-009 F7 — ENTITLEMENT REVOCATION SHADOWING (renewal cannot restore): target Acme's ins-0401 (pk-102, entitlement ent-0502 or current active).
+C.1 current Acme entitlements for pk-102:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+KeyError: 'entitlements'
+C.2 dan (marketplace_admin) revokes Acme's active pk-102 entitlement:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+KeyError: 'entitlements'
+   revoking 
+ok: False | message: Entitlement "" does not exist.
+C.3 petra's upgrade on ins-0401 (blocked, expected fail-closed):
+ok: True | error: None | message: Install ins-0401 upgraded 2.3.1 → 2.4.0.
+C.4 dan grants a FRESH subscription to Acme for pk-102 (the renewal path a vendor would take):
+ok: True | message: Entitlement ent-0504 granted to Acme Retail.
+C.5 petra retries the SAME upgrade after renewal (recovery must succeed per the acceptance 'gates recover by design'):
+ok: False | error: duplicate_event | message: Install ins-0401 is already at v2.4.0.
+
+## C-restart. VWO-009 F7 — clean battery after POST /api/reset (seed: Acme o-2 ins-0401 pk-102 @2.3.1, entitlement ent-0501 active)
+C.1 revoke ent-0501 as dan:
+ok: True | message: Entitlement ent-0501 revoked.
+C.2 petra upgrade attempt (expected: fail-closed stale_entitlement naming ent-0501):
+ok: False | error: stale_entitlement | message: Entitlement ent-0501 for "Support Ticket Triage Assistant" (Acme Retail) is revoked — upgrade requires an active license.
+C.3 dan grants FRESH subscription ent-0504 (renewal path):
+ok: True | message: Entitlement ent-0504 granted to Acme Retail.
+C.4 petra retries the upgrade — recovery MUST succeed (commercial gates recover by design):
+ok: False | error: stale_entitlement | message: Entitlement ent-0501 for "Support Ticket Triage Assistant" (Acme Retail) is revoked — upgrade requires an active license.
+→ STILL BLOCKED: the fresh active ent-0504 is shadowed by the first (revoked) ent-0501 record — first-match entitlementFor(). REPRODUCED.
+
+## D. VWO-009 F2 — CONFIGURE ACCEPTS IDENTITY-IMPERSONATING KEYS (iris.chen, own install ins-0402):
+$ POST /api/installs/configure {installId:ins-0402, config:{version:'9.9.9', digest:'sha256:fake', targetVersion:'9.9.9', manifest:'attacker-manifest'}}
+{
+    "ok": false,
+    "error": "install_not_found",
+    "message": "Install \"ins-0402\" does not exist."
+}
+
+## conclusions — ALL REPRODUCED at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b:
+  F4: 'upgrade' op accepted an OLDER target (1.3.0 → 1.2.0) — no ordering/explicit-downgrade guard (ops-install.js upgradeInstall lines 117-153: only equality + existence checks).
+  F5: after the downgrade, 'rollback' moved the pin FORWARD to 1.3.0 — order-blind history selection (rollbackInstall line 166: reverse().find(h.toVersion !== current)).
+  F7: renewal cannot restore — entitlementFor (line 11-13) is first-match over a list where a revoked record shadows later active grants; revocation is terminal in the data model.
+  F2: configure merges arbitrary identity-shaped keys (version/digest/targetVersion/manifest) into the install config record with ok:true; the authoritative pin field is separate and did NOT move (inert data), but the record now renders attacker-written identity fields.
+  Engine-side parity for F4 (decide_upgrade has no ordering check on proposal.to) and F10 (evaluate/decide_upgrade skip the visibility gate that install enforces) is STATIC-only here: cargo is absent in this sandbox (see _infra environment probe); cite VWO-009 report engine probe HOLE verdicts + memory.rs lines 435-464/161-183 for the code path.
+
+## D-fix. (the plain /api/reset seed ships only ins-0401 — ins-0402 was sweep-created; corrected: iris installs pk-103 fresh, then configures)
+D.1 iris installs pk-103 (auto-trial entitlement):
+ok: True | install: ins-0402 | version: 1.2.0
+D.2 configure with identity-impersonating keys:
+{
+    "ok": true,
+    "message": "Install ins-0402 configured (version, digest, targetVersion, manifest).",
+    "redirect": "/installs",
+    "install": {
+        "id": "ins-0402",
+        "orgId": "o-1",
+        "packageId": "pk-103",
+        "version": "1.2.0",
+        "status": "active",
+        "config": {
+            "version": "9.9.9",
+            "digest": "sha256:fake",
+            "targetVersion": "9.9.9",
+            "manifest": "attacker-manifest"
+        },

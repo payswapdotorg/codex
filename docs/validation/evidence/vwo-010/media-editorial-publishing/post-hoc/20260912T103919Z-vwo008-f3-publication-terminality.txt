@@ -1,0 +1,42 @@
+# VWO-008 F3 reproduction — PressRoom publication terminality is UI-enforced only (server ops lack the status/version guards)
+base: main @ 0f89393c60403e423a91cffc3055af07e31a0c0b; surface: PressRoom JSON API twins (curl) + agent-browser for the UI oracle (edit form absent on published story)
+
+## setup — hana.kim (staff_writer) creates st, attaches hero a-0301, submits; camille.dubois (editor_in_chief) approves and publishes:
+story: st-0206
+attach ok: True
+submit ok: True | status: in_review
+decide ok: True | status: approved
+publish ok: True | status: published | version: 2
+
+## attack 1 — the AUTHOR (hana.kim, story:edit on own story) mutates the PUBLISHED body via the API twin (outside the editor correction gate):
+$ POST /api/stories/edit {storyId:st-0206, body:'MUTATED AFTER PUBLICATION - terminality breach', expectedVersion:2}
+{
+    "ok": true,
+    "message": "Story st-0206 saved as v3.",
+    "redirect": "/stories/st-0206",
+    "story": {
+        "id": "st-0206",
+        "slug": "vwo-010-f3-terminality-probe",
+        "title": "VWO-010 F3 terminality probe",
+        "section": "news",
+        "authorId": "u-3",
+→ ok:true — a PUBLISHED story body was mutated by the author outside the correction gate (the browser UI hides the edit form on published stories; the server op has NO story-status guard — ops.js editStory lines 46-74).
+
+## attack 2 — publish carries no expectedVersion: author edits land between editor approval and publication WITHOUT re-review
+$ story st-0207: create (v1) → attach hero → submit → editor approves
+approve ok: True | status: approved | version: 1
+$ AUTHOR now edits the APPROVED-but-unpublished story (post-approval edit, no expectedVersion conflict at edit time):
+edit ok: True | message: Story st-0207 saved as v2.
+$ EDITER publishes WITHOUT any expectedVersion field (publishStory never calls checkVersion):
+publish ok: True | status: published
+→ published body: "SNEAKED POST-APPROVAL EDIT — never re-reviewed."
+→ the un-reviewed post-approval edit went live — publish accepts whatever version is current (ops.js publishStory lines 159-215: no checkVersion call, no expectedVersion parameter).
+
+## UI oracle (agent-browser, hana.kim viewing the PUBLISHED st-0206):
+  snapshot shows headings 'Edit' / 'Editorial decision' / 'Corrections' as section shells, but interactive-element scan finds NO edit/submit/publish buttons; DOM probe: exactly 1 form on the page = the hidden logout form ('1 forms; edit form: ABSENT').
+  → the browser UI fail-closes the published state (edit form removed), while the server op /api/stories/edit accepts the mutation (attack 1). The terminality guard is UI-enforced only — exactly VWO-008 F3.
+
+## conclusion — REPRODUCED at main @ 0f89393c60403e423a91cffc3055af07e31a0c0b:
+  (1) author mutated a PUBLISHED story body outside the correction gate (editStory has no story-status guard — ops.js:46-74);
+  (2) publish carries no expectedVersion — a post-approval author edit went live un-reviewed (publishStory never calls checkVersion — ops.js:159-215).
+  Both mutations are audited (story.edited events + version history) — matches the VWO-008 F3 record. RWO-004 owns the bounded fix (status guard + publish version guard).

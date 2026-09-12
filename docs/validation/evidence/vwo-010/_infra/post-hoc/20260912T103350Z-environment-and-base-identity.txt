@@ -1,0 +1,18 @@
+# VWO-010 reproduction base identity
+Sat Sep 12 10:33:50 UTC 2026
+repo: /home/z/my-project/codex
+base SHA (main): 0f89393c60403e423a91cffc3055af07e31a0c0b
+branch: vwo-010/validation-synthesis
+head: 0f89393c60403e423a91cffc3055af07e31a0c0b
+
+$ bash docs/validation/fixtures/run-all.sh --reset
+→ all five apps healthy on 127.0.0.1:4101-4105 (healthz ok above, see transcript)
+
+$ bash docs/validation/fixtures/verify-sweep.sh
+→ RESULT: 59 passed, 0 failed
+
+toolchain probe:
+$ which cargo rustc
+(no output — cargo/rustc ABSENT in this sandbox; engine crate tests cannot run here; static probes + prior merged reports' cargo transcripts are cited instead)
+
+node v24.19.0, git git version 2.47.3
