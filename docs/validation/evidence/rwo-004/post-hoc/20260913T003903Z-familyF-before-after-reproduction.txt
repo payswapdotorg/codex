@@ -1,0 +1,2631 @@
+# RWO-004 — Family F (VWO-008 F3) before/after reproduction — PressRoom publication terminality + publish version guard
+base: main @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (verified: git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit} -> 2d37cc0ef7d075e877f370790f82ac9c70df26a4)
+fix: branch rwo-004/pressroom-publication-terminality (editStory status gate -> 409 terminal_state; publishStory expectedVersion required -> 400 expected_version_required + checkVersion -> 409 data_conflict; ui.js publish form passes the approved version)
+surface: PressRoom JSON API twins via curl (docs/validation/fixtures/media/, port 4104) + server-rendered story-page form scan for the UI oracle
+method: an identical request script (probe) was run twice — first against the UNMODIFIED base tree (fixtures started with run-all.sh --reset, media re-reset for deterministic seed ids), then against the fix branch after restarting the fixtures (fresh module cache). Story ids are deterministic on a fresh seed: probe A = st-0206, B1/B2/B3 = st-0207..st-0209, editorial probe = st-0210.
+no credentials: demo personas only (assembled at runtime from fragments; the login transcript lines print ok-flags, never tokens).
+
+## CONTRAST SUMMARY (same requests, contrasting results)
+
+| # | probe (identical request at base and on branch) | BEFORE — base @ 2d37cc0 | AFTER — fix branch |
+|---|---|---|---|
+| 1 | ATTACK 1: author (hana.kim) edit on PUBLISHED st-0206 {body:'MUTATED AFTER PUBLICATION...', expectedVersion:2} | HTTP 200 ok — "saved as v3", published body MUTATED, story.edited event emitted | HTTP 409 terminal_state — "already published — ... use a correction instead."; body and version unchanged; NO story.edited event |
+| 2 | ATTACK 2-B1: editor publish {channels:[ch-1]} with NO expectedVersion (post-approval sneaked edit at v2) | HTTP 200 ok — sneaked, never-re-reviewed edit went LIVE (published v3) | HTTP 400 expected_version_required — names the current version; story stays approved v2, edit NOT live |
+| 3 | ATTACK 2-B2: editor publish {expectedVersion:1 STALE} (approved v1, current v2) | HTTP 200 ok — published with no version check at all | HTTP 409 data_conflict — "you worked from v1 but the current version is v2 — reload and reapply."; story stays approved v2 |
+| 4 | ATTACK 2-B3: editor publish {expectedVersion:2 CURRENT} | HTTP 200 ok (field silently ignored at base) | HTTP 200 ok — version verified, happy path unchanged |
+| 5 | author edit on CORRECTED st-0210 {expectedVersion:3} after the correction gate | HTTP 200 ok — corrected body mutated to v4 | HTTP 409 terminal_state — corrected body immutable |
+| 6 | EDITOR (camille.dubois) edit on published seed st-0201 {expectedVersion:3} | HTTP 200 ok — published seed body mutated to v4 | HTTP 409 terminal_state — gate is role-agnostic (permission check passes, status gate fires) |
+| 7 | UI oracle: GET /stories/st-0204 (approved v2) as editor — expectedVersion hidden input in the Publish form | (no such input — the form carried no version) | <input type="hidden" name="expectedVersion" value="2"> — the publish form passes the version it approved |
+| 8 | normal editorial path: create -> attach -> submit -> approve -> publish {expectedVersion:1} -> correct {expectedVersion:2} | 200 + 200 (publish ignores the field; correction unchanged) | 200 + 200 — happy path and correction gate UNCHANGED |
+| 9 | UI oracle: author's story page on a PUBLISHED story — /ui/stories/edit form | ABSENT (UI-only guard) | ABSENT (unchanged — the UI guard stays, the API twin now matches it) |
+
+Transcripts follow: the BEFORE half first, then the AFTER half, each produced by the same probe script.
+
+════════════════════════════════════════════════════════════════════
+## BEFORE — full transcript (base @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4, unmodified tree)
+════════════════════════════════════════════════════════════════════
+
+==================================================================
+RWO-004 Family F reproduction probe — PressRoom (http://localhost:4104)
+run: BEFORE — base 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (unmodified working tree)
+seed clock today = 2026-09-12; all requests are sequential curls against the API twins
+==================================================================
+# login hana.kim -> ok: true
+# login camille.dubois -> ok: true
+
+== SECTION 1 — ATTACK 1 (VWO-008 F3 / VWO-010 evidence attack 1): the AUTHOR mutates a PUBLISHED story via the API twin ==
+
+$ POST /api/stories/create (hana.kim) — probe A 'RWO-004 F3 probe A'
+{
+  "ok": true,
+  "message": "Story st-0206 (\"RWO-004 F3 probe A\") created as a draft.",
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+# probe A id = st-0206
+
+$ POST /api/stories/attach (hana.kim) hero a-0301
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0206 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.676Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois)
+{
+  "ok": true,
+  "message": "Story st-0206 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.676Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1} — setup: story goes live (v1 -> v2)
+{
+  "ok": true,
+  "message": "Story st-0206 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "published",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.676Z",
+    "publishedAt": "2026-09-13T00:36:35.690Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0604",
+      "storyId": "st-0206",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.690Z",
+      "error": null
+    }
+  ]
+}
+200
+
+-- ATTACK: author edit on the PUBLISHED story outside the correction gate (expectedVersion = current v2; the exact request shape the VWO-010 evidence used):
+
+$ POST /api/stories/edit (hana.kim) {body:'MUTATED AFTER PUBLICATION - terminality breach', expectedVersion:2}
+{
+  "ok": true,
+  "message": "Story st-0206 saved as v3.",
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "MUTATED AFTER PUBLICATION - terminality breach (RWO-004 probe)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 8,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.676Z",
+    "publishedAt": "2026-09-13T00:36:35.690Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+-- oracle: story state after the attack (body must still be 'Probe A body before publication.', version must stay 2):
+
+$ GET /api/stories/st-0206 (anonymous)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "MUTATED AFTER PUBLICATION - terminality breach (RWO-004 probe)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 8,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.676Z",
+    "publishedAt": "2026-09-13T00:36:35.690Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0604",
+      "storyId": "st-0206",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.690Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- oracle: story.edited events (expect NONE mentioning probe A after the fix; the setup sneaked edits of sections 2-3 land LATER in the feed):
+$ GET /api/events?type=story.edited&limit=200 — type/actor/summary lines:
+"type": "story.edited",
+"actor": "hana.kim",
+"summary": "Story \"RWO-004 F3 probe A\" edited to v3 by Hana Kim",
+
+-- UI oracle (hana.kim views the published story page): the edit form must stay ABSENT (the UI-only guard is unchanged by RWO-004):
+$ GET /stories/st-0206 (hana.kim session) — <form action=...> scan:
+
+== SECTION 2 — ATTACK 2 (VWO-010 evidence attack 2): publish carries no expectedVersion — post-approval edits ship un-reviewed ==
+-- B1: publish WITHOUT expectedVersion (the exact attack-2 shape from the VWO-010 evidence):
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B1'
+{
+  "ok": true,
+  "message": "Story st-0207 (\"RWO-004 probe B1\") created as a draft.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0207 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.743Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0207 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.743Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0207 saved as v2.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B1)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.743Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0207
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1]} — NO expectedVersion
+{
+  "ok": true,
+  "message": "Story st-0207 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B1)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.743Z",
+    "publishedAt": "2026-09-13T00:36:35.763Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0605",
+      "storyId": "st-0207",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.763Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ GET /api/stories/st-0207 — oracle: did the sneaked edit go live? (status/version/body)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B1)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.743Z",
+    "publishedAt": "2026-09-13T00:36:35.763Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0605",
+      "storyId": "st-0207",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.763Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- B2: publish with a STALE expectedVersion (editor approved v1; the story moved to v2 after the sneaked edit):
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B2'
+{
+  "ok": true,
+  "message": "Story st-0208 (\"RWO-004 probe B2\") created as a draft.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0208 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.793Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0208 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.793Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0208 saved as v2.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B2)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.793Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0208
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1 STALE}
+{
+  "ok": true,
+  "message": "Story st-0208 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B2)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.793Z",
+    "publishedAt": "2026-09-13T00:36:35.814Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0606",
+      "storyId": "st-0208",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.814Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ GET /api/stories/st-0208 — oracle: story must stay approved v2, body NOT live
+{
+  "ok": true,
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B2)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.793Z",
+    "publishedAt": "2026-09-13T00:36:35.814Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0606",
+      "storyId": "st-0208",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.814Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- B3: publish with the CURRENT expectedVersion (editor re-reviewed and consciously ships v2) — happy path:
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B3'
+{
+  "ok": true,
+  "message": "Story st-0209 (\"RWO-004 probe B3\") created as a draft.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0209 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.844Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0209 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.844Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0209 saved as v2.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.844Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0209
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:2 CURRENT}
+{
+  "ok": true,
+  "message": "Story st-0209 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.844Z",
+    "publishedAt": "2026-09-13T00:36:35.863Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0607",
+      "storyId": "st-0209",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.863Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ GET /api/stories/st-0209 — oracle: published, sneaked edit consciously shipped (happy path unchanged)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.844Z",
+    "publishedAt": "2026-09-13T00:36:35.863Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0607",
+      "storyId": "st-0209",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.863Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+== SECTION 3 — normal editorial path incl. correction (RWO acceptance criterion 4): create -> attach -> submit -> approve -> publish -> correct ==
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 editorial path probe'
+{
+  "ok": true,
+  "message": "Story st-0210 (\"RWO-004 editorial path probe\") created as a draft.",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+# editorial probe id = st-0210
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0210 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois)
+{
+  "ok": true,
+  "message": "Story st-0210 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1} — happy path
+{
+  "ok": true,
+  "message": "Story st-0210 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "published",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": "2026-09-13T00:36:35.906Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0608",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.906Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ POST /api/stories/correct (camille.dubois) {expectedVersion:2, beforeText/afterText} — correction gate (unchanged op)
+{
+  "ok": true,
+  "message": "Correction c-800802 applied; story re-distributed to 1 channel(s).",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 20:00.",
+    "status": "corrected",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": "2026-09-13T00:36:35.906Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "correction": {
+    "id": "c-800802",
+    "storyId": "st-0210",
+    "summary": "Fixed the meeting time",
+    "beforeText": "meets at 19:00",
+    "afterText": "meets at 20:00",
+    "byId": "u-1",
+    "at": "2026-09-13T00:36:35.913Z",
+    "status": "published"
+  }
+}
+200
+
+-- probe: author edit on the CORRECTED story (terminal after the fix; both statuses of criterion 1):
+
+$ POST /api/stories/edit (hana.kim) on CORRECTED story {body:'POST-CORRECTION MUTATION ATTEMPT', expectedVersion:3}
+{
+  "ok": true,
+  "message": "Story st-0210 saved as v4.",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "POST-CORRECTION MUTATION ATTEMPT",
+    "status": "corrected",
+    "version": 4,
+    "expectedVersion": 1,
+    "wordCount": 3,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": "2026-09-13T00:36:35.906Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ GET /api/stories/st-0210 — final state (corrected v3, body must contain 'meets at 20:00')
+{
+  "ok": true,
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "POST-CORRECTION MUTATION ATTEMPT",
+    "status": "corrected",
+    "version": 4,
+    "expectedVersion": 1,
+    "wordCount": 3,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:36:35.892Z",
+    "publishedAt": "2026-09-13T00:36:35.906Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0608",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.906Z",
+      "error": null
+    },
+    {
+      "id": "dj-0609",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:36:35.914Z",
+      "error": null,
+      "correctionId": "c-800802"
+    }
+  ],
+  "socialPosts": [],
+  "corrections": [
+    {
+      "id": "c-800802",
+      "storyId": "st-0210",
+      "summary": "Fixed the meeting time",
+      "beforeText": "meets at 19:00",
+      "afterText": "meets at 20:00",
+      "byId": "u-1",
+      "at": "2026-09-13T00:36:35.913Z",
+      "status": "published"
+    }
+  ]
+}
+200
+
+== SECTION 4 — EDITOR (not just the author) on a seed PUBLISHED story st-0201 — the terminality gate is role-agnostic ==
+
+$ POST /api/stories/edit (camille.dubois, editor) on published seed st-0201 {expectedVersion:3}
+{
+  "ok": true,
+  "message": "Story st-0201 saved as v4.",
+  "redirect": "/stories/st-0201",
+  "story": {
+    "id": "st-0201",
+    "slug": "harbor-bridge-retrofit-begins",
+    "title": "Harbor bridge retrofit begins Monday",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "Two-year closure plan for the upper deck starts with night work.",
+    "body": "EDITOR MUTATION ATTEMPT ON PUBLISHED SEED STORY",
+    "status": "published",
+    "version": 4,
+    "expectedVersion": 3,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1",
+      "ch-2",
+      "ch-3"
+    ],
+    "submittedAt": "2026-09-09T10:00:00Z",
+    "publishedAt": "2026-09-10T06:30:00Z",
+    "approvedById": "u-1",
+    "socialPosts": [
+      "sp-0101",
+      "sp-0102"
+    ]
+  }
+}
+200
+
+== SECTION 5 — UI publish form carries the version it is about to ship (ui.js hidden field) ==
+$ GET /stories/st-0204 (seed: approved v2) as camille.dubois — expectedVersion hidden inputs on the page:
+(at BASE the page has no such input; on the fix branch the Publish form carries the approved version)
+
+== END OF PROBE — run: BEFORE — base 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (unmodified working tree) ==
+
+════════════════════════════════════════════════════════════════════
+## AFTER — full transcript (fix branch rwo-004/pressroom-publication-terminality)
+════════════════════════════════════════════════════════════════════
+
+==================================================================
+RWO-004 Family F reproduction probe — PressRoom (http://localhost:4104)
+run: AFTER — fix branch rwo-004/pressroom-publication-terminality (editStory status gate + publishStory version guard + ui.js form version)
+seed clock today = 2026-09-12; all requests are sequential curls against the API twins
+==================================================================
+# login hana.kim -> ok: true
+# login camille.dubois -> ok: true
+
+== SECTION 1 — ATTACK 1 (VWO-008 F3 / VWO-010 evidence attack 1): the AUTHOR mutates a PUBLISHED story via the API twin ==
+
+$ POST /api/stories/create (hana.kim) — probe A 'RWO-004 F3 probe A'
+{
+  "ok": true,
+  "message": "Story st-0206 (\"RWO-004 F3 probe A\") created as a draft.",
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+# probe A id = st-0206
+
+$ POST /api/stories/attach (hana.kim) hero a-0301
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0206 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.311Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois)
+{
+  "ok": true,
+  "message": "Story st-0206 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.311Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1} — setup: story goes live (v1 -> v2)
+{
+  "ok": true,
+  "message": "Story st-0206 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "published",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.311Z",
+    "publishedAt": "2026-09-13T00:37:58.326Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0604",
+      "storyId": "st-0206",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.326Z",
+      "error": null
+    }
+  ]
+}
+200
+
+-- ATTACK: author edit on the PUBLISHED story outside the correction gate (expectedVersion = current v2; the exact request shape the VWO-010 evidence used):
+
+$ POST /api/stories/edit (hana.kim) {body:'MUTATED AFTER PUBLICATION - terminality breach', expectedVersion:2}
+{
+  "ok": false,
+  "error": "terminal_state",
+  "message": "Story st-0206 is already published — its body is closed for editing; use a correction instead.",
+  "storyId": "st-0206",
+  "status": "published",
+  "version": 2
+}
+409
+
+-- oracle: story state after the attack (body must still be 'Probe A body before publication.', version must stay 2):
+
+$ GET /api/stories/st-0206 (anonymous)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0206",
+    "slug": "rwo-004-f3-probe-a",
+    "title": "RWO-004 F3 probe A",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "terminality probe",
+    "body": "Probe A body before publication.",
+    "status": "published",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 5,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.311Z",
+    "publishedAt": "2026-09-13T00:37:58.326Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0604",
+      "storyId": "st-0206",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.326Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- oracle: story.edited events (expect NONE mentioning probe A after the fix; the setup sneaked edits of sections 2-3 land LATER in the feed):
+$ GET /api/events?type=story.edited&limit=200 — type/actor/summary lines:
+
+-- UI oracle (hana.kim views the published story page): the edit form must stay ABSENT (the UI-only guard is unchanged by RWO-004):
+$ GET /stories/st-0206 (hana.kim session) — <form action=...> scan:
+
+== SECTION 2 — ATTACK 2 (VWO-010 evidence attack 2): publish carries no expectedVersion — post-approval edits ship un-reviewed ==
+-- B1: publish WITHOUT expectedVersion (the exact attack-2 shape from the VWO-010 evidence):
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B1'
+{
+  "ok": true,
+  "message": "Story st-0207 (\"RWO-004 probe B1\") created as a draft.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0207 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.380Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0207 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B1 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.380Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0207 saved as v2.",
+  "redirect": "/stories/st-0207",
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B1)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.380Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0207
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1]} — NO expectedVersion
+{
+  "ok": false,
+  "error": "expected_version_required",
+  "message": "Story st-0207 requires an expectedVersion on publish — pass the version you approved (currently v2); a stale version is rejected for reload and re-review.",
+  "storyId": "st-0207",
+  "currentVersion": 2
+}
+400
+
+$ GET /api/stories/st-0207 — oracle: did the sneaked edit go live? (status/version/body)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0207",
+    "slug": "rwo-004-probe-b1",
+    "title": "RWO-004 probe B1",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B1)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.380Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- B2: publish with a STALE expectedVersion (editor approved v1; the story moved to v2 after the sneaked edit):
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B2'
+{
+  "ok": true,
+  "message": "Story st-0208 (\"RWO-004 probe B2\") created as a draft.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0208 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.432Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0208 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B2 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.432Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0208 saved as v2.",
+  "redirect": "/stories/st-0208",
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B2)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.432Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0208
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1 STALE}
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Version mismatch on story st-0208: you worked from v1 but the current version is v2 — reload and reapply.",
+  "storyId": "st-0208",
+  "currentVersion": 2,
+  "yourVersion": 1
+}
+409
+
+$ GET /api/stories/st-0208 — oracle: story must stay approved v2, body NOT live
+{
+  "ok": true,
+  "story": {
+    "id": "st-0208",
+    "slug": "rwo-004-probe-b2",
+    "title": "RWO-004 probe B2",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B2)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.432Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+-- B3: publish with the CURRENT expectedVersion (editor re-reviewed and consciously ships v2) — happy path:
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 probe B3'
+{
+  "ok": true,
+  "message": "Story st-0209 (\"RWO-004 probe B3\") created as a draft.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0209 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.484Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois) — story approved at v1
+{
+  "ok": true,
+  "message": "Story st-0209 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "RWO-004 probe B3 — original approved body.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 7,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.484Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/edit (hana.kim) — SNEAKED POST-APPROVAL EDIT, v1 -> v2, never re-reviewed (approved stays editable by design)
+{
+  "ok": true,
+  "message": "Story st-0209 saved as v2.",
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "approved",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.484Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+# probe id = st-0209
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:2 CURRENT}
+{
+  "ok": true,
+  "message": "Story st-0209 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0209",
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.484Z",
+    "publishedAt": "2026-09-13T00:37:58.506Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0605",
+      "storyId": "st-0209",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.506Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ GET /api/stories/st-0209 — oracle: published, sneaked edit consciously shipped (happy path unchanged)
+{
+  "ok": true,
+  "story": {
+    "id": "st-0209",
+    "slug": "rwo-004-probe-b3",
+    "title": "RWO-004 probe B3",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "version-guard probe",
+    "body": "SNEAKED POST-APPROVAL EDIT — never re-reviewed. (RWO-004 probe B3)",
+    "status": "published",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.484Z",
+    "publishedAt": "2026-09-13T00:37:58.506Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0605",
+      "storyId": "st-0209",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.506Z",
+      "error": null
+    }
+  ],
+  "socialPosts": [],
+  "corrections": []
+}
+200
+
+== SECTION 3 — normal editorial path incl. correction (RWO acceptance criterion 4): create -> attach -> submit -> approve -> publish -> correct ==
+
+$ POST /api/stories/create (hana.kim) — 'RWO-004 editorial path probe'
+{
+  "ok": true,
+  "message": "Story st-0210 (\"RWO-004 editorial path probe\") created as a draft.",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+# editorial probe id = st-0210
+
+$ POST /api/stories/attach hero a-0301 (hana.kim)
+{
+  "ok": true,
+  "message": "Asset a-0301 attached as hero.",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "draft",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": null,
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/submit (hana.kim)
+{
+  "ok": true,
+  "message": "Story st-0210 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "in_review",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.536Z",
+    "publishedAt": null,
+    "approvedById": null,
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/decide approve (camille.dubois)
+{
+  "ok": true,
+  "message": "Story st-0210 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "approved",
+    "version": 1,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [],
+    "submittedAt": "2026-09-13T00:37:58.536Z",
+    "publishedAt": null,
+    "approvedById": "u-1",
+    "socialPosts": []
+  }
+}
+200
+
+$ POST /api/stories/publish (camille.dubois) {channels:[ch-1], expectedVersion:1} — happy path
+{
+  "ok": true,
+  "message": "Story st-0210 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 19:00.",
+    "status": "published",
+    "version": 2,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.536Z",
+    "publishedAt": "2026-09-13T00:37:58.552Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0606",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.552Z",
+      "error": null
+    }
+  ]
+}
+200
+
+$ POST /api/stories/correct (camille.dubois) {expectedVersion:2, beforeText/afterText} — correction gate (unchanged op)
+{
+  "ok": true,
+  "message": "Correction c-800802 applied; story re-distributed to 1 channel(s).",
+  "redirect": "/stories/st-0210",
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 20:00.",
+    "status": "corrected",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.536Z",
+    "publishedAt": "2026-09-13T00:37:58.552Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "correction": {
+    "id": "c-800802",
+    "storyId": "st-0210",
+    "summary": "Fixed the meeting time",
+    "beforeText": "meets at 19:00",
+    "afterText": "meets at 20:00",
+    "byId": "u-1",
+    "at": "2026-09-13T00:37:58.559Z",
+    "status": "published"
+  }
+}
+200
+
+-- probe: author edit on the CORRECTED story (terminal after the fix; both statuses of criterion 1):
+
+$ POST /api/stories/edit (hana.kim) on CORRECTED story {body:'POST-CORRECTION MUTATION ATTEMPT', expectedVersion:3}
+{
+  "ok": false,
+  "error": "terminal_state",
+  "message": "Story st-0210 is already corrected — its body is closed for editing; use a correction instead.",
+  "storyId": "st-0210",
+  "status": "corrected",
+  "version": 3
+}
+409
+
+$ GET /api/stories/st-0210 — final state (corrected v3, body must contain 'meets at 20:00')
+{
+  "ok": true,
+  "story": {
+    "id": "st-0210",
+    "slug": "rwo-004-editorial-path-probe",
+    "title": "RWO-004 editorial path probe",
+    "section": "news",
+    "authorId": "u-3",
+    "dek": "golden path",
+    "body": "Editorial path body — the council meets at 20:00.",
+    "status": "corrected",
+    "version": 3,
+    "expectedVersion": 1,
+    "wordCount": 9,
+    "assets": [
+      {
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    ],
+    "channels": [
+      "ch-1"
+    ],
+    "submittedAt": "2026-09-13T00:37:58.536Z",
+    "publishedAt": "2026-09-13T00:37:58.552Z",
+    "approvedById": "u-1",
+    "socialPosts": []
+  },
+  "distributionJobs": [
+    {
+      "id": "dj-0606",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.552Z",
+      "error": null
+    },
+    {
+      "id": "dj-0607",
+      "storyId": "st-0210",
+      "channelId": "ch-1",
+      "status": "sent",
+      "at": "2026-09-13T00:37:58.559Z",
+      "error": null,
+      "correctionId": "c-800802"
+    }
+  ],
+  "socialPosts": [],
+  "corrections": [
+    {
+      "id": "c-800802",
+      "storyId": "st-0210",
+      "summary": "Fixed the meeting time",
+      "beforeText": "meets at 19:00",
+      "afterText": "meets at 20:00",
+      "byId": "u-1",
+      "at": "2026-09-13T00:37:58.559Z",
+      "status": "published"
+    }
+  ]
+}
+200
+
+== SECTION 4 — EDITOR (not just the author) on a seed PUBLISHED story st-0201 — the terminality gate is role-agnostic ==
+
+$ POST /api/stories/edit (camille.dubois, editor) on published seed st-0201 {expectedVersion:3}
+{
+  "ok": false,
+  "error": "terminal_state",
+  "message": "Story st-0201 is already published — its body is closed for editing; use a correction instead.",
+  "storyId": "st-0201",
+  "status": "published",
+  "version": 3
+}
+409
+
+== SECTION 5 — UI publish form carries the version it is about to ship (ui.js hidden field) ==
+$ GET /stories/st-0204 (seed: approved v2) as camille.dubois — expectedVersion hidden inputs on the page:
+<input type="hidden" name="expectedVersion" value="2"
+(at BASE the page has no such input; on the fix branch the Publish form carries the approved version)
+
+== END OF PROBE — run: AFTER — fix branch rwo-004/pressroom-publication-terminality (editStory status gate + publishStory version guard + ui.js form version) ==

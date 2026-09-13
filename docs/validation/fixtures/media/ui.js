@@ -111,8 +111,9 @@ function storyPage(ctx) {
   ], { submit: 'Decide', note: 'Self-approval is blocked by policy.' }) : '';
   const publishForm = canPublish ? W.frm('/ui/stories/publish', [
     W.hidden('storyId', story.id),
+    W.hidden('expectedVersion', story.version),
     W.fld('Channels', W.checks('channels', s.channels.map((c) => [c.id, `${c.name}${isPast(ctx, c.licenseValidUntil) ? ' ⚠ license expired' : ''}`, c.id === 'ch-1']))),
-  ], { submit: 'Publish', note: 'Requires a hero image. Channels with expired licenses fail with stale_entitlement (seed: partner-app).' }) : '';
+  ], { submit: 'Publish', note: `Requires a hero image. Publish ships v${story.version} (expectedVersion) — a stale version is rejected with data_conflict (reload and re-review). Channels with expired licenses fail with stale_entitlement (seed: partner-app).` }) : '';
   const correctForm = canCorrect ? W.frm('/ui/stories/correct', [
     W.hidden('storyId', story.id),
     W.hidden('expectedVersion', story.version),
