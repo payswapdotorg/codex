@@ -1,0 +1,109 @@
+# RWO-004 — acceptance criteria verification transcript
+base: main @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4 · fix branch: rwo-004/pressroom-publication-terminality
+fixture: PressRoom (media) on http://localhost:4104, started with `bash docs/validation/fixtures/run-all.sh --reset` (media re-seeded before each probe run for deterministic ids)
+raw transcript: 20260913T003903Z-familyF-before-after-reproduction.txt (sections referenced below); sweep: 20260913T003903Z-verify-sweep.txt
+both VWO-010 Family F attacks and the normal editorial path were re-run exactly as the RWO's Verification commands require.
+
+## Criterion 1 — "Author edit on a published/corrected story via API twin → 409 terminal_state, no story.edited event, version unchanged."
+
+Run (PUBLISHED half — VWO-010 evidence attack 1, same request shape):
+  POST /api/stories/edit (hana.kim, author of st-0206) {"storyId":"st-0206","body":"MUTATED AFTER PUBLICATION - terminality breach (RWO-004 probe)","expectedVersion":2}
+  story st-0206 was created by hana, hero-attached, submitted, approved and published by camille (v2) immediately before, in the same transcript section.
+
+  BEFORE (base @ 2d37cc0): HTTP 200, ok:true, "Story st-0206 saved as v3." — the PUBLISHED body was mutated
+    ("body": "MUTATED AFTER PUBLICATION - terminality breach (RWO-004 probe)", "status": "published", "version": 3)
+    and a story.edited event was emitted ("Story \"RWO-004 F3 probe A\" edited to v3 by Hana Kim").
+
+  AFTER (fix branch): HTTP 409
+    { "ok": false, "error": "terminal_state",
+      "message": "Story st-0206 is already published — its body is closed for editing; use a correction instead.",
+      "storyId": "st-0206", "status": "published", "version": 2 }
+
+  Oracles AFTER the attack (fix branch):
+    - GET /api/stories/st-0206 → "body": "Probe A body before publication.", "status": "published", "version": 2 — VERSION AND BODY UNCHANGED.
+    - GET /api/events?type=story.edited at that point → EMPTY output (no story.edited event for the attack). At the end of the full
+      probe run the feed contains exactly 3 story.edited events — the three legitimate setup edits on APPROVED probe stories
+      (B1/B2/B3, v1→v2) — and none for st-0206, none for the corrected-story attempt, none for the editor attempt.
+    - UI oracle unchanged: GET /stories/st-0206 as hana.kim → zero /ui/* forms on the page (edit form still withheld — the
+      UI-only guard stays; the API twin now matches it).
+
+Run (CORRECTED half): after the normal editorial path (st-0210 published v2, corrected v3 — see criterion 4):
+  POST /api/stories/edit (hana.kim) {"storyId":"st-0210","body":"POST-CORRECTION MUTATION ATTEMPT","expectedVersion":3}
+  BEFORE (base): HTTP 200, corrected body mutated to v4.  AFTER (fix branch): HTTP 409
+    { "ok": false, "error": "terminal_state", "message": "Story st-0210 is already corrected — its body is closed for editing; use a correction instead.", ... }
+  Final state check: GET /api/stories/st-0210 → "status": "corrected", "version": 3, body still contains "meets at 20:00" (the corrected text).
+
+Run (role-agnostic check — an EDITOR, not just the author): POST /api/stories/edit (camille.dubois, editor) on published seed st-0201
+  {"storyId":"st-0201","body":"EDITOR MUTATION ATTEMPT ON PUBLISHED SEED STORY","expectedVersion":3}
+  BEFORE (base): HTTP 200, v4 mutation.  AFTER (fix branch): HTTP 409 terminal_state (permission passes; the status gate fires).
+
+VERDICT: PASS (both statuses, both roles; no event, no version change, UI guard retained).
+
+## Criterion 2 — "Publish without expectedVersion → 400 expected_version_required."
+
+Run (VWO-010 evidence attack 2, same request shape — post-approval sneaked edit at v2, then publish with no version):
+  setup: st-0207 created → hero attached → submitted → approved by camille at v1 → hana's post-approval edit (allowed: approved is
+  editable; v1→v2, "SNEAKED POST-APPROVAL EDIT — never re-reviewed.")
+  POST /api/stories/publish (camille.dubois) {"storyId":"st-0207","channels":["ch-1"]}   ← no expectedVersion
+
+  BEFORE (base): HTTP 200, ok:true, "Story st-0207 published (1/1 channels delivered)." — the un-reviewed edit went LIVE
+    (GET /api/stories/st-0207 → "status": "published", "version": 3, body = the sneaked text).
+
+  AFTER (fix branch): HTTP 400
+    { "ok": false, "error": "expected_version_required",
+      "message": "Story st-0207 requires an expectedVersion on publish — pass the version you approved (currently v2); a stale version is rejected for reload and re-review.",
+      "storyId": "st-0207", "currentVersion": 2 }
+  Oracle: GET /api/stories/st-0207 → "status": "approved", "version": 2, sneaked edit NOT live.
+
+VERDICT: PASS.
+
+## Criterion 3 — "Publish with a stale expectedVersion (story edited after approval) → 409 data_conflict ('reload and re-review'); with the current version → ok (happy path unchanged)."
+
+Run (STALE): same setup on st-0208 (approved v1 → sneaked edit v2), then
+  POST /api/stories/publish (camille.dubois) {"storyId":"st-0208","channels":["ch-1"],"expectedVersion":1}
+  BEFORE (base): HTTP 200 — published with no version check (sneaked edit live, v3).
+  AFTER (fix branch): HTTP 409
+    { "ok": false, "error": "data_conflict",
+      "message": "Version mismatch on story st-0208: you worked from v1 but the current version is v2 — reload and reapply.",
+      "storyId": "st-0208", "currentVersion": 2, "yourVersion": 1 }
+  (The 409 is thrown by the existing checkVersion helper, called by publishStory per the RWO; its canonical message — shared with
+  edit and correct — is "reload and reapply", i.e. the reload-and-re-review recovery the RWO describes.)
+  Oracle: GET /api/stories/st-0208 → "status": "approved", "version": 2 — nothing shipped.
+
+Run (CURRENT — happy path): same setup on st-0209, then
+  POST /api/stories/publish (camille.dubois) {"storyId":"st-0209","channels":["ch-1"],"expectedVersion":2}
+  AFTER (fix branch): HTTP 200, ok:true, "Story st-0209 published (1/1 channels delivered)." — distribution job sent;
+  GET /api/stories/st-0209 → "status": "published", "version": 3. The editor consciously shipped the re-reviewed v2.
+  BEFORE (base): HTTP 200 as well (the field was simply ignored at base — no guard existed).
+
+VERDICT: PASS (stale → 409 data_conflict with both versions named; current → ok).
+
+## Criterion 4 — "Correction path (editor) unchanged."
+
+Run (full normal editorial path, RWO verification command 4):
+  create (hana, st-0210, v1) → attach hero a-0301 → submit → approve (camille) →
+  POST /api/stories/publish (camille.dubois) {"storyId":"st-0210","channels":["ch-1"],"expectedVersion":1} → HTTP 200,
+    "Story st-0210 published (1/1 channels delivered)." (published v2, job dj-… sent) →
+  POST /api/stories/correct (camille.dubois) {"storyId":"st-0210","summary":"Fixed the meeting time","beforeText":"meets at 19:00","afterText":"meets at 20:00","expectedVersion":2} → HTTP 200,
+    "Correction c-800802 applied; story re-distributed to 1 channel(s)." — "status": "corrected", "version": 3,
+    body text replaced ("meets at 20:00"), correction record + re-distribution job present.
+  The applyCorrection op is untouched by the fix (see git diff in _infra: only editStory and publishStory change in ops.js);
+  the same path at base produced the same 200/200 outcome (publish at base ignored the extra expectedVersion field).
+
+VERDICT: PASS (editorial path and correction gate behave as at base).
+
+## Additional oracles captured in the reproduction transcript
+
+- UI publish form now passes the version it is about to ship (RWO fix scope item 2, "Editor UI/publish form must pass the
+  version it approved"): GET /stories/st-0204 (seed approved v2) as camille.dubois →
+  <input type="hidden" name="expectedVersion" value="2"> inside the Publish form (absent at base).
+- The UI edit-form guard for published stories is unchanged (form scan on the published story page shows no /ui/stories/edit form
+  at base OR on the branch — "UI-only guards stay; the API twin must now match them").
+- The sweep's 13 media checks (incl. the publish golden path with expectedVersion, the missing_asset/stale_entitlement publish
+  switches and the data_conflict edit switch) pass unchanged — see the verify-sweep transcript.
+
+## Notes
+
+- Determinism: every probe run starts from a re-seeded fixture (POST /api/reset), so story ids, versions and outcomes are
+  reproducible; timestamps in the responses are the only variable parts.
+- No credentials appear in this transcript: demo personas only, login status lines print ok-flags, tokens are never echoed.

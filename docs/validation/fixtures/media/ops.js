@@ -2,7 +2,10 @@
 /**
  * PressRoom domain operations — editorial story lifecycle (draft → review →
  * approve → publish → correct) with optimistic versioning. Failure switches
- * take precedence over natural record state.
+ * take precedence over natural record state. Publication terminality and the
+ * publish version guard are enforced here, not only in the UI (RWO-004):
+ * published/corrected bodies change only through the correction gate, and
+ * publish ships only the version the editor passes as expectedVersion.
  */
 
 const R = require('../_lib/runtime');
@@ -10,6 +13,11 @@ const R = require('../_lib/runtime');
 function find(arr, id) { return arr.find((x) => x.id === id); }
 function today(ctx) { return ctx.state.meta.today || new Date().toISOString().slice(0, 10); }
 function isPast(ctx, d) { return String(d || '9999-12-31') < today(ctx); }
+
+// RWO-004 (Family F): story statuses whose body is still editable. Everything
+// else is terminal for editing — above all published/corrected, where the
+// body may only change through the correction gate (applyCorrection).
+const EDITABLE_STATUSES = ['draft', 'changes_requested', 'in_review', 'approved'];
 
 function checkVersion(ctx, story, field) {
   const expected = parseInt(ctx.body.expectedVersion, 10);
@@ -52,6 +60,15 @@ function editStory(ctx) {
     throw new R.AppError(403, 'permission_denied',
       `Only the author or an editor can edit story ${story.id} (you are ${ctx.user.username}).`,
       { storyId: story.id, required: 'story:edit (own or editor)' });
+  }
+  // RWO-004: publication terminality — the API twin must enforce what the UI
+  // already enforces (the edit form is withheld for published/corrected).
+  if (!EDITABLE_STATUSES.includes(story.status)) {
+    const word = story.status === 'published' || story.status === 'corrected'
+      ? `already ${story.status}` : `"${story.status}"`;
+    throw new R.AppError(409, 'terminal_state',
+      `Story ${story.id} is ${word} — its body is closed for editing; use a correction instead.`,
+      { storyId: story.id, status: story.status, version: story.version });
   }
   if (ctx.failure === 'data_conflict') {
     throw new R.AppError(409, 'data_conflict', `Story ${story.id} was edited by someone else while you were saving (simulated).`, { storyId: story.id, simulated: true });
@@ -169,6 +186,15 @@ function publishStory(ctx) {
   if (story.status !== 'approved') {
     throw new R.AppError(400, 'story_not_approved', `Story ${story.id} is "${story.status}" — only approved stories can be published.`, { storyId: story.id, status: story.status });
   }
+  // RWO-004: publish ships only the reviewed version — expectedVersion is
+  // required; a stale one (post-approval edits) is rejected so the editor
+  // reloads and re-reviews instead of shipping un-reviewed changes.
+  if (Number.isNaN(parseInt(b.expectedVersion, 10))) {
+    throw new R.AppError(400, 'expected_version_required',
+      `Story ${story.id} requires an expectedVersion on publish — pass the version you approved (currently v${story.version}); a stale version is rejected for reload and re-review.`,
+      { storyId: story.id, currentVersion: story.version });
+  }
+  checkVersion(ctx, story);
   const channels = R.asList(b.channels).length ? R.asList(b.channels) : ['ch-1'];
   const hero = story.assets.find((a) => a.role === 'hero');
   const heroAsset = hero ? find(ctx.state.assets, hero.assetId) : null;

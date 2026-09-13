@@ -113,21 +113,24 @@ body=$(mut 4104 "$H" /api/stories/submit '{"storyId":"st-0206"}')
 expect "golden: submit for review" 200 "${body##*$'\n'}" "$body" 'submitted for review'
 body=$(mut 4104 "$C" /api/stories/decide '{"storyId":"st-0206","decision":"approve"}')
 expect "golden: editor approves" 200 "${body##*$'\n'}" "$body" 'approved for publication'
-body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0206","channels":["ch-1","ch-2"]}')
+# RWO-004: publish requires the approved expectedVersion — every publish call
+# in this sweep passes the story's current version (golden st-0206 v1; seed
+# st-0205 v1; seed st-0204 v2), matching the UI publish form.
+body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0206","expectedVersion":1,"channels":["ch-1","ch-2"]}')
 expect "golden: publish to channels" 200 "${body##*$'\n'}" "$body" 'published'
 for sw in service_unavailable notification_failure missing_asset permission_denied data_conflict duplicate_event stale_entitlement; do
   case $sw in
     service_unavailable) body=$(mut 4104 "$H" /api/stories/create '{"title":"svc story","section":"news"}' $sw); want=503; sub='service_unavailable';;
     notification_failure) body=$(mut 4104 "$H" /api/stories/submit '{"storyId":"st-0203"}' $sw); want=200; sub='"warning"';;
-    missing_asset) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0205","channels":["ch-1"]}' $sw); want=404; sub='missing_asset';;
+    missing_asset) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0205","expectedVersion":1,"channels":["ch-1"]}' $sw); want=404; sub='missing_asset';;
     permission_denied) body=$(mut 4104 "$H" /api/stories/decide '{"storyId":"st-0202","decision":"approve"}' $sw); want=403; sub='permission_denied';;
     data_conflict) body=$(mut 4104 "$H" /api/stories/edit '{"storyId":"st-0203","expectedVersion":1,"body":"x"}' $sw); want=409; sub='data_conflict';;
-    duplicate_event) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0204","channels":["ch-1"]}' $sw); want=409; sub='duplicate_event';;
-    stale_entitlement) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0204","channels":["ch-5"]}' $sw); want=200; sub='stale license';;
+    duplicate_event) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0204","expectedVersion":2,"channels":["ch-1"]}' $sw); want=409; sub='duplicate_event';;
+    stale_entitlement) body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0204","expectedVersion":2,"channels":["ch-5"]}' $sw); want=200; sub='stale license';;
   esac
   expect "switch $sw" "$want" "${body##*$'\n'}" "$body" "$sub"
 done
-body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0205","channels":["ch-1"]}')
+body=$(mut 4104 "$C" /api/stories/publish '{"storyId":"st-0205","expectedVersion":1,"channels":["ch-1"]}')
 expect "natural missing_asset (approved, no hero)" 404 "${body##*$'\n'}" "$body" 'missing_asset'
 
 echo "== marketplace (FlowMart, 4105) =="
