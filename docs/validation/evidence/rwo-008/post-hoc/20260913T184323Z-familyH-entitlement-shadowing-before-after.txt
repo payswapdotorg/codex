@@ -1,0 +1,1164 @@
+# RWO-008 — Family H (entitlement shadowing) reproduction, BEFORE (base) vs AFTER (fix) — same requests, contrasting results
+# work order: docs/validation/work-orders/RWO-008.md (P1 Family H: renewal must restore authority)
+# cited reproduction evidence replayed: docs/validation/evidence/vwo-010/marketplace-upgrade-rollback/post-hoc/20260912T103521Z-vwo009-versioning-entitlement-holes.txt — section C-restart
+# BEFORE capture: 2026-09-13T18:3xZ, working tree clean at base 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (pre-fix)
+# AFTER capture:  2026-09-13T18:42Z, same base commit + RWO-008 fix applied to docs/validation/fixtures/marketplace/ops-install.js (rwo-008/entitlement-shadowing)
+# Surface: FlowMart JSON API twins (curl) on 127.0.0.1:4105. Fixture clock: state.meta.today = 2026-09-12.
+# Actors: dan.kowalski (marketplace_admin: grant/revoke) · petra.voss (org_admin Acme o-2) · iris.chen (org_admin Northwind o-1) · vera.osei (publisher).
+# The battery below replays the VWO-010 C-restart sequence and extends it with the RWO-008 acceptance criteria + multi-record selection probes.
+# Tokens are redacted (<actor-demo-token>); demo passwords are the published VWO-002 fixture demo-pass-* values.
+
+================================================================================
+CONTRAST SUMMARY (full transcripts below — BEFORE first, then AFTER)
+================================================================================
+request                                                        | BEFORE (base)                    | AFTER (fix)
+---------------------------------------------------------------|----------------------------------|------------------------------------------
+PART 1 — VWO-010 C-restart battery
+petra upgrade ins-0401 while ent-0501 ACTIVE (sanity)          | HTTP 200 upgraded 2.3.1 → 2.4.0  | HTTP 200 upgraded 2.3.1 → 2.4.0
+dan revokes ent-0501                                           | HTTP 200 revoked                 | HTTP 200 revoked
+petra upgrade while revoked (AC1: fail-closed)                 | HTTP 409 stale_entitlement       | HTTP 409 stale_entitlement
+  → names                                                      | ent-0501 (revoked)               | ent-0501 (revoked) — unchanged
+dan grants FRESH subscription ent-0504 valid 2027 (renewal)    | HTTP 200 granted                 | HTTP 200 granted
+petra RETRIES the SAME upgrade (AC2: recovery)                 | HTTP 409 stale_entitlement       | HTTP 200 upgraded 2.3.1 → 2.4.0
+  → names / result                                             | ent-0501 (revoked) — THE BUG     | via newest-ACTIVE ent-0504 — FIXED
+petra configure after renewal                                  | HTTP 409 stale_entitlement       | HTTP 200 configured (queue)
+  → names / result                                             | ent-0501 — still shadowed        | recovers with the grant
+PART 2 — expired-only states (AC3)
+iris install pk-101, only record = expired trial ent-0502      | HTTP 409 stale_entitlement       | HTTP 409 stale_entitlement
+  → names                                                      | ent-0502 (expired 2026-08-01)    | ent-0502 — unchanged
+iris install pk-101, expired ent-0502 (old) + past-valid       | HTTP 409 stale_entitlement       | HTTP 409 stale_entitlement
+  ent-0504 (newest) — fallback must name the NEWEST            | ent-0502 (stale record)          | ent-0504 (newest relevant) — FIXED
+PART 3 — auto-trial (AC4)
+iris install pk-102, NO o-1+pk-102 record                     | HTTP 200 ins-0402 + trial        | HTTP 200 ins-0402 + trial
+  → auto-grant                                                 | ent-0504 (30-day trial)          | ent-0504 (30-day trial) — unchanged
+PART 4 — newest-ACTIVE selection + tie-break
+iris install pk-101, expired ent-0502 + ACTIVE ent-0504       | HTTP 409 stale_entitlement       | HTTP 200 installed
+  → resolution                                                 | ent-0502 (first match!)          | ent-0504 (newest ACTIVE) — FIXED
+iris install pk-101, ACTIVE ent-0504 + ACTIVE ent-0505 (same   | HTTP 409 stale_entitlement       | HTTP 200 installed
+  grantedAt) → tie-break highest id                            | ent-0502 (first match!)          | ent-0505 (highest id) — FIXED
+petra upgrade, revoked ent-0501 (old) + past-valid ent-0504    | HTTP 409 stale_entitlement       | HTTP 409 stale_entitlement
+  (no active) → must name the NEWEST record                    | ent-0501 (stale record)          | ent-0504 (newest relevant) — FIXED
+
+AFTER retry body (the recovery that defines this work order):
+  { "ok": true,
+    "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0.", ... }
+BEFORE retry body (the defect, same request):
+  { "ok": false, "error": "stale_entitlement",
+    "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+    "entitlementId": "ent-0501", ... }
+
+================================================================================
+TRANSCRIPT 1/2 — BEFORE (base, vulnerable) — captured 2026-09-13T18:3xZ
+working tree clean at 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+================================================================================
+################################################################################
+# PART 1 — VWO-010 C-restart battery (revoked ent-0501 -> fresh grant -> retry)
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/versions/publish" -H 'Authorization: Bearer <VERA-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-102","version":"2.4.0","changelog":"battery prereq"}'   # prereq: publisher releases 2.4.0 so the upgrade has a forward target
+{
+  "ok": true,
+  "message": "Version 2.4.0 of \"Support Ticket Triage Assistant\" published (1 installer(s) notified).",
+  "warning": null,
+  "redirect": "/listings/support-triage-assistant",
+  "release": {
+    "version": "2.4.0",
+    "releasedAt": "2026-09-12",
+    "changelog": "battery prereq",
+    "manifest": {
+      "name": "support-triage-assistant",
+      "version": "2.4.0",
+      "entry": "package.json",
+      "files": [
+        "manifest.json",
+        "queues.json"
+      ]
+    },
+    "digest": "sha256:cadb075e36500b7c",
+    "provenance": {
+      "sourceRepo": "https://git.example.internal/vera/support-triage-assistant",
+      "commit": "d8c2c4b",
+      "builtBy": "vera.osei",
+      "signedBy": "vera.osei"
+    }
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # step 0 sanity: petra upgrade works while ent-0501 is ACTIVE
+{
+  "ok": true,
+  "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:40:55.236Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/rollback" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401"}'   # rollback to 2.3.1 so the SAME upgrade can be replayed after each phase
+{
+  "ok": true,
+  "message": "Install ins-0401 rolled back 2.4.0 → 2.3.1.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.3.1",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:40:55.236Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "rolled_back",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:40:55.243Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+--- C.1 dan revokes ent-0501 (Acme o-2, pk-102) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/revoke" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"entitlementId":"ent-0501","reason":"commercial decision"}'   # revoke ent-0501
+{
+  "ok": true,
+  "message": "Entitlement ent-0501 revoked.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0501",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "revoked",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-08-30",
+    "grantedById": "u-2",
+    "revokedAt": "2026-09-13T18:40:55.250Z",
+    "revokedById": "u-2",
+    "revokeReason": "commercial decision"
+  }
+}
+--- C.2 petra upgrade attempt while revoked (expect fail-closed 409 naming ent-0501) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # upgrade while revoked
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+  "entitlementId": "ent-0501",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "revoked",
+  "validUntil": "2027-05-01"
+}
+--- C.3 dan grants a FRESH subscription (renewal path, ent-0504, valid 2027) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-2","packageId":"pk-102","type":"subscription","validUntil":"2027-05-01"}'   # grant fresh subscription
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Acme Retail.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+--- C.4 petra retries the SAME upgrade after renewal (recovery MUST succeed) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # RETRY upgrade after renewal
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+  "entitlementId": "ent-0501",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "revoked",
+  "validUntil": "2027-05-01"
+}
+--- C.5 configure after renewal (same recovery family) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/configure" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","config":{"queue":"tier-2"}}'   # configure after renewal
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — configuration requires an active license.",
+  "entitlementId": "ent-0501",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "revoked",
+  "validUntil": "2027-05-01"
+}
+
+################################################################################
+# PART 2 — acceptance 3: expired-only state blocks naming the expired record
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 2a seeded natural case: only record for o-1+pk-101 is expired trial ent-0502 ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (expired-only)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+  "entitlementId": "ent-0502",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "expired",
+  "validUntil": "2026-08-01"
+}
+--- 2b newest-relevant fallback: expired ent-0502 (old) + active-status-but-past ent-0504 (newest) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2026-08-15"}'   # grant ent-0504 with validUntil in the past (2026-08-15)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-08-15",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 again (must name the NEWEST expired record)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+  "entitlementId": "ent-0502",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "expired",
+  "validUntil": "2026-08-01"
+}
+
+################################################################################
+# PART 3 — acceptance 4: auto-trial install path (no entitlement record) unchanged
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- o-1 has NO pk-102 record in the seed; install must auto-grant a 30-day trial ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-102","expectedVersion":"2.3.1"}'   # iris install pk-102 (auto-trial)
+{
+  "ok": true,
+  "message": "Installed \"Support Ticket Triage Assistant\" v2.3.1 for Northwind Logistics (install ins-0402, entitlement ent-0504).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-102",
+    "version": "2.3.1",
+    "status": "active",
+    "config": {},
+    "installedById": "u-3",
+    "installedAt": "2026-09-13T18:40:55.320Z",
+    "entitlementId": "ent-0504",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:40:55.320Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-102",
+    "type": "trial",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-10-12",
+    "grantedAt": "2026-09-12",
+    "grantedById": null
+  }
+}
+
+################################################################################
+# PART 4 — newest-ACTIVE selection + tie-break (multi-record states)
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4a older expired ent-0502 + newer ACTIVE ent-0504: newest-active must win ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2027-05-01"}'   # grant ent-0504 active (2027)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (newest-ACTIVE resolution)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+  "entitlementId": "ent-0502",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "expired",
+  "validUntil": "2026-08-01"
+}
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4b two ACTIVE grants same day (ent-0504 then ent-0505): highest id must win ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2027-05-01"}'   # grant ent-0504 active (2027)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2028-05-01"}'   # grant ent-0505 active (2028)
+{
+  "ok": true,
+  "message": "Entitlement ent-0505 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0505",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2028-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (tie-break: highest id ent-0505)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+  "entitlementId": "ent-0502",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "expired",
+  "validUntil": "2026-08-01"
+}
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4c revoked-first + expired-newest (no active): must name the newest record ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/revoke" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"entitlementId":"ent-0501","reason":"probe"}'   # revoke ent-0501
+{
+  "ok": true,
+  "message": "Entitlement ent-0501 revoked.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0501",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "revoked",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-08-30",
+    "grantedById": "u-2",
+    "revokedAt": "2026-09-13T18:40:55.381Z",
+    "revokedById": "u-2",
+    "revokeReason": "probe"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-2","packageId":"pk-102","type":"subscription","validUntil":"2026-08-15"}'   # grant ent-0504 with validUntil in the past (2026-08-15)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Acme Retail.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-08-15",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.3.1","expectedCurrentVersion":"2.3.1"}'   # petra upgrade (no active; must name NEWEST record ent-0504)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+  "entitlementId": "ent-0501",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "revoked",
+  "validUntil": "2027-05-01"
+}
+
+# battery complete
+
+
+================================================================================
+TRANSCRIPT 2/2 — AFTER (fix applied, rwo-008/entitlement-shadowing) — captured 2026-09-13T18:42Z
+post-fix: run after bash docs/validation/fixtures/run-all.sh --reset + verify-sweep.sh (59/59), then this battery
+================================================================================
+################################################################################
+# PART 1 — VWO-010 C-restart battery (revoked ent-0501 -> fresh grant -> retry)
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/versions/publish" -H 'Authorization: Bearer <VERA-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-102","version":"2.4.0","changelog":"battery prereq"}'   # prereq: publisher releases 2.4.0 so the upgrade has a forward target
+{
+  "ok": true,
+  "message": "Version 2.4.0 of \"Support Ticket Triage Assistant\" published (1 installer(s) notified).",
+  "warning": null,
+  "redirect": "/listings/support-triage-assistant",
+  "release": {
+    "version": "2.4.0",
+    "releasedAt": "2026-09-12",
+    "changelog": "battery prereq",
+    "manifest": {
+      "name": "support-triage-assistant",
+      "version": "2.4.0",
+      "entry": "package.json",
+      "files": [
+        "manifest.json",
+        "queues.json"
+      ]
+    },
+    "digest": "sha256:cadb075e36500b7c",
+    "provenance": {
+      "sourceRepo": "https://git.example.internal/vera/support-triage-assistant",
+      "commit": "c106407",
+      "builtBy": "vera.osei",
+      "signedBy": "vera.osei"
+    }
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # step 0 sanity: petra upgrade works while ent-0501 is ACTIVE
+{
+  "ok": true,
+  "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.384Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/rollback" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401"}'   # rollback to 2.3.1 so the SAME upgrade can be replayed after each phase
+{
+  "ok": true,
+  "message": "Install ins-0401 rolled back 2.4.0 → 2.3.1.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.3.1",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.384Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "rolled_back",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:42:51.397Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+--- C.1 dan revokes ent-0501 (Acme o-2, pk-102) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/revoke" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"entitlementId":"ent-0501","reason":"commercial decision"}'   # revoke ent-0501
+{
+  "ok": true,
+  "message": "Entitlement ent-0501 revoked.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0501",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "revoked",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-08-30",
+    "grantedById": "u-2",
+    "revokedAt": "2026-09-13T18:42:51.412Z",
+    "revokedById": "u-2",
+    "revokeReason": "commercial decision"
+  }
+}
+--- C.2 petra upgrade attempt while revoked (expect fail-closed 409 naming ent-0501) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # upgrade while revoked
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+  "entitlementId": "ent-0501",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "revoked",
+  "validUntil": "2027-05-01"
+}
+--- C.3 dan grants a FRESH subscription (renewal path, ent-0504, valid 2027) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-2","packageId":"pk-102","type":"subscription","validUntil":"2027-05-01"}'   # grant fresh subscription
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Acme Retail.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+--- C.4 petra retries the SAME upgrade after renewal (recovery MUST succeed) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}'   # RETRY upgrade after renewal
+{
+  "ok": true,
+  "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0.",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-1",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.384Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "rolled_back",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:42:51.397Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.434Z",
+        "byId": "u-6"
+      }
+    ]
+  }
+}
+--- C.5 configure after renewal (same recovery family) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/configure" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","config":{"queue":"tier-2"}}'   # configure after renewal
+{
+  "ok": true,
+  "message": "Install ins-0401 configured (queue).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0401",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "version": "2.4.0",
+    "status": "active",
+    "config": {
+      "queue": "tier-2",
+      "confidenceThreshold": "0.7"
+    },
+    "installedById": "u-6",
+    "installedAt": "2026-08-31T10:00:00Z",
+    "entitlementId": "ent-0501",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-08-31T10:00:00Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.384Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "rolled_back",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:42:51.397Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "upgraded",
+        "fromVersion": "2.3.1",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.434Z",
+        "byId": "u-6"
+      },
+      {
+        "action": "configured",
+        "fromVersion": "2.4.0",
+        "toVersion": "2.4.0",
+        "at": "2026-09-13T18:42:51.441Z",
+        "byId": "u-6",
+        "configKeys": [
+          "queue"
+        ]
+      }
+    ]
+  }
+}
+
+################################################################################
+# PART 2 — acceptance 3: expired-only state blocks naming the expired record
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 2a seeded natural case: only record for o-1+pk-101 is expired trial ent-0502 ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (expired-only)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+  "entitlementId": "ent-0502",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "expired",
+  "validUntil": "2026-08-01"
+}
+--- 2b newest-relevant fallback: expired ent-0502 (old) + active-status-but-past ent-0504 (newest) ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2026-08-15"}'   # grant ent-0504 with validUntil in the past (2026-08-15)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-08-15",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 again (must name the NEWEST expired record)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0504 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-15) — installation requires an active license.",
+  "entitlementId": "ent-0504",
+  "packageId": "pk-101",
+  "orgId": "o-1",
+  "status": "active",
+  "validUntil": "2026-08-15"
+}
+
+################################################################################
+# PART 3 — acceptance 4: auto-trial install path (no entitlement record) unchanged
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- o-1 has NO pk-102 record in the seed; install must auto-grant a 30-day trial ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-102","expectedVersion":"2.3.1"}'   # iris install pk-102 (auto-trial)
+{
+  "ok": true,
+  "message": "Installed \"Support Ticket Triage Assistant\" v2.3.1 for Northwind Logistics (install ins-0402, entitlement ent-0504).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-102",
+    "version": "2.3.1",
+    "status": "active",
+    "config": {},
+    "installedById": "u-3",
+    "installedAt": "2026-09-13T18:42:51.499Z",
+    "entitlementId": "ent-0504",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "2.3.1",
+        "at": "2026-09-13T18:42:51.499Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-102",
+    "type": "trial",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-10-12",
+    "grantedAt": "2026-09-12",
+    "grantedById": null
+  }
+}
+
+################################################################################
+# PART 4 — newest-ACTIVE selection + tie-break (multi-record states)
+################################################################################
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4a older expired ent-0502 + newer ACTIVE ent-0504: newest-active must win ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2027-05-01"}'   # grant ent-0504 active (2027)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (newest-ACTIVE resolution)
+{
+  "ok": true,
+  "message": "Installed \"Invoice Autofill for ERPs\" v1.1.0 for Northwind Logistics (install ins-0402, entitlement ent-0504).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "version": "1.1.0",
+    "status": "active",
+    "config": {},
+    "installedById": "u-3",
+    "installedAt": "2026-09-13T18:42:51.521Z",
+    "entitlementId": "ent-0504",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.1.0",
+        "at": "2026-09-13T18:42:51.521Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4b two ACTIVE grants same day (ent-0504 then ent-0505): highest id must win ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2027-05-01"}'   # grant ent-0504 active (2027)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-1","packageId":"pk-101","type":"subscription","validUntil":"2028-05-01"}'   # grant ent-0505 active (2028)
+{
+  "ok": true,
+  "message": "Entitlement ent-0505 granted to Northwind Logistics.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0505",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2028-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/install" -H 'Authorization: Bearer <IRIS-demo-token>' -H 'content-type: application/json' -d '{"packageId":"pk-101","expectedVersion":"1.1.0"}'   # iris install pk-101 (tie-break: highest id ent-0505)
+{
+  "ok": true,
+  "message": "Installed \"Invoice Autofill for ERPs\" v1.1.0 for Northwind Logistics (install ins-0402, entitlement ent-0505).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "version": "1.1.0",
+    "status": "active",
+    "config": {},
+    "installedById": "u-3",
+    "installedAt": "2026-09-13T18:42:51.549Z",
+    "entitlementId": "ent-0505",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.1.0",
+        "at": "2026-09-13T18:42:51.549Z",
+        "byId": "u-3"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0505",
+    "orgId": "o-1",
+    "packageId": "pk-101",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2028-05-01",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+$ curl -s -X POST http://127.0.0.1:4105/api/reset
+{
+  "ok": true,
+  "message": "Seed state restored.",
+  "resets": 1,
+  "events": 1
+}
+
+--- 4c revoked-first + expired-newest (no active): must name the newest record ---
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/revoke" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"entitlementId":"ent-0501","reason":"probe"}'   # revoke ent-0501
+{
+  "ok": true,
+  "message": "Entitlement ent-0501 revoked.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0501",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "revoked",
+    "validUntil": "2027-05-01",
+    "grantedAt": "2026-08-30",
+    "grantedById": "u-2",
+    "revokedAt": "2026-09-13T18:42:51.563Z",
+    "revokedById": "u-2",
+    "revokeReason": "probe"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/entitlements/grant" -H 'Authorization: Bearer <DAN-demo-token>' -H 'content-type: application/json' -d '{"orgId":"o-2","packageId":"pk-102","type":"subscription","validUntil":"2026-08-15"}'   # grant ent-0504 with validUntil in the past (2026-08-15)
+{
+  "ok": true,
+  "message": "Entitlement ent-0504 granted to Acme Retail.",
+  "warning": null,
+  "redirect": "/entitlements",
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-2",
+    "packageId": "pk-102",
+    "type": "subscription",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-08-15",
+    "grantedAt": "2026-09-12",
+    "grantedById": "u-2"
+  }
+}
+
+$ curl -s -X POST "http://127.0.0.1:4105/api/installs/upgrade" -H 'Authorization: Bearer <PETRA-demo-token>' -H 'content-type: application/json' -d '{"installId":"ins-0401","targetVersion":"2.3.1","expectedCurrentVersion":"2.3.1"}'   # petra upgrade (no active; must name NEWEST record ent-0504)
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement ent-0504 for \"Support Ticket Triage Assistant\" (Acme Retail) is expired (valid until 2026-08-15) — upgrade requires an active license.",
+  "entitlementId": "ent-0504",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "status": "active",
+  "validUntil": "2026-08-15"
+}
+
+# battery complete

@@ -1,0 +1,95 @@
+# RWO-008 acceptance criteria — verification transcript
+captured: 2026-09-13T18:43Z on branch rwo-008/entitlement-shadowing (fix applied, base 2d37cc0ef7d075e877f370790f82ac9c70df26a4)
+surface: FlowMart JSON API twins (curl) on 127.0.0.1:4105; fixture clock state.meta.today = 2026-09-12
+full transcripts: 20260913T184323Z-familyH-entitlement-shadowing-before-after.txt (BEFORE base + AFTER fix, same requests)
+sweep transcript: 20260913T184323Z-verify-sweep.txt (59/59 on the fixed tree)
+
+Each criterion below quotes the REAL post-fix response lines (transcript 2/2).
+
+--------------------------------------------------------------------------------
+AC1 — revoke → operation blocked naming the revoked record (unchanged behavior)
+--------------------------------------------------------------------------------
+setup: POST /api/reset → seed (Acme o-2, ins-0401 @ pk-102 2.3.1, ent-0501 active);
+       vera publishes pk-102 v2.4.0 (forward upgrade target);
+       petra upgrade succeeds pre-revoke (sanity), then rolls back to 2.3.1.
+C.1  $ POST /api/entitlements/revoke {"entitlementId":"ent-0501","reason":"commercial decision"}  (dan)
+       "ok": true, "message": "Entitlement ent-0501 revoked."
+C.2  $ POST /api/installs/upgrade {"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}  (petra)
+       "ok": false,
+       "error": "stale_entitlement",
+       "message": "Entitlement ent-0501 for \"Support Ticket Triage Assistant\" (Acme Retail) is revoked — upgrade requires an active license.",
+       "entitlementId": "ent-0501", "status": "revoked"
+→ PASS: fail-closed with the revoked record named; byte-identical behavior to
+  the pre-fix run (transcript 1/2, same request, same body).
+
+--------------------------------------------------------------------------------
+AC2 — grant new active entitlement → the SAME previously blocked operation
+      now succeeds (retry-clean recovery)
+--------------------------------------------------------------------------------
+C.3  $ POST /api/entitlements/grant {"orgId":"o-2","packageId":"pk-102","type":"subscription","validUntil":"2027-05-01"}  (dan)
+       "ok": true, "message": "Entitlement ent-0504 granted to Acme Retail."
+       entitlement: { "id":"ent-0504", "status":"active", "validUntil":"2027-05-01", "grantedAt":"2026-09-12" }
+C.4  $ POST /api/installs/upgrade {"installId":"ins-0401","targetVersion":"2.4.0","expectedCurrentVersion":"2.3.1"}  (petra — SAME request as C.2)
+       "ok": true,
+       "message": "Install ins-0401 upgraded 2.3.1 → 2.4.0."
+C.5  $ POST /api/installs/configure {"installId":"ins-0401","config":{"queue":"tier-2"}}  (petra — same recovery family)
+       "ok": true, "message": "Install ins-0401 configured (queue)."
+→ PASS: the previously blocked upgrade (and configure) succeed on retry after
+  the fresh grant. BEFORE (transcript 1/2): the identical C.4 retry returned
+  "ok": false / stale_entitlement / "Entitlement ent-0501 ... is revoked" —
+  the fresh active ent-0504 was shadowed by the revoked first record.
+
+--------------------------------------------------------------------------------
+AC3 — expired-only state still blocks with the expired record named
+--------------------------------------------------------------------------------
+2a   $ POST /api/reset; $ POST /api/installs/install {"packageId":"pk-101","expectedVersion":"1.1.0"}  (iris; o-1+pk-101 has ONLY the expired trial ent-0502)
+       "ok": false,
+       "error": "stale_entitlement",
+       "message": "Entitlement ent-0502 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-01) — installation requires an active license.",
+       "entitlementId": "ent-0502", "validUntil": "2026-08-01"
+→ PASS: expired-only blocks naming ent-0502 (identical to base behavior — the
+  sweep's "natural stale_entitlement (Northwind expired trial)" also stays
+  HTTP 409, see verify-sweep.txt).
+2b   fallback-names-newest probe (RWO fix scope item 1 parenthetical):
+     dan grants ent-0504 to o-1+pk-101 with validUntil 2026-08-15 (in the past → newest record, also expired);
+     iris retries the install:
+       "ok": false, "error": "stale_entitlement",
+       "message": "Entitlement ent-0504 for \"Invoice Autofill for ERPs\" (Northwind Logistics) is expired (valid until 2026-08-15) — installation requires an active license.",
+       "entitlementId": "ent-0504"
+→ PASS: still fail-closed, and the error now names the NEWEST relevant
+  entitlement (ent-0504), not the stale ent-0501/0502-style first record
+  (base named ent-0502 in this exact state — see transcript 1/2 part 2b).
+
+--------------------------------------------------------------------------------
+AC4 — auto-trial install path (no entitlement) unchanged
+--------------------------------------------------------------------------------
+3    $ POST /api/reset; $ POST /api/installs/install {"packageId":"pk-102","expectedVersion":"2.3.1"}  (iris; o-1 has NO pk-102 record in the seed)
+       "ok": true,
+       "message": "Installed \"Support Ticket Triage Assistant\" v2.3.1 for Northwind Logistics (install ins-0402, entitlement ent-0504)."
+       entitlement: { "id":"ent-0504", "type":"trial", "status":"active", "validUntil":"2026-10-12", "grantedAt":"2026-09-12" }
+→ PASS: no-record org+package still auto-grants the 30-day trial and installs
+  (identical to base — transcript 1/2 part 3, same ids/messages). The
+  entitlement.granted event for the trial is emitted unchanged (event feed
+  during the battery run). Cross-check: verify-sweep golden
+  "Northwind installs (active entitlement)" (existing active ent-0503 → used,
+  no spurious trial) also PASS → 59/59.
+
+--------------------------------------------------------------------------------
+ADDITIONAL SELECTION PROBES (fix scope item 1 semantics, beyond the ACs)
+--------------------------------------------------------------------------------
+4a   o-1+pk-101 with expired ent-0502 (old) + ACTIVE ent-0504 (new): iris install
+       "ok": true, "... (install ins-0402, entitlement ent-0504)."
+     → newest-ACTIVE wins; the older expired record no longer shadows
+       (base: HTTP 409 naming ent-0502).
+4b   o-1+pk-101 with ACTIVE ent-0504 + ACTIVE ent-0505 (same grantedAt 2026-09-12): iris install
+       "ok": true, "... (install ins-0402, entitlement ent-0505).", "entitlementId": "ent-0505"
+     → tie-break by highest id (base: HTTP 409 naming ent-0502 — both active
+       grants were shadowed by the expired first record).
+4c   o-2+pk-102 with revoked ent-0501 (old) + past-valid ent-0504 (newest), no active: petra upgrade
+       "ok": false, "error": "stale_entitlement",
+       "message": "Entitlement ent-0504 ... is expired (valid until 2026-08-15) — upgrade requires an active license.",
+       "entitlementId": "ent-0504"
+     → fail-closed fallback names the MOST RECENT record (ent-0504), not the
+       stale revoked ent-0501 (base named ent-0501 — see transcript 1/2 part 4c).
+
+All four acceptance criteria: PASS on the fixed tree; sweep 59/59.
