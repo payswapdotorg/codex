@@ -81,6 +81,12 @@ codex-protocol = { workspace = true }
 codex-queue-extension = { workspace = true }
 codex-app-server-protocol = { workspace = true }
 codex-app-server-transport = { workspace = true }
+codex-teaching-compiler = { workspace = true }
+codex-workflow-app = { workspace = true }
+codex-workflow-contracts = { workspace = true }
+codex-workflow-durable = { workspace = true }
+codex-workflow-triggers = { workspace = true }
+codex-execution-contracts = { workspace = true }
 codex-feedback = { workspace = true }
 codex-rmcp-client = { workspace = true }
 codex-rollout = { workspace = true }
@@ -96,6 +102,7 @@ clap = { workspace = true, features = ["derive"] }
 futures = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+semver = { workspace = true }
 sha2 = { workspace = true }
 tempfile = { workspace = true }
 thiserror = { workspace = true }

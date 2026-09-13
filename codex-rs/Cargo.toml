@@ -310,6 +310,10 @@ codex-utils-sandbox-summary = { path = "utils/sandbox-summary" }
 codex-worktree = { path = "worktree" }
 codex-workflow-contracts = { path = "workflow-contracts" }
 codex-execution-contracts = { path = "execution-contracts" }
+codex-workflow-app = { path = "workflow-app" }
+codex-workflow-durable = { path = "workflow-durable" }
+codex-workflow-triggers = { path = "workflow-triggers" }
+codex-teaching-compiler = { path = "teaching-compiler" }
 codex-utils-sleep-inhibitor = { path = "utils/sleep-inhibitor" }
 codex-utils-stream-parser = { path = "utils/stream-parser" }
 codex-utils-string = { path = "utils/string" }

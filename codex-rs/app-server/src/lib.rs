@@ -135,6 +135,10 @@ mod transport;
 mod turn_cost_worker;
 mod user_verification;
 mod user_verification_response;
+mod workflow;
+
+pub use crate::workflow::WorkflowControlPlane;
+pub use crate::workflow::WorkflowControlPlaneError;
 
 pub use crate::code_mode_host::AppServerCodeModeHostArgs;
 pub use crate::code_mode_host::CodeModeHostTransport;

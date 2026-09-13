@@ -1,0 +1,57 @@
+# RWO-001 post-hoc: verification commands — exact results
+# cargo is ABSENT in this sandbox (see _infra/environment-identity.txt), so the
+# cargo commands are recorded as NOT RUN with their static-verification substitute.
+# Every substitute command below was actually executed; its output is transcribed.
+
+## RWO-001 verification command 1 (NOT RUN — no cargo)
+  cargo test -p codex-app-server-protocol -p codex-app-server -p codex-cli
+Substitute static verification actually run:
+(a) The mount probe inversion (post-hoc/mount-probe-inversion.txt): >0 workflow
+    mentions in app-server-protocol/src/, exactly 13 workflow/ methods in the
+    ClientRequest macro, 50 new protocol types in v2/workflow.rs.
+(b) The experimental precomputed export regenerated and structurally verified
+    (post-hoc/experimental-zst-regeneration.txt): the artifact that
+    `cargo test -p codex-app-server-protocol` compares against from-types
+    generation now contains exactly the workflow additions; pre-existing
+    content is byte-identical.
+(c) The protocol unit tests exist (v2/workflow_tests.rs, 7 tests) and were
+    reviewed line-by-line against the serde contracts they assert.
+(d) The app-server unit tests (src/workflow_tests.rs, 11 tests) and the JSON-RPC
+    integration suite (tests/suite/v2/workflow.rs, 5 tests) drive the exact
+    acceptance flows; they are the tests the Tech Lead's cargo run will execute.
+
+## RWO-001 verification command 2 (NOT RUN — no cargo)
+  cargo test -p codex-workflow-app -p codex-workflow-durable -p codex-teaching-compiler
+Substitute: the engine crates are byte-identical to base
+  $ git status --porcelain -- codex-rs/workflow-app codex-rs/workflow-durable codex-rs/teaching-compiler
+      (no output)
+so their own green suites at base (cited in the VWO-010 probe 7:
+codex-workflow-durable 46, codex-workflow-app 36, teaching-compiler via WO-008
+records) still describe them. The mount only CALLS their ports.
+
+## RWO-001 verification command 3 (NOT RUN — no cargo)
+  cargo clippy --workspace --all-targets -- -D warnings
+Substitute: my new/edited Rust was reviewed against the workspace lint set
+([workspace.lints.clippy] in codex-rs/Cargo.toml: await_holding_lock, expect_used,
+unwrap_used, uninlined_format_args, redundant_clone, needless_borrow, ...):
+- no unwrap()/expect() outside tests (clippy.toml allows them in tests);
+- no std MutexGuard held across an await (each engine call sequence locks,
+  releases, then awaits; instance_run/resume lock only to fetch the store Arc);
+- all format! strings use inline {name} args where the argument is a plain
+  identifier;
+- the only clones of engine handles are the shared-state-handle clones the
+  engine's own documented composition pattern requires (&mut port receivers).
+
+## RWO-001 verification command 4 (NOT RUN — no cargo)
+  cargo fmt -p <my crates> -- --check
+Substitute: rustfmt is not runnable; the new files were written following the
+repo formatting conventions observed in the neighboring files (the Tech Lead's
+cargo fmt will confirm; any drift is a formatting-only fix).
+
+## RWO-001 verification command 5 — RUN FOR REAL (the required inversion)
+  rg -c 'workflow' codex-rs/app-server-protocol/src/
+    app-server-protocol/src/protocol/common.rs:36
+    app-server-protocol/src/protocol/v2/mod.rs:2
+    app-server-protocol/src/protocol/v2/workflow.rs:27
+    app-server-protocol/src/protocol/v2/workflow_tests.rs:7
+  (expected: > 0 — CONFIRMED; the absence probe fails to find absence)

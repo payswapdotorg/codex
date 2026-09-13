@@ -1,0 +1,105 @@
+# RWO-001 post-hoc: acceptance criteria — evidence map
+# cargo is absent (see _infra/environment-identity.txt); each criterion is
+# mapped to (a) the mounted surface, (b) the tests the Tech Lead's cargo run
+# will execute, and (c) the static verification performed here.
+
+## Criterion 1 — a person can teach (all three modes), compile, review,
+## approve, publish immutable v1, and observe version + digest + lock identity
+
+Surface: 13 experimental app-server methods (workflow/teach/start,
+workflow/teach/instruct, workflow/teach/demonstrate,
+workflow/teach/reconcile, workflow/compile, workflow/review,
+workflow/approve, workflow/publish) plus the `codex workflow teach` CLI
+pipeline that drives the same service methods.
+
+Tests that will verify it when cargo runs:
+- app-server/src/workflow_tests.rs::
+    teach_compile_review_approve_publish_in_all_three_modes — drives
+    Demonstrate, Instruct, and Hybrid end-to-end and asserts the publish
+    response carries workflow, semanticVersion 1.0.0, versionId
+    (sha256:...), definitionDigest (sha256:...), dependencyLockDigest
+    (sha256:...), repository, commitSha, and the binding-resolution
+    digests.
+- app-server/tests/suite/v2/workflow.rs::
+    teach_instruct_compile_review_approve_publish_over_jsonrpc — the same
+    flow through the real app-server binary over JSON-RPC;
+    hybrid_teaching_reconciles_instruction_and_demonstration — asserts
+    demonstrationRecords == instructionRecords == 1 and the compiled steps
+    carry origins ["observed", "instructed"] (the reconciled HYBRID
+    guarantee VWO-004 could not verify).
+- app-server/src/workflow_tests.rs:: rejection_leaves_the_candidate_unapproved
+  and publish_requires_an_approved_candidate — the approval gate stays
+  closed without an explicit approval.
+
+Static verification performed here:
+- the 13 methods exist in the ClientRequest macro (mount-probe-inversion.txt);
+- the WorkflowIdentity fields are on every publish response
+  (codex-rs/app-server-protocol/src/protocol/v2/workflow.rs,
+  WorkflowPublishResponse);
+- the compile flow delegates to codex_teaching_compiler::{compile, validate,
+  simulate} and publish to codex_workflow_app::publish +
+  WorkflowVersionStore::publish (durable mirror), with the immutable anchor
+  (RevisionSha), repository identity (WorkflowRepositoryId::parse), and
+  semantic version validated at the boundary.
+
+## Criterion 2 — durable instances appear in a list with status/position;
+## resume and cancel are explicit; a kill/restart preserves them
+
+Surface: workflow/instance/{run,list,get,resume,cancel} plus the
+`codex workflow instance` CLI subcommands, all backed by
+codex-workflow-durable's DurableStores opened under <codex-home>/workflow.
+
+Tests that will verify it when cargo runs:
+- app-server/src/workflow_tests.rs::
+    instances_run_list_get_and_survive_restart — runs an instance, then
+    constructs a FRESH WorkflowControlPlane over the same root and asserts
+    the instance is re-observed with its version pin, and that terminal
+    instances never look resumable (no persisted position);
+    orphaned_running_instance_recovers_through_explicit_resume — seeds the
+    post-kill -9 signature (Running record + mid-walk position), asserts the
+    startup sweep pauses it with its position visible, and that an explicit
+    resume continues and settles it;
+    cancel_is_explicit_and_terminal — Paused->Cancelled, double-cancel is
+    an explicit error, cancel of a settled instance is refused;
+    resume_requires_a_paused_instance_with_a_position — settled and unknown
+    instances cannot resume.
+- app-server/tests/suite/v2/workflow.rs::
+    instances_run_list_get_and_survive_restart_over_jsonrpc — the restart
+    story through TWO real app-server processes (graceful shutdown, fresh
+    spawn over the same home) over JSON-RPC.
+
+Static verification performed here:
+- instance state lives only in the durable stores (the control plane holds
+  only the store Arc; instances/versions/evidence/run-positions all come
+  from DurableStores);
+- the resume path is the engine's own composition: DurableInstanceControl
+  (Paused->Running) then WorkflowLifecycle::resume_run (position
+  rehydration), both existing ports;
+- reconcile_startup is the engine's sweep, invoked once per process.
+
+## Criterion 3 — ordinary Codex coding-agent behavior is unchanged
+
+Static analysis:
+- git diff shows the only touched non-additive files are wiring: the
+  protocol macro/exports, Cargo manifests, message_processor dispatch,
+  CLI argument parsing, README, tests (see post-hoc/branch-and-diff.txt);
+- the WorkflowControlPlane is constructed once per MessageProcessor and
+  opens its durable root LAZILY on the first workflow call — no I/O and
+  no engine code executes unless a workflow method is invoked (mirroring
+  the engine crates' own ordinary-Codex compatibility notes);
+- the new methods are experimental: without the experimentalApi capability
+  the dispatcher rejects them before reaching the control plane
+  (tested by workflow_methods_require_experimental_api_capability);
+- no existing dispatch arm, thread, turn, or exec path was modified.
+
+## Criterion 4 — zero changes to frozen engine semantics
+
+  $ git status --porcelain -- codex-rs/workflow-contracts codex-rs/workflow-forge
+      codex-rs/workflow-app codex-rs/workflow-durable codex-rs/workflow-triggers
+      codex-rs/workflow-evolution codex-rs/workflow-distribution
+      codex-rs/teaching-compiler codex-rs/execution-contracts
+      (no output — all nine engine crates byte-identical to base)
+
+The mount only imports them as libraries and implements one host seam
+(DurableBackedApprovalSource, an ApprovalSource double recording through the
+durable evidence store — host wiring, not engine semantics).
