@@ -58,6 +58,8 @@ use crate::thread_state::ThreadStateManager;
 use crate::transport::AppServerTransport;
 use crate::transport::RemoteControlHandle;
 use crate::turn_cost_worker::TurnCostWorker;
+use crate::workflow::WorkflowControlPlane;
+use crate::workflow::WorkflowControlPlaneError;
 use codex_analytics::AnalyticsEventsClient;
 use codex_analytics::AppServerRpcTransport;
 use codex_app_server_protocol::ClientNotification;
@@ -162,6 +164,7 @@ pub(crate) struct MessageProcessor {
     thread_queue_processor: ThreadQueueRequestProcessor,
     thread_processor: ThreadRequestProcessor,
     turn_processor: TurnRequestProcessor,
+    workflow: Arc<WorkflowControlPlane>,
     windows_sandbox_processor: WindowsSandboxRequestProcessor,
     request_serialization_queues: RequestSerializationQueues,
 }
@@ -567,6 +570,9 @@ impl MessageProcessor {
             Arc::clone(&config),
             config_manager,
         );
+        let workflow = Arc::new(WorkflowControlPlane::new(
+            config.codex_home.join("workflow"),
+        ));
 
         Self {
             user_verification,
@@ -596,6 +602,7 @@ impl MessageProcessor {
             thread_queue_processor,
             thread_processor,
             turn_processor,
+            workflow,
             windows_sandbox_processor,
             request_serialization_queues,
         }
@@ -1034,6 +1041,73 @@ impl MessageProcessor {
                 .await;
             }
             ClientRequest::ServerDiagnostics { .. } => Ok(Some(read_server_diagnostics().into())),
+            ClientRequest::WorkflowTeachStart { params, .. } => self
+                .workflow
+                .teach_start(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowTeachInstruct { params, .. } => self
+                .workflow
+                .teach_instruct(params)
+                .map(|response| Some(ClientResponsePayload::WorkflowTeachInstruct(response)))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowTeachDemonstrate { params, .. } => self
+                .workflow
+                .teach_demonstrate(params)
+                .map(|response| Some(ClientResponsePayload::WorkflowTeachDemonstrate(response)))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowTeachReconcile { params, .. } => self
+                .workflow
+                .teach_reconcile(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowCompile { params, .. } => self
+                .workflow
+                .compile(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowReview { params, .. } => self
+                .workflow
+                .review(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowApprove { params, .. } => self
+                .workflow
+                .approve(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowPublish { params, .. } => self
+                .workflow
+                .publish(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowInstanceRun { params, .. } => self
+                .workflow
+                .instance_run(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowInstanceList { params, .. } => self
+                .workflow
+                .instance_list(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowInstanceGet { params, .. } => self
+                .workflow
+                .instance_get(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowInstanceResume { params, .. } => self
+                .workflow
+                .instance_resume(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowInstanceCancel { params, .. } => self
+                .workflow
+                .instance_cancel(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
             ClientRequest::ConfigRead { params, .. } => self
                 .config_processor
                 .read(params)
@@ -1745,6 +1819,24 @@ impl MessageProcessor {
             }
         }
         Ok(())
+    }
+}
+
+/// Maps one workflow control-plane error onto the JSON-RPC error surface.
+///
+/// Not-found and invalid-lifecycle requests are caller errors (invalid
+/// params); engine, trigger, and durable failures are internal errors
+/// carrying the structured engine message.
+fn workflow_error(
+    error: WorkflowControlPlaneError,
+) -> codex_app_server_protocol::JSONRPCErrorError {
+    match error {
+        WorkflowControlPlaneError::NotFound(message)
+        | WorkflowControlPlaneError::InvalidRequest(message) => invalid_params(message),
+        WorkflowControlPlaneError::Engine(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Teaching(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Trigger(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Durable(inner) => internal_error(inner.to_string()),
     }
 }
 

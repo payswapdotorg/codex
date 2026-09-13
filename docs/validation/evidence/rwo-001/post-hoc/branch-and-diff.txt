@@ -1,0 +1,49 @@
+# RWO-001 post-hoc: branch and diff identity
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+    2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git branch --show-current
+    rwo-001/mount-control-plane
+$ git log --oneline 2d37cc0ef7d075e877f370790f82ac9c70df26a4..HEAD
+    <single commit> feat(mount): RWO-001 — mount the workflow/teaching control
+    plane behind user-facing surfaces (Family A)
+    (the branch contains exactly one commit on top of the verified base; its
+    full SHA is pinned by the delivery bundle
+    /home/z/my-project/RWO-001-delivery.bundle and recorded in the
+    completion report — a self-referential SHA cannot live inside the commit
+    it identifies)
+$ git diff --numstat 2d37cc0ef7d075e877f370790f82ac9c70df26a4..HEAD -- codex-rs
+    4	0	codex-rs/Cargo.toml
+    -	-	codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst
+    25	0	codex-rs/app-server-protocol/src/export.rs
+    104	0	codex-rs/app-server-protocol/src/protocol/common.rs
+    2	0	codex-rs/app-server-protocol/src/protocol/v2/mod.rs
+    700	0	codex-rs/app-server-protocol/src/protocol/v2/workflow.rs
+    263	0	codex-rs/app-server-protocol/src/protocol/v2/workflow_tests.rs
+    7	0	codex-rs/app-server/Cargo.toml
+    37	0	codex-rs/app-server/README.md
+    4	0	codex-rs/app-server/src/lib.rs
+    89	0	codex-rs/app-server/src/message_processor.rs
+    1003	0	codex-rs/app-server/src/workflow.rs
+    55	0	codex-rs/app-server/src/workflow/approval.rs
+    578	0	codex-rs/app-server/src/workflow_tests.rs
+    1	0	codex-rs/app-server/tests/suite/v2/mod.rs
+    368	0	codex-rs/app-server/tests/suite/v2/workflow.rs
+    14	0	codex-rs/cli/src/main.rs
+    611	0	codex-rs/cli/src/workflow_cmd.rs
+    (plus the docs/validation/evidence/rwo-001/ tree — this evidence)
+
+## Frozen-crate check (byte-identical)
+$ git diff --name-only 2d37cc0ef7d075e877f370790f82ac9c70df26a4..HEAD -- \
+    codex-rs/workflow-contracts codex-rs/workflow-forge codex-rs/workflow-app \
+    codex-rs/workflow-durable codex-rs/workflow-triggers codex-rs/workflow-evolution \
+    codex-rs/workflow-distribution codex-rs/teaching-compiler codex-rs/execution-contracts
+    (no output — all nine engine crates untouched)
+
+## Contract-document check (byte-identical)
+$ git diff --name-only 2d37cc0ef7d075e877f370790f82ac9c70df26a4..HEAD -- \
+    docs/validation/work-orders/RWO-001.md docs/validation/reports docs/validation/REPORT-SCHEMA.md
+    (no output — the RWO doc, the six validation reports, and REPORT-SCHEMA are untouched)
+
+## Working tree
+$ git status --porcelain
+    (clean — all files kept in the sandbox working tree for harvest)

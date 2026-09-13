@@ -546,6 +546,112 @@ client_request_definitions! {
         response: v2::UserVerificationVerifyResponse,
     },
 
+    #[experimental("workflow/teach/start")]
+    /// Open a workflow teaching session in one of the three teaching modes.
+    WorkflowTeachStart => "workflow/teach/start" {
+        params: v2::WorkflowTeachStartParams,
+        serialization: None,
+        response: v2::WorkflowTeachStartResponse,
+    },
+
+    #[experimental("workflow/teach/instruct")]
+    /// Record one instruction statement into a teaching session.
+    WorkflowTeachInstruct => "workflow/teach/instruct" {
+        params: v2::WorkflowTeachInstructParams,
+        serialization: None,
+        manual_payload_conversion: manual,
+        response: v2::WorkflowTeachRecordResponse,
+    },
+
+    #[experimental("workflow/teach/demonstrate")]
+    /// Record one demonstration event into a teaching session.
+    WorkflowTeachDemonstrate => "workflow/teach/demonstrate" {
+        params: v2::WorkflowTeachDemonstrateParams,
+        serialization: None,
+        manual_payload_conversion: manual,
+        response: v2::WorkflowTeachRecordResponse,
+    },
+
+    #[experimental("workflow/teach/reconcile")]
+    /// Close a teaching session and reconcile its recorded trajectory.
+    WorkflowTeachReconcile => "workflow/teach/reconcile" {
+        params: v2::WorkflowTeachReconcileParams,
+        serialization: None,
+        response: v2::WorkflowTeachReconcileResponse,
+    },
+
+    #[experimental("workflow/compile")]
+    /// Compile a closed teaching session into a validated workflow candidate.
+    WorkflowCompile => "workflow/compile" {
+        params: v2::WorkflowCompileParams,
+        serialization: None,
+        response: v2::WorkflowCompileResponse,
+    },
+
+    #[experimental("workflow/review")]
+    /// Read the full review payload of a compiled workflow candidate.
+    WorkflowReview => "workflow/review" {
+        params: v2::WorkflowReviewParams,
+        serialization: None,
+        response: v2::WorkflowReviewResponse,
+    },
+
+    #[experimental("workflow/approve")]
+    /// Record an approval decision on a validated workflow candidate.
+    WorkflowApprove => "workflow/approve" {
+        params: v2::WorkflowApproveParams,
+        serialization: None,
+        response: v2::WorkflowApproveResponse,
+    },
+
+    #[experimental("workflow/publish")]
+    /// Publish an approved candidate as an immutable workflow version.
+    WorkflowPublish => "workflow/publish" {
+        params: v2::WorkflowPublishParams,
+        serialization: None,
+        response: v2::WorkflowPublishResponse,
+    },
+
+    #[experimental("workflow/instance/run")]
+    /// Run one instance of a published workflow version to a terminal state.
+    WorkflowInstanceRun => "workflow/instance/run" {
+        params: v2::WorkflowInstanceRunParams,
+        serialization: None,
+        response: v2::WorkflowInstanceRunResponse,
+    },
+
+    #[experimental("workflow/instance/list")]
+    /// List every durable workflow instance with status and position.
+    WorkflowInstanceList => "workflow/instance/list" {
+        params: v2::WorkflowInstanceListParams,
+        serialization: None,
+        response: v2::WorkflowInstanceListResponse,
+    },
+
+    #[experimental("workflow/instance/get")]
+    /// Read one durable workflow instance with its evidence references.
+    WorkflowInstanceGet => "workflow/instance/get" {
+        params: v2::WorkflowInstanceGetParams,
+        serialization: None,
+        response: v2::WorkflowInstanceGetResponse,
+    },
+
+    #[experimental("workflow/instance/resume")]
+    /// Resume one paused durable workflow instance.
+    WorkflowInstanceResume => "workflow/instance/resume" {
+        params: v2::WorkflowInstanceResumeParams,
+        serialization: None,
+        response: v2::WorkflowInstanceResumeResponse,
+    },
+
+    #[experimental("workflow/instance/cancel")]
+    /// Cancel one durable workflow instance with an explicit reason.
+    WorkflowInstanceCancel => "workflow/instance/cancel" {
+        params: v2::WorkflowInstanceCancelParams,
+        serialization: None,
+        response: v2::WorkflowInstanceCancelResponse,
+    },
+
     /// NEW APIs
     // Thread lifecycle
     // Uses `inspect_params` because only some fields are experimental.

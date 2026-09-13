@@ -74,6 +74,7 @@ mod remote_control_cmd;
 #[cfg(target_os = "windows")]
 mod sandbox_setup;
 mod state_db_recovery;
+mod workflow_cmd;
 #[cfg(not(windows))]
 mod wsl_paths;
 
@@ -82,6 +83,7 @@ use crate::plugin_cmd::PluginCli;
 use crate::plugin_cmd::PluginSubcommand;
 use crate::queue_cmd::QueueCommand;
 use crate::remote_control_cmd::RemoteControlCommand;
+use crate::workflow_cmd::WorkflowCli;
 use doctor::DoctorCommand;
 use state_db_recovery as local_state_db;
 
@@ -238,6 +240,9 @@ enum Subcommand {
 
     /// Inspect feature flags.
     Features(FeaturesCli),
+
+    /// [experimental] Teach, publish, and operate workflows.
+    Workflow(WorkflowCli),
 }
 
 #[derive(Debug, Parser)]
@@ -1889,6 +1894,14 @@ async fn cli_main(
                 disable_feature_in_config(&feature).await?;
             }
         },
+        Some(Subcommand::Workflow(workflow_cli)) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "workflow",
+            )?;
+            crate::workflow_cmd::run(workflow_cli).await?;
+        }
     }
 
     Ok(())
@@ -2581,6 +2594,7 @@ fn unsupported_subcommand_name_for_strict_config(
         Some(Subcommand::ResponsesApiProxy(_)) => Some("responses-api-proxy"),
         Some(Subcommand::StdioToUds(_)) => Some("stdio-to-uds"),
         Some(Subcommand::Features(_)) => Some("features"),
+        Some(Subcommand::Workflow(_)) => Some("workflow"),
     }
 }
 

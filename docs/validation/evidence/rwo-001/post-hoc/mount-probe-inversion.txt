@@ -1,0 +1,59 @@
+# RWO-001 post-hoc: the VWO-010 mount probe, INVERTED
+# The VWO-010 reproduction evidence (docs/validation/evidence/vwo-010/_infra/post-hoc/20260912T104009Z-engine-mount-absence-probe.txt)
+# found Family A by proving ABSENCE: no workflow methods in app-server-protocol, no
+# workflow deps in user-facing crates, no CLI workflow subcommand. This transcript re-runs
+# the same probes on the RWO-001 branch; every absence probe now FAILS to find absence.
+
+## base: main @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4 — the failure being remediated
+(cited) VWO-010 probe 3 at base: $ rg -c 'workflow' codex-rs/app-server-protocol/src/*.rs
+    (no matches — zero workflow mentions in the whole protocol crate)
+(cited) VWO-010 probe 2 at base: $ rg 'workflow|teaching-compiler|execution-contracts' codex-rs/cli/Cargo.toml codex-rs/app-server/Cargo.toml codex-rs/app-server-protocol/Cargo.toml
+    (no matches — NONE)
+
+## branch: rwo-001/mount-control-plane — the same probes, inverted
+
+$ rg -c 'workflow' codex-rs/app-server-protocol/src/
+    app-server-protocol/src/protocol/common.rs:36
+    app-server-protocol/src/protocol/v2/mod.rs:2
+    app-server-protocol/src/protocol/v2/workflow.rs:27
+    app-server-protocol/src/protocol/v2/workflow_tests.rs:7
+$ rg -l 'workflow' codex-rs/app-server-protocol/src/ | wc -l
+    4
+
+$ rg 'codex-workflow|codex-teaching-compiler|codex-execution-contracts' codex-rs/app-server/Cargo.toml
+    codex-teaching-compiler = { workspace = true }
+    codex-workflow-app = { workspace = true }
+    codex-workflow-contracts = { workspace = true }
+    codex-workflow-durable = { workspace = true }
+    codex-workflow-triggers = { workspace = true }
+    codex-execution-contracts = { workspace = true
+
+$ rg -c 'workflow' codex-rs/cli/src/main.rs codex-rs/cli/src/workflow_cmd.rs
+    cli/src/main.rs:7
+    cli/src/workflow_cmd.rs:25
+
+## the 13 mounted protocol methods (from codex-rs/app-server-protocol/src/protocol/common.rs)
+$ rg -n '=> "workflow/' codex-rs/app-server-protocol/src/protocol/common.rs | head -13
+    WorkflowTeachStart => "workflow/teach/start"
+    WorkflowTeachInstruct => "workflow/teach/instruct"
+    WorkflowTeachDemonstrate => "workflow/teach/demonstrate"
+    WorkflowTeachReconcile => "workflow/teach/reconcile"
+    WorkflowCompile => "workflow/compile"
+    WorkflowReview => "workflow/review"
+    WorkflowApprove => "workflow/approve"
+    WorkflowPublish => "workflow/publish"
+    WorkflowInstanceRun => "workflow/instance/run"
+    WorkflowInstanceList => "workflow/instance/list"
+    WorkflowInstanceGet => "workflow/instance/get"
+    WorkflowInstanceResume => "workflow/instance/resume"
+    WorkflowInstanceCancel => "workflow/instance/cancel"
+
+## probe 1/5 (unchanged by design): the nine engine crates remain library-only and untouched
+$ git status --porcelain -- codex-rs/workflow-contracts codex-rs/workflow-forge codex-rs/workflow-app codex-rs/workflow-durable codex-rs/workflow-triggers codex-rs/workflow-evolution codex-rs/workflow-distribution codex-rs/teaching-compiler codex-rs/execution-contracts
+    (no output — zero engine edits; the mount is wiring only)
+
+## conclusion — Family A CLOSED at the mount level
+Every absence the VWO-010 probe established at base is now present: 13 experimental
+workflow/ methods in the app-server protocol, workflow-family dependencies in the
+app-server crate, and a `codex workflow` CLI subcommand group. The absence probe
+FAILS to find absence, exactly as the RWO-001 verification commands require.
