@@ -1049,12 +1049,12 @@ impl MessageProcessor {
             ClientRequest::WorkflowTeachInstruct { params, .. } => self
                 .workflow
                 .teach_instruct(params)
-                .map(|response| Some(response.into()))
+                .map(|response| Some(ClientResponsePayload::WorkflowTeachInstruct(response)))
                 .map_err(workflow_error),
             ClientRequest::WorkflowTeachDemonstrate { params, .. } => self
                 .workflow
                 .teach_demonstrate(params)
-                .map(|response| Some(response.into()))
+                .map(|response| Some(ClientResponsePayload::WorkflowTeachDemonstrate(response)))
                 .map_err(workflow_error),
             ClientRequest::WorkflowTeachReconcile { params, .. } => self
                 .workflow
@@ -1827,13 +1827,16 @@ impl MessageProcessor {
 /// Not-found and invalid-lifecycle requests are caller errors (invalid
 /// params); engine, trigger, and durable failures are internal errors
 /// carrying the structured engine message.
-fn workflow_error(error: WorkflowControlPlaneError) -> codex_app_server_protocol::JSONRPCErrorError {
+fn workflow_error(
+    error: WorkflowControlPlaneError,
+) -> codex_app_server_protocol::JSONRPCErrorError {
     match error {
         WorkflowControlPlaneError::NotFound(message)
         | WorkflowControlPlaneError::InvalidRequest(message) => invalid_params(message),
-        WorkflowControlPlaneError::Engine(inner)
-        | WorkflowControlPlaneError::Trigger(inner)
-        | WorkflowControlPlaneError::Durable(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Engine(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Teaching(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Trigger(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Durable(inner) => internal_error(inner.to_string()),
     }
 }
 

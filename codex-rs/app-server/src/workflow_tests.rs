@@ -11,8 +11,8 @@ use super::*;
 
 use codex_workflow_app::RunPosition;
 use codex_workflow_app::RunPositionStore;
-use codex_workflow_app::WorkflowInstanceStore;
 use codex_workflow_app::WalkPosition;
+use codex_workflow_app::WorkflowInstanceStore;
 use rpc::WorkflowApprovalDecision;
 use rpc::WorkflowDemonstrationKind;
 use rpc::WorkflowTeachMode;
@@ -75,10 +75,7 @@ fn teach_and_compile(
 }
 
 /// Publishes one taught workflow and returns its identity.
-async fn publish_taught(
-    plane: &WorkflowControlPlane,
-    name: &str,
-) -> rpc::WorkflowPublishResponse {
+async fn publish_taught(plane: &WorkflowControlPlane, name: &str) -> rpc::WorkflowPublishResponse {
     let compiled = teach_and_compile(plane, WorkflowTeachMode::Instruct, name);
     plane
         .approve(rpc::WorkflowApproveParams {
@@ -160,14 +157,18 @@ fn teach_compile_review_approve_publish_in_all_three_modes() {
         assert!(published.dependency_lock_digest.starts_with("sha256:"));
         assert_eq!(published.repository, "local/workflows/taught");
         assert_eq!(published.commit_sha, COMMIT_SHA);
-        assert!(published
-            .binding_resolution
-            .approved_digest
-            .starts_with("sha256:"));
-        assert!(published
-            .binding_resolution
-            .executable_digest
-            .starts_with("sha256:"));
+        assert!(
+            published
+                .binding_resolution
+                .approved_digest
+                .starts_with("sha256:")
+        );
+        assert!(
+            published
+                .binding_resolution
+                .executable_digest
+                .starts_with("sha256:")
+        );
     }
 }
 
@@ -339,7 +340,7 @@ fn seed_orphaned_running_instance(
         instance: instance_id,
         version: WorkflowVersionId::try_from(version_id).expect("version id"),
         walk: WalkPosition {
-            current: codex_workflow_contracts::IrNodeId::parse("step-001").expect("node"),
+            current: Some(codex_workflow_contracts::IrNodeId::parse("step-001").expect("node")),
             continuations: Vec::new(),
             steps_taken: 0,
             path: Vec::new(),
@@ -359,8 +360,11 @@ async fn orphaned_running_instance_recovers_through_explicit_resume() {
     let root = tempfile::tempdir().expect("root");
     let plane = WorkflowControlPlane::new(root.path());
     let published = publish_taught(&plane, "orphan-recovery-workflow").await;
-    let orphan =
-        seed_orphaned_running_instance(root.path(), "orphan-recovery-workflow", &published.version_id);
+    let orphan = seed_orphaned_running_instance(
+        root.path(),
+        "orphan-recovery-workflow",
+        &published.version_id,
+    );
 
     // A fresh control plane (the restart) lists instances: the startup
     // sweep finds the orphaned `Running` record and pauses it — never
@@ -371,7 +375,10 @@ async fn orphaned_running_instance_recovers_through_explicit_resume() {
         .expect("instance_list");
     assert_eq!(listed.instances.len(), 1);
     assert_eq!(listed.instances[0].instance_id, orphan.to_string());
-    assert_eq!(listed.instances[0].status, rpc::WorkflowInstanceStatus::Paused);
+    assert_eq!(
+        listed.instances[0].status,
+        rpc::WorkflowInstanceStatus::Paused
+    );
     // The persisted position is visible with the pause.
     let position = listed.instances[0]
         .position
@@ -404,7 +411,10 @@ async fn cancel_is_explicit_and_terminal() {
     let listed = plane
         .instance_list(rpc::WorkflowInstanceListParams {})
         .expect("instance_list");
-    assert_eq!(listed.instances[0].status, rpc::WorkflowInstanceStatus::Paused);
+    assert_eq!(
+        listed.instances[0].status,
+        rpc::WorkflowInstanceStatus::Paused
+    );
 
     let cancelled = plane
         .instance_cancel(rpc::WorkflowInstanceCancelParams {

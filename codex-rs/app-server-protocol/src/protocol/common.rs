@@ -559,6 +559,7 @@ client_request_definitions! {
     WorkflowTeachInstruct => "workflow/teach/instruct" {
         params: v2::WorkflowTeachInstructParams,
         serialization: None,
+        manual_payload_conversion: manual,
         response: v2::WorkflowTeachRecordResponse,
     },
 
@@ -567,6 +568,7 @@ client_request_definitions! {
     WorkflowTeachDemonstrate => "workflow/teach/demonstrate" {
         params: v2::WorkflowTeachDemonstrateParams,
         serialization: None,
+        manual_payload_conversion: manual,
         response: v2::WorkflowTeachRecordResponse,
     },
 

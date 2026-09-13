@@ -10,11 +10,11 @@ use codex_app_server_protocol::ClientInfo;
 use codex_app_server_protocol::InitializeCapabilities;
 use codex_app_server_protocol::RequestId;
 use pretty_assertions::assert_eq;
-use serde_json::json;
 use serde_json::Value;
+use serde_json::json;
 use tempfile::TempDir;
-use tokio::time::timeout;
 use tokio::time::Duration;
+use tokio::time::timeout;
 
 const COMMIT_SHA: &str = "0123456789abcdef0123456789abcdef01234567";
 
@@ -35,14 +35,8 @@ async fn initialize_experimental(app_server: &mut TestAppServer) -> Result<()> {
     Ok(())
 }
 
-async fn request(
-    app_server: &mut TestAppServer,
-    method: &str,
-    params: Value,
-) -> Result<Value> {
-    let id = app_server
-        .send_raw_request(method, Some(params))
-        .await?;
+async fn request(app_server: &mut TestAppServer, method: &str, params: Value) -> Result<Value> {
+    let id = app_server.send_raw_request(method, Some(params)).await?;
     let response = timeout(
         Duration::from_secs(30),
         app_server.read_stream_until_response_message(RequestId::Integer(id)),
@@ -56,9 +50,7 @@ async fn request_error(
     method: &str,
     params: Value,
 ) -> Result<codex_app_server_protocol::JSONRPCErrorError> {
-    let id = app_server
-        .send_raw_request(method, Some(params))
-        .await?;
+    let id = app_server.send_raw_request(method, Some(params)).await?;
     let response = timeout(
         Duration::from_secs(30),
         app_server.read_stream_until_error_message(RequestId::Integer(id)),
@@ -202,18 +194,24 @@ async fn teach_instruct_compile_review_approve_publish_over_jsonrpc() -> Result<
     assert_eq!(published["semanticVersion"], "1.0.0");
     assert_eq!(published["repository"], "local/workflows/taught");
     assert_eq!(published["commitSha"], COMMIT_SHA);
-    assert!(published["versionId"]
-        .as_str()
-        .expect("version id")
-        .starts_with("sha256:"));
-    assert!(published["definitionDigest"]
-        .as_str()
-        .expect("definition digest")
-        .starts_with("sha256:"));
-    assert!(published["dependencyLockDigest"]
-        .as_str()
-        .expect("lock digest")
-        .starts_with("sha256:"));
+    assert!(
+        published["versionId"]
+            .as_str()
+            .expect("version id")
+            .starts_with("sha256:")
+    );
+    assert!(
+        published["definitionDigest"]
+            .as_str()
+            .expect("definition digest")
+            .starts_with("sha256:")
+    );
+    assert!(
+        published["dependencyLockDigest"]
+            .as_str()
+            .expect("lock digest")
+            .starts_with("sha256:")
+    );
     Ok(())
 }
 
@@ -292,7 +290,10 @@ async fn instances_run_list_get_and_survive_restart_over_jsonrpc() -> Result<()>
         Some("Open the site log."),
     )
     .await?;
-    let version_id = published["versionId"].as_str().expect("version id").to_string();
+    let version_id = published["versionId"]
+        .as_str()
+        .expect("version id")
+        .to_string();
 
     let run = request(
         &mut app_server,
@@ -303,10 +304,7 @@ async fn instances_run_list_get_and_survive_restart_over_jsonrpc() -> Result<()>
     assert_eq!(run["status"], "succeeded");
     assert_eq!(run["terminal"]["kind"], "completed");
     assert_eq!(run["workflow"], "construction-daily-progress");
-    let instance_id = run["instanceId"]
-        .as_str()
-        .expect("instance id")
-        .to_string();
+    let instance_id = run["instanceId"].as_str().expect("instance id").to_string();
 
     let listed = request(&mut app_server, "workflow/instance/list", json!({})).await?;
     assert_eq!(listed["instances"].as_array().expect("instances").len(), 1);

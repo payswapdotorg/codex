@@ -39,12 +39,13 @@ use codex_teaching_compiler::Severity;
 use codex_teaching_compiler::SimulationConfig;
 use codex_teaching_compiler::SimulationOutcome;
 use codex_teaching_compiler::SimulationReport;
+use codex_teaching_compiler::StepOrigin;
+use codex_teaching_compiler::TeachingEvidence;
 use codex_teaching_compiler::TeachingMode;
+use codex_teaching_compiler::TeachingSession;
 use codex_teaching_compiler::TrajectoryEvent;
 use codex_teaching_compiler::ValidationSummary;
 use codex_teaching_compiler::WorkflowCandidate;
-use codex_teaching_compiler::TeachingEvidence;
-use codex_teaching_compiler::TeachingSession;
 use codex_teaching_compiler::compile;
 use codex_workflow_app::LifecycleDeps;
 use codex_workflow_app::PublishRequest;
@@ -62,7 +63,6 @@ use codex_workflow_contracts::EvidenceKind;
 use codex_workflow_contracts::EvidenceReference;
 use codex_workflow_contracts::ImmutableSourceRevision;
 use codex_workflow_contracts::RevisionSha;
-use codex_workflow_contracts::StepOrigin;
 use codex_workflow_contracts::TriggerClass;
 use codex_workflow_contracts::TriggerSource;
 use codex_workflow_contracts::WorkflowDefinitionId;
@@ -105,6 +105,9 @@ pub enum WorkflowControlPlaneError {
     /// An engine or store operation failed.
     #[error("workflow engine error: {0}")]
     Engine(#[from] WorkflowAppError),
+    /// A teaching-session or compiler operation failed.
+    #[error("teaching compiler error: {0}")]
+    Teaching(#[from] codex_teaching_compiler::TeachingCompilerError),
     /// A trigger-plane operation failed.
     #[error("workflow trigger error: {0}")]
     Trigger(#[from] WorkflowTriggerError),
@@ -217,9 +220,7 @@ impl WorkflowControlPlane {
             rpc::WorkflowDemonstrationKind::Observation => {
                 TrajectoryEvent::Observation { text: params.text }
             }
-            rpc::WorkflowDemonstrationKind::Action => {
-                TrajectoryEvent::Action { text: params.text }
-            }
+            rpc::WorkflowDemonstrationKind::Action => TrajectoryEvent::Action { text: params.text },
             rpc::WorkflowDemonstrationKind::Result => TrajectoryEvent::Result { text: params.text },
             rpc::WorkflowDemonstrationKind::Recovery => {
                 TrajectoryEvent::Recovery { text: params.text }
@@ -257,7 +258,7 @@ impl WorkflowControlPlane {
         let sequence = entry
             .session
             .record(origin, event, evidence)
-            .map_err(WorkflowControlPlaneError::Engine)?;
+            .map_err(WorkflowControlPlaneError::Teaching)?;
         Ok(rpc::WorkflowTeachRecordResponse {
             session_id: session_id.to_string(),
             mode: teach_mode_protocol(mode),
@@ -315,13 +316,13 @@ impl WorkflowControlPlane {
             )));
         }
         let name = entry.name.clone();
-        let mut candidate = compile(&entry.session).map_err(WorkflowControlPlaneError::Engine)?;
+        let mut candidate = compile(&entry.session).map_err(WorkflowControlPlaneError::Teaching)?;
         let validation = candidate
             .validate()
-            .map_err(WorkflowControlPlaneError::Engine)?;
+            .map_err(WorkflowControlPlaneError::Teaching)?;
         let simulation = candidate
             .simulate(SimulationConfig::default())
-            .map_err(WorkflowControlPlaneError::Engine)?;
+            .map_err(WorkflowControlPlaneError::Teaching)?;
         let candidate_id = format!("cand-{}", Uuid::new_v4().simple());
         let response = rpc::WorkflowCompileResponse {
             candidate_id: candidate_id.clone(),
@@ -332,10 +333,9 @@ impl WorkflowControlPlane {
             validation: validation_summary_protocol(&validation),
             simulation: simulation_summary_protocol(&simulation),
         };
-        state.candidates.insert(
-            candidate_id,
-            CandidateEntry { name, candidate },
-        );
+        state
+            .candidates
+            .insert(candidate_id, CandidateEntry { name, candidate });
         Ok(response)
     }
 
@@ -374,7 +374,7 @@ impl WorkflowControlPlane {
             entry
                 .candidate
                 .approve(decision)
-                .map_err(WorkflowControlPlaneError::Engine)?;
+                .map_err(WorkflowControlPlaneError::Teaching)?;
         }
         Ok(rpc::WorkflowApproveResponse {
             candidate_id: params.candidate_id,
@@ -407,7 +407,7 @@ impl WorkflowControlPlane {
         let approved = entry
             .candidate
             .finalize(definition_id)
-            .map_err(WorkflowControlPlaneError::Engine)?;
+            .map_err(WorkflowControlPlaneError::Teaching)?;
         let repository = params
             .repository
             .filter(|repository| !repository.trim().is_empty())
@@ -685,10 +685,9 @@ fn candidate_ref<'a>(
     state: &'a WorkflowState,
     candidate_id: &str,
 ) -> Result<&'a CandidateEntry, WorkflowControlPlaneError> {
-    state
-        .candidates
-        .get(candidate_id)
-        .ok_or_else(|| WorkflowControlPlaneError::NotFound(format!("unknown candidate `{candidate_id}`")))
+    state.candidates.get(candidate_id).ok_or_else(|| {
+        WorkflowControlPlaneError::NotFound(format!("unknown candidate `{candidate_id}`"))
+    })
 }
 
 /// Looks up one candidate mutably.
@@ -696,10 +695,9 @@ fn candidate_mut<'a>(
     state: &'a mut WorkflowState,
     candidate_id: &str,
 ) -> Result<&'a mut CandidateEntry, WorkflowControlPlaneError> {
-    state
-        .candidates
-        .get_mut(candidate_id)
-        .ok_or_else(|| WorkflowControlPlaneError::NotFound(format!("unknown candidate `{candidate_id}`")))
+    state.candidates.get_mut(candidate_id).ok_or_else(|| {
+        WorkflowControlPlaneError::NotFound(format!("unknown candidate `{candidate_id}`"))
+    })
 }
 
 /// Parses a `sha256:<hex>` version identity.
@@ -727,11 +725,9 @@ fn load_instance(
     instance_id: &WorkflowInstanceId,
 ) -> Result<WorkflowInstance, WorkflowControlPlaneError> {
     let instances = stores.instances.clone();
-    instances
-        .load(instance_id)?
-        .ok_or_else(|| WorkflowControlPlaneError::NotFound(format!(
-            "unknown workflow instance `{instance_id}`"
-        )))
+    instances.load(instance_id)?.ok_or_else(|| {
+        WorkflowControlPlaneError::NotFound(format!("unknown workflow instance `{instance_id}`"))
+    })
 }
 
 /// The node a resume directive names: the persisted pending re-entry
@@ -751,9 +747,11 @@ fn resume_node(
         .walk
         .current
         .or_else(|| position.walk.path.last().cloned())
-        .ok_or_else(|| WorkflowControlPlaneError::InvalidRequest(format!(
-            "the persisted position of instance `{instance_id}` names no node to resume at"
-        )))
+        .ok_or_else(|| {
+            WorkflowControlPlaneError::InvalidRequest(format!(
+                "the persisted position of instance `{instance_id}` names no node to resume at"
+            ))
+        })
 }
 
 /// Builds the review response from a candidate entry.
@@ -842,12 +840,13 @@ fn instance_record(
         workflow: instance.workflow.to_string(),
         version_id: instance.version.to_string(),
         status: instance_status_protocol(instance.status),
-        trigger: instance.trigger.as_ref().map(|trigger| {
-            rpc::WorkflowTriggerSource {
+        trigger: instance
+            .trigger
+            .as_ref()
+            .map(|trigger| rpc::WorkflowTriggerSource {
                 class: trigger_class_protocol(trigger.trigger),
                 event_id: trigger.event_id.clone(),
-            }
-        }),
+            }),
         position: position.map(|position| rpc::WorkflowRunPositionSummary {
             current_node: position.walk.current.as_ref().map(ToString::to_string),
             steps_taken: position.walk.steps_taken,

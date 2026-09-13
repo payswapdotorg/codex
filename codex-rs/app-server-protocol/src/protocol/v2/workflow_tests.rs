@@ -24,10 +24,8 @@ fn teach_start_params_round_trip_with_optional_name() {
         mode: WorkflowTeachMode::Demonstrate,
         name: None,
     };
-    let decoded = serde_json::from_value::<WorkflowTeachStartParams>(
-        json!({"mode": "demonstrate"}),
-    )
-    .unwrap();
+    let decoded =
+        serde_json::from_value::<WorkflowTeachStartParams>(json!({"mode": "demonstrate"})).unwrap();
     assert_eq!(decoded, unnamed);
 }
 
@@ -52,7 +50,7 @@ fn teach_record_params_round_trip_and_reject_unknown_fields() {
             "evidence": [{
                 "label": "open-details",
                 "locator": "rollout://abc",
-                "sha256": "ababababababababababababababababababababababababababababababababab"
+                "sha256": "abababababababababababababababababababababababababababababababab"
             }]
         })
     );
@@ -63,13 +61,15 @@ fn teach_record_params_round_trip_and_reject_unknown_fields() {
         .unwrap(),
         params
     );
-    assert!(serde_json::from_value::<WorkflowTeachDemonstrateParams>(json!({
-        "sessionId": "ws-1",
-        "kind": "action",
-        "text": "click",
-        "unexpected": true
-    }))
-    .is_err());
+    assert!(
+        serde_json::from_value::<WorkflowTeachDemonstrateParams>(json!({
+            "sessionId": "ws-1",
+            "kind": "action",
+            "text": "click",
+            "unexpected": true
+        }))
+        .is_err()
+    );
 }
 
 #[test]
@@ -91,7 +91,10 @@ fn publish_response_serializes_workflow_identity_fields() {
     assert_eq!(value["workflow"], "daily-standup-report");
     assert_eq!(value["versionId"], format!("sha256:{}", "cd".repeat(32)));
     assert_eq!(value["semanticVersion"], "1.0.0");
-    assert_eq!(value["definitionDigest"], format!("sha256:{}", "ab".repeat(32)));
+    assert_eq!(
+        value["definitionDigest"],
+        format!("sha256:{}", "ab".repeat(32))
+    );
     assert_eq!(
         value["dependencyLockDigest"],
         format!("sha256:{}", "ef".repeat(32))
@@ -240,22 +243,21 @@ fn approve_params_reject_unknown_fields_and_decode_decisions() {
         .decision,
         WorkflowApprovalDecision::Rejected
     );
-    assert!(serde_json::from_value::<WorkflowApproveParams>(json!({
-        "candidateId": "cand-7",
-        "approver": "tech-lead",
-        "reference": "review-1",
-        "decision": "maybe"
-    }))
-    .is_err());
+    assert!(
+        serde_json::from_value::<WorkflowApproveParams>(json!({
+            "candidateId": "cand-7",
+            "approver": "tech-lead",
+            "reference": "review-1",
+            "decision": "maybe"
+        }))
+        .is_err()
+    );
 }
 
 #[test]
 fn instance_list_params_is_an_empty_object() {
     let params = WorkflowInstanceListParams {};
-    assert_eq!(
-        serde_json::to_value(&params).unwrap(),
-        json!({})
-    );
+    assert_eq!(serde_json::to_value(&params).unwrap(), json!({}));
     assert_eq!(
         serde_json::from_value::<WorkflowInstanceListParams>(json!({})).unwrap(),
         params

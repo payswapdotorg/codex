@@ -13,6 +13,7 @@ use codex_workflow_app::ApprovalEvidence;
 use codex_workflow_app::ApprovalRequest;
 use codex_workflow_app::ApprovalSource;
 use codex_workflow_app::ApprovalVerdict;
+use codex_workflow_app::EvidenceStore;
 use codex_workflow_app::WorkflowAppError;
 use codex_workflow_contracts::EvidenceKind;
 use codex_workflow_contracts::EvidenceReference;

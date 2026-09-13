@@ -587,6 +587,7 @@ pub struct WorkflowTriggerSource {
     /// The normalized trigger class that fired.
     pub class: WorkflowTriggerClass,
     /// Opaque identifier of the triggering event, when allocated.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
 }
 

@@ -187,7 +187,7 @@ pub struct InstanceCancelArgs {
 
 /// The durable control-plane root under the Codex home.
 fn control_plane_root() -> Result<PathBuf> {
-    Ok(find_codex_home()?.join("workflow"))
+    Ok(find_codex_home()?.join("workflow").as_path().to_path_buf())
 }
 
 /// Entry point for `codex workflow ...`.
@@ -231,7 +231,12 @@ async fn run_teach(plane: &WorkflowControlPlane, args: TeachArgs) -> Result<()> 
                 evidence: Vec::new(),
             })
             .map_err(command_error)?;
-        print_stage(args.json, "teach/instruct", &serde_json::to_value(&recorded)?, || {});
+        print_stage(
+            args.json,
+            "teach/instruct",
+            &serde_json::to_value(&recorded)?,
+            || {},
+        );
     }
     for text in demonstrations {
         let recorded = plane
@@ -242,7 +247,12 @@ async fn run_teach(plane: &WorkflowControlPlane, args: TeachArgs) -> Result<()> 
                 evidence: Vec::new(),
             })
             .map_err(command_error)?;
-        print_stage(args.json, "teach/demonstrate", &serde_json::to_value(&recorded)?, || {});
+        print_stage(
+            args.json,
+            "teach/demonstrate",
+            &serde_json::to_value(&recorded)?,
+            || {},
+        );
     }
 
     let reconciled = plane
@@ -372,19 +382,24 @@ async fn run_teach(plane: &WorkflowControlPlane, args: TeachArgs) -> Result<()> 
             semantic_version: args.semantic_version.clone(),
         })
         .map_err(command_error)?;
-    print_stage(args.json, "publish", &serde_json::to_value(&published)?, || {
-        println!("Published {}:", published.workflow);
-        println!("  version:          {}", published.semantic_version);
-        println!("  versionId:        {}", published.version_id);
-        println!("  definitionDigest: {}", published.definition_digest);
-        println!("  dependencyLock:   {}", published.dependency_lock_digest);
-        println!("  repository:       {}", published.repository);
-        println!("  commit:           {}", published.commit_sha);
-        println!(
-            "Run it with: codex workflow instance run {}",
-            published.version_id
-        );
-    });
+    print_stage(
+        args.json,
+        "publish",
+        &serde_json::to_value(&published)?,
+        || {
+            println!("Published {}:", published.workflow);
+            println!("  version:          {}", published.semantic_version);
+            println!("  versionId:        {}", published.version_id);
+            println!("  definitionDigest: {}", published.definition_digest);
+            println!("  dependencyLock:   {}", published.dependency_lock_digest);
+            println!("  repository:       {}", published.repository);
+            println!("  commit:           {}", published.commit_sha);
+            println!(
+                "Run it with: codex workflow instance run {}",
+                published.version_id
+            );
+        },
+    );
     Ok(())
 }
 
@@ -412,9 +427,14 @@ fn read_teaching_input(args: &TeachArgs) -> Result<(Vec<String>, Vec<String>)> {
         if trimmed.is_empty() {
             break;
         }
-        if let Some(text) = trimmed.strip_prefix("i ").or_else(|| trimmed.strip_prefix("i:")) {
+        if let Some(text) = trimmed
+            .strip_prefix("i ")
+            .or_else(|| trimmed.strip_prefix("i:"))
+        {
             instructions.push(text.trim().to_string());
-        } else if let Some(text) = trimmed.strip_prefix("d ").or_else(|| trimmed.strip_prefix("d:"))
+        } else if let Some(text) = trimmed
+            .strip_prefix("d ")
+            .or_else(|| trimmed.strip_prefix("d:"))
         {
             demonstrations.push(text.trim().to_string());
         } else {
@@ -447,7 +467,10 @@ async fn run_instance(plane: &WorkflowControlPlane, command: InstanceCommand) ->
                     response.workflow
                 );
                 println!("  version:  {}", response.version_id);
-                println!("  terminal: {}", terminal_kind_label(&response.terminal.kind));
+                println!(
+                    "  terminal: {}",
+                    terminal_kind_label(&response.terminal.kind)
+                );
                 if let Some(node) = response.terminal.node.as_deref() {
                     println!("  at node:  {node}");
                 }
