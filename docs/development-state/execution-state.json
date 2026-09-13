@@ -2,7 +2,7 @@
  "current_commit": "ad1002a7c",
  "active_agents": [],
  "active_change_surfaces": [],
- "last_verified_sha": "main @ d06685b2db86 (RWO-003: FlowMart cross-tenant install write guard \u2014 verify-sweep 59/59, cross-tenant 403s, same-org 200s, node v24.19.0)",
- "verification_state": "rwo-remediation-1of12",
- "notes": "RWO-003 MERGED via PR #33 (squash, d06685b2db86): FlowMart cross-tenant install write guard (VWO-010 Family E P0) \u2014 ops-install.js +21 lines (configure/upgrade/rollback org-guard, absolute per RWO sketch) + 4 evidence files. Worker delivered via git bundle (agents-tab, GLM-5.3 + Full-Stack; head 486120ffd over base 2d37cc0ef, 1 commit). Tech Lead independently verified on node v24.19.0: verify-sweep 59/59 passed; cross-tenant petra.voss->Northwind ins-0402 configure/upgrade/rollback all HTTP 403 permission_denied; same-org iris.chen HTTP 200. Survived peak-hours capacity wall + hung-turn stop-interrupt + wedged-tab swaps; harvested via workspaces API. Report: docs/development-state/reports/RWO-003-report.md. 1/12 RWOs merged. rwo-001 + vwo-011 sessions live."
+ "last_verified_sha": "main @ 95e26195f041 (RWO-004: PressRoom publication terminality + version guard \u2014 verify-sweep 59/59, Family F probes 409/400/409, merged-main re-verified 59/59)",
+ "verification_state": "rwo-remediation-2of12",
+ "notes": "RWO-004 MERGED via PR #34 (squash, 95e26195f041): PressRoom publication terminality + publish version guard (VWO-010 Family F P0) \u2014 media/ops.js editStory terminal-state gate + publishStory expectedVersion guard, media/ui.js form parity, verify-sweep.sh publish bodies updated; 4 evidence files. Worker delivered via git bundle (agents-tab, GLM-5.3 + Full-Stack; head 545a0ff6 over dispatch base 2d37cc0ef, 1 commit; clean 28-min run). Tech Lead independently verified on node v24.19.0: verify-sweep 59/59; Family F probes (edit published -> 409 terminal_state; publish sans version -> 400; stale -> 409); merged main re-verified 59/59 with RWO-003. Report: docs/development-state/reports/RWO-004-report.md. 2/12 RWOs merged. rwo-001 (fresh restart after tab-crash) + vwo-011 (#10) live; RWO-007 dispatch next."
 }
