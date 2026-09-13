@@ -101,6 +101,13 @@ function configureInstall(ctx) {
   const b = ctx.body;
   const inst = find(ctx.state.installs, b.installId);
   if (!inst) throw new R.AppError(404, 'install_not_found', `Install "${b.installId}" does not exist.`);
+  // RWO-003 (Family E): writes are org-scoped like reads — cross-tenant guard.
+  const actorOrg = orgForUser(ctx.state, ctx.user.id);
+  if (actorOrg !== inst.orgId) {
+    throw new R.AppError(403, 'permission_denied',
+      `Install ${inst.id} belongs to ${orgName(ctx.state, inst.orgId)} — cross-tenant configure is denied.`,
+      { installId: inst.id, installOrg: inst.orgId });
+  }
   const pkg = find(ctx.state.packages, inst.packageId);
   const ent = checkEntitlement(ctx, inst.orgId, pkg, 'configuration');
   if (!ent) throw new R.AppError(409, 'stale_entitlement', `Install ${inst.id} has no active entitlement — configuration is locked.`, { installId: inst.id });
@@ -118,6 +125,13 @@ function upgradeInstall(ctx) {
   const b = ctx.body;
   const inst = find(ctx.state.installs, b.installId);
   if (!inst) throw new R.AppError(404, 'install_not_found', `Install "${b.installId}" does not exist.`);
+  // RWO-003 (Family E): writes are org-scoped like reads — cross-tenant guard.
+  const actorOrg = orgForUser(ctx.state, ctx.user.id);
+  if (actorOrg !== inst.orgId) {
+    throw new R.AppError(403, 'permission_denied',
+      `Install ${inst.id} belongs to ${orgName(ctx.state, inst.orgId)} — cross-tenant upgrade is denied.`,
+      { installId: inst.id, installOrg: inst.orgId });
+  }
   const pkg = find(ctx.state.packages, inst.packageId);
   const latest = latestVersion(pkg);
   const targetVersion = String(b.targetVersion || latest.version);
@@ -157,6 +171,13 @@ function rollbackInstall(ctx) {
   const b = ctx.body;
   const inst = find(ctx.state.installs, b.installId);
   if (!inst) throw new R.AppError(404, 'install_not_found', `Install "${b.installId}" does not exist.`);
+  // RWO-003 (Family E): writes are org-scoped like reads — cross-tenant guard.
+  const actorOrg = orgForUser(ctx.state, ctx.user.id);
+  if (actorOrg !== inst.orgId) {
+    throw new R.AppError(403, 'permission_denied',
+      `Install ${inst.id} belongs to ${orgName(ctx.state, inst.orgId)} — cross-tenant rollback is denied.`,
+      { installId: inst.id, installOrg: inst.orgId });
+  }
   const pkg = find(ctx.state.packages, inst.packageId);
   const ent = checkEntitlement(ctx, inst.orgId, pkg, 'rollback');
   if (!ent) throw new R.AppError(409, 'stale_entitlement', `Install ${inst.id} has no active entitlement — rollback is locked.`, { installId: inst.id });
