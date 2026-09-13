@@ -1,8 +1,8 @@
 {
- "current_commit": "ad1002a7c",
- "active_agents": [],
- "active_change_surfaces": [],
- "last_verified_sha": "main @ 95e26195f041 (RWO-004: PressRoom publication terminality + version guard \u2014 verify-sweep 59/59, Family F probes 409/400/409, merged-main re-verified 59/59)",
- "verification_state": "rwo-remediation-2of12",
- "notes": "RWO-004 MERGED via PR #34 (squash, 95e26195f041): PressRoom publication terminality + publish version guard (VWO-010 Family F P0) \u2014 media/ops.js editStory terminal-state gate + publishStory expectedVersion guard, media/ui.js form parity, verify-sweep.sh publish bodies updated; 4 evidence files. Worker delivered via git bundle (agents-tab, GLM-5.3 + Full-Stack; head 545a0ff6 over dispatch base 2d37cc0ef, 1 commit; clean 28-min run). Tech Lead independently verified on node v24.19.0: verify-sweep 59/59; Family F probes (edit published -> 409 terminal_state; publish sans version -> 400; stale -> 409); merged main re-verified 59/59 with RWO-003. Report: docs/development-state/reports/RWO-004-report.md. 2/12 RWOs merged. rwo-001 (fresh restart after tab-crash) + vwo-011 (#10) live; RWO-007 dispatch next."
+    "current_commit": "df8261b23",
+    "active_agents": [],
+    "active_change_surfaces": [],
+    "last_verified_sha": "main @ df8261b23 (RWO-001: workflow/teaching control-plane mount \u2014 Family A root closed; protocol 309/309, app-server lib 316/316, check clean, merged-main identity-verified zero .rs diffs)",
+    "verification_state": "rwo-remediation-3of12",
+    "notes": "RWO-001 MERGED via PR #35 (squash, df8261b23c): Family A P0 control-plane mount \u2014 protocol methods + app-server handlers + CLI subcommand group, frozen engine crates untouched. Lineage ab3bb1860 (worker) + d003b025e (Tech-Lead integration fixes) + 772baceb1 (RWO-001-FIX: hybrid origin ordering, publish validation ordering, startup-sweep lazy visibility \u2014 workflow.rs only, tests byte-identical). Tech Lead verified on rustc 1.95.0 (post-sandbox-reset toolchain rebuild): check clean, protocol 309/309, lib 316/316, workflow 11/11; merged-main identity-verified (zero .rs diffs vs verified tree). Report: docs/development-state/reports/RWO-001-report.md. 3/12 RWOs merged (001, 003, 004). Live workers: rwo-007 + rwo-008 (queued). VWO-011 benchmark author COMPLETED (report DOM-verified; head b7ebb98f over 2d37cc0ef; harvest pending pod wake). Next staged: RWO-009 dispatch when slot frees."
 }
