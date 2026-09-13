@@ -144,7 +144,11 @@ struct CandidateEntry {
 /// durable stores under `root` are opened lazily on first use and cached
 /// for the process lifetime (the stores are shared-state handles over the
 /// same files; one handle per process preserves the single-writer
-/// contract).
+/// contract). The read path re-opens the root first (see
+/// [`Self::refresh_stores`]): a list or get must observe the store's
+/// current content — including records another control-plane process
+/// wrote after this plane's handle was opened — and the one-shot startup
+/// sweep runs over that refreshed view.
 pub struct WorkflowControlPlane {
     root: PathBuf,
     state: Mutex<WorkflowState>,
@@ -316,7 +320,21 @@ impl WorkflowControlPlane {
             )));
         }
         let name = entry.name.clone();
-        let mut candidate = compile(&entry.session).map_err(WorkflowControlPlaneError::Teaching)?;
+        // The reconcile merge policy applies before compilation: the
+        // teaching compiler preserves the trajectory's recording order
+        // exactly, so a hybrid session is compiled through its
+        // reconciled view — every observed (demonstrated) step before
+        // every instructed one, the VWO-010 Family A reconciled hybrid
+        // origins ["observed", "instructed"]. Demonstrate and Instruct
+        // sessions hold one record origin only, so their recording
+        // order already is the reconciled order.
+        let candidate_session = if entry.session.mode() == TeachingMode::Hybrid {
+            reconciled_hybrid_session(&entry.session)?
+        } else {
+            entry.session.clone()
+        };
+        let mut candidate =
+            compile(&candidate_session).map_err(WorkflowControlPlaneError::Teaching)?;
         let validation = candidate
             .validate()
             .map_err(WorkflowControlPlaneError::Teaching)?;
@@ -388,9 +406,15 @@ impl WorkflowControlPlane {
 
     /// Publishes an approved candidate as an immutable workflow version.
     ///
-    /// The approved content is finalized through the teaching compiler,
-    /// sealed through the workflow-app publisher, and mirrored into the
-    /// durable version store so instances can pin it.
+    /// The workflow identity inputs (repository, commit sha, semantic
+    /// version) are validated first, independently of the engine's
+    /// publication state gate: an invalid input is reported as the
+    /// input error, and the candidate is left `Approved` for a
+    /// corrected retry — the state-consuming finalization never runs
+    /// on inputs that would be rejected. The approved content is then
+    /// finalized through the teaching compiler, sealed through the
+    /// workflow-app publisher, and mirrored into the durable version
+    /// store so instances can pin it.
     pub fn publish(
         &self,
         params: rpc::WorkflowPublishParams,
@@ -398,16 +422,6 @@ impl WorkflowControlPlane {
         let stores = self.stores()?;
         let mut state = self.lock();
         let entry = candidate_mut(&mut state, &params.candidate_id)?;
-        let definition_id = WorkflowDefinitionId::parse(entry.name.clone()).map_err(|error| {
-            WorkflowControlPlaneError::InvalidRequest(format!(
-                "invalid workflow name `{}`: {error}",
-                entry.name
-            ))
-        })?;
-        let approved = entry
-            .candidate
-            .finalize(definition_id)
-            .map_err(WorkflowControlPlaneError::Teaching)?;
         let repository = params
             .repository
             .filter(|repository| !repository.trim().is_empty())
@@ -429,6 +443,16 @@ impl WorkflowControlPlane {
                 "invalid semantic version `{semantic_version}`: {error}"
             ))
         })?;
+        let definition_id = WorkflowDefinitionId::parse(entry.name.clone()).map_err(|error| {
+            WorkflowControlPlaneError::InvalidRequest(format!(
+                "invalid workflow name `{}`: {error}",
+                entry.name
+            ))
+        })?;
+        let approved = entry
+            .candidate
+            .finalize(definition_id)
+            .map_err(WorkflowControlPlaneError::Teaching)?;
         let request = PublishRequest {
             approved,
             repository,
@@ -511,11 +535,18 @@ impl WorkflowControlPlane {
     }
 
     /// Lists every durable instance with status and persisted position.
+    ///
+    /// The durable root is re-opened first (see [`Self::refresh_stores`])
+    /// and the startup sweep runs over the refreshed view, so a store
+    /// seeded after this plane was constructed — the post-crash restart
+    /// state — lists an orphaned `Running` instance as `Paused` with its
+    /// persisted position, never silently `Running` and without
+    /// reconstructing the plane.
     pub fn instance_list(
         &self,
         _params: rpc::WorkflowInstanceListParams,
     ) -> Result<rpc::WorkflowInstanceListResponse, WorkflowControlPlaneError> {
-        let stores = self.stores()?;
+        let stores = self.refresh_stores()?;
         self.reconcile_startup(&stores);
         let positions = stores.run_positions.clone();
         let instances = stores
@@ -528,11 +559,18 @@ impl WorkflowControlPlane {
     }
 
     /// Reads one durable instance with its evidence references.
+    ///
+    /// Like [`Self::instance_list`], the durable root is re-opened first
+    /// and the startup sweep runs over the refreshed view, so a record
+    /// written after this plane's handle was opened reads back with its
+    /// current durable status — an orphaned `Running` instance reads
+    /// `Paused`, never silently `Running`.
     pub fn instance_get(
         &self,
         params: rpc::WorkflowInstanceGetParams,
     ) -> Result<rpc::WorkflowInstanceGetResponse, WorkflowControlPlaneError> {
-        let stores = self.stores()?;
+        let stores = self.refresh_stores()?;
+        self.reconcile_startup(&stores);
         let instance_id = parse_instance_id(&params.instance_id)?;
         let instance = load_instance(&stores, &instance_id)?;
         let positions = stores.run_positions.clone();
@@ -637,6 +675,25 @@ impl WorkflowControlPlane {
         Ok(stores)
     }
 
+    /// Re-opens the durable root and swaps the cached handle.
+    ///
+    /// The frozen durable stores load their snapshot files exactly once,
+    /// at open; a handle never observes records another process (or a
+    /// direct seeding tool) writes afterwards. The read path therefore
+    /// re-opens the root before reading: re-opening the same root
+    /// reconstructs the full control-plane state (snapshots load
+    /// atomically, journals replay in order), and every mutation this
+    /// plane already made was flushed atomically at write time, so
+    /// swapping the handle loses nothing. Mutating commands keep
+    /// working through the (now refreshed) cached handle, preserving
+    /// the single-writer discipline.
+    fn refresh_stores(&self) -> Result<Arc<DurableStores>, WorkflowControlPlaneError> {
+        let mut state = self.lock();
+        let stores = Arc::new(DurableStores::open(&self.root)?);
+        state.stores = Some(Arc::clone(&stores));
+        Ok(stores)
+    }
+
     /// Runs the one-shot startup reconciliation sweep over the stores.
     ///
     /// Post-crash `Running` records with no live run are transitioned to
@@ -668,6 +725,42 @@ impl WorkflowControlPlane {
     fn lock(&self) -> MutexGuard<'_, WorkflowState> {
         self.state.lock().unwrap_or_else(PoisonError::into_inner)
     }
+}
+
+/// Builds the reconciled hybrid session view the control plane compiles.
+///
+/// The teaching compiler preserves the trajectory's recording order
+/// exactly, so the reconcile step's merge policy is applied here, ahead
+/// of compilation: every demonstration record (the observed steps)
+/// precedes every instruction record (the instructed steps) — the
+/// VWO-010 Family A reconciled hybrid origins `["observed",
+/// "instructed"]` — with the recording order preserved inside each
+/// group, so observation/action/result pairing survives the merge. The
+/// view is replayed through the frozen session's public append-only
+/// API; the original session is never rewritten.
+fn reconciled_hybrid_session(
+    session: &TeachingSession,
+) -> Result<TeachingSession, WorkflowControlPlaneError> {
+    let mut reconciled = TeachingSession::with_policy(session.mode(), session.policy().clone());
+    for origin in [RecordOrigin::Demonstration, RecordOrigin::Instruction] {
+        for record in session
+            .records()
+            .iter()
+            .filter(|record| record.origin() == origin)
+        {
+            reconciled
+                .record(
+                    record.origin(),
+                    record.event().clone(),
+                    record.evidence().to_vec(),
+                )
+                .map_err(WorkflowControlPlaneError::Teaching)?;
+        }
+    }
+    if session.is_closed() {
+        reconciled.close();
+    }
+    Ok(reconciled)
 }
 
 /// Looks up one teaching session mutably.
