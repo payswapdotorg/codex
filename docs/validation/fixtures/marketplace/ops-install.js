@@ -50,8 +50,28 @@ function configPatch(b, op) {
   return raw;
 }
 
+// RWO-008 (Family H): newest-ACTIVE entitlement resolution. A revoked or
+// expired record must never shadow a later active grant — renewal (a fresh
+// grant) restores commercial authority. Revocation is terminal per record;
+// recovery is a new grant (documented in FAILURES.md / fixtures README).
 function entitlementFor(state, orgId, packageId) {
-  return state.entitlements.find((e) => e.orgId === orgId && e.packageId === packageId) || null;
+  const clock = { state }; // minimal ctx: ops.js isPast()/today() read state.meta.today
+  const isActive = (e) => e.status === 'active' && !isPast(clock, e.validUntil);
+  const byNewest = (a, b) => {
+    const ga = String(a.grantedAt || ''), gb = String(b.grantedAt || '');
+    if (ga !== gb) return ga < gb ? -1 : 1; // ISO dates: lexicographic order is chronological
+    const na = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
+    const nb = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
+    return na !== nb ? na - nb : String(a.id).localeCompare(String(b.id)); // tie-break: highest id
+  };
+  const records = state.entitlements.filter((e) => e.orgId === orgId && e.packageId === packageId);
+  const active = records.filter(isActive).sort(byNewest);
+  if (active.length > 0) return active[active.length - 1];
+  // Fail-closed fallback: no active grant but revoked/expired records exist →
+  // resolve the MOST RECENT such record, so the 409 names the newest
+  // relevant entitlement instead of a stale earlier one.
+  const inactive = records.filter((e) => !isActive(e)).sort(byNewest);
+  return inactive.length > 0 ? inactive[inactive.length - 1] : null;
 }
 function checkEntitlement(ctx, orgId, pkg, action) {
   const ent = entitlementFor(ctx.state, orgId, pkg.id);
@@ -277,6 +297,13 @@ function revokeEntitlement(ctx) {
   };
 }
 
+// RWO-008: renewals and re-licenses are NEW grants. This op deliberately does
+// NOT revoke/supersede an existing record for the same org+package — the
+// smallest fix relies on newest-ACTIVE selection alone: entitlementFor()
+// resolves the newest active record (latest grantedAt, tie-break highest id),
+// so this fresh grant (grantedAt = today, highest id) becomes the operative
+// entitlement immediately and for as long as it stays active. Revocation
+// remains terminal per record; recovery is a new grant.
 function grantEntitlement(ctx) {
   const b = ctx.body;
   const org = find(ctx.state.orgs, b.orgId);

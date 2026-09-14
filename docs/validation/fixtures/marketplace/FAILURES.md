@@ -10,7 +10,7 @@ Activate per-request by appending `?failure=<switch>` to any request **or** by s
 | `permission_denied` | any endpoint declaring a permission | permission check fails even for authorized users | HTTP 403 `{error:"permission_denied", simulated:true}`; natural cases: org member (non-admin) installing, buyer publishing listings, publisher granting entitlements |
 | `data_conflict` | version publish, install (`expectedVersion`), upgrade (`expectedCurrentVersion`), rollback, entitlement revoke, provenance verify | optimistic-concurrency mismatch / concurrent change / digest mismatch | HTTP 409 `{error:"data_conflict", currentVersion?}`; natural cases: installing an out-of-date `expectedVersion`, re-revoking an entitlement |
 | `duplicate_event` | any state-changing request | request signature recorded + rejected as replay; idempotencyKey replays rejected | HTTP 409 `{error:"duplicate_event"}`; natural cases: duplicate listing slug, duplicate version, second install for the same org, second review from the same org |
-| `stale_entitlement` | install, upgrade, rollback, configure | entitlement treated as expired/revoked; commercial operations blocked | HTTP 409 `{error:"stale_entitlement", entitlementId, validUntil}`; natural cases: Northwind Logistics installing `pk-101` (trial expired 2026-08-01); any operation on an install whose entitlement was revoked |
+| `stale_entitlement` | install, upgrade, rollback, configure | entitlement treated as expired/revoked; commercial operations blocked | HTTP 409 `{error:"stale_entitlement", entitlementId, validUntil}`; natural cases: Northwind Logistics installing `pk-101` (trial expired 2026-08-01); any operation on an install whose operative entitlement is revoked or expired |
 
 ## Configure-config contract (RWO-002 — VWO-010 Family B + Family L)
 
@@ -31,6 +31,20 @@ FlowMart deliberately contains **no workflow semantics and no execution engine**
 ## Fixture clock
 
 The demo world believes "today" is `state.meta.today = 2026-09-12` (see `seed.js`). Event timestamps use real time.
+
+## Entitlement resolution — renewal restores authority (RWO-008)
+
+`entitlementFor` resolves the **newest-ACTIVE** entitlement per org+package
+(latest `grantedAt`, tie-break highest id) — not the first record on file.
+Consequences:
+
+- **Revocation is terminal for that record** — there is no un-revoke/renew op.
+- **Recovery is a new grant**: grant a fresh entitlement and the previously
+  blocked install/upgrade/rollback/configure succeeds on retry (the fresh
+  grant is the newest active record and is no longer shadowed).
+- When only revoked/expired records exist, the 409 `stale_entitlement` names
+  the **most recent** such record — the newest relevant entitlement, pointing
+  operators at the record that needs replacing.
 
 ## Golden human path (discover → install → configure → upgrade → rollback → verify)
 

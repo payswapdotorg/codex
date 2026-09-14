@@ -1,0 +1,52 @@
+# RWO-008 environment and base identity
+Sat Sep 13 18:43:23 UTC 2026 (capture time)
+repo: /home/z/codex (fresh anonymous clone of https://github.com/payswapdotorg/codex)
+base branch: main; required base SHA per work order: 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git log --oneline -1 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+2d37cc0ef docs(state): VWO-010 MERGED via PR #32 (synthesis: 34-run scenario/issue matrix ... REMEDIATION LOOP NEXT ...)
+→ base verified: the exact dispatch SHA (main's head as of dispatch, VWO-010
+  synthesis merged) is reachable; the working branch was cut from it.
+  (origin/main had advanced to d304e2043 at clone time — RWO-003/RWO-004
+  merges landed after dispatch; per the work order the verified dispatch SHA
+  takes precedence and was used.)
+
+$ git checkout -b rwo-008/entitlement-shadowing 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+Switched to a new branch 'rwo-008/entitlement-shadowing'
+
+toolchain probe:
+$ which node && node --version
+/usr/bin/node
+v24.19.0
+$ which cargo rustc
+(no output — cargo/rustc ABSENT in this sandbox)
+→ The RWO-008 fix scope is JS-fixture-only
+  (docs/validation/fixtures/marketplace/ops-install.js + two docs files);
+  no engine crates are touched, so cargo is not required for this work order.
+  All verification ran for REAL with node v24.19.0 (see the post-hoc
+  transcripts in this evidence directory).
+
+baseline sweep at BASE (pre-fix, working tree clean at the base SHA):
+$ bash docs/validation/fixtures/run-all.sh --reset
+→ all five apps healthy on 127.0.0.1:4101-4105, each reset to seed state
+$ bash docs/validation/fixtures/verify-sweep.sh
+→ RESULT: 59 passed, 0 failed
+(the sweep is green BEFORE the fix — the Family H defect is not
+sweep-visible, it needed the VWO-010 C-restart battery; any post-fix sweep
+delta would have been a regression)
+
+fix surface (this branch only):
+- docs/validation/fixtures/marketplace/ops-install.js
+    entitlementFor: first-match → newest-ACTIVE resolution
+    (active && !isPast(validUntil); latest grantedAt, tie-break highest id;
+    no active but revoked/expired exist → most-recent such record)
+    grantEntitlement: documentation of the newest-active selection choice
+- docs/validation/fixtures/marketplace/FAILURES.md
+    (revocation terminal per record; recovery is a new grant; newest-ACTIVE
+    resolution section)
+- docs/validation/fixtures/README.md
+    (FlowMart row: same terminality/recovery note)
+frozen engine crates (codex-workflow-*, codex-execution-contracts): untouched
+(git diff vs base touches only the three files above).
