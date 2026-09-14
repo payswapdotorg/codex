@@ -1,0 +1,75 @@
+# RWO-009 environment and base identity
+Mon Sep 14 05:35:23 UTC 2026 (capture time)
+repo: /home/z/my-project/codex (fresh anonymous clone of https://github.com/payswapdotorg/codex)
+base branch: main; required base SHA per work order: 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git log --oneline -1 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+2d37cc0ef docs(state): VWO-010 MERGED via PR #32 (synthesis: 34-run scenario/issue matrix ... REMEDIATION LOOP NEXT ...)
+→ base verified: the exact dispatch SHA (main's head as of dispatch, VWO-010
+  synthesis merged) is reachable; the working branch was cut from it.
+  (origin/main had advanced to f5bface7d at clone time — RWO-002/RWO-008/
+  VWO-011 merges landed after dispatch; per the work order the verified
+  dispatch SHA takes precedence and was used. Note: RWO-008's evidence
+  records the same situation and the same resolution at 2d37cc0ef.)
+
+$ git checkout -b rwo-009/upgrade-visibility-gate 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+Switched to a new branch 'rwo-009/upgrade-visibility-gate'
+$ git rev-parse HEAD
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+
+toolchain probe:
+$ which cargo rustc
+(no output — cargo/rustc ABSENT in this sandbox; PATH searched, plus
+ ~/.cargo, ~/.rustup, /usr/local/cargo/bin, /opt, and a filesystem
+ sweep — no rust toolchain exists here)
+$ which node && node --version
+/usr/bin/node
+v24.19.0
+$ which python3 && python3 --version
+python3
+Python 3.13.x
+$ cat codex-rs/rust-toolchain.toml
+[toolchain]
+channel = "1.95.0"
+components = ["clippy", "rustfmt", "rust-src"]
+
+→ RWO-009 is an ENGINE-crate work order (codex-workflow-distribution) and
+  cargo is REQUIRED for its named verification commands; this sandbox
+  cannot run them. Per the work order's verification section and the
+  dispatch instructions, verification in this environment proceeds by
+  careful static reasoning + the cited line-level findings, and the
+  Tech Lead independently compiles and runs everything:
+  - the three fixes were implemented in the crate;
+  - six new unit tests (src/memory_tests.rs) encode the probe attack
+    shapes (6d/12) and the boundary cases as real Rust assertions for
+    the Tech Lead to execute;
+  - a python transcription of the exact Rust control flow (predicate
+    model) was run for real against the base and fixed logic to verify
+    the decision outcomes, gate order, and side-effect points
+    (20260914T053523Z-predicate-model-check.txt);
+  - a full compile-level static review (types, borrows, pattern
+    shapes, lint config, rustfmt widths) and an e2e-suite
+    compatibility trace were performed and recorded in the
+    verification sweep transcript.
+
+fix surface (this branch only):
+- codex-rs/workflow-distribution/src/memory.rs
+    evaluate_upgrade: candidate filter now runs the same visibility
+    predicate install enforces (release_installable with the install's
+    owner as the requesting principal)
+    decide_upgrade: approval path re-ordered to the documented gate
+    order — ordering guard (IllegalDowngrade) then visibility
+    (ReleaseNotVisible) then integrity then access/entitlement
+- codex-rs/workflow-distribution/src/error.rs
+    new typed error variant IllegalDowngrade { workflow,
+    expected_newer_than: SemanticVersion, got: SemanticVersion }
+    (the RWO's mandated typed error; error.rs is the error channel of
+    the same crate the RWO grants — additive variant + one import)
+- codex-rs/workflow-distribution/src/memory_tests.rs
+    NEW: six unit tests for the closed findings + boundary cases
+frozen engine crates (codex-workflow-contracts, codex-workflow-forge,
+codex-workflow-triggers, codex-workflow-app, codex-execution-contracts,
+and all other codex-workflow-*): untouched (git diff vs base touches
+only the three files above; see the verify-sweep transcript).

@@ -445,12 +445,23 @@ impl DistributionPort for InMemoryMarketplace {
         if install.upgrade_policy == UpgradePolicySetting::Pin {
             return Ok(None);
         }
+        // Candidates are filtered through the same visibility
+        // predicate `install` enforces, with the install's owner as
+        // the requesting principal: a private release newer than
+        // anything the installer can see never surfaces — its
+        // identity does not leak through the upgrade path.
         let newest = self
             .entries
             .values()
             .filter(|entry| {
                 &entry.metadata.release.identity.workflow == workflow
                     && entry.metadata.release.version_id != install.installed.version_id
+                    && release_installable(
+                        &entry.metadata,
+                        entry.state,
+                        &entry.audience,
+                        &install.principal,
+                    )
             })
             .max_by_key(|entry| entry.metadata.release.identity.semantic_version.clone());
         Ok(newest.map(|entry| UpgradeProposal {
@@ -492,13 +503,36 @@ impl DistributionPort for InMemoryMarketplace {
             return Ok(record);
         }
 
-        // Approval path: re-verify the target release and re-run every
-        // install gate for it. An upgrade the gates would refuse is
-        // refused with the decision data and changes nothing.
-        proposal.to.verify()?;
+        // Approval path: proposals advance only forward — a target
+        // older than the pin is a typed refusal — and the target
+        // release re-runs every install gate in the documented order
+        // (visibility → integrity → access → entitlement). An upgrade
+        // the guards or gates would refuse is refused with the
+        // decision data and changes nothing.
+        if proposal.to.identity.semantic_version
+            < install.installed.identity.semantic_version
+        {
+            return Err(WorkflowDistributionError::IllegalDowngrade {
+                workflow: workflow.to_string(),
+                expected_newer_than: install.installed.identity.semantic_version.clone(),
+                got: proposal.to.identity.semantic_version.clone(),
+            });
+        }
         let entry = self.entry_for(&workflow, &proposal.to.version_id)?.clone();
-        let version = self.verified_version(&workflow, &proposal.to.version_id)?;
         let principal = install.principal.clone();
+        if !release_installable(
+            &entry.metadata,
+            entry.state,
+            &entry.audience,
+            &principal,
+        ) {
+            return Err(WorkflowDistributionError::ReleaseNotVisible {
+                workflow: workflow.to_string(),
+                version: proposal.to.version_id.to_string(),
+            });
+        }
+        proposal.to.verify()?;
+        let version = self.verified_version(&workflow, &proposal.to.version_id)?;
         let (access, entitlement) = self.run_gates(&principal, &entry)?;
         if !access.allowed
             || entitlement
@@ -542,3 +576,7 @@ impl DistributionPort for InMemoryMarketplace {
         Ok(self.installs.get(workflow).cloned())
     }
 }
+
+#[cfg(test)]
+#[path = "memory_tests.rs"]
+mod tests;

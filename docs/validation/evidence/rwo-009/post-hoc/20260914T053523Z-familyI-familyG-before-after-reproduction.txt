@@ -1,0 +1,225 @@
+# RWO-009 before/after reproduction — Family I (upgrade-path visibility) + Family G engine half (ordering)
+captured: 2026-09-14T05:35Z on branch rwo-009/upgrade-visibility-gate (fix applied, base 2d37cc0ef7d075e877f370790f82ac9c70df26a4)
+surface: codex-rs/workflow-distribution (the InMemoryMarketplace reference engine)
+method: cargo/rustc are ABSENT in this sandbox (see _infra/post-hoc/20260914T053523Z-environment-and-base-identity.txt),
+        so the reproduction is (a) the code-path trace at base vs on the branch with exact line numbers,
+        (b) the VWO-009 probe's recorded dynamic verdicts at base 7736a42 (cited verbatim), and
+        (c) a real run of a python transcription of the exact Rust control flow against IDENTICAL
+        scenario state before/after (20260914T053523Z-predicate-model-check.txt — the model output is
+        quoted below and is a logic check, not a compiled-Rust result). The new unit tests
+        (src/memory_tests.rs) encode these same scenarios as Rust assertions for the Tech Lead to run.
+
+scenario (both runs identical state — VWO-009 engine probe attack 6d shape):
+  - bob (foreign installer) installs PUBLIC 1.0.0 of workflow "wo" (follow policy, license accepted)
+  - acme-ops (owner) publishes PRIVATE 2.0.0 of "wo" (never shared with bob)
+  - bob holds host-seeded license acceptances for both releases (the access gate is not the hole)
+  - attack 1: market.evaluate_upgrade("wo")   — must not surface the private release
+  - attack 2: market.decide_upgrade(smuggled proposal -> private 2.0.0, Approve)
+scenario (attack 12 shape):
+  - alice installs PUBLIC 2.0.0 (follow), PUBLIC 1.5.0 also published (older)
+  - attack: decide_upgrade(evaluate_upgrade() proposal -> 1.5.0, Approve)
+
+================================================================================
+PART 1 — BEFORE (base 2d37cc0ef): the failing code path
+================================================================================
+
+evaluate_upgrade at base (git show 2d37cc0ef:.../memory.rs, lines 448-455):
+   448	        let newest = self
+   449	            .entries
+   450	            .values()
+   451	            .filter(|entry| {
+   452	                &entry.metadata.release.identity.workflow == workflow
+   453	                    && entry.metadata.release.version_id != install.installed.version_id
+   454	            })
+   455	            .max_by_key(|entry| entry.metadata.release.identity.semantic_version.clone());
+
+  → the candidate filter matches workflow + not-the-pin ONLY: no state, no audience,
+    no ownership check. The PRIVATE 2.0.0 entry passes the filter and — being the
+    newest — is selected: UpgradeProposal { to: <private release ref> } is returned
+    to the foreign installer. The private release's identity (version_id, semver,
+    repository, digest) LEAKS. Compare install (base lines 364-375): install calls
+    release_installable(&entry.metadata, entry.state, &entry.audience,
+    &request.principal) and refuses with ReleaseNotVisible — the same predicate is
+    simply absent here.
+
+decide_upgrade at base (lines 495-502, approval path):
+   495	        // Approval path: re-verify the target release and re-run every
+   496	        // install gate for it. An upgrade the gates would refuse is
+   497	        // refused with the decision data and changes nothing.
+   498	        proposal.to.verify()?;
+   499	        let entry = self.entry_for(&workflow, &proposal.to.version_id)?.clone();
+   500	        let version = self.verified_version(&workflow, &proposal.to.version_id)?;
+   501	        let principal = install.principal.clone();
+   502	        let (access, entitlement) = self.run_gates(&principal, &entry)?;
+
+  → the approval path runs integrity (proposal.to.verify, verified_version) then
+    access/entitlement (run_gates). NO visibility check exists anywhere on the
+    path (run_gates at base lines 161-183 evaluates access + entitlement only).
+    A smuggled proposal naming the private release therefore sails through
+    integrity (the release is real and sealed) and the access gate (license
+    accepted) and is APPLIED: the pin moves onto a release the installer can
+    not see. Also: proposal.from == install.installed.version_id is checked
+    (stale guard, base lines 476-482) but proposal.to is NEVER ordered against
+    proposal.from — a 1.5.0 target from a 2.0.0 pin is applied identically.
+
+VWO-009 engine probe — the dynamic record of exactly these paths (base 7736a42,
+  docs/validation/evidence/VWO-009/_infra/post-hoc/20260912T092705Z-engine-probe-12-attacks.txt):
+
+  attack 6d: "[6d upgrade-path visibility] HOLE — evaluate_upgrade surfaced the PRIVATE
+  release (leaked identity sha256:99b5a40fd2418a75b42d7c67f64adf0bcb268d673c116176684a4b0219a93fc5
+  to the installer) and decide_upgrade APPROVED it (applied=true): the documented upgrade
+  gate order (visibility -> integrity -> access -> entitlement) skips the visibility gate"
+
+  attack 12: "[downgrade proposal] HOLE — follow policy surfaced 1.5.0
+  (sha256:b10172ab541dd7dfbe2b0b4f4949f3d3853d9664659e15e0b3f90ee25c5503a2) as an upgrade
+  proposal: semver ordering is not checked" / "[after] HOLE — pin moved 2.0.0 -> 1.5.0 via
+  an applied upgrade record; semver ordering is unchecked on the follow path"
+
+  (VWO-010 re-confirmed the static path at main 0f89393:
+  docs/validation/evidence/vwo-010/marketplace-upgrade-rollback/post-hoc/
+  20260912T103521Z-vwo009-versioning-entitlement-holes.txt — "Engine-side parity for F4
+  (decide_upgrade has no ordering check on proposal.to) and F10 (evaluate/decide_upgrade
+  skip the visibility gate that install enforces) is STATIC-only here".)
+
+predicate-model BEFORE run (identical scenario state, base logic):
+  -- evaluate_upgrade(workflow) --
+     BASE : Some(proposal.to = sha256:v2-private-2.0.0, semver 2.0.0)
+     private identity surfaced to foreign installer? BASE=True
+  -- decide_upgrade(same proposal, Approve) --
+     BASE : Ok(UpgradeRecord { applied: True, to: sha256:v2-private-2.0.0 })
+  -- post-state --
+     BASE: pin=sha256:v2-private-2.0.0  upgrade_history=1 record(s)  applied=1
+  attack 12 BEFORE run:
+     BASE : Some(proposal.to = sha256:v1-public-1.5.0, semver 1.5.0)
+     BASE : Ok(UpgradeRecord { applied: True, to: sha256:v1-public-1.5.0 })
+     BASE: pin=sha256:v1-public-1.5.0  upgrade_history=1 record(s)  applied=1
+  → both holes reproduced by the transcribed base control flow (matches the
+    VWO-009 probe verdicts verbatim: leaked identity + applied=true; pin moved
+    2.0.0 -> 1.5.0).
+
+================================================================================
+PART 2 — AFTER (branch rwo-009/upgrade-visibility-gate): the guarded code path
+================================================================================
+
+evaluate_upgrade on the branch (memory.rs lines 448-466):
+   448	        // Candidates are filtered through the same visibility
+   449	        // predicate `install` enforces, with the install's owner as
+   450	        // the requesting principal: a private release newer than
+   451	        // anything the installer can see never surfaces — its
+   452	        // identity does not leak through the upgrade path.
+   453	        let newest = self
+   454	            .entries
+   455	            .values()
+   456	            .filter(|entry| {
+   457	                &entry.metadata.release.identity.workflow == workflow
+   458	                    && entry.metadata.release.version_id != install.installed.version_id
+   459	                    && release_installable(
+   460	                        &entry.metadata,
+   461	                        entry.state,
+   462	                        &entry.audience,
+   463	                        &install.principal,
+   464	                    )
+   465	                )
+   466	            .max_by_key(|entry| entry.metadata.release.identity.semantic_version.clone());
+
+  → every candidate now passes release_installable with the INSTALL'S OWNER
+    (install.principal) as the requesting principal — the exact predicate and
+    principal the RWO names. For bob: the private 2.0.0 (ownership acme-ops,
+    state Private, audience empty) fails ownership/public/published/shared —
+    filtered out. No proposal naming it can be constructed by evaluation.
+
+decide_upgrade approval path on the branch (memory.rs lines 506-536):
+   506	        // Approval path: proposals advance only forward — a target
+   507	        // older than the pin is a typed refusal — and the target
+   508	        // release re-runs every install gate in the documented order
+   509	        // (visibility → integrity → access → entitlement). An upgrade
+   510	        // the guards or gates would refuse is refused with the
+   511	        // decision data and changes nothing.
+   512	        if proposal.to.identity.semantic_version
+   513	            < install.installed.identity.semantic_version
+   514	        {
+   515	            return Err(WorkflowDistributionError::IllegalDowngrade {
+   516	                workflow: workflow.to_string(),
+   517	                expected_newer_than: install.installed.identity.semantic_version.clone(),
+   518	                got: proposal.to.identity.semantic_version.clone(),
+   519	            });
+   520	        }
+   521	        let entry = self.entry_for(&workflow, &proposal.to.version_id)?.clone();
+   522	        let principal = install.principal.clone();
+   523	        if !release_installable(
+   524	            &entry.metadata,
+   525	            entry.state,
+   526	            &entry.audience,
+   527	            &principal,
+   528	        ) {
+   529	            return Err(WorkflowDistributionError::ReleaseNotVisible {
+   530	                workflow: workflow.to_string(),
+   531	                version: proposal.to.version_id.to_string(),
+   532	            });
+   533	        }
+   534	        proposal.to.verify()?;
+   535	        let version = self.verified_version(&workflow, &proposal.to.version_id)?;
+   536	        let (access, entitlement) = self.run_gates(&principal, &entry)?;
+
+  → the approval path now refuses, in order:
+    (0) stale (unchanged, lines 487-493) and reject-record (unchanged, 494-504)
+    (1) ordering guard: proposal.to semver < the pin's semver (the stale check
+        guarantees install.installed == proposal.from) → typed IllegalDowngrade
+        { expected_newer_than, got } — nothing mutated, nothing recorded;
+    (2) visibility gate: the target entry re-runs release_installable for the
+        install's principal → ReleaseNotVisible for foreign/private targets,
+        BEFORE any integrity detail (digests, identity) is disclosed — the
+        documented order (visibility → integrity → access → entitlement)
+        restored, mirroring install's own sequence;
+    (3) integrity (proposal.to.verify, verified_version) — unchanged;
+    (4) access + entitlement (run_gates) — unchanged;
+    (5) apply — unchanged (pin moves only after every guard/gate passes).
+  typed error added (error.rs lines 123-139): IllegalDowngrade { workflow: String,
+    expected_newer_than: SemanticVersion, got: SemanticVersion } with
+    #[error("illegal downgrade of `{workflow}`: upgrade targets must be newer than
+    {expected_newer_than}, got {got}")].
+
+predicate-model AFTER run (IDENTICAL scenario state, branch logic):
+  attack 6d:
+     FIXED: None (private release invisible — no identity surfaces)
+     decide_upgrade(smuggled proposal, Approve):
+     FIXED: Err(ReleaseNotVisible { version: sha256:v2-private-2.0.0 })
+     FIXED: pin=sha256:v1-public-1.0.0  upgrade_history=0 record(s)  applied=0
+  attack 12:
+     FIXED: Some(proposal.to = sha256:v1-public-1.5.0)   ← bounded scope: evaluation still
+            surfaces the older release as pure data (the RWO's evaluate item adds the
+            visibility filter only); the DECISION path is where the refusal lives
+     decide_upgrade(proposal, Approve):
+     FIXED: Err(IllegalDowngrade { expected_newer_than: 2.0.0, got: 1.5.0 })
+     FIXED: pin=sha256:v2-public-2.0.0  upgrade_history=0 record(s)  applied=0
+
+================================================================================
+PART 3 — same-request contrast (the RWO's required before/after shape)
+================================================================================
+
+request A (attack 6d): market.evaluate_upgrade("wo") with the private 2.0.0 published
+  BASE : Some(proposal.to = sha256:v2-private-2.0.0) — private identity LEAKED
+  FIXED: None — not visible, nothing surfaced
+request B (attack 6d): market.decide_upgrade({from: v1, to: private 2.0.0}, Approve)
+  BASE : Ok(UpgradeRecord { applied: true, to: sha256:v2-private-2.0.0 }) — pin MOVED
+  FIXED: Err(ReleaseNotVisible { version: sha256:v2-private-2.0.0 }) — pin UNCHANGED,
+         history UNTOUCHED
+request C (attack 12): market.decide_upgrade({from: 2.0.0, to: 1.5.0}, Approve)
+  BASE : Ok(UpgradeRecord { applied: true, to: 1.5.0 }) — pin moved 2.0.0 → 1.5.0
+  FIXED: Err(IllegalDowngrade { expected_newer_than: 2.0.0, got: 1.5.0 }) — pin
+         UNCHANGED, history UNTOUCHED
+
+Rust-level assertions of exactly these contrasts (for the Tech Lead to execute):
+  src/memory_tests.rs:
+    evaluate_upgrade_skips_releases_invisible_to_the_installer        (request A)
+    evaluate_upgrade_returns_none_when_all_other_releases_are_invisible (request A, only-private)
+    decide_upgrade_refuses_smuggled_proposals_targeting_invisible_releases (request B)
+    decide_upgrade_refuses_targets_older_than_the_pin                  (request C)
+    rejected_downgrade_proposals_still_record_a_rejection              (boundary)
+    equal_semver_targets_are_not_downgrades                            (boundary)
+  tests/e2e_workflow_distribution.rs: all 8 pre-existing tests unchanged and
+  traced compatible (see the verify-sweep transcript).
+
+engine probe attack 5b (fork misattribution) is NOT reproduced as fixed here: it is
+  Family N (VWO-009 F9 → RWO-016 per SCENARIO-ISSUE-MATRIX), outside RWO-009's fix
+  scope (forge attribution verification); see the completion report's deviations.

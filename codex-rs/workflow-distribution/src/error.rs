@@ -6,6 +6,7 @@
 //! crates below (contracts, forge) project transparently. Nothing here
 //! panics, invents semantics, or embeds credentials.
 
+use codex_workflow_contracts::SemanticVersion;
 use codex_workflow_contracts::WorkflowContractError;
 use codex_workflow_forge::WorkflowForgeError;
 use thiserror::Error;
@@ -118,6 +119,23 @@ pub enum WorkflowDistributionError {
         /// The entitlement decision that refused it, when the new
         /// release carries commercial terms.
         entitlement: Option<EntitlementDecision>,
+    },
+    /// An upgrade proposal targeted a release that is not newer than
+    /// the installation's pin: the upgrade path is monotonic, and a
+    /// downgrade is never applied as an upgrade record. The refusal
+    /// is decision data, never a semantic change: the installation
+    /// keeps its pinned version and nothing was recorded.
+    #[error(
+        "illegal downgrade of `{workflow}`: upgrade targets must be newer than {expected_newer_than}, got {got}"
+    )]
+    IllegalDowngrade {
+        /// The workflow whose upgrade was proposed.
+        workflow: String,
+        /// The version the target had to be newer than (the
+        /// installation's pinned version).
+        expected_newer_than: SemanticVersion,
+        /// The not-newer version the proposal targeted.
+        got: SemanticVersion,
     },
     /// A structurally invalid record reached this plane (for example a
     /// fork request whose repository collides with its upstream).
