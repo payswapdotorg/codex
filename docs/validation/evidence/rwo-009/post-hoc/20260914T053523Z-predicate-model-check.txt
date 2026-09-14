@@ -1,0 +1,50 @@
+RWO-009 predicate-logic model check (python transcription of the Rust control flow)
+base: 2d37cc0ef memory.rs/discovery.rs  |  fixed: rwo-009/upgrade-visibility-gate branch
+before/after runs share IDENTICAL scenario state (releases, installs, access seeds)
+NOTE: model of decision logic only — the real crate must still be compiled+tested
+      (cargo absent in this sandbox; the Tech Lead runs cargo test/clippy independently)
+
+==============================================================================
+ATTACK 6d (Family I, VWO-009 F10)
+==============================================================================
+-- evaluate_upgrade(workflow) --
+   BASE : Some(proposal.to = sha256:v2-private-2.0.0, semver 2.0.0)
+   FIXED: None
+   private identity surfaced to foreign installer? BASE=True FIXED=False
+-- decide_upgrade(same proposal, Approve) --
+   BASE : Ok(UpgradeRecord { applied: True, to: sha256:v2-private-2.0.0 })
+   FIXED: Err(ReleaseNotVisible { version: sha256:v2-private-2.0.0 })
+-- post-state --
+   BASE: pin=sha256:v2-private-2.0.0  upgrade_history=1 record(s)  applied=1
+   FIXED: pin=sha256:v1-public-1.0.0  upgrade_history=0 record(s)  applied=0
+   VERDICT: BASE reproduced the VWO-009 hole; FIXED refused, pin unchanged,
+             nothing recorded -> PASS
+
+==============================================================================
+ATTACK 12 (Family G engine half, VWO-009 F4)
+==============================================================================
+-- evaluate_upgrade(workflow) --
+   BASE : Some(proposal.to = sha256:v1-public-1.5.0, semver 1.5.0)
+   FIXED: Some(proposal.to = sha256:v1-public-1.5.0, semver 1.5.0)
+   private identity surfaced to foreign installer? BASE=False FIXED=False
+-- decide_upgrade(same proposal, Approve) --
+   BASE : Ok(UpgradeRecord { applied: True, to: sha256:v1-public-1.5.0 })
+   FIXED: Err(IllegalDowngrade { expected_newer_than: 2.0.0, got: 1.5.0 })
+-- post-state --
+   BASE: pin=sha256:v1-public-1.5.0  upgrade_history=1 record(s)  applied=1
+   FIXED: pin=sha256:v2-public-2.0.0  upgrade_history=0 record(s)  applied=0
+   VERDICT: BASE reproduced the VWO-009 hole; FIXED refused, pin unchanged,
+             nothing recorded -> PASS
+
+==============================================================================
+existing-behavior parity checks on the FIXED model (e2e suite shapes):
+==============================================================================
+   stale proposal        -> ('Err', 'StaleUpgradeProposal'), history=0  PASS
+   reject decision       -> applied=False to=from, history=1  PASS
+   visible forward 1.0.0 -> 1.1.0 (public) -> applied=True  PASS
+   pin policy evaluate   -> None  PASS
+   gate-refused upgrade  -> Err(UpgradeRefused), no record  PASS
+
+==============================================================================
+SUMMARY: attack scenarios PASS; parity checks PASS
+model check complete

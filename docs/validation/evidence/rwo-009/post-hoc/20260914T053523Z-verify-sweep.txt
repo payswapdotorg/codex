@@ -1,0 +1,189 @@
+# RWO-009 verification sweep — commands, results, and the cargo-absent protocol
+captured: 2026-09-14T05:35Z on branch rwo-009/upgrade-visibility-gate (fix applied, base 2d37cc0ef7d075e877f370790f82ac9c70df26a4)
+
+================================================================================
+1. THE RWO'S NAMED VERIFICATION COMMANDS
+================================================================================
+$ cargo test -p codex-workflow-distribution
+  → NOT RUN in this sandbox: cargo/rustc do not exist here (toolchain probe in
+    _infra/post-hoc/20260914T053523Z-environment-and-base-identity.txt: PATH,
+    ~/.cargo, ~/.rustup, /usr/local/cargo/bin, /opt, and a filesystem sweep all
+    empty; the repo pins rust-toolchain channel 1.95.0). Per the RWO's own
+    verification clause ("If cargo is unavailable in your sandbox, say so
+    explicitly, verify by careful static reasoning + the cited line-level
+    findings, and the Tech Lead independently compiles and runs everything"),
+    this sweep documents the static verification below and the crate carries six
+    NEW unit tests (src/memory_tests.rs) that assert the closed findings; the
+    Tech Lead runs the command above for real. NO compiled-Rust result is
+    claimed anywhere in this evidence.
+
+$ cargo clippy -p codex-workflow-distribution --all-targets -- -D warnings
+  → NOT RUN in this sandbox (same reason). Static lint review performed instead
+    (§3.4 below): workspace clippy.toml (expect_used denied but
+    allow-expect-in-tests=true — the new tests are cfg(test) code;
+    large-error-threshold=256 — the new IllegalDowngrade variant sizes the enum
+    at ≈176 bytes < 256; no disallowed_methods, no manual_* patterns, no
+    needless_borrow in the new code — the new call shapes mirror the existing
+    clippy-clean install path line-for-line). rustfmt widths checked (§3.5).
+
+$ re-run the VWO-009 standalone probe battery attacks 5b/6d/12
+  → NOT RUN (the probe crate lived in the VWO-009 worker's sandbox at
+    /home/z/vwo009-probe, not in this repository, and cargo is absent). Verified
+    instead by (a) the before/after code-path trace, (b) the predicate-model
+    run (a real python execution of a line-faithful transcription of the Rust
+    control flow — 20260914T053523Z-predicate-model-check.txt), and (c) the new
+    unit tests which encode the 6d/12 attack shapes as Rust assertions:
+      6d  → REFUSED: evaluate None / decide Err(ReleaseNotVisible); pin unchanged
+      12  → REFUSED: decide Err(IllegalDowngrade { expected_newer_than, got });
+            pin unchanged; no record
+      5b  → NOT closed by RWO-009: fork misattribution is Family N (VWO-009 F9),
+            assigned to RWO-016 by SCENARIO-ISSUE-MATRIX line 231 — outside this
+            RWO's fix scope (see the completion report's honest deviations).
+
+================================================================================
+2. COMMANDS THAT WERE RUN FOR REAL (this sandbox, exit codes 0 unless noted)
+================================================================================
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git checkout -b rwo-009/upgrade-visibility-gate 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+Switched to a new branch 'rwo-009/upgrade-visibility-gate'
+
+fix-surface isolation (tracked):
+$ git diff --name-only 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+codex-rs/workflow-distribution/src/error.rs
+codex-rs/workflow-distribution/src/memory.rs
+untracked additions: codex-rs/workflow-distribution/src/memory_tests.rs (new unit
+tests) + docs/validation/evidence/rwo-009/ (this evidence) — nothing else.
+→ only the RWO-granted engine crate is touched; every frozen engine crate
+  (codex-workflow-contracts, codex-workflow-forge, codex-workflow-triggers,
+  codex-workflow-app, codex-execution-contracts, all other codex-workflow-*)
+  is byte-identical to base.
+
+contract byte-identity (the RWO's non-negotiable):
+$ git diff --quiet 2d37cc0ef.. -- <file> (per file)
+IDENTICAL: docs/validation/work-orders/RWO-009.md
+IDENTICAL: docs/validation/reports/VWO-004-report.md
+IDENTICAL: docs/validation/reports/VWO-005-report.md
+IDENTICAL: docs/validation/reports/VWO-006-report.md
+IDENTICAL: docs/validation/reports/VWO-007-report.md
+IDENTICAL: docs/validation/reports/VWO-008-report.md
+IDENTICAL: docs/validation/reports/VWO-009-report.md
+IDENTICAL: docs/validation/reports/REPORT-SCHEMA.md
+
+predicate-model check (decision logic of base vs branch, identical scenario state):
+$ python3 docs/validation/evidence/rwo-009/post-hoc/20260914T053523Z-predicate-model-check.py
+  (transcript: 20260914T053523Z-predicate-model-check.txt, exit 0)
+  SUMMARY: attack scenarios PASS; parity checks PASS
+  - attack 6d: BASE leaked + applied → FIXED None + Err(ReleaseNotVisible),
+    pin unchanged, 0 records
+  - attack 12: BASE applied (2.0.0 → 1.5.0) → FIXED Err(IllegalDowngrade
+    {2.0.0, 1.5.0}), pin unchanged, 0 records
+  - parity: stale → Err(StaleUpgradeProposal) nothing recorded; Reject →
+    applied=false to=from recorded; visible forward 1.0.0 → 1.1.0 applied;
+    pin policy → None; gate-refused → Err(UpgradeRefused) no record
+
+mechanical source checks (this sandbox):
+$ awk 'length > 100' over the three touched/added Rust files
+  → one line: error.rs:129 (112 chars) — the unbreakable #[error("...")] string
+    literal of the new variant, in the IDENTICAL wrapped-attribute shape the
+    existing ReleaseNotVisible variant already uses at error.rs:55-57 (106 chars
+    committed at base). All other lines ≤ 100.
+$ brace/paren/bracket balance state-machine check over the three files
+  → error.rs {36/36} (18/18) [18/18]; memory.rs {92/92} (236/236) [4/4];
+    memory_tests.rs {30/30} (221/221) [8/8] — all balanced.
+
+================================================================================
+3. STATIC COMPILE-LEVEL REVIEW (cargo-absent protocol, item by item)
+================================================================================
+3.1 types
+  - release_installable(&PublicationMetadata, DistributionState,
+    &[MarketplacePrincipal], &MarketplacePrincipal) — new call sites pass
+    (&entry.metadata, entry.state, &entry.audience, &install.principal/&principal):
+    state is Copy; &Vec<_> deref-coerces to &[_]; principal types exact.
+  - ordering guard: proposal.to.identity.semantic_version and
+    install.installed.identity.semantic_version are SemanticVersion
+    (= semver::Version, which implements PartialOrd/Ord/Clone/Debug/Display);
+    the `<` comparison and the cloned error fields type-check.
+  - IllegalDowngrade { workflow: String, expected_newer_than: SemanticVersion,
+    got: SemanticVersion } — construction sites match the variant exactly;
+    thiserror interpolates {workflow} (String) and {expected_newer_than}/{got}
+    (semver::Version: Display) — the same interpolation style the file already
+    uses.
+  - tests: every helper mirrors the e2e suite's proven constructions
+    (WorkflowVersion::seal 6-arg, PublicationMetadata::seal 7-arg,
+    PublishSubmission, MarketplaceInstallRequest, UpgradeProposal with
+    to: PublishedVersionRef::of(&version)); all struct field sets verified
+    against the contracts source (WorkflowDefinition/WorkflowIr/StepNode/
+    WorkflowDependencies shapes; WorkflowDependencies: Default; empty
+    capability/resource declarations validate; "Apache-2.0" passes
+    LicenseTerms::validate; minimum_runtime (0,0,0) has no validation rule).
+  - pattern shapes: the two let-else destructures
+    (ReleaseNotVisible { workflow, version } / IllegalDowngrade { workflow,
+    expected_newer_than, got }) bind all fields by value from expect_err's
+    owned error — the exact pattern the e2e suite uses at its lines 896-903.
+
+3.2 borrows / lifetimes (NLL)
+  - evaluate_upgrade (&self): install is a shared borrow of self.installs;
+    the filter closure captures workflow and install by reference and only
+    reads; entries iteration is a shared borrow — no conflict, closure is Fn.
+  - decide_upgrade (&mut self): install's last use is install.principal.clone()
+    (line 522) — the subsequent run_gates(&mut self, ...) and
+    self.installs.insert(...) take exclusive borrows only after that point;
+    entry is an owned clone; principal is owned. Identical borrow structure
+    to the base code (which compiled and passed at base), with the new reads
+    inserted before the same exclusive-borrow points.
+
+3.3 module wiring
+  - memory.rs gains #[cfg(test)] #[path = "memory_tests.rs"] mod tests; —
+    the exact pattern state.rs (lines 194-196) and metadata.rs already use;
+    memory_tests.rs imports only crate-public items + the crate's two
+    dependency crates (both declared in Cargo.toml) + pretty_assertions
+    (declared dev-dependency) + std. All 35 imports are used (checked one by
+    one). DistributionPort is imported in the tests (trait methods must be in
+    scope), matching the e2e suite.
+
+3.4 lints (workspace [workspace.lints] + clippy.toml, -D warnings target)
+  - expect_used denied / allow-expect-in-tests=true: the new .expect()/.unwrap()
+    uses live in cfg(test) code (same as state_tests.rs/metadata_tests.rs and
+    the e2e suite); the non-test code added uses no expect/unwrap/panic.
+  - result_large_err (threshold 256): enum max variant becomes IllegalDowngrade
+    ≈ String(24) + 2 × semver::Version(≈72) + tag(8) ≈ 176 < 256.
+  - no new disallowed_methods, no manual_* patterns (plain filter/max_by_key/
+    if-guard/early-return), no needless_borrow (the &entry.audience and
+    &install.principal borrows are required for the coercion/exact-ref types —
+    the identical shapes install() already uses at base lines 365-370).
+  - missing_docs (deny at lib level): the new error variant and all three of
+    its fields carry doc comments; the new test module is private.
+
+3.5 formatting
+  - all new/edited lines ≤ 100 columns except the one unbreakable string
+    literal noted in §2 (committed precedent in the same file at base);
+    item-granularity imports and 4-space indentation per rustfmt.toml
+    (edition 2024, imports_granularity=Item) — the new files follow both.
+
+3.6 e2e suite compatibility trace (AC3) — every test, every upgrade-path call
+  | test (tests/e2e_workflow_distribution.rs)                    | outcome under the fix |
+  | publishing_seals_releases_and_rejects_every_tampered_record  | unaffected (no upgrade-path calls) |
+  | forking_derives_new_immutable_versions_with_lineage_provenance| unaffected (fork path untouched) |
+  | installs_are_license_gated_with_deny_and_allow_paths         | unaffected (install path untouched; AlreadyInstalled intact) |
+  | entitlement_denial_gates_installation_only_...               | evaluate surfaces public 2.0.0 (visible); approve: ordering passes (2.0.0>1.0.0), visibility passes (Public), gates refuse → Err(UpgradeRefused) — as asserted |
+  | pin_stays_pinned_and_follow_advances_only_with_explicit_approval | pin→None; follow 1.0.0→1.1.0 public: surfaces / Reject records / Approve applies / re-decide StaleUpgradeProposal / NotInstalled — every asserted outcome identical |
+  | search_filters_by_every_facet_and_visibility_scope           | unaffected (search untouched) |
+  | no_credentials_appear_in_any_distribution_record            | evaluate_upgrade → Ok(None) (single release excluded by version_id) — unchanged serialization |
+  | marketplace_installs_hand_off_to_the_trigger_plane_...       | unaffected (install + hand-off only) |
+  | state_tests.rs / metadata_tests.rs (in-crate)                | unaffected (modules untouched) |
+  No existing test decides an older target or a private target, so no asserted
+  outcome changes anywhere in the suite.
+
+================================================================================
+4. WHAT THE TECH LEAD MUST RUN (the real verification, in order)
+================================================================================
+  cd codex-rs
+  cargo test -p codex-workflow-distribution          # 8 e2e + in-crate unit tests + 6 NEW memory_tests
+  cargo clippy -p codex-workflow-distribution --all-targets -- -D warnings
+  # optional: cargo fmt -p codex-workflow-distribution -- --check
+  # probe re-run (VWO-009 battery, attacks 5b/6d/12) against this branch if the
+  # probe crate is reconstituted; 6d/12 assertions are already encoded in
+  # src/memory_tests.rs (5b is RWO-016's scope).
+Expected: all tests green (the six new tests assert the RWO acceptance criteria
+directly), clippy clean.
