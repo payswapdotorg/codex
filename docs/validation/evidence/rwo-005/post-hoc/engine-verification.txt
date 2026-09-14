@@ -1,0 +1,32 @@
+# RWO-005 verification: engine crates (real cargo runs, local pod)
+# Captured: 2026-09-14T19:57Z-20:05Z (UTC)
+# Toolchain: rustc 1.95.0 (59807616e 2026-04-14) — the workspace pin
+
+## command (work order verification, part 1)
+$ cargo test -p codex-workflow-forge -p codex-workflow-distribution
+
+## exact results (verbatim from the run)
+running 16 tests
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 8 tests
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 44 tests
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+## interpretation
+- codex-workflow-distribution: 16 unit + 8 e2e PASSED (includes the
+  acceptance-criterion-3 enforcing test, see below)
+- codex-workflow-forge: 44 PASSED
+- The engine crates are UNTOUCHED by this work order (frozen-port reuse);
+  these runs prove no regression crossed the engine boundary.
+
+## acceptance criterion 3 — empty attribution on a fork is refused
+Enforced by the engine (pre-existing, unchanged):
+$ rg -n "fn forks_must_carry_upstream_attribution" codex-rs/workflow-distribution/src/metadata_tests.rs
+140:fn forks_must_carry_upstream_attribution() {
+This test is part of the 16 distribution unit tests above (PASSED). The
+mount additionally enforces input-shape early:
+$ rg -n "fork_requires_carried_attribution" codex-rs/app-server/src/workflow_tests.rs
+702:async fn fork_requires_carried_attribution() {

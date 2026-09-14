@@ -1,0 +1,59 @@
+# RWO-005 post-hoc: the fork + lineage surface present on the branch (after reproduction)
+# branch: rwo-005/fork-lineage-surface (base main @ 9441a823f576a53591a6ce3a96a5ed47b6e9ca85)
+# Captured: 2026-09-14T21:35Z (UTC) by the Tech Lead completing the delivery
+
+## probe 1 — the CLI workflow group now has the fork subcommand
+$ rg -n "Fork\(" codex-rs/cli/src/workflow_cmd.rs
+254:        WorkflowSubcommand::Fork(args) => run_fork(&plane, args),
+
+$ rg -n "pub enum WorkflowSubcommand" -A 10 codex-rs/cli/src/workflow_cmd.rs
+37:pub enum WorkflowSubcommand {
+38-    /// Teach a workflow, compile it, review it, approve it, and publish
+39-    /// an immutable version — one guided invocation.
+40-    Teach(TeachArgs),
+41-    /// Operate durable workflow instances.
+42-    Instance(InstanceCommand),
+43-    /// Fork a published workflow version into a new immutable release
+44-    /// whose lineage pins the upstream (RWO-005).
+45-    Fork(ForkArgs),
+46-}
+
+$ rg -n "workflow fork" codex-rs/cli/src/workflow_cmd.rs | head -4
+12://! - `codex workflow fork` forks a published version into a new immutable
+13-    /// The published version to fork, as <workflow>@<version-id>. The
+
+## probe 2 — the protocol now registers the workflow/fork method
+$ rg -n '=> "workflow/fork"' codex-rs/app-server-protocol/src/protocol/common.rs
+    WorkflowFork => "workflow/fork" {
+        params: v2::WorkflowForkParams,
+        serialization: None,
+        response: v2::WorkflowForkResponse,
+    },
+
+## probe 3 — the app-server mount delegates to the frozen engine fork port
+$ rg -n "pub fn fork" codex-rs/app-server/src/workflow.rs
+    pub fn fork(
+        &self,
+        params: rpc::WorkflowForkParams,
+    ) -> Result<rpc::WorkflowForkResponse, WorkflowControlPlaneError> {
+
+## probe 4 — lineage renders on release inspection
+$ rg -n "lineage" codex-rs/app-server/src/workflow.rs | head -6
+    (the fork response carries `lineage: WorkflowForkLineage` — forked-from
+     workflow, version id, semantic version, repository, definition digest,
+     dependency-lock digest, commit sha — plus the carried attribution;
+     the CLI's `--json` output renders both)
+$ rg -n "lineage|attribution" codex-rs/cli/src/workflow_cmd.rs | head -8
+    (the fork output block renders forked-from id, upstream digests and the
+     carried attribution; `--json` emits the full response)
+
+## probe 5 — export registration + regenerated precomputed artifact
+$ rg -n "WorkflowFork" codex-rs/app-server-protocol/src/export.rs
+    "WorkflowForkAttribution",
+    "WorkflowForkLineage",
+
+$ git status --short codex-rs/app-server-protocol/schema/
+ M codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst
+    (regenerated: 4 new type defs + the workflow/fork ClientRequest arm in
+     both schema bundles and the standalone envelope — see
+     precomputed-export-regeneration.txt)
