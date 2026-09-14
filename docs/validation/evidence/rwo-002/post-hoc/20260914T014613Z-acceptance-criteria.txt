@@ -1,0 +1,119 @@
+# RWO-002 — acceptance criteria verification (criterion -> transcript map)
+captured: 2026-09-14T01:44-01:46Z
+base: main @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4 ; fix branch: rwo-002/flowmart-configure-contract
+surface A (human path): agent-browser 0.35.0 (headless Playwright chromium) over http://127.0.0.1:4105 — the real browser flow: /login form -> session cookie -> /catalog -> Install -> /installs -> "Config keys to merge (JSON)" textarea -> Apply config
+surface B (API twins): curl against the JSON twins (transcripts in 20260914T014613Z-familyB-familyL-before-after-reproduction.txt)
+setup: fixtures restarted on the fix branch (run-all.sh --stop && run-all.sh --reset); the browser session installs pk-103 itself (ins-0402) before configuring — full human path, no API setup
+no credentials: demo persona iris.chen / demo-pass-iris (fake, printed on the public /login page); the session cookie is never printed
+
+════════════════════════════════════════════════════════════════════
+## Criterion 1 — Browser path: paste {"opsChannel":"east"} → Apply config → flash names the key; Config cell shows it; history entry lists the key.  VERIFIED
+════════════════════════════════════════════════════════════════════
+
+# sign in via the /login HTML form as iris.chen (Northwind org_admin):
+$ agent-browser open http://127.0.0.1:4105/login ; fill username/password ; click "Sign in"
+  -> http://127.0.0.1:4105/?ok=Signed+in+as+Iris+Chen+%28org_admin%29.
+
+# catalog -> "Install 1.2.0" (pk-103 Warehouse Slot Optimizer) — the human install path:
+$ agent-browser click "Install 1.2.0"
+  -> http://127.0.0.1:4105/installs?ok=Installed+%22Warehouse+Slot+Optimizer%22+v1.2.0+for+Northwind+Logistics+%28install+ins-0402%2C+entitlement+ent-0503%29.
+
+# /installs configure form (same page as the install card):
+$ agent-browser fill <textarea "Config keys to merge (JSON)"> '{"opsChannel":"east"}' ; click "Apply config"
+  -> http://127.0.0.1:4105/installs?ok=Install+ins-0402+configured+%28opsChannel%29.
+
+# page snapshot after apply (what the human sees):
+  - status                                  <- the success flash (role=status)
+    - StaticText "Install ins-0402 configured (opsChannel)."      <- FLASH NAMES THE KEY
+  - heading "Install <code>ins-0402</code> — Warehouse Slot Optimizer <code>1.2.0</code> active" [level=2]
+        - cell "Config" [ref=e25]
+        - cell "{\"opsChannel\":\"east\"}"                        <- CONFIG CELL SHOWS IT
+        - cell "configured 1.2.0 → 1.2.0 by Iris Chen at 2026-09-14T01:44:39.794Z"   <- history row
+    - form "Config keys to merge (JSON)" (textarea + "Apply config" button)
+
+# history ENTRY lists the key (the configured history record's configKeys — via the API twin read):
+$ GET /api/installs (iris.chen)
+  config: {"opsChannel":"east"}
+  history:
+    {"action":"installed","fromVersion":null,"toVersion":"1.2.0","at":"2026-09-14T01:44:32.753Z","byId":"u-3"}
+    {"action":"configured","fromVersion":"1.2.0","toVersion":"1.2.0","at":"2026-09-14T01:44:39.794Z","byId":"u-3","configKeys":["opsChannel"]}
+$ GET /api/events?type=install.configured
+  install.configured events: 1
+    Install ins-0402 (Warehouse Slot Optimizer v1.2.0) reconfigured for Northwind Logistics | data.keys=["opsChannel"]
+
+Note on rendering (honest scope note, recorded as a question in the completion report): the /installs
+history TABLE row renders action/fromVersion/toVersion/by/at (ui.js:199, unchanged — ui.js is outside the
+RWO's bounded fix scope); the key list is persisted in the history ENTRY (configKeys, above) and in the
+install.configured event (data.keys). The entry — created by configureInstall, the in-scope file — lists
+the key.
+
+════════════════════════════════════════════════════════════════════
+## Criterion 2 — Invalid JSON in the textarea → explicit error, no "configured" history entry, no event.  VERIFIED
+════════════════════════════════════════════════════════════════════
+
+# paste broken JSON into the same textarea and apply:
+$ agent-browser fill <textarea> '{"opsChannel": east' ; click "Apply config"
+  -> http://127.0.0.1:4105/installs?err=Config+for+configure+is+not+valid+JSON+%28field+%22config%22%29.+...+%5Binvalid_json%5D
+
+# page snapshot (what the human sees):
+  - alert                                   <- the error flash (role=alert)
+    - StaticText "Config for configure is not valid JSON (field \"config\"). Paste a JSON object like {\"opsChannel\":\"east\"} — the textarea is submitted as a string and parsed server-side. [invalid_json]"
+        - cell "Config" [ref=e25]
+        - cell "{\"opsChannel\":\"east\"}"                        <- config UNCHANGED
+
+# no new "configured" history entry, no event (state via the API twin read):
+  history: exactly the same 2 entries as after criterion 1 (installed + the ONE valid configured)
+  install.configured events: 1 (unchanged — the rejected request emitted NOTHING)
+
+# API twin of the same defect (HTTP-level, from the before/after reproduction transcript, section 3b):
+$ POST /api/installs/configure {"installId":"ins-0402","config":"{oops"}
+{ "ok": false, "error": "invalid_json", "message": "Config for configure is not valid JSON (field \"config\"). ...", "field": "config", "received": "string" }
+HTTP 400
+
+════════════════════════════════════════════════════════════════════
+## Criterion 3 — {"version":"9.9.9"} → HTTP 400 reserved_config_key; config unchanged.  VERIFIED
+════════════════════════════════════════════════════════════════════
+
+# browser path (error flash, config cell unchanged):
+$ agent-browser fill <textarea> '{"version":"9.9.9"}' ; click "Apply config"
+  -> http://127.0.0.1:4105/installs?err=Config+for+configure+rejects+reserved+identity-impersonating+key%28s%29%3A+version.+...+%5Breserved_config_key%5D
+  - alert
+    - StaticText "Config for configure rejects reserved identity-impersonating key(s): version. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config. [reserved_config_key]"
+        - cell "Config" [ref=e25]
+        - cell "{\"opsChannel\":\"east\"}"                        <- config UNCHANGED
+
+# API twin (literal HTTP 400, from the before/after reproduction transcript, section 3c — the full
+# VWO-009 F2 / VWO-010 D.2 four-key battery):
+$ POST /api/installs/configure {"installId":"ins-0402","config":{"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"}}
+{ "ok": false, "error": "reserved_config_key",
+  "message": "Config for configure rejects reserved identity-impersonating key(s): version, digest, targetVersion, manifest. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config.",
+  "field": "config", "reservedKeys": ["version","digest","targetVersion","manifest"] }
+HTTP 400
+# state after the section-3 battery (base merged all four keys; fix branch): config contains ONLY
+# operator-legitimate keys — {"zones":"A","opsChannel":"object-path","apiTwin":"string-config"} — the
+# pin/identity fields were never written; install.configured events: 4 (valid requests only).
+
+════════════════════════════════════════════════════════════════════
+## Criterion 4 — API twin (object JSON) still works — no regression.  VERIFIED
+════════════════════════════════════════════════════════════════════
+
+# object config on the configure op (before/after reproduction transcript, section 3d):
+$ POST /api/installs/configure {"installId":"ins-0402","config":{"opsChannel":"object-path"}}
+{ "ok": true, "message": "Install ins-0402 configured (opsChannel).", ... }  HTTP 200
+  -> merged (identical result at base and on the fix branch)
+
+# object config on the install op (section 4d — mirrors the verify-sweep golden exactly):
+$ POST /api/installs/install {"packageId":"pk-103","expectedVersion":"1.2.0","config":{"zones":"A"}}
+{ "ok": true, "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).", ... }  HTTP 200
+
+# and the deterministic sweep gate (see 20260914T014613Z-verify-sweep.txt):
+$ bash docs/validation/fixtures/verify-sweep.sh
+  RESULT: 59 passed, 0 failed   (also 59/59 at base — no regression anywhere in the ecosystem)
+
+════════════════════════════════════════════════════════════════════
+## RWO verification commands — all run, all green
+════════════════════════════════════════════════════════════════════
+1. bash docs/validation/fixtures/run-all.sh --reset     -> five apps healthy (construction 4101, software 4102, rideshare 4103, media 4104, marketplace 4105), all reset to seed
+2. bash docs/validation/fixtures/verify-sweep.sh        -> RESULT: 59 passed, 0 failed (transcript: 20260914T014613Z-verify-sweep.txt)
+3. human-path re-check via agent-browser                 -> this file, criteria 1-3 (login -> install -> configure -> persist / reject)
+4. API twins: string-config parse (200, key persisted), invalid_json (400), reserved_config_key (400), object ok (200) -> this file + 20260914T014613Z-familyB-familyL-before-after-reproduction.txt

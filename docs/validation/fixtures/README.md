@@ -113,6 +113,8 @@ Family-specific surface (UI pages + JSON API twins — every HTML form has a JSO
 
 Read-only JSON APIs exist for every listing (`/api/projects`, `/api/repos`, `/api/drivers`, `/api/stories`, `/api/catalog?q=`, etc. — see each `server.js`).
 
+FlowMart config-intake note (RWO-002 — VWO-010 Family B/L): the `config` field on `installs/install` and `installs/configure` (API + form twins) accepts a JSON object or a JSON-object string (the textarea's urlencoded value, parsed server-side); unparseable/non-object values are rejected with HTTP 400 `invalid_json` (naming field `config`) and identity-impersonating keys (`version`, `digest`, `targetVersion`, `manifest`, `packageId`, `expectedVersion`, any `__`-prefixed key) with HTTP 400 `reserved_config_key` — never a silent `{}` success. Details: `marketplace/FAILURES.md` ("Configure-config contract").
+
 ## 6. Reset / seed procedure
 
 - Between scenarios: `curl -X POST http://localhost:<port>/reset` (HTML flow, signs you out) or `POST /api/reset` (JSON). Both restore the exact seed state and append a `world.reset` event.
