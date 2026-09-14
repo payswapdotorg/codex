@@ -1,0 +1,468 @@
+# RWO-002 — Family B (VWO-005 F2 · VWO-006 F-2) + Family L (VWO-009 F2 · VWO-006 F-6) before/after reproduction — FlowMart configure/install config intake
+base: main @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4 (verified: git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit} -> 2d37cc0ef7d075e877f370790f82ac9c70df26a4)
+fix: branch rwo-002/flowmart-configure-contract (ops-install.js: shared configPatch() — JSON.parse string values -> 400 invalid_json on parse failure or non-object value; reserved-key deny-list version/digest/targetVersion/manifest/packageId/expectedVersion/__* -> 400 reserved_config_key; applied to BOTH configureInstall and the install op's config intake)
+surface: FlowMart (docs/validation/fixtures/marketplace/, port 4105) — the /ui/installs/configure HTML form twin POSTed urlencoded with a session cookie (the browser-path equivalent: identical form semantics, the textarea value arrives as a STRING) plus the JSON API twins under /api/installs/*
+method: one identical probe script (bash + curl, reproduced in full at the bottom of this file) was run twice — first against the UNMODIFIED base tree (fixtures started with run-all.sh --reset), then against the fix branch after run-all.sh --stop && run-all.sh --reset (fresh module cache). Each section resets to seed first, so install ids are deterministic (iris.chen installs pk-103 -> ins-0402, mirroring the verify-sweep golden and the VWO-010 D-fix correction).
+no credentials: demo personas only (runtime-assembled fragments); login lines print ok-flags, never tokens.
+
+## CONTRAST SUMMARY (same requests, contrasting results)
+
+| # | probe (identical request at base and on branch) | BEFORE — base @ 2d37cc0 | AFTER — fix branch |
+|---|---|---|---|
+| 1 | FORM TWIN (Family B): POST /ui/installs/configure urlencoded installId=ins-0402, config={"opsChannel":"east"} with session cookie | HTTP 303 -> flash ok="Install ins-0402 configured (no keys)." — silent no-op; Config cell UNCHANGED {"zones":"A"}; history entry pushed with configKeys:[] | HTTP 303 -> flash ok="Install ins-0402 configured (opsChannel)." — key named; Config cell {"zones":"A","opsChannel":"east"}; history entry configKeys:["opsChannel"] |
+| 2 | API twin, string config: {"installId":"ins-0402","config":"{\"apiTwin\":\"string-config\"}"} | HTTP 200 ok — "configured (no keys)", string dropped, nothing merged | HTTP 200 ok — "configured (apiTwin)", key merged and persisted |
+| 3 | API twin, INVALID JSON string: config "{oops" | HTTP 200 ok — "configured (no keys)" (silent success on garbage) | HTTP 400 invalid_json — message names field "config"; config unchanged; no history entry, no event |
+| 4 | API twin, RESERVED keys: config {"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"} (VWO-009 F2 / VWO-010 D.2) | HTTP 200 ok — all four identity keys merged into the install config record and rendered | HTTP 400 reserved_config_key — names version, digest, targetVersion, manifest; config unchanged; no history entry, no event |
+| 5 | API twin, __-prefixed key: config {"__smuggled":"x"} (VWO-006 F-6) | HTTP 200 ok — "__smuggled" merged | HTTP 400 reserved_config_key — names __smuggled |
+| 6 | API twin, scalar string config: config "plain-string" | HTTP 200 ok — "configured (no keys)" (silent) | HTTP 400 invalid_json — "must be a JSON object ... not a string" |
+| 7 | API twin, object config (regression): config {"opsChannel":"object-path"} | HTTP 200 ok — merged | HTTP 200 ok — merged (unchanged) |
+| 8 | API twin, absent config field: {"installId":"ins-0402"} | HTTP 200 ok — "configured (no keys)" | HTTP 200 ok — "configured (no keys)" (unchanged, documented contract: absent field = no keys to merge) |
+| 9 | INSTALL op intake, string config: install pk-103 with config "{\"opsChannel\":\"east\"}" | HTTP 200 ok — install created with config {} (string dropped) | HTTP 200 ok — install created with config {"opsChannel":"east"} |
+| 10 | INSTALL op intake, reserved key: install pk-103 with config {"version":"9.9.9"} | HTTP 200 ok — install created with config {"version":"9.9.9"} | HTTP 400 reserved_config_key — names version; no install record written |
+| 11 | INSTALL op intake, invalid JSON string: install pk-103 with config "{oops" | HTTP 200 ok — install created with config {} | HTTP 400 invalid_json — no install record written |
+| 12 | INSTALL op intake, object config (regression, mirrors verify-sweep golden): config {"zones":"A"} | HTTP 200 ok — config {"zones":"A"} | HTTP 200 ok — config {"zones":"A"} (unchanged) |
+| — | install.configured events emitted during section 3 (4 valid + 4 invalid/reserved requests) | 8 events — including events for the garbage/reserved requests (keys:[] / attacker keys) | 4 events — only the valid requests; rejected requests emit NOTHING |
+| — | install record config after section 3 | {"zones":"A","version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest","opsChannel":"object-path","__smuggled":"x"} | {"zones":"A","opsChannel":"object-path","apiTwin":"string-config"} — only operator-legitimate keys |
+
+Root cause confirmed at base (matches the VWO-010 citation): _lib/runtime.js parses urlencoded bodies into STRING values (readBody, ~line 267-274); ops-install.js configureInstall required typeof b.config === 'object' and silently substituted {} (base line 107), and installPackage did the same (base line 75). The deny-list keys closed VWO-009 F2/VWO-006 F-6: configure/install merged arbitrary identity-shaped keys with ok:true.
+
+Transcripts follow: the BEFORE half first, then the AFTER half, each produced by the same probe script.
+
+════════════════════════════════════════════════════════════════════
+## BEFORE — full transcript (base @ 2d37cc0ef7d075e877f370790f82ac9c70df26a4, unmodified tree)
+════════════════════════════════════════════════════════════════════
+# login iris.chen -> ok (token captured, not printed)
+# login form -> session cookie set (jar captured)
+
+==================================================================
+SECTION 1 — seed to the sweep-golden state (reset; iris installs pk-103 with object config {"zones":"A"} -> ins-0402)
+==================================================================
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+  install ins-0402 config: {"zones":"A"}
+  last history entry: {"action":"installed","fromVersion":null,"toVersion":"1.2.0","at":"2026-09-14T01:42:51.967Z","byId":"u-3"}
+
+==================================================================
+SECTION 2 — FAMILY B: browser-path equivalent (form twin, urlencoded STRING config) — POST /ui/installs/configure config={"opsChannel":"east"}
+==================================================================
+$ curl -b <session-cookie> -X POST /ui/installs/configure (Content-Type: application/x-www-form-urlencoded; installId=ins-0402, config={"opsChannel":"east"})
+HTTP 303 -> redirect: http://localhost:4105/installs?ok=Install+ins-0402+configured+%28no+keys%29.
+# /installs page as the browser would render it (flash + Config cell + history rows):
+configured 1.2.0 → 1.2.0 
+# state check via API twin:
+  install ins-0402 config: {"zones":"A"}
+  last history entry: {"action":"configured","fromVersion":"1.2.0","toVersion":"1.2.0","at":"2026-09-14T01:42:52.006Z","byId":"u-3","configKeys":[]}
+
+==================================================================
+SECTION 3 — API twins on /api/installs/configure (JSON bodies)
+==================================================================
+== 3a. string config (API twin of the form semantics): config "{\"apiTwin\":\"string-config\"}"
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (no keys).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3b. INVALID JSON string: config "{oops"
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (no keys).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3c. RESERVED identity-impersonating keys: config {"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"}
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (version, digest, targetVersion, manifest).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3d. object twin (regression check): config {"opsChannel":"object-path"}
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (opsChannel).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3e. __-prefixed key: config {"__smuggled":"x"}
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (__smuggled).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3f. scalar (non-object) config: config "plain-string"
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (no keys).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3g. absent config field (body: {"installId":"ins-0402"} only)
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (no keys).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== state after section 3:
+  install ins-0402 config: {"zones":"A","version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest","opsChannel":"object-path","__smuggled":"x"}
+  last history entry: {"action":"configured","fromVersion":"1.2.0","toVersion":"1.2.0","at":"2026-09-14T01:42:52.092Z","byId":"u-3","configKeys":[]}
+== install.configured events so far (count + last):
+  count: 8
+  last: Install ins-0402 (Warehouse Slot Optimizer v1.2.0) reconfigured for Northwind Logistics | data.keys=[]
+
+==================================================================
+SECTION 4 — install-op config intake (same pattern) — /api/installs/install
+==================================================================
+== 4a. STRING config on install (fresh reset): config "{\"opsChannel\":\"east\"}"
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {},
+  install ins-0402 config: {}
+  last history entry: {"action":"installed","fromVersion":null,"toVersion":"1.2.0","at":"2026-09-14T01:42:52.164Z","byId":"u-3"}
+== 4b. RESERVED key on install (fresh reset): config {"version":"9.9.9"}
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+== 4c. INVALID JSON string on install (fresh reset): config "{oops"
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+== 4d. object config on install (fresh reset, regression — mirrors verify-sweep golden): config {"zones":"A"}
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+
+==================================================================
+PROBE COMPLETE
+==================================================================
+
+════════════════════════════════════════════════════════════════════
+## AFTER — full transcript (fix branch rwo-002/flowmart-configure-contract, fixtures restarted after the change)
+════════════════════════════════════════════════════════════════════
+# login iris.chen -> ok (token captured, not printed)
+# login form -> session cookie set (jar captured)
+
+==================================================================
+SECTION 1 — seed to the sweep-golden state (reset; iris installs pk-103 with object config {"zones":"A"} -> ins-0402)
+==================================================================
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+  install ins-0402 config: {"zones":"A"}
+  last history entry: {"action":"installed","fromVersion":null,"toVersion":"1.2.0","at":"2026-09-14T01:43:23.441Z","byId":"u-3"}
+
+==================================================================
+SECTION 2 — FAMILY B: browser-path equivalent (form twin, urlencoded STRING config) — POST /ui/installs/configure config={"opsChannel":"east"}
+==================================================================
+$ curl -b <session-cookie> -X POST /ui/installs/configure (Content-Type: application/x-www-form-urlencoded; installId=ins-0402, config={"opsChannel":"east"})
+HTTP 303 -> redirect: http://localhost:4105/installs?ok=Install+ins-0402+configured+%28opsChannel%29.
+# /installs page as the browser would render it (flash + Config cell + history rows):
+configured 1.2.0 → 1.2.0 
+# state check via API twin:
+  install ins-0402 config: {"zones":"A","opsChannel":"east"}
+  last history entry: {"action":"configured","fromVersion":"1.2.0","toVersion":"1.2.0","at":"2026-09-14T01:43:23.482Z","byId":"u-3","configKeys":["opsChannel"]}
+
+==================================================================
+SECTION 3 — API twins on /api/installs/configure (JSON bodies)
+==================================================================
+== 3a. string config (API twin of the form semantics): config "{\"apiTwin\":\"string-config\"}"
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (apiTwin).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3b. INVALID JSON string: config "{oops"
+{
+  "ok": false,
+  "error": "invalid_json",
+  "message": "Config for configure is not valid JSON (field \"config\"). Paste a JSON object like {\"opsChannel\":\"east\"} — the textarea is submitted as a string and parsed server-side.",
+  "field": "config",
+  "received": "string"
+}
+HTTP 400
+== 3c. RESERVED identity-impersonating keys: config {"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"}
+{
+  "ok": false,
+  "error": "reserved_config_key",
+  "message": "Config for configure rejects reserved identity-impersonating key(s): version, digest, targetVersion, manifest. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config.",
+  "field": "config",
+  "reservedKeys": [
+    "version",
+    "digest",
+    "targetVersion",
+    "manifest"
+== 3d. object twin (regression check): config {"opsChannel":"object-path"}
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (opsChannel).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== 3e. __-prefixed key: config {"__smuggled":"x"}
+{
+  "ok": false,
+  "error": "reserved_config_key",
+  "message": "Config for configure rejects reserved identity-impersonating key(s): __smuggled. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config.",
+  "field": "config",
+  "reservedKeys": [
+    "__smuggled"
+  ]
+}
+HTTP 400
+== 3f. scalar (non-object) config: config "plain-string"
+{
+  "ok": false,
+  "error": "invalid_json",
+  "message": "Config for configure is not valid JSON (field \"config\"). Paste a JSON object like {\"opsChannel\":\"east\"} — the textarea is submitted as a string and parsed server-side.",
+  "field": "config",
+  "received": "string"
+}
+HTTP 400
+== 3g. absent config field (body: {"installId":"ins-0402"} only)
+{
+  "ok": true,
+  "message": "Install ins-0402 configured (no keys).",
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+== state after section 3:
+  install ins-0402 config: {"zones":"A","opsChannel":"object-path","apiTwin":"string-config"}
+  last history entry: {"action":"configured","fromVersion":"1.2.0","toVersion":"1.2.0","at":"2026-09-14T01:43:23.570Z","byId":"u-3","configKeys":[]}
+== install.configured events so far (count + last):
+  count: 4
+  last: Install ins-0402 (Warehouse Slot Optimizer v1.2.0) reconfigured for Northwind Logistics | data.keys=[]
+
+==================================================================
+SECTION 4 — install-op config intake (same pattern) — /api/installs/install
+==================================================================
+== 4a. STRING config on install (fresh reset): config "{\"opsChannel\":\"east\"}"
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {
+  install ins-0402 config: {"opsChannel":"east"}
+  last history entry: {"action":"installed","fromVersion":null,"toVersion":"1.2.0","at":"2026-09-14T01:43:23.646Z","byId":"u-3"}
+== 4b. RESERVED key on install (fresh reset): config {"version":"9.9.9"}
+{
+  "ok": false,
+  "error": "reserved_config_key",
+  "message": "Config for install rejects reserved identity-impersonating key(s): version. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config.",
+  "field": "config",
+  "reservedKeys": [
+    "version"
+  ]
+}
+HTTP 400
+== 4c. INVALID JSON string on install (fresh reset): config "{oops"
+{
+  "ok": false,
+  "error": "invalid_json",
+  "message": "Config for install is not valid JSON (field \"config\"). Paste a JSON object like {\"opsChannel\":\"east\"} — the textarea is submitted as a string and parsed server-side.",
+  "field": "config",
+  "received": "string"
+}
+HTTP 400
+== 4d. object config on install (fresh reset, regression — mirrors verify-sweep golden): config {"zones":"A"}
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Northwind Logistics (install ins-0402, entitlement ent-0503).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-1",
+
+==================================================================
+PROBE COMPLETE
+==================================================================
+
+════════════════════════════════════════════════════════════════════
+## probe script (identical for both runs — /home/z/rwo002-work/rwo002-probe.sh, reproduced verbatim)
+════════════════════════════════════════════════════════════════════
+#!/usr/bin/env bash
+# RWO-002 Family B + Family L reproduction probe — FlowMart configure/install
+# config intake (runs identically against the base tree and the fix branch).
+#
+# Surface: FlowMart fixture (port 4105) — HTML form twin (urlencoded, the
+# browser-path equivalent: the /ui/installs/configure form POSTs the textarea
+# as a STRING) + JSON API twins (/api/installs/*). Demo personas only; tokens
+# are kept in shell variables and never printed.
+set -uo pipefail
+BASE_URL=http://localhost:4105
+JAR=$(mktemp)
+
+say()  { echo; echo "=================================================================="; echo "$1"; echo "=================================================================="; }
+
+# login iris.chen (Northwind org_admin) — API twin (token kept out of output)
+T=$(curl -s "$BASE_URL/api/login" -H 'content-type: application/json' \
+  -d '{"username":"iris.chen","password":"demo-pass-iris"}' \
+  | sed -n 's/.*"token": "\([^"]*\)".*/\1/p')
+[ -n "$T" ] && echo "# login iris.chen -> ok (token captured, not printed)" || echo "# login FAILED"
+
+# login iris.chen via the /login HTML form -> session cookie (browser semantics)
+curl -s -o /dev/null -c "$JAR" -X POST "$BASE_URL/login" \
+  --data-urlencode 'username=iris.chen' --data-urlencode 'password=demo-pass-iris'
+[ -s "$JAR" ] && echo "# login form -> session cookie set (jar captured)" || echo "# login form FAILED"
+
+# show one install record (config + history) via the API twin
+show_install() {
+  curl -s "$BASE_URL/api/installs?token=$T" \
+    | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const j=JSON.parse(d);const i=(j.installs||[]).find(x=>x.id==="ins-0402")||j.installs[j.installs.length-1];if(!i){console.log("  (no installs)");return;}console.log("  install "+i.id+" config: "+JSON.stringify(i.config));const h=i.history[i.history.length-1];console.log("  last history entry: "+JSON.stringify(h));})'
+}
+
+say "SECTION 1 — seed to the sweep-golden state (reset; iris installs pk-103 with object config {\"zones\":\"A\"} -> ins-0402)"
+curl -s -X POST "$BASE_URL/api/reset" -o /dev/null
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/install?token=$T" -H 'content-type: application/json' \
+  -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":{"zones":"A"}}' | head -8
+show_install
+
+say "SECTION 2 — FAMILY B: browser-path equivalent (form twin, urlencoded STRING config) — POST /ui/installs/configure config={\"opsChannel\":\"east\"}"
+echo '$ curl -b <session-cookie> -X POST /ui/installs/configure (Content-Type: application/x-www-form-urlencoded; installId=ins-0402, config={"opsChannel":"east"})'
+curl -s -o /dev/null -b "$JAR" -X POST "$BASE_URL/ui/installs/configure" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'installId=ins-0402' --data-urlencode 'config={"opsChannel":"east"}' \
+  -w 'HTTP %{http_code} -> redirect: %{redirect_url}\n'
+echo '# /installs page as the browser would render it (flash + Config cell + history rows):'
+curl -s -b "$JAR" "$BASE_URL/installs" | grep -oE '<div class="flash[^>]*>[^<]*</div>|<dt>Config</dt><dd>[^<]*<code>[^<]*</code>|configured [^<]*' | head -6
+echo '# state check via API twin:'
+show_install
+
+say "SECTION 3 — API twins on /api/installs/configure (JSON bodies)"
+echo '== 3a. string config (API twin of the form semantics): config "{\"apiTwin\":\"string-config\"}"'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":"{\"apiTwin\":\"string-config\"}"}' | head -10
+echo '== 3b. INVALID JSON string: config "{oops"'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":"{oops"}' | head -10
+echo '== 3c. RESERVED identity-impersonating keys: config {"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"}'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":{"version":"9.9.9","digest":"sha256:fake","targetVersion":"9.9.9","manifest":"attacker-manifest"}}' | head -10
+echo '== 3d. object twin (regression check): config {"opsChannel":"object-path"}'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":{"opsChannel":"object-path"}}' | head -10
+echo '== 3e. __-prefixed key: config {"__smuggled":"x"}'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":{"__smuggled":"x"}}' | head -10
+echo '== 3f. scalar (non-object) config: config "plain-string"'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402","config":"plain-string"}' | head -10
+echo '== 3g. absent config field (body: {"installId":"ins-0402"} only)'
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/configure?token=$T" -H 'content-type: application/json' \
+  -d '{"installId":"ins-0402"}' | head -10
+echo '== state after section 3:'
+show_install
+echo '== install.configured events so far (count + last):'
+curl -s "$BASE_URL/api/events?type=install.configured&token=$T" \
+  | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const j=JSON.parse(d);console.log("  count: "+j.count);const e=j.events[0];console.log("  last: "+(e?e.summary+" | data.keys="+JSON.stringify(e.data.keys):"(none)"));})'
+
+say "SECTION 4 — install-op config intake (same pattern) — /api/installs/install"
+echo '== 4a. STRING config on install (fresh reset): config "{\"opsChannel\":\"east\"}"'
+curl -s -X POST "$BASE_URL/api/reset" -o /dev/null
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/install?token=$T" -H 'content-type: application/json' \
+  -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":"{\"opsChannel\":\"east\"}"}' | head -12
+show_install
+echo '== 4b. RESERVED key on install (fresh reset): config {"version":"9.9.9"}'
+curl -s -X POST "$BASE_URL/api/reset" -o /dev/null
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/install?token=$T" -H 'content-type: application/json' \
+  -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":{"version":"9.9.9"}}' | head -10
+echo '== 4c. INVALID JSON string on install (fresh reset): config "{oops"'
+curl -s -X POST "$BASE_URL/api/reset" -o /dev/null
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/install?token=$T" -H 'content-type: application/json' \
+  -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":"{oops"}' | head -10
+echo '== 4d. object config on install (fresh reset, regression — mirrors verify-sweep golden): config {"zones":"A"}'
+curl -s -X POST "$BASE_URL/api/reset" -o /dev/null
+curl -s -w '\nHTTP %{http_code}\n' "$BASE_URL/api/installs/install?token=$T" -H 'content-type: application/json' \
+  -d '{"packageId":"pk-103","expectedVersion":"1.2.0","config":{"zones":"A"}}' | head -8
+
+say "PROBE COMPLETE"
+rm -f "$JAR"

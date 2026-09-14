@@ -8,6 +8,48 @@ const R = require('../_lib/runtime');
 const C = require('./ops');
 const { find, today, isPast, orgForUser, orgName, latestVersion } = C;
 
+// ------------------------------------------------------------------
+// Config-intake contract (RWO-002 — VWO-010 Family B + Family L)
+//
+// The `config` field on the install and configure ops accepts a JSON
+// object (API twin) or a JSON-object STRING (HTML form: the urlencoded
+// textarea value). Input is NEVER silently coerced to {}:
+//   - unparseable string / non-object value -> HTTP 400 invalid_json
+//     (names the field "config")
+//   - reserved identity-impersonating keys -> HTTP 400 reserved_config_key
+//     (version, digest, targetVersion, manifest, packageId, expectedVersion,
+//     and any __-prefixed key — those fields belong to the install record,
+//     not to operator config; see FAILURES.md "Configure-config contract")
+// An absent field (b.config === undefined) means "no keys to merge" and
+// stays valid — the /ui/installs/install form sends no config field at all.
+const RESERVED_CONFIG_KEYS = ['version', 'digest', 'targetVersion', 'manifest', 'packageId', 'expectedVersion'];
+function configPatch(b, op) {
+  if (b.config === undefined) return {}; // field absent: nothing to merge
+  let raw = b.config;
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      throw new R.AppError(400, 'invalid_json',
+        `Config for ${op} is not valid JSON (field "config"). Paste a JSON object like {"opsChannel":"east"} — the textarea is submitted as a string and parsed server-side.`,
+        { field: 'config', received: 'string' });
+    }
+  }
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+    const kind = raw === null ? 'null' : Array.isArray(raw) ? 'an array' : `a ${typeof raw}`;
+    throw new R.AppError(400, 'invalid_json',
+      `Config for ${op} must be a JSON object of keys to merge (field "config"), not ${kind}.`,
+      { field: 'config', received: kind });
+  }
+  const reserved = Object.keys(raw).filter((k) => RESERVED_CONFIG_KEYS.includes(k) || String(k).startsWith('__'));
+  if (reserved.length) {
+    throw new R.AppError(400, 'reserved_config_key',
+      `Config for ${op} rejects reserved identity-impersonating key(s): ${reserved.join(', ')}. Those fields are owned by the install record itself (version/digest/manifest lineage), not by operator config.`,
+      { field: 'config', reservedKeys: reserved });
+  }
+  return raw;
+}
+
 function entitlementFor(state, orgId, packageId) {
   return state.entitlements.find((e) => e.orgId === orgId && e.packageId === packageId) || null;
 }
@@ -72,7 +114,7 @@ function installPackage(ctx) {
   const install = {
     id: R.nextId(ctx.state, 'insSeq', 'ins-'), orgId, packageId: pkg.id,
     version: latest.version, status: 'active',
-    config: typeof b.config === 'object' && b.config ? b.config : {},
+    config: configPatch(b, 'install'),
     installedById: ctx.user.id, installedAt: new Date().toISOString(),
     entitlementId: entitlement.id,
     history: [{ action: 'installed', fromVersion: null, toVersion: latest.version, at: new Date().toISOString(), byId: ctx.user.id }],
@@ -104,7 +146,7 @@ function configureInstall(ctx) {
   const pkg = find(ctx.state.packages, inst.packageId);
   const ent = checkEntitlement(ctx, inst.orgId, pkg, 'configuration');
   if (!ent) throw new R.AppError(409, 'stale_entitlement', `Install ${inst.id} has no active entitlement — configuration is locked.`, { installId: inst.id });
-  const patch = typeof b.config === 'object' && b.config ? b.config : {};
+  const patch = configPatch(b, 'configure');
   inst.config = Object.assign({}, inst.config, patch);
   inst.history.push({ action: 'configured', fromVersion: inst.version, toVersion: inst.version, at: new Date().toISOString(), byId: ctx.user.id, configKeys: Object.keys(patch) });
   ctx.emit('install.configured', {

@@ -1,0 +1,53 @@
+# RWO-002 — environment and base identity
+captured: 2026-09-14T01:46:13Z
+
+## repository
+$ git clone https://github.com/payswapdotorg/codex (public, anonymous)
+$ git rev-parse 2d37cc0ef7d075e877f370790f82ac9c70df26a4^{commit}
+2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git rev-parse origin/main (context: main has moved past the RWO-002 base — RWO-001 merged as cebc6be44 after dispatch; the work order names 2d37cc0 as the exact base, which is reachable and verified above; the branch was created ON that SHA, not on moved main)
+cebc6be44951ca0c71b451c34fbf1bdbebbb6bf3
+$ git merge-base --is-ancestor 2d37cc0ef7d075e877f370790f82ac9c70df26a4 cebc6be44951ca0c71b451c34fbf1bdbebbb6bf3 && echo ancestor
+2d37cc0 IS ancestor of main HEAD
+$ git checkout -b rwo-002/flowmart-configure-contract 2d37cc0ef7d075e877f370790f82ac9c70df26a4
+$ git branch --show-current
+rwo-002/flowmart-configure-contract
+
+## toolchain (fixture work is Node.js; no Rust toolchain present — no engine crates were touched or buildable by this work order; engine-side parity was not claimed)
+$ node --version
+v24.19.0
+$ bash --version | head -1
+GNU bash, version 5.2.37(1)-release (x86_64-pc-linux-gnu)
+$ curl --version | head -1
+curl 8.14.1 (x86_64-pc-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.7 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.0 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP 2.6.10
+$ agent-browser --version
+agent-browser 0.35.0
+$ which cargo
+(not installed — fixture-only work order; the RWO's Fix scope is 100% JavaScript under docs/validation/fixtures/)
+$ uname -a
+Linux c-6aa74462-14d96228-07342145f7cb 5.10.134-013.15.kangaroo.al8.x86_64 #1 SMP Thu Jul 30 12:54:59 UTC 2026 x86_64 GNU/Linux
+
+## fixtures runtime (real runs — all five apps healthy, started with the repo's own launcher)
+$ bash docs/validation/fixtures/run-all.sh --reset   -> healthy: construction/software/rideshare/media/marketplace (5x), each reset to seed
+$ bash docs/validation/fixtures/verify-sweep.sh      -> RESULT: 59 passed, 0 failed (also 59/59 at the unmodified base tree; see the verify-sweep evidence artifact)
+
+## working tree state at verification time (fix + docs, evidence files new/untracked)
+$ git status --short
+ M docs/validation/fixtures/README.md
+ M docs/validation/fixtures/marketplace/FAILURES.md
+ M docs/validation/fixtures/marketplace/ops-install.js
+?? docs/validation/evidence/rwo-002/
+
+$ git diff --stat (the fix + contract docs; evidence files are new/untracked)
+ docs/validation/fixtures/README.md                 |    2 +
+ docs/validation/fixtures/marketplace/FAILURES.md   |   14 +++++-
+ docs/validation/fixtures/marketplace/ops-install.js |   46 ++++++++++++++++++++++-
+ 3 files changed, 59 insertions(+), 3 deletions(-)
+
+$ node --check docs/validation/fixtures/marketplace/ops-install.js
+(no output — syntax OK)
+
+## no credentials
+Demo personas only (runtime-assembled from fragments; the login lines in the transcripts print ok-flags,
+never tokens — bearer tokens are held in shell variables and never echoed). No real credentials exist in
+this synthetic fixture world.
