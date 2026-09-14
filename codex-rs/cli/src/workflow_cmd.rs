@@ -151,11 +151,7 @@ pub struct ForkArgs {
     pub commit_sha: Option<String>,
 
     /// The owning principal of the fork.
-    #[arg(
-        long = "owner",
-        value_name = "PRINCIPAL",
-        default_value = "cli-user"
-    )]
+    #[arg(long = "owner", value_name = "PRINCIPAL", default_value = "cli-user")]
     pub owner: String,
 
     /// SPDX-style license identifier recorded on the fork release.
@@ -479,9 +475,7 @@ fn run_fork(plane: &WorkflowControlPlane, args: ForkArgs) -> Result<()> {
         .map(|value| parse_attribution(value))
         .collect::<Result<Vec<_>>>()?;
     if attribution.is_empty() {
-        bail!(
-            "a fork must carry upstream attribution; pass --carry <NAME> at least once"
-        );
+        bail!("a fork must carry upstream attribution; pass --carry <NAME> at least once");
     }
     let response = plane
         .fork(rpc::WorkflowForkParams {

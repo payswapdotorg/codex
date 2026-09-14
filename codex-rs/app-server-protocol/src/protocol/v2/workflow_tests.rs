@@ -290,13 +290,12 @@ fn fork_params_round_trip_and_reject_unknown_fields() {
     );
     // Optional identity inputs default to the upstream's; an omitted
     // attribution decodes as empty (the engine refuses it).
-    let defaulted =
-        serde_json::from_value::<WorkflowForkParams>(json!({
-            "versionId": format!("sha256:{}", "cd".repeat(32)),
-            "forkRepository": "local/workflows/forks/daily-standup-report",
-            "attribution": []
-        }))
-        .unwrap();
+    let defaulted = serde_json::from_value::<WorkflowForkParams>(json!({
+        "versionId": format!("sha256:{}", "cd".repeat(32)),
+        "forkRepository": "local/workflows/forks/daily-standup-report",
+        "attribution": []
+    }))
+    .unwrap();
     assert_eq!(defaulted.semantic_version, None);
     assert_eq!(defaulted.commit_sha, None);
     assert_eq!(defaulted.owner, None);

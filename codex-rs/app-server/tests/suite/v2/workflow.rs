@@ -398,7 +398,10 @@ async fn fork_publishes_a_new_immutable_release_with_lineage_over_jsonrpc() -> R
         forked["dependencyLockDigest"],
         published["dependencyLockDigest"]
     );
-    assert_eq!(forked["repository"], "local/workflows/forks/forkable-report");
+    assert_eq!(
+        forked["repository"],
+        "local/workflows/forks/forkable-report"
+    );
     assert_eq!(forked["commitSha"], published["commitSha"]);
     // The upstream is pinned in the lineage record: forked-from id plus
     // the upstream digests.
@@ -415,10 +418,7 @@ async fn fork_publishes_a_new_immutable_release_with_lineage_over_jsonrpc() -> R
     );
     // The carried attribution renders on the release.
     assert_eq!(forked["attribution"][0]["name"], "tech-lead");
-    assert_eq!(
-        forked["attribution"][0]["contact"],
-        "tech-lead@example.com"
-    );
+    assert_eq!(forked["attribution"][0]["contact"], "tech-lead@example.com");
 
     // Re-publishing the same fork identity is refused (invalid params,
     // never a silent overwrite).

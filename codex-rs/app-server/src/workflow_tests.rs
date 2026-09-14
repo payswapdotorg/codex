@@ -633,7 +633,10 @@ async fn fork_produces_a_new_immutable_release_with_pinned_lineage() {
     assert_eq!(forked.lineage.version_id, published.version_id);
     assert_eq!(forked.lineage.semantic_version, published.semantic_version);
     assert_eq!(forked.lineage.repository, published.repository);
-    assert_eq!(forked.lineage.definition_digest, published.definition_digest);
+    assert_eq!(
+        forked.lineage.definition_digest,
+        published.definition_digest
+    );
     assert_eq!(
         forked.lineage.dependency_lock_digest,
         published.dependency_lock_digest
@@ -716,7 +719,9 @@ async fn fork_requires_carried_attribution() {
         .fork(params)
         .expect_err("a fork without carried attribution must fail");
     assert!(
-        error.to_string().contains("must carry upstream attribution"),
+        error
+            .to_string()
+            .contains("must carry upstream attribution"),
         "unexpected error: {error}"
     );
 }
@@ -734,7 +739,9 @@ async fn fork_validates_its_inputs() {
         ))
         .expect_err("fork of an unknown version must fail");
     assert!(
-        unknown.to_string().contains("unknown published workflow version"),
+        unknown
+            .to_string()
+            .contains("unknown published workflow version"),
         "unexpected error: {unknown}"
     );
     // A fork repository equal to the upstream's is refused by the engine
@@ -753,10 +760,7 @@ async fn fork_validates_its_inputs() {
     );
     // Malformed fork inputs are input errors.
     let repository = plane
-        .fork(fork_params(
-            published.version_id.clone(),
-            "not a remote",
-        ))
+        .fork(fork_params(published.version_id.clone(), "not a remote"))
         .expect_err("invalid fork repository must fail");
     assert!(
         repository.to_string().contains("repository"),
