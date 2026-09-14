@@ -84,7 +84,9 @@ codex-app-server-transport = { workspace = true }
 codex-teaching-compiler = { workspace = true }
 codex-workflow-app = { workspace = true }
 codex-workflow-contracts = { workspace = true }
+codex-workflow-distribution = { workspace = true }
 codex-workflow-durable = { workspace = true }
+codex-workflow-forge = { workspace = true }
 codex-workflow-triggers = { workspace = true }
 codex-execution-contracts = { workspace = true }
 codex-feedback = { workspace = true }

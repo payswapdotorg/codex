@@ -81,6 +81,8 @@ const EXPERIMENTAL_CLIENT_METHOD_DEPENDENCY_TYPES: &[&str] = &[
     "WorkflowTriggerIntent",
     "WorkflowApprovalDecision",
     "WorkflowBindingResolution",
+    "WorkflowForkAttribution",
+    "WorkflowForkLineage",
     "WorkflowRunTerminalKind",
     "WorkflowRunTerminal",
     "WorkflowTriggerClass",

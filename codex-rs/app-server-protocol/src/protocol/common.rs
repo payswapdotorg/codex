@@ -612,6 +612,15 @@ client_request_definitions! {
         response: v2::WorkflowPublishResponse,
     },
 
+    #[experimental("workflow/fork")]
+    /// Fork a published workflow version into a new immutable release
+    /// whose lineage pins the upstream.
+    WorkflowFork => "workflow/fork" {
+        params: v2::WorkflowForkParams,
+        serialization: None,
+        response: v2::WorkflowForkResponse,
+    },
+
     #[experimental("workflow/instance/run")]
     /// Run one instance of a published workflow version to a terminal state.
     WorkflowInstanceRun => "workflow/instance/run" {
