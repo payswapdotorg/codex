@@ -11,13 +11,16 @@ Adds 4 methods (workflow/improve/{propose,validate,approve,publish} — macro
 order after workflow/fork), 15 types, 4 method schema files, arms + defs in
 both bundles and the standalone ClientRequest.json.
 """
+
 import io
 import json
 import re
 
 import zstandard
 
-SCHEMA = "app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst"
+SCHEMA = (
+    "app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst"
+)
 SRC = "app-server-protocol/src/protocol/v2/workflow.rs"
 COMMON = "app-server-protocol/src/protocol/common.rs"
 
@@ -28,6 +31,7 @@ HEADER = (
 )
 
 # ------------------------------------------------------------------ extraction
+
 
 def camel(s):
     p = s.split("_")
@@ -48,7 +52,7 @@ def docs_above(lines, i, indent):
     attr = " " * indent + "#["
     while j >= 0 and (lines[j].startswith(pre) or lines[j].startswith(attr)):
         if lines[j].startswith(pre):
-            docs.insert(0, lines[j][len(pre):])
+            docs.insert(0, lines[j][len(pre) :])
         j -= 1
     return docs
 
@@ -106,11 +110,18 @@ def extract_enum(src, name):
             # lowercases the first character: DefinitionDelta ->
             # definitionDelta (verified against original enums:
             # accessKeys, pendingInit, spawnAgent, ...).
-            wire = {"camelCase": vname[:1].lower() + vname[1:],
-                    "kebab-case": vname.replace("_", "-")}.get(ren, vname)
+            wire = {
+                "camelCase": vname[:1].lower() + vname[1:],
+                "kebab-case": vname.replace("_", "-"),
+            }.get(ren, vname)
             # explicit rename on the variant wins
             vj = k - 1
-            while vj > i and lines[vj].startswith("    #[") and not lines[vj].startswith("    #[doc") and not lines[vj].startswith("    ///"):
+            while (
+                vj > i
+                and lines[vj].startswith("    #[")
+                and not lines[vj].startswith("    #[doc")
+                and not lines[vj].startswith("    ///")
+            ):
                 mr = re.search(r'rename = "([^"]+)"', lines[vj])
                 if mr:
                     wire = mr.group(1)
@@ -121,6 +132,7 @@ def extract_enum(src, name):
 
 
 # ------------------------------------------------------------------ ts side
+
 
 def ts_type(rust):
     t = rust.strip()
@@ -151,7 +163,7 @@ def deps_of(fields):
     for _, ft, _ in fields:
         t = ft.strip()
         while t.startswith(("Vec<", "Option<")) and t.endswith(">"):
-            t = t[t.index("<") + 1:-1].strip()
+            t = t[t.index("<") + 1 : -1].strip()
         if t[:1].isupper() and t not in ("String",):
             out.add(t)
     return out
@@ -159,7 +171,8 @@ def deps_of(fields):
 
 def gen_struct_ts(name, docs, fields):
     imports = "".join(
-        f'import type {{ {d} }} from "./{d}";\n' for d in sorted(deps_of(fields)))
+        f'import type {{ {d} }} from "./{d}";\n' for d in sorted(deps_of(fields))
+    )
     out = HEADER
     if imports:
         out += imports + "\n"
@@ -182,6 +195,7 @@ def gen_enum_ts(name, docs, variants):
 
 
 # ------------------------------------------------------------------ json side
+
 
 def para_join(docs):
     paras, cur = [], []
@@ -251,8 +265,8 @@ def enum_schema(kind, name, docs, variants, *, root):
     if desc:
         out["description"] = desc
     out["oneOf"] = [
-        ({"description": para_join(vdocs)} if vdocs else {}) |
-        {"enum": [wire], "type": "string"}
+        ({"description": para_join(vdocs)} if vdocs else {})
+        | {"enum": [wire], "type": "string"}
         for _, wire, vdocs in variants
     ]
     return out
@@ -262,14 +276,19 @@ def schema_of(spec, *, root, ns_defs=None):
     kind, name, docs, members, deny = spec
     if kind == "enum":
         return enum_schema(kind, name, docs, members, root=root)
-    return struct_schema(kind, name, docs, members, root=root,
-                         ns_defs=ns_defs, deny=deny)
+    return struct_schema(
+        kind, name, docs, members, root=root, ns_defs=ns_defs, deny=deny
+    )
 
 
 def namespaced(obj, ns):
-    return json.loads(re.sub(
-        r'"\$ref": "#/definitions/(\w+)"',
-        rf'"$ref": "#/definitions/{ns}\1"', json.dumps(obj)))
+    return json.loads(
+        re.sub(
+            r'"\$ref": "#/definitions/(\w+)"',
+            rf'"$ref": "#/definitions/{ns}\1"',
+            json.dumps(obj),
+        )
+    )
 
 
 def method_arm(method, doc, params, ns):
@@ -277,8 +296,7 @@ def method_arm(method, doc, params, ns):
         "description": doc,
         "properties": {
             "id": {"$ref": f"#/definitions/{ns}RequestId"},
-            "method": {"enum": [method], "title": arm_title(method),
-                       "type": "string"},
+            "method": {"enum": [method], "title": arm_title(method), "type": "string"},
             "params": {"$ref": f"#/definitions/{ns}{params}"},
         },
         "required": ["id", "method", "params"],
@@ -306,9 +324,13 @@ METHODS = [
     ("workflow/improve/publish", "WorkflowImprovePublish"),
 ]
 NESTED = [
-    "WorkflowChangeKind", "WorkflowRunProvenance", "WorkflowEvidenceSummary",
-    "WorkflowImprovementCandidate", "WorkflowValidationStageName",
-    "WorkflowValidationStage", "WorkflowImprovementDecision",
+    "WorkflowChangeKind",
+    "WorkflowRunProvenance",
+    "WorkflowEvidenceSummary",
+    "WorkflowImprovementCandidate",
+    "WorkflowValidationStageName",
+    "WorkflowValidationStage",
+    "WorkflowImprovementDecision",
     "WorkflowImprovementLineage",
 ]
 ALL_TYPES = NESTED + [t + s for _, t in METHODS for s in ("Params", "Response")]
@@ -317,8 +339,11 @@ ALL_TYPES = NESTED + [t + s for _, t in METHODS for s in ("Params", "Response")]
 def main():
     src = open(SRC).read()
     common = open(COMMON).read()
-    data = json.loads(zstandard.ZstdDecompressor().stream_reader(
-        io.BytesIO(open(SCHEMA, "rb").read())).read())
+    data = json.loads(
+        zstandard.ZstdDecompressor()
+        .stream_reader(io.BytesIO(open(SCHEMA, "rb").read()))
+        .read()
+    )
     ts, js = data["typescript"], data["json_schema"]
 
     S = {}
@@ -331,8 +356,11 @@ def main():
     # 1) ts files
     for n, spec in S.items():
         kind, _, docs, members, _deny = spec
-        ts[f"v2/{n}.ts"] = (gen_enum_ts(n, docs, members) if kind == "enum"
-                            else gen_struct_ts(n, docs, members))
+        ts[f"v2/{n}.ts"] = (
+            gen_enum_ts(n, docs, members)
+            if kind == "enum"
+            else gen_struct_ts(n, docs, members)
+        )
 
     # 2) index lines
     if "WorkflowChangeKind }" not in ts["v2/index.ts"]:
@@ -355,12 +383,15 @@ def main():
     # 3) ClientRequest.ts arms (after workflow/fork)
     if '"workflow/improve/propose"' not in ts["ClientRequest.ts"]:
         crts = ts["ClientRequest.ts"]
-        anchor = ('| { "method": "workflow/fork", id: RequestId, '
-                  'params: WorkflowForkParams, }')
+        anchor = (
+            '| { "method": "workflow/fork", id: RequestId, '
+            "params: WorkflowForkParams, }"
+        )
         assert anchor in crts
         arms = "".join(
             f'| {{ "method": "{m}", id: RequestId, params: {t}Params, }} '
-            for m, t in METHODS)
+            for m, t in METHODS
+        )
         ts["ClientRequest.ts"] = crts.replace(anchor, anchor + " " + arms.strip(), 1)
 
     # 3b) ClientRequest.ts imports for the new params types. The real
@@ -370,22 +401,39 @@ def main():
     # gap: WorkflowForkParams was never imported.
     new_imports = {t + "Params" for _, t in METHODS} | {"WorkflowForkParams"}
     lines = ts["ClientRequest.ts"].splitlines(keepends=True)
-    present = {re.search(r"\{ (\w+) \}", l).group(1)
-               for l in lines if l.startswith("import type")}
+    present = {
+        re.search(r"\{ (\w+) \}", l).group(1)
+        for l in lines
+        if l.startswith("import type")
+    }
     missing = sorted(n for n in new_imports if n not in present)
     if missing:
-        first_v2 = next(i for i, l in enumerate(lines)
-                        if l.startswith("import type") and '"./v2/' in l)
+        first_v2 = next(
+            i
+            for i, l in enumerate(lines)
+            if l.startswith("import type") and '"./v2/' in l
+        )
         for n in missing:
             line = f'import type {{ {n} }} from "./v2/{n}";\n'
-            at = next((i for i in range(first_v2, len(lines))
-                       if lines[i].startswith("import type")
-                       and re.search(r"\{ (\w+) \}", lines[i]).group(1) > n),
-                      None)
+            at = next(
+                (
+                    i
+                    for i in range(first_v2, len(lines))
+                    if lines[i].startswith("import type")
+                    and re.search(r"\{ (\w+) \}", lines[i]).group(1) > n
+                ),
+                None,
+            )
             if at is None:
                 # after the last v2 import
-                at = max(i for i, l in enumerate(lines)
-                         if l.startswith("import type") and '"./v2/' in l) + 1
+                at = (
+                    max(
+                        i
+                        for i, l in enumerate(lines)
+                        if l.startswith("import type") and '"./v2/' in l
+                    )
+                    + 1
+                )
             lines.insert(at, line)
         ts["ClientRequest.ts"] = "".join(lines)
 
@@ -403,7 +451,7 @@ def main():
             for _, ft, _ in S[tname][3]:
                 base = ft.strip()
                 while base.startswith(("Vec<", "Option<")) and base.endswith(">"):
-                    base = base[base.index("<") + 1:-1].strip()
+                    base = base[base.index("<") + 1 : -1].strip()
                 if base[:1].isupper() and base not in ("String",) and base not in seen:
                     seen.add(base)
                     closure(base, seen)
@@ -412,10 +460,12 @@ def main():
     for m, t in METHODS:
         for suffix in ("Params", "Response"):
             name = t + suffix
-            nested = {n: schema_of(S[n], root=False) for n in
-                      sorted(closure(name, set()))}
+            nested = {
+                n: schema_of(S[n], root=False) for n in sorted(closure(name, set()))
+            }
             js[f"v2/{name}.json"] = dump(
-                schema_of(S[name], root=True, ns_defs=nested or None))
+                schema_of(S[name], root=True, ns_defs=nested or None)
+            )
 
     # method docs from common.rs registrations: the /// doc lines under
     # the #[experimental("...")] attribute, joined into one paragraph
@@ -424,8 +474,9 @@ def main():
     def method_doc(method):
         m = re.search(
             r'#\[experimental\("' + re.escape(method) + r'"\)\]\s*\n'
-            r'((?:\s*///[^\n]*\n)+)',
-            common)
+            r"((?:\s*///[^\n]*\n)+)",
+            common,
+        )
         if not m:
             raise SystemExit(f"no /// docs found for {method} in common.rs")
         docs = [ln.strip()[3:].strip() for ln in m.group(1).splitlines()]
@@ -435,12 +486,16 @@ def main():
     mb = json.loads(js["codex_app_server_protocol.schemas.json"])
     v2 = mb["definitions"]["v2"]
     for n in ALL_TYPES:
-        v2[n] = namespaced(schema_of(S[n], root=(n.endswith(("Params", "Response")))),
-                           "v2/")
+        v2[n] = namespaced(
+            schema_of(S[n], root=(n.endswith(("Params", "Response")))), "v2/"
+        )
     arms = mb["definitions"]["ClientRequest"]["oneOf"]
     if not any("workflow/improve/propose" in json.dumps(a) for a in arms):
-        fi = next(i for i, a in enumerate(arms)
-                  if a["properties"]["method"]["enum"] == ["workflow/fork"])
+        fi = next(
+            i
+            for i, a in enumerate(arms)
+            if a["properties"]["method"]["enum"] == ["workflow/fork"]
+        )
         for off, (m, t) in enumerate(METHODS):
             arms.insert(fi + 1 + off, method_arm(m, method_doc(m), t + "Params", "v2/"))
     js["codex_app_server_protocol.schemas.json"] = dump(mb)
@@ -452,8 +507,11 @@ def main():
         vd[n] = schema_of(S[n], root=n.endswith(("Params", "Response")))
     varms = vd["ClientRequest"]["oneOf"]
     if not any("workflow/improve/propose" in json.dumps(a) for a in varms):
-        fi = next(i for i, a in enumerate(varms)
-                  if a["properties"]["method"]["enum"] == ["workflow/fork"])
+        fi = next(
+            i
+            for i, a in enumerate(varms)
+            if a["properties"]["method"]["enum"] == ["workflow/fork"]
+        )
         for off, (m, t) in enumerate(METHODS):
             varms.insert(fi + 1 + off, method_arm(m, method_doc(m), t + "Params", ""))
     js["codex_app_server_protocol.v2.schemas.json"] = dump(vb)
@@ -467,8 +525,11 @@ def main():
                 cd[n] = schema_of(S[n], root=False)
     carms = cr["oneOf"]
     if not any("workflow/improve/propose" in json.dumps(a) for a in carms):
-        fi = next(i for i, a in enumerate(carms)
-                  if a["properties"]["method"]["enum"] == ["workflow/fork"])
+        fi = next(
+            i
+            for i, a in enumerate(carms)
+            if a["properties"]["method"]["enum"] == ["workflow/fork"]
+        )
         for off, (m, t) in enumerate(METHODS):
             carms.insert(fi + 1 + off, method_arm(m, method_doc(m), t + "Params", ""))
     js["ClientRequest.json"] = dump(cr)
@@ -488,8 +549,12 @@ def main():
     # appear. Shapes otherwise proven identical by the fork self-test
     # (params/response/arm byte-identical regenerations).
     SF = {}
-    for n in ("WorkflowForkParams", "WorkflowForkResponse",
-              "WorkflowForkAttribution", "WorkflowForkLineage"):
+    for n in (
+        "WorkflowForkParams",
+        "WorkflowForkResponse",
+        "WorkflowForkAttribution",
+        "WorkflowForkLineage",
+    ):
         try:
             SF[n] = extract_struct(src, n)
         except SystemExit:
@@ -499,17 +564,20 @@ def main():
         for _, ft, _ in sx[tname][3] if sx[tname][0] == "struct" else []:
             base = ft.strip()
             while base.startswith(("Vec<", "Option<")) and base.endswith(">"):
-                base = base[base.index("<") + 1:-1].strip()
+                base = base[base.index("<") + 1 : -1].strip()
             if base in sx and base not in seen:
                 seen.add(base)
                 transitive_in(sx, base, seen)
         return seen
 
     for name in ("WorkflowForkParams", "WorkflowForkResponse"):
-        nested = {n: schema_of(SF[n], root=False)
-                  for n in sorted(transitive_in(SF, name, set()))}
+        nested = {
+            n: schema_of(SF[n], root=False)
+            for n in sorted(transitive_in(SF, name, set()))
+        }
         js[f"v2/{name}.json"] = dump(
-            schema_of(SF[name], root=True, ns_defs=nested or None))
+            schema_of(SF[name], root=True, ns_defs=nested or None)
+        )
 
     for n in ("WorkflowForkAttribution", "WorkflowForkLineage"):
         kind, _, docs, fields, _deny = SF[n]
@@ -531,8 +599,11 @@ def main():
         js["ClientRequest.json"] = dump(cr)
 
     # 7) repack
-    payload = {"typescript": ts, "json_schema": js,
-               "internal_json_schema": data["internal_json_schema"]}
+    payload = {
+        "typescript": ts,
+        "json_schema": js,
+        "internal_json_schema": data["internal_json_schema"],
+    }
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     packed = zstandard.ZstdCompressor(level=19).compress(blob)
     open(SCHEMA, "wb").write(packed)

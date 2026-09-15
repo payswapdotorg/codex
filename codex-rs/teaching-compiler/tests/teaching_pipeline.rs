@@ -6,11 +6,18 @@
 //! what setup `expect` provides).
 #![allow(clippy::expect_used)]
 
-use codex_teaching_compiler::{
-    ApprovalDecision, ApprovalDecisionKind, CandidateStatus, RecordOrigin, SessionPolicy,
-    SimulationConfig, TeachingCompilerError, TeachingMode, TeachingSession, TrajectoryEvent,
-    WorkflowCandidate, compile,
-};
+use codex_teaching_compiler::ApprovalDecision;
+use codex_teaching_compiler::ApprovalDecisionKind;
+use codex_teaching_compiler::CandidateStatus;
+use codex_teaching_compiler::RecordOrigin;
+use codex_teaching_compiler::SessionPolicy;
+use codex_teaching_compiler::SimulationConfig;
+use codex_teaching_compiler::TeachingCompilerError;
+use codex_teaching_compiler::TeachingMode;
+use codex_teaching_compiler::TeachingSession;
+use codex_teaching_compiler::TrajectoryEvent;
+use codex_teaching_compiler::WorkflowCandidate;
+use codex_teaching_compiler::compile;
 use codex_workflow_contracts::WorkflowDefinitionId;
 
 fn definition_id() -> WorkflowDefinitionId {

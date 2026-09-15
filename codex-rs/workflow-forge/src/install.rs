@@ -28,8 +28,8 @@ use codex_workflow_contracts::WorkflowVersionId;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::collaboration::PublishedVersionRef;
 use crate::WorkflowForgeError;
+use crate::collaboration::PublishedVersionRef;
 
 /// An installed workflow, pinned to an immutable published version.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

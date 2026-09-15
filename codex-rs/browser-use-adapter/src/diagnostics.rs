@@ -4,7 +4,8 @@
 //! path is not usable in this environment". They are credential-free by
 //! construction and never suggest bypassing Codex approvals or sandboxing.
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Stable, machine-readable diagnostic codes.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

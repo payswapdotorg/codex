@@ -29,6 +29,7 @@ Checks (see docs/validation/reports/REPORT-SCHEMA.md, the normative source):
 Exit codes: 0 = conforming (warnings allowed); 1 = violations (or warnings
 under --strict); 2 = usage error. Dependency-free: Python 3 std-lib only.
 """
+
 import re
 import sys
 import os
@@ -147,8 +148,16 @@ def check_sha_field(field, value):
     if SHA40_RE.match(v):
         return "ok", ""
     upper = v.upper()
-    if upper.startswith("NONE") or upper.startswith("N/A") or "SEE GIT" in upper or "BRANCH" in upper:
-        return "warn", "recorded without a 40-hex SHA (explicit placeholder — acceptable only with the stated reason)"
+    if (
+        upper.startswith("NONE")
+        or upper.startswith("N/A")
+        or "SEE GIT" in upper
+        or "BRANCH" in upper
+    ):
+        return (
+            "warn",
+            "recorded without a 40-hex SHA (explicit placeholder — acceptable only with the stated reason)",
+        )
     return "fail", "not a 40-hex SHA (and not an explicit NONE/branch reference)"
 
 
@@ -187,7 +196,9 @@ def scan_secrets(path, rel):
             for i, line in enumerate(f, 1):
                 for m in SECRETS_RE.finditer(line):
                     if not ALLOW_RE.search(line):
-                        hits.append(f"{rel}:{i}: secret-looking content: {line.strip()[:120]}")
+                        hits.append(
+                            f"{rel}:{i}: secret-looking content: {line.strip()[:120]}"
+                        )
                         break
     except OSError:
         hits.append(f"{rel}: could not read file for secrets scan")
@@ -267,7 +278,7 @@ def main():
             )
         else:
             for b in range(len(rest) // n):
-                got = rest[b * n:(b + 1) * n]
+                got = rest[b * n : (b + 1) * n]
                 if got != SCENARIO_ORDER:
                     want = SCENARIO_ORDER
                     for i, (g, w) in enumerate(zip(got, want)):
@@ -298,7 +309,10 @@ def main():
         try:
             catalog = parse_catalog(args.catalog)
         except OSError as e:
-            print(f"validate-report: cannot read catalog {args.catalog}: {e}", file=sys.stderr)
+            print(
+                f"validate-report: cannot read catalog {args.catalog}: {e}",
+                file=sys.stderr,
+            )
             return 2
 
     evidence_files = []
@@ -315,19 +329,29 @@ def main():
                 fail(f"{tag}: Scenario id '{sid}' is not a lowercase slug")
             if sid and catalog:
                 if sid not in catalog:
-                    fail(f"{tag}: Scenario id '{sid}' not found in catalog {args.catalog}")
-                elif f.get("Teaching mode") and catalog[sid] and f["Teaching mode"] != catalog[sid]:
+                    fail(
+                        f"{tag}: Scenario id '{sid}' not found in catalog {args.catalog}"
+                    )
+                elif (
+                    f.get("Teaching mode")
+                    and catalog[sid]
+                    and f["Teaching mode"] != catalog[sid]
+                ):
                     warn(
                         f"{tag}: teaching mode '{f['Teaching mode']}' differs from catalog "
                         f"binding '{catalog[sid]}' for {sid} — record the reason in the report"
                     )
             mode = f.get("Teaching mode", "")
             if mode and mode not in MODES:
-                fail(f"{tag}: Teaching mode '{mode}' not one of DEMONSTRATE/INSTRUCT/HYBRID")
+                fail(
+                    f"{tag}: Teaching mode '{mode}' not one of DEMONSTRATE/INSTRUCT/HYBRID"
+                )
 
             # sections within this block
             sec = {}
-            start = heads.index("Identity") + 1 if heads and heads[0] == "Identity" else 0
+            start = (
+                heads.index("Identity") + 1 if heads and heads[0] == "Identity" else 0
+            )
             b = idx - 1
             for i, name in enumerate(SCENARIO_ORDER):
                 gi = start + b * len(SCENARIO_ORDER) + i
@@ -338,7 +362,12 @@ def main():
             steps = [l for l in up if NUMBERED_RE.match(l)]
             if len(steps) < 3:
                 fail(f"{tag}: User Path has {len(steps)} numbered steps (minimum 3)")
-            for name in ("Expected", "Actual", "Product / UX Friction", "Worker Conclusion"):
+            for name in (
+                "Expected",
+                "Actual",
+                "Product / UX Friction",
+                "Worker Conclusion",
+            ):
                 if not nonempty(sec.get(name, [])):
                     fail(f"{tag}: section '{name}' is empty")
 
@@ -365,13 +394,19 @@ def main():
                 fail(f"{tag}: Evidence section has no repo-relative evidence pointers")
             has_userpath = any("/user-path/" in p for p in ptrs)
             if not has_userpath:
-                warn(f"{tag}: no user-path/ evidence pointer — human path skipped or surface missing (say which)")
+                warn(
+                    f"{tag}: no user-path/ evidence pointer — human path skipped or surface missing (say which)"
+                )
             for p in ptrs:
                 if not p.startswith(EVIDENCE_PREFIXES):
-                    fail(f"{tag}: evidence pointer '{p}' is not under docs/validation/evidence/")
+                    fail(
+                        f"{tag}: evidence pointer '{p}' is not under docs/validation/evidence/"
+                    )
                 abspath = os.path.join(repo_root, p)
                 if not os.path.exists(abspath):
-                    fail(f"{tag}: evidence pointer '{p}' does not exist in the repository")
+                    fail(
+                        f"{tag}: evidence pointer '{p}' does not exist in the repository"
+                    )
                 else:
                     evidence_files.append((abspath, p))
 
@@ -381,7 +416,9 @@ def main():
             if sevs:
                 for s in sevs:
                     if s not in SEVERITIES:
-                        fail(f"{tag}: illegal severity value '{s}' (must be P0/P1/P2/P3)")
+                        fail(
+                            f"{tag}: illegal severity value '{s}' (must be P0/P1/P2/P3)"
+                        )
             else:
                 if not any("No findings" in l for l in fnd):
                     fail(
@@ -390,10 +427,19 @@ def main():
                     )
             rec = " ".join(sec.get("Recommendation", []))
             if not any(d in rec for d in DISPOSITIONS):
-                fail(f"{tag}: Recommendation lacks a disposition keyword (FIX NOW / NEW WORK ORDER / DEFER)")
+                fail(
+                    f"{tag}: Recommendation lacks a disposition keyword (FIX NOW / NEW WORK ORDER / DEFER)"
+                )
             has_p01 = any(s in ("P0", "P1") for s in sevs)
-            if has_p01 and "DEFER" in rec and "FIX NOW" not in rec and "NEW WORK ORDER" not in rec:
-                fail(f"{tag}: P0/P1 finding(s) DEFERred — not allowed (REPORT-SCHEMA.md §13)")
+            if (
+                has_p01
+                and "DEFER" in rec
+                and "FIX NOW" not in rec
+                and "NEW WORK ORDER" not in rec
+            ):
+                fail(
+                    f"{tag}: P0/P1 finding(s) DEFERred — not allowed (REPORT-SCHEMA.md §13)"
+                )
 
             concl = " ".join(sec.get("Worker Conclusion", [])).lower()
             if not any(k in concl for k in ("passed", "failed", "blocked")):

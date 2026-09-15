@@ -89,23 +89,42 @@ mod package;
 #[cfg(test)]
 mod test_support;
 
-pub use collaboration::{
-    close_review, fork_repository, merge_review, propose_review, publish_release,
-    upsert_branch_state, CommitSummary, PublishedVersionRef, ReviewApproval,
-};
-pub use discovery::{discover_repositories, RepositoryQuery};
+pub use collaboration::CommitSummary;
+pub use collaboration::PublishedVersionRef;
+pub use collaboration::ReviewApproval;
+pub use collaboration::close_review;
+pub use collaboration::fork_repository;
+pub use collaboration::merge_review;
+pub use collaboration::propose_review;
+pub use collaboration::publish_release;
+pub use collaboration::upsert_branch_state;
+pub use discovery::RepositoryQuery;
+pub use discovery::discover_repositories;
 pub use error::WorkflowForgeError;
-pub use github::{
-    map_branch_states, map_pull_request, map_release, map_repository, GithubForge, GithubHost,
-    GithubProvenance, GithubPullRequestRecord, GithubPullRequestState, GithubRecordSource,
-    GithubRefKind, GithubRefRecord, GithubReleaseRecord, GithubReleaseView, GithubRepoCoordinates,
-    GithubRepositoryRecord,
-};
-pub use install::{
-    InstallRegistry, InstalledWorkflow, UpdateDecision, WorkflowUpdatePlan, WorkflowUpdateRecord,
-};
+pub use github::GithubForge;
+pub use github::GithubHost;
+pub use github::GithubProvenance;
+pub use github::GithubPullRequestRecord;
+pub use github::GithubPullRequestState;
+pub use github::GithubRecordSource;
+pub use github::GithubRefKind;
+pub use github::GithubRefRecord;
+pub use github::GithubReleaseRecord;
+pub use github::GithubReleaseView;
+pub use github::GithubRepoCoordinates;
+pub use github::GithubRepositoryRecord;
+pub use github::map_branch_states;
+pub use github::map_pull_request;
+pub use github::map_release;
+pub use github::map_repository;
+pub use install::InstallRegistry;
+pub use install::InstalledWorkflow;
+pub use install::UpdateDecision;
+pub use install::WorkflowUpdatePlan;
+pub use install::WorkflowUpdateRecord;
 pub use memory::InMemoryForge;
-pub use package::{
-    SubworkflowPin, WorkflowPackageLock, WorkflowPackageManifest, PACKAGE_LOCK_FORMAT_VERSION,
-    PACKAGE_MANIFEST_FORMAT_VERSION,
-};
+pub use package::PACKAGE_LOCK_FORMAT_VERSION;
+pub use package::PACKAGE_MANIFEST_FORMAT_VERSION;
+pub use package::SubworkflowPin;
+pub use package::WorkflowPackageLock;
+pub use package::WorkflowPackageManifest;

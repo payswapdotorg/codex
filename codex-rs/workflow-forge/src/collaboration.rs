@@ -374,13 +374,13 @@ mod tests {
     use crate::test_support::sha;
     use crate::test_support::workflow_id;
 
+    use super::ReviewApproval;
     use super::close_review;
     use super::fork_repository;
     use super::merge_review;
     use super::propose_review;
     use super::publish_release;
     use super::upsert_branch_state;
-    use super::ReviewApproval;
     use crate::WorkflowForgeError;
 
     fn sample_review() -> codex_workflow_contracts::WorkflowReview {

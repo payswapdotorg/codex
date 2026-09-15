@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 /**
  * ForgeOps Deploy Console — DESKTOP-TARGET TERMINAL APPLICATION (VWO-002).
  *
@@ -14,20 +14,23 @@
  * desktop environment — VWO-001 owns that environment question.
  */
 
-const readline = require('node:readline');
+const readline = require("node:readline");
 
-const portArg = process.argv.includes('--port') ? process.argv[process.argv.indexOf('--port') + 1] : null;
-const PORT = parseInt(portArg || process.env.FIXTURE_PORT || '4102', 10);
+const portArg = process.argv.includes("--port")
+  ? process.argv[process.argv.indexOf("--port") + 1]
+  : null;
+const PORT = parseInt(portArg || process.env.FIXTURE_PORT || "4102", 10);
 const BASE = `http://localhost:${PORT}`;
 
 let token = null;
 let who = null;
 
 async function api(method, path, body) {
-  const headers = { 'content-type': 'application/json' };
+  const headers = { "content-type": "application/json" };
   if (token) headers.authorization = `Bearer ${token}`;
   const res = await fetch(`${BASE}${path}`, {
-    method, headers,
+    method,
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
@@ -60,56 +63,102 @@ function fmtInc(i) {
 
 async function command(line) {
   const parts = line.trim().split(/\s+/);
-  const cmd = (parts[0] || '').toLowerCase();
+  const cmd = (parts[0] || "").toLowerCase();
   if (!cmd) return;
   try {
-    if (cmd === 'quit' || cmd === 'exit') { process.exit(0); return; }
-    if (cmd === 'help' || cmd === '?') { console.log(HELP); return; }
-    if (cmd === 'login') {
+    if (cmd === "quit" || cmd === "exit") {
+      process.exit(0);
+      return;
+    }
+    if (cmd === "help" || cmd === "?") {
+      console.log(HELP);
+      return;
+    }
+    if (cmd === "login") {
       const [, username, password] = parts;
-      if (!username || !password) { console.log('usage: login <username> <password>'); return; }
-      const r = await api('POST', '/api/login', { username, password });
-      if (r.status !== 200) { console.log(`login failed: ${r.data.message || r.status}`); return; }
-      token = r.data.token; who = r.data.user;
-      console.log(`signed in as ${who.name} (${who.role}). token stored for this session.`);
+      if (!username || !password) {
+        console.log("usage: login <username> <password>");
+        return;
+      }
+      const r = await api("POST", "/api/login", { username, password });
+      if (r.status !== 200) {
+        console.log(`login failed: ${r.data.message || r.status}`);
+        return;
+      }
+      token = r.data.token;
+      who = r.data.user;
+      console.log(
+        `signed in as ${who.name} (${who.role}). token stored for this session.`,
+      );
       return;
     }
-    if (cmd === 'whoami') { console.log(who ? `${who.name} (${who.role}) permissions: ${who.permissions.join(', ')}` : 'not signed in'); return; }
-    if (cmd === 'switch') {
+    if (cmd === "whoami") {
+      console.log(
+        who
+          ? `${who.name} (${who.role}) permissions: ${who.permissions.join(", ")}`
+          : "not signed in",
+      );
+      return;
+    }
+    if (cmd === "switch") {
       nextFailure = parts[1] || null;
-      console.log(nextFailure ? `failure switch armed for next command: ${nextFailure}` : 'failure switch disarmed.');
+      console.log(
+        nextFailure
+          ? `failure switch armed for next command: ${nextFailure}`
+          : "failure switch disarmed.",
+      );
       return;
     }
-    const q = nextFailure ? `?failure=${nextFailure}` : '';
+    const q = nextFailure ? `?failure=${nextFailure}` : "";
     nextFailure = null;
-    if (cmd === 'repos') {
-      const r = await api('GET', '/api/repos');
-      for (const repo of r.data.repos || []) console.log(`  ${repo.id}  ${repo.name.padEnd(18)} ${repo.language.padEnd(11)} staging=${repo.currentStagingVersion} prod=${repo.productionVersion}`);
+    if (cmd === "repos") {
+      const r = await api("GET", "/api/repos");
+      for (const repo of r.data.repos || [])
+        console.log(
+          `  ${repo.id}  ${repo.name.padEnd(18)} ${repo.language.padEnd(11)} staging=${repo.currentStagingVersion} prod=${repo.productionVersion}`,
+        );
       return;
     }
-    if (cmd === 'deployments') {
-      const r = await api('GET', `/api/deployments${q}`);
-      const deps = (r.data.deployments || []).filter((d) => !parts[1] || d.repoId === parts[1]);
+    if (cmd === "deployments") {
+      const r = await api("GET", `/api/deployments${q}`);
+      const deps = (r.data.deployments || []).filter(
+        (d) => !parts[1] || d.repoId === parts[1],
+      );
       console.log(`deployments (${deps.length}):`);
       for (const d of deps) console.log(fmtDep(d));
       return;
     }
-    if (cmd === 'promote' || cmd === 'rollback') {
-      if (!parts[1]) { console.log(`usage: ${cmd} <deploymentId>`); return; }
-      const r = await api('POST', `/api/deployments/${cmd}${q}`, { deploymentId: parts[1] });
+    if (cmd === "promote" || cmd === "rollback") {
+      if (!parts[1]) {
+        console.log(`usage: ${cmd} <deploymentId>`);
+        return;
+      }
+      const r = await api("POST", `/api/deployments/${cmd}${q}`, {
+        deploymentId: parts[1],
+      });
       if (r.status === 200) console.log(`OK: ${r.data.message}`);
-      else console.log(`FAILED ${r.status}: ${r.data.error} — ${r.data.message || ''}`);
+      else
+        console.log(
+          `FAILED ${r.status}: ${r.data.error} — ${r.data.message || ""}`,
+        );
       return;
     }
-    if (cmd === 'incidents') {
-      const r = await api('GET', `/api/incidents${q}`);
+    if (cmd === "incidents") {
+      const r = await api("GET", `/api/incidents${q}`);
       console.log(`incidents (${(r.data.incidents || []).length}):`);
       for (const i of r.data.incidents || []) console.log(fmtInc(i));
       return;
     }
-    if (cmd === 'events') {
-      const r = await api('GET', `/api/events?limit=${parts[1] || 10}${q ? '&' + q.slice(1) : ''}`);
-      for (const e of (r.data.events || []).slice(0, parseInt(parts[1] || '10', 10))) console.log(`  ${e.id} ${e.type.padEnd(24)} ${e.summary}`);
+    if (cmd === "events") {
+      const r = await api(
+        "GET",
+        `/api/events?limit=${parts[1] || 10}${q ? "&" + q.slice(1) : ""}`,
+      );
+      for (const e of (r.data.events || []).slice(
+        0,
+        parseInt(parts[1] || "10", 10),
+      ))
+        console.log(`  ${e.id} ${e.type.padEnd(24)} ${e.summary}`);
       return;
     }
     console.log(`unknown command "${cmd}" — type "help".`);
@@ -123,16 +172,24 @@ async function main() {
   console.log(`server: ${BASE} — start it with: node server.js --port ${PORT}`);
   console.log(`type "help" for commands.\n`);
   const isTTY = Boolean(process.stdin.isTTY);
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: 'forgeops> ' });
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: "forgeops> ",
+  });
   // Serialize commands so piped scripts execute in order and finish before exit.
   let queue = Promise.resolve();
-  rl.on('line', (line) => {
+  rl.on("line", (line) => {
     queue = queue
       .then(() => command(line))
       .catch((e) => console.log(`error: ${e.message}`))
-      .then(() => { if (isTTY) rl.prompt(); });
+      .then(() => {
+        if (isTTY) rl.prompt();
+      });
   });
-  rl.on('close', () => { queue = queue.then(() => process.exit(0)); });
+  rl.on("close", () => {
+    queue = queue.then(() => process.exit(0));
+  });
   if (isTTY) rl.prompt();
 }
 

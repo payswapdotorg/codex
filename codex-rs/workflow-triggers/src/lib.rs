@@ -116,22 +116,42 @@ mod event_tests;
 #[path = "schedule_tests.rs"]
 mod schedule_tests;
 
-pub use configuration::{
-    DependencyBinding, InstalledConfiguration, RebindRecord, ScheduleRegistration, TriggerBinding,
-};
-pub use diagnostic::{TriggerDiagnostic, TriggerDiagnosticCode};
-pub use discovery::{PackageQuery, WorkflowPackageListing};
+pub use configuration::DependencyBinding;
+pub use configuration::InstalledConfiguration;
+pub use configuration::RebindRecord;
+pub use configuration::ScheduleRegistration;
+pub use configuration::TriggerBinding;
+pub use diagnostic::TriggerDiagnostic;
+pub use diagnostic::TriggerDiagnosticCode;
+pub use discovery::PackageQuery;
+pub use discovery::WorkflowPackageListing;
 pub use error::WorkflowTriggerError;
-pub use event::{IncomingTrigger, TriggerEventKey};
+pub use event::IncomingTrigger;
+pub use event::TriggerEventKey;
 pub use install::InstallRequest;
-pub use memory::{
-    FixedClock, InMemoryInstallationStore, InMemoryInstanceControl, InMemoryPackageCatalog,
-    InMemoryResourceAuthorizer, InMemoryTriggerLedger, TriggerRecord,
-};
-pub use plane::{TriggerDeps, TriggerReport, WorkflowTriggerPlane};
-pub use port::{
-    AwaitRecord, FireOutcome, InstallationStore, InstanceControl, InstanceSettlement,
-    PackageCatalog, ResourceAuthorization, ResourceAuthorizationRequest, ResourceAuthorizer,
-    ResumeDirective, ScheduleClock, TriggerAcceptance, TriggerLedger,
-};
-pub use schedule::{MAX_OCCURRENCES_PER_POLL, ScheduleSpec, due_occurrences};
+pub use memory::FixedClock;
+pub use memory::InMemoryInstallationStore;
+pub use memory::InMemoryInstanceControl;
+pub use memory::InMemoryPackageCatalog;
+pub use memory::InMemoryResourceAuthorizer;
+pub use memory::InMemoryTriggerLedger;
+pub use memory::TriggerRecord;
+pub use plane::TriggerDeps;
+pub use plane::TriggerReport;
+pub use plane::WorkflowTriggerPlane;
+pub use port::AwaitRecord;
+pub use port::FireOutcome;
+pub use port::InstallationStore;
+pub use port::InstanceControl;
+pub use port::InstanceSettlement;
+pub use port::PackageCatalog;
+pub use port::ResourceAuthorization;
+pub use port::ResourceAuthorizationRequest;
+pub use port::ResourceAuthorizer;
+pub use port::ResumeDirective;
+pub use port::ScheduleClock;
+pub use port::TriggerAcceptance;
+pub use port::TriggerLedger;
+pub use schedule::MAX_OCCURRENCES_PER_POLL;
+pub use schedule::ScheduleSpec;
+pub use schedule::due_occurrences;

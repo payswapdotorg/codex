@@ -127,22 +127,41 @@ mod metadata;
 mod port;
 mod state;
 
-pub use access::{AccessDecision, AccessPolicy, AccessRequest, InMemoryAccessPolicy};
-pub use commerce::{COMMERCIAL_TERMS_FORMAT_VERSION, CommercialPolicy, CommercialTerms};
-pub use discovery::{
-    MarketplaceListing, MarketplaceQuery, listing_matches, listing_visible, release_installable,
-};
-pub use entitlement::{
-    EntitlementDecision, EntitlementPort, EntitlementRequest, InMemoryEntitlements,
-};
+pub use access::AccessDecision;
+pub use access::AccessPolicy;
+pub use access::AccessRequest;
+pub use access::InMemoryAccessPolicy;
+pub use commerce::COMMERCIAL_TERMS_FORMAT_VERSION;
+pub use commerce::CommercialPolicy;
+pub use commerce::CommercialTerms;
+pub use discovery::MarketplaceListing;
+pub use discovery::MarketplaceQuery;
+pub use discovery::listing_matches;
+pub use discovery::listing_visible;
+pub use discovery::release_installable;
+pub use entitlement::EntitlementDecision;
+pub use entitlement::EntitlementPort;
+pub use entitlement::EntitlementRequest;
+pub use entitlement::InMemoryEntitlements;
 pub use error::WorkflowDistributionError;
 pub use memory::InMemoryMarketplace;
-pub use metadata::{
-    CapabilityClass, CompatibilitySpec, LicenseTerms, MarketplacePrincipal,
-    PUBLICATION_METADATA_FORMAT_VERSION, PublicationMetadata, SourceLineage, UpgradePolicySetting,
-};
-pub use port::{
-    DistributionPort, ForkRequest, MarketplaceInstall, MarketplaceInstallRequest, PublicationScope,
-    PublishSubmission, UpgradeDecision, UpgradeProposal, UpgradeRecord,
-};
-pub use state::{DistributionState, DistributionTransition, validate_transition};
+pub use metadata::CapabilityClass;
+pub use metadata::CompatibilitySpec;
+pub use metadata::LicenseTerms;
+pub use metadata::MarketplacePrincipal;
+pub use metadata::PUBLICATION_METADATA_FORMAT_VERSION;
+pub use metadata::PublicationMetadata;
+pub use metadata::SourceLineage;
+pub use metadata::UpgradePolicySetting;
+pub use port::DistributionPort;
+pub use port::ForkRequest;
+pub use port::MarketplaceInstall;
+pub use port::MarketplaceInstallRequest;
+pub use port::PublicationScope;
+pub use port::PublishSubmission;
+pub use port::UpgradeDecision;
+pub use port::UpgradeProposal;
+pub use port::UpgradeRecord;
+pub use state::DistributionState;
+pub use state::DistributionTransition;
+pub use state::validate_transition;

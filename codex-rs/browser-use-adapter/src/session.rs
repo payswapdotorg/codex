@@ -19,8 +19,10 @@
 use crate::binding::BindingIdentity;
 use crate::bridge::EvidenceRecord;
 use crate::lifecycle::InterruptionKind;
-use codex_workflow_contracts::{EvidenceKind, WorkflowInstanceStatus};
-use serde::{Deserialize, Serialize};
+use codex_workflow_contracts::EvidenceKind;
+use codex_workflow_contracts::WorkflowInstanceStatus;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// A normalized browser observation (evidence only, never authority).
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -374,9 +376,10 @@ impl BrowserExecutionSession {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::binding::{
-        BROWSER_USE_CAPABILITY_ID, BindingIdentity, BrowserAdapterKind, BrowserSessionIdentity,
-    };
+    use crate::binding::BROWSER_USE_CAPABILITY_ID;
+    use crate::binding::BindingIdentity;
+    use crate::binding::BrowserAdapterKind;
+    use crate::binding::BrowserSessionIdentity;
 
     fn test_binding() -> BindingIdentity {
         BindingIdentity {

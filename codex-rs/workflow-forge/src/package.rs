@@ -37,8 +37,8 @@ use codex_workflow_contracts::WorkflowVersionId;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::collaboration::PublishedVersionRef;
 use crate::WorkflowForgeError;
+use crate::collaboration::PublishedVersionRef;
 
 /// Current workflow package manifest format version.
 pub const PACKAGE_MANIFEST_FORMAT_VERSION: u32 = 1;
@@ -392,10 +392,10 @@ mod tests {
     use crate::test_support::sha;
     use crate::test_support::workflow_id;
 
+    use super::PACKAGE_LOCK_FORMAT_VERSION;
     use super::SubworkflowPin;
     use super::WorkflowPackageLock;
     use super::WorkflowPackageManifest;
-    use super::PACKAGE_LOCK_FORMAT_VERSION;
     use crate::WorkflowForgeError;
 
     fn sample_release() -> codex_workflow_contracts::WorkflowRelease {

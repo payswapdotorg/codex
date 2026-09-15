@@ -136,18 +136,35 @@ pub mod provider;
 pub mod registry;
 pub mod sandbox_cloud;
 
-pub use bind::{bind, bind_as, canonical_resource_type, holder_environment};
+pub use bind::bind;
+pub use bind::bind_as;
+pub use bind::canonical_resource_type;
+pub use bind::holder_environment;
 pub use conformance::assert_provider_conformance;
-pub use descriptor::{
-    CostMetadata, ProviderDescriptor, ProviderHealth, ProviderHealthStatus, ResourceCapability,
-    ResourceLifecycleSupport, ResourceQuota,
-};
+pub use descriptor::CostMetadata;
+pub use descriptor::ProviderDescriptor;
+pub use descriptor::ProviderHealth;
+pub use descriptor::ProviderHealthStatus;
+pub use descriptor::ResourceCapability;
+pub use descriptor::ResourceLifecycleSupport;
+pub use descriptor::ResourceQuota;
 pub use error::ResourceProviderError;
-pub use evidence::{EVIDENCE_LOCATOR_PREFIX, ResourceEvidenceJournal, ResourceEvidenceRecord};
-pub use local_containers::{LOCAL_CONTAINERS_PROVIDER_ID, LocalContainersFixture};
-pub use model::{
-    NetworkPolicy, ResourceClass, ResourceHandle, ResourceSnapshot, ResourceSpec, ResourceStatus,
-};
-pub use provider::{ExecutionResourceProvider, LifecycleOp, LifecycleOutcome, ResizeRequest};
-pub use registry::{ProviderCredentials, ProviderRegistry};
-pub use sandbox_cloud::{SANDBOX_CLOUD_PROVIDER_ID, SandboxCloudFixture};
+pub use evidence::EVIDENCE_LOCATOR_PREFIX;
+pub use evidence::ResourceEvidenceJournal;
+pub use evidence::ResourceEvidenceRecord;
+pub use local_containers::LOCAL_CONTAINERS_PROVIDER_ID;
+pub use local_containers::LocalContainersFixture;
+pub use model::NetworkPolicy;
+pub use model::ResourceClass;
+pub use model::ResourceHandle;
+pub use model::ResourceSnapshot;
+pub use model::ResourceSpec;
+pub use model::ResourceStatus;
+pub use provider::ExecutionResourceProvider;
+pub use provider::LifecycleOp;
+pub use provider::LifecycleOutcome;
+pub use provider::ResizeRequest;
+pub use registry::ProviderCredentials;
+pub use registry::ProviderRegistry;
+pub use sandbox_cloud::SANDBOX_CLOUD_PROVIDER_ID;
+pub use sandbox_cloud::SandboxCloudFixture;

@@ -18,8 +18,8 @@
 //! mapped through [`map_pull_request`] and [`map_release`] into contract
 //! records; the pure semantics live in [`crate::collaboration`].
 
-use std::future::ready;
 use std::future::Future;
+use std::future::ready;
 use std::sync::Arc;
 
 use codex_workflow_contracts::Attribution;
@@ -40,10 +40,10 @@ use codex_workflow_contracts::WorkflowVersionId;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::WorkflowForgeError;
 use crate::canonical::canonical_repository_id;
 use crate::canonical::repository_id_from_canonical;
 use crate::collaboration::validate_tag;
-use crate::WorkflowForgeError;
 
 /// A GitHub instance host, for example `github.com` or a GitHub
 /// Enterprise Server hostname.
@@ -671,9 +671,6 @@ mod tests {
     use crate::test_support::repo_id;
     use crate::test_support::sha;
 
-    use super::map_pull_request;
-    use super::map_release;
-    use super::map_repository;
     use super::GithubForge;
     use super::GithubHost;
     use super::GithubProvenance;
@@ -685,6 +682,9 @@ mod tests {
     use super::GithubReleaseView;
     use super::GithubRepoCoordinates;
     use super::GithubRepositoryRecord;
+    use super::map_pull_request;
+    use super::map_release;
+    use super::map_repository;
     use crate::WorkflowForgeError;
 
     fn coordinates() -> GithubRepoCoordinates {

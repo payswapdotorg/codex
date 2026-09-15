@@ -10,7 +10,10 @@
 //! contract reference. [`EvidenceSink`] is implemented for
 //! `WorkflowInstance`, bridging onto its append-only `record_evidence`.
 
-use codex_workflow_contracts::{ContentDigest, EvidenceKind, EvidenceReference, WorkflowInstance};
+use codex_workflow_contracts::ContentDigest;
+use codex_workflow_contracts::EvidenceKind;
+use codex_workflow_contracts::EvidenceReference;
+use codex_workflow_contracts::WorkflowInstance;
 use serde::Serialize;
 
 /// A normalized, digest-bearing evidence record.
