@@ -1,0 +1,4 @@
+run: NST-B007 redirects and transient failures
+date-window: 2026-09-15T11:11:57Z
+app: RidePilot :4103 — ana.silva (support_agent); the fixture's support workflow = respond/escalate on the open ticket tk-0701 (no new-ticket filing surface exists — clone wins, recorded)
+controlled failure: service_unavailable switch armed once on the first submit attempt (form action + '?failure=service_unavailable' per the fixture's documented switch mechanism); retry clean

@@ -1,0 +1,4 @@
+submissions: 1 | accepted: 1 | rejected: 0
+C1-1 exactly-one-accepted-with-conditional-values: PASS
+  (rejected attempts recorded by the validation path: 0 — client-side validation prevented bad submits; the rejected-attempt evidence is the inline-error state snapshots 04/05)
+C1-3 skeleton-awaited (timing log): PASS [{'step': 'review-load-start', 'at': '2026-09-15T11:07:48.737Z'}, {'step': 'review-load-done', 'at': '2026-09-15T11:07:51.241Z'}]

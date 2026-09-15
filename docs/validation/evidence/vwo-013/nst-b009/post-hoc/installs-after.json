@@ -1,0 +1,5 @@
+{
+  "ok": false,
+  "error": "authentication_required",
+  "message": "Sign in to perform this operation."
+}

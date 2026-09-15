@@ -1,0 +1,5 @@
+incidents matching the intended description: 1
+C1-1 exactly-one-incident: PASS
+  record: si-2003 moderate equipment | by u-2
+auth.login events: 2 (expect 2: original + renewal)
+C1-2 re-auth-visible-in-event-log: PASS

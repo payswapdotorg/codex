@@ -1,0 +1,31 @@
+VWO-013 ENVIRONMENT PROBE (NST-B browser lane) — recorded 2026-09-15 10:58–11:42 UTC
+=======================================================================================
+
+EXECUTION CONTEXT
+- Executor: Tech Lead local delivery (lesson-120 protocol; chat-side executor capacity-blocked
+  at wave-4 dispatch + the 09:00 sandbox reset wiped chat lanes — delivery mode recorded).
+- Base: main @ def56454acce47f5d14daf475511c427518d3cdc (verified).
+- Sandbox: connected agent sandbox (VWO-001 FALLBACK proving ground; reduced fidelity recorded).
+
+BROWSER-LANE TOOLING (probed live)
+- agent-browser 0.35.0 (/usr/local/bin/agent-browser): snapshot-and-ref a11y workflow,
+  multi-tab (`tab new` / `tab t<N>`), fill/select/click/type/press, file inputs (`upload`),
+  downloads (`download <sel> <path>`), eval, screenshots. Verified against all fixtures.
+- Fixture ecosystem: five VWO-002 apps on 127.0.0.1:4101–4105 (run-all.sh --reset;
+  verify-sweep 59/59 recorded in the VWO-012 probe at the same base).
+- Purpose-built web fixtures (§5 note 4, additive under vwo-013/_fixtures):
+  · VendorGate :4207 — dynamic form (conditional fields, inline validation, disabled submit,
+    skeleton→content timing log, submissions API).
+  · TeamPad :4208 — rich editor (contenteditable, execCommand bold/list, base64 attachment
+    upload with server-side storage + sha256, save/reopen round-trip API).
+  · MarketplaceDigests :4209 — package digest download (advertised size + sha256 on page).
+  · ForgeExport :4210 — ForgeOps deployment-log download.
+- Runtimes: node v24.19.0, Python 3.12.14, bash; ffmpeg 7.1.5 (seed media).
+
+FALLBACK-PROFILE STATEMENT
+The browser lane executes in the fallback proving ground: agent-browser's managed headless
+chromium stands in for a human-driven desktop browser (a11y snapshots as the observation
+surface); downloads land via CDP-driven browser downloads; no E2B/connected desktop pool.
+Persona credentials come from each fixture's /api/demo-hints (synthetic by design).
+Sandbox reaping kills idle daemons/servers between tool invocations — every task run keeps
+its fixture + browser flow + oracles inside a single invocation (recorded operational note).

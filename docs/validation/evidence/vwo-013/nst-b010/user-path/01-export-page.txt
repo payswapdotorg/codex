@@ -1,0 +1,7 @@
+- heading "ForgeExport — deployment log exports" [level=1, ref=e1]
+- main
+  - heading "This week's deployment log — ForgeOps" [level=2, ref=e2]
+  - paragraph
+    - StaticText "Full deployment records (repo, environment, status, timestamps) as a text export."
+  - paragraph
+    - link "Download deployment log" [ref=e3]

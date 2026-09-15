@@ -1,0 +1,23 @@
+- heading "VendorGate — vendor registration" [level=1, ref=e1]
+- main
+  - LabelText
+    - StaticText "Company name"
+  - textbox "Acme Trenching Ltd" [ref=e2]
+  - LabelText
+    - StaticText "Vendor type"
+  - combobox [expanded=false, ref=e3]: Contractor
+    - MenuListPopup
+      - option "— pick —" [ref=e7]
+      - option "Supplier" [ref=e8]
+      - option "Contractor" [selected, ref=e9]
+  - generic
+    - LabelText
+      - StaticText "License number"
+    - textbox "LIC-000000" [ref=e5]
+    - StaticText "Required for contractors (state license)."
+  - LabelText
+    - StaticText "Tax ID"
+  - textbox "VEN-0000000" [ref=e4]
+  - status "Loading review section"
+  - paragraph
+    - button "Submit registration" [disabled, ref=e6]

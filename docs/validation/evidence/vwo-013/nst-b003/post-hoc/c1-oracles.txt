@@ -1,0 +1,5 @@
+payments repo open PRs: ['pr-0301']
+pr-0301 CI runs: [('run-0071', 'passed')] | failing: []
+C1-1 comments-on-failing-PRs: VACUOUS-PASS — zero failing-CI PRs at run time (all open PRs passed); the correct action set (comment on each failing PR) is empty
+C1-2 no-out-of-filter-comments: PASS — no comments exist (no comment surface in ForgeOps at all)
+FINDING (missing-capability): ForgeOps exposes no PR comment surface (no route, no UI) — the comment step cannot be exercised; feeds the remediation loop (catalog §5 note 3: never narrow the task)

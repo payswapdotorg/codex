@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "family": "rideshare",
+  "count": 4,
+  "events": [
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-15T11:12:10.458Z",
+      "type": "support.message_added",
+      "actor": "ana.silva",
+      "subject": "tk-0701",
+      "summary": "Ana Silva replied on ticket tk-0701 (Charged twice for a cancelled trip)",
+      "data": {
+        "ticketId": "tk-0701"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-15T11:12:08.644Z",
+      "type": "request.rejected",
+      "actor": "ana.silva",
+      "subject": "op:POST /ui/tickets/respond",
+      "summary": "Rejected POST /ui/tickets/respond — service_unavailable (HTTP 503)",
+      "data": {
+        "op": "POST /ui/tickets/respond",
+        "code": "service_unavailable",
+        "status": 503,
+        "actor": "ana.silva",
+        "simulated": true
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-15T11:12:00.590Z",
+      "type": "auth.login",
+      "actor": "ana.silva",
+      "subject": "user:u-3",
+      "summary": "ana.silva signed in",
+      "data": {
+        "role": "support_agent"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-15T11:11:57.933Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "rideshare"
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+run: NST-B005 download pipeline with integrity check
+date-window: 2026-09-15T11:06:38Z
+app: MarketplaceDigests purpose-built :4209 (§5 note 4; FlowMart listing digests as content) — support-triage-assistant

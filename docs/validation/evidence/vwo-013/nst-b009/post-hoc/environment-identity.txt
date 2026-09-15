@@ -1,0 +1,4 @@
+run: NST-B009 browser-to-API handoff
+date-window: 2026-09-15T11:17:41Z
+apps: FlowMart :4105 (listing discovery in the browser + documented JSON API for the manifest check)
+drift recorded: no listing named 'refund-guard' exists in the fixture catalog (closest: invoice-autofill, finance-ops); the manifests carry NO capabilities field at all — the conditional branch (only-if-payments-capability) correctly resolves to NO install (the control run branch)

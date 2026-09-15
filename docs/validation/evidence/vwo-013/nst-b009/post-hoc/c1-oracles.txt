@@ -1,0 +1,4 @@
+installs visible in the pull: 0 | pk-101 installs: 0
+C1-2 control-branch NO-install-when-manifest-omits-capability: PASS — zero pk-101 installs (the manifest check returned hasPaymentsCapability:false for both versions; the conditional correctly did not submit)
+C1-1 install-record-matching-listing: NOT-FIRED (conditional branch — recorded, per the task's own both-ways design)
+listing values read off the page (for the would-be install): Invoice Autofill for ERPs / finance-ops / subscription / versions 1.0.0,1.1.0 — snapshot 03

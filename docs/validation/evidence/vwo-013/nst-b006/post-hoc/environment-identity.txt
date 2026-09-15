@@ -1,0 +1,4 @@
+run: NST-B006 authentication and session renewal mid-journey
+date-window: 2026-09-15T11:08:23Z
+app: SiteBuild :4101 — sam.oconnell (safety_officer); controlled mid-form logout via the portal's sign-out (the fixture has no session TTL — the session-END is the controlled failure; recorded)
+deviation: the catalog persona binds sam.oconnell (safety_officer); the fixture's safety-report permission (safety:report) is held by marco.silva (site_foreman) — sam has safety:read/close only (seed). Clone wins: the journey executed as the persona WITH filing rights (marco.silva); recorded, not narrowed.

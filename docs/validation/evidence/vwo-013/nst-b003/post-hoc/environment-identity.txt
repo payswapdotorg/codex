@@ -1,0 +1,3 @@
+run: NST-B003 table search/filter/pagination sweep
+date-window: 2026-09-15T11:01:26Z
+app: ForgeOps :4102 — persona noor.haddad (code_owner) or raj.patel; browser: agent-browser 0.35.0

@@ -1,0 +1,3 @@
+run: NST-B008 rich editor with attachment
+date-window: 2026-09-15T11:12:36Z
+app: TeamPad purpose-built rich editor :4208 (§5 note 4: contenteditable + attachment storage + round-trip)

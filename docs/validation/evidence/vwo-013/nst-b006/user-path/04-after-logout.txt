@@ -1,0 +1,25 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - link "sign in" [ref=e3]
+- main
+  - heading "Something went wrong" [level=1, ref=e4]
+  - StaticText "No route for GET /logout."
+  - paragraph
+    - StaticText "HTTP status 404 · error code "
+    - code
+      - StaticText "not_found"
+  - paragraph
+    - StaticText "If this was an intentional failure switch, the response above is the expected observable symptom. See "
+    - link "failure switches" [ref=e12]
+    - StaticText "."
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."
