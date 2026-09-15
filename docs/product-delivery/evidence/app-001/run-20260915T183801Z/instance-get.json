@@ -1,0 +1,11 @@
+{
+  "instance": {
+    "instanceId": "ba3b1e29-15da-4fd5-8607-bb325ad65f23",
+    "workflow": "daily-standup-digest",
+    "versionId": "sha256:a63cd717c85ea2e8b6cce3ae7fb0ec11cd705f9f220d0f55aff94db4dedd604b",
+    "status": "succeeded",
+    "trigger": null,
+    "position": null
+  },
+  "evidence": []
+}

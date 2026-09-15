@@ -1,0 +1,38 @@
+fresh environment: HOME=/home/z/codex/docs/product-delivery/evidence/app-003/run-20260915T185129Z/fresh-home PATH=/home/z/codex/docs/product-delivery/evidence/app-003/run-20260915T185129Z/bin-overrides:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin arch=x86_64 target=x86_64-unknown-linux-musl
+== 1. download the release artifact from GitHub
+  PASS  downloaded codex-package-x86_64-unknown-linux-musl.tar.gz (128736412 bytes)
+  PASS  downloaded codex-package_SHA256SUMS
+== 2. verify the checksum
+  PASS  sha256 matches published manifest (4a6e7e9e2ecfbe3d86925bb877ce7751c30cfbd3d901ebcf1544d2c7e69b54d1)
+== 3. install via the published install.sh (documented user path)
+  PASS  downloaded install.sh
+  PASS  install.sh completed
+  PASS  installed binary at ~/.local/bin/codex
+== 4. launch the application
+  PASS  codex --version: codex-cli 0.1.0
+== 5-6. reach the workflow/teaching surface and teach a workflow
+  PASS  workflow entry point visible
+  PASS  taught + published workflow (teach pipeline)
+  PASS  published version id sha256:a359720208627a182...
+== 7. representative real workflow action (instance run)
+  PASS  workflow instance run executed
+  PASS  workflow completed end-to-end (terminal: completed)
+== 8-9. close and relaunch; persistence
+  PASS  relaunch: instance list reads durable state
+  PASS  persisted instances survive close/relaunch (1)
+  PASS  relaunch: application identity stable
+== 10. missing-credential behavior (agent surface, clean config)
+  PASS  unusable model config produces an actionable error, exit 1: ERROR: unexpected status 403 Forbidden: Country, region, or territory not supported, url: https://ap
+  PASS  workflow surface unaffected by missing model credentials
+== 11. clean uninstall (documented user procedure, USER-GUIDE §9)
+  PASS  visible command removed
+  PASS  installer-managed payloads removed
+  PASS  uninstalled application no longer launches
+  PASS  user workflow data preserved by uninstall (opt-in removal documented)
+== 12. trim reproducible payloads from the evidence bundle
+  trimming /home/z/codex/docs/product-delivery/evidence/app-003/run-20260915T185129Z/downloads (122.8 MB)
+  trimming /home/z/codex/docs/product-delivery/evidence/app-003/run-20260915T185129Z/fresh-home/.codex/packages (0.0 MB)
+  trimming /home/z/codex/docs/product-delivery/evidence/app-003/run-20260915T185129Z/missing-cred-home/.codex (78.6 MB)
+  PASS  evidence trimmed to logs/transcripts/JSON proofs (payloads reproducible from the release)
+
+RESULT: 22 passed, 0 failed

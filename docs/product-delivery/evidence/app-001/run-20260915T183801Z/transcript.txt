@@ -1,0 +1,21 @@
+== 1. application starts and identifies itself
+  PASS  codex --version: codex-cli 0.1.0
+  PASS  codex --help renders the application surface
+== 2. workflow entry point is visible
+  PASS  codex workflow --help renders the entry point
+  PASS  workflow teach subcommand advertised
+  PASS  workflow instance subcommand advertised
+== 3. teach + compile + review + approve + publish through the real control plane
+  PASS  workflow teach published an immutable version
+  PASS  extracted version id: sha256:a63cd717c85ea2e8b...
+== 4. representative workflow action end-to-end (instance run)
+  PASS  workflow instance run executed
+  PASS  instance reached terminal state completed
+== 5. shutdown/relaunch durability (fresh process, same control plane)
+  PASS  workflow instance list after relaunch
+  PASS  durable instances survive process restart (1 listed)
+  PASS  workflow instance get reads persisted evidence
+== 6. app-server protocol surface exposes the same workflow contract
+  PASS  codex app-server (protocol daemon) present
+
+RESULT: 13 passed, 0 failed

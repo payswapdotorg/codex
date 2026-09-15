@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+for a in "$@"; do
+  case "$a" in
+    https://api.github.com/*)
+      exec /usr/bin/curl -H "Authorization: token ${APP003_API_TOKEN?}" "$@"
+      ;;
+  esac
+done
+exec /usr/bin/curl "$@"
