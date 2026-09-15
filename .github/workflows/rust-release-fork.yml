@@ -31,6 +31,14 @@ on:
   # the fork release path before tagging.
   workflow_dispatch:
 
+# Mirrors the upstream rust-release.yml workflow-level env: the package
+# archive builder (scripts/codex_package/targets.py) resolves the repository
+# root from CODEX_REPO_ROOT. Without it the "Build Codex package archive"
+# step fails after the full compile (first fork CI run, evidence in
+# docs/product-delivery/evidence/app-002/).
+env:
+  CODEX_REPO_ROOT: ${{ github.workspace }}
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
