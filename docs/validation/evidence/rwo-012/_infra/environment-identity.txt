@@ -1,0 +1,18 @@
+== RWO-012 environment identity ==
+Date (UTC): 2026-09-15T05:36Z
+Repo: payswapdotorg/codex, branch rwo-012/substring-scoped-exemptions
+Base commit: 29d554c2e (main, post-RWO-011 state commit)
+Runtime: bash + GNU grep/sed/tr (script is dependency-free)
+Change surface:
+  docs/validation/scripts/capture-evidence.sh (rewritten secrets-scan core:
+    line_has_violation + scan_text functions, --selftest mode, --scan mode,
+    header policy text; SECRETS_RE assignment value {8} -> {8,} so matches
+    capture the FULL value — detection semantics unchanged, extent only)
+  docs/validation/evidence/VWO-008/adv-prompt-injection/user-path/
+    20260912T033825Z-step07-intern-read-only-pr-view.txt (documented redaction:
+    two credential-shaped fake attack-payload assignments in the injection
+    transcript line 49 -> "<redacted RWO-012 re-scan>" forms; the attack
+    instruction text is preserved; caught by the new checker — the exact F5
+    residual the old line-scoped exemption waved through)
+No Rust, no protocol, no zst, no engine, no fixture changes.
+Delivery mode: TL direct execution (single-script bounded scope).

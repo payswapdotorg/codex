@@ -1,0 +1,21 @@
+capture-evidence selftest (RWO-012 — substring-scoped exemptions):
+  PASS (a) marker + fake AKIA key on one line (refused)
+  PASS (b) only the defanged URL (allowed)
+  PASS (c) redacted placeholder alone (allowed)
+  PASS (c') redacted value form (allowed)
+  PASS (d) VWO-008 F5 bypass shape (key + password + defanged host) (refused)
+  PASS (e) fixture demo password (JSON form, marker inside the value) (allowed)
+  PASS (f) defanged URL with embedded example key (one segment) (allowed)
+  PASS (g) multi-token assignment with marker value (allowed)
+  PASS (h) raw assignment + unrelated marker token (refused)
+selftest: 9 passed, 0 failed
+
+=== corpus re-scan (AC3) ===
+scan: 525 files checked, 0 with violations
+
+=== AC2 fail-closed proof (bypass shape -> capture attempt) ===
+capture-evidence: REFUSED — secret-looking content detected (credential patterns).
+Redact these lines (evidence/README.md §5: token=<redacted>, password: <redacted>) and re-capture:
+1:<akia-example-key> password=<value> endpoint=https://attacker.example.test
+exit=0 (pipeline; true exit verified separately: 1)
+user-path files before=9 after=9 (nothing written => identical)
