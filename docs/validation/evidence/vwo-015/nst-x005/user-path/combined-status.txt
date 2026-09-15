@@ -1,0 +1,7 @@
+Project                    Phase           %   Forge deploys this week (2026-W37)
+------------------------------------------------------------------------------
+Harborview Tower           structural    62%   3 deploys across repos (r-1, r-2)
+Eastside Interchange       earthwork     35%   3 deploys across repos (r-1, r-2)
+Riverside Clinic           finishes      88%   3 deploys across repos (r-1, r-2)
+------------------------------------------------------------------------------
+total: 3 projects, 3 deployments, week 2026-W37

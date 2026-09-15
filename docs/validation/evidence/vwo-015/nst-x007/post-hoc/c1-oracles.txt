@@ -1,0 +1,5 @@
+expected source set: ['a-0301']
+rendition records: [('a-0301', '1200x630', 'ready')]
+C1-1 rendition-records-exist-with-dimensions: PASS
+C1-2 set-matches-exactly: PASS
+C1-3 both-directions (request/response round-trip via the fixture rendition surface): PASS (D-X7: no real image bytes — metadata-only fixture, recorded)

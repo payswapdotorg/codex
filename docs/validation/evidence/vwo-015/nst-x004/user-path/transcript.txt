@@ -1,0 +1,15 @@
+$ bash /tmp/x004-runner.sh &  (long-running: 5 days x 2s)
+processed 2026-09-08 -> 64
+processed 2026-09-09 -> 66
+$ kill -9 18202  (mid-run kill)
+killed at 11:32:58; checkpoint state:
+2026-09-08 64
+2026-09-09 66
+/bin/bash: line 63: 18202 Killed                  bash /tmp/x004-runner.sh
+$ re-run the runner (resume from checkpoint)
+skip 2026-09-08 (done)
+skip 2026-09-09 (done)
+processed 2026-09-10 -> 60
+processed 2026-09-11 -> 70
+processed 2026-09-12 -> 70
+SUMMARY POSTED: Weekly summary 2026-W37: 5 reports, first 64% -> last 70% (delta +6).

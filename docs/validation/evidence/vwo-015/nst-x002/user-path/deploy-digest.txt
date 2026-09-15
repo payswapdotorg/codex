@@ -1,0 +1,7 @@
+Tonight's deployment digest — ForgeOps (2026-09-15)
+==================================================
+dep-1103  repo=r-2  env=production  status=succeeded
+dep-1102  repo=r-1  env=production  status=succeeded
+dep-1101  repo=r-1  env=staging  status=promoted
+==================================================
+total: 3 deployments; production: 2

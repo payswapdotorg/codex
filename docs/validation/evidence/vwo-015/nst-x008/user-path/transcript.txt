@@ -1,0 +1,24 @@
+=== STEP 1: terminal digest verification (gates the upgrade) ===
+digest verify: 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5 vs advertised 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5
+VERIFIED — upgrade gate OPEN
+=== STEP 2: mid-flight entitlement revocation (armed stale_entitlement on the upgrade) ===
+{
+  "ok": false,
+  "error": "stale_entitlement",
+  "message": "Entitlement for \"Support Ticket Triage Assistant\" is stale/revoked (simulated): upgrade is blocked for Acme Retail.",
+  "packageId": "pk-102",
+  "orgId": "o-2",
+  "simulated":
+=== STEP 3: fail-closed observed -> rollback to the last good version ===
+{
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Install ins-0401 has no prior version to roll back to (installed at v2.3.1, never upgraded).",
+  "installId": "ins-0401"
+}
+=== STEP 4: final state + audit trail ===
+install: ins-0401 pk-102 | keys: ['version', 'status', 'history'] | {'version': '2.3.1', 'status': 'active'}
+event: request.rejected | Rejected POST /api/installs/rollback — data_conflict (HTTP 409)
+event: request.rejected | Rejected POST /api/installs/upgrade — stale_entitlement (HTTP 409)
+event: auth.login | petra.voss signed in
+event: world.reset | Demo world reset to seed state (reset #1)

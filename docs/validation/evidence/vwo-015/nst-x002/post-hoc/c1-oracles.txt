@@ -1,0 +1,4 @@
+C1-1 digest-equals-independent-recompute: PASS
+C1-2 approval-then-notification + notification row: PASS (approval in transcript before the pipeline; notification row: ['payments-service 4.8.2 staged — promotio'])
+C2-3 editor-review-window-screenshot: present
+D-X2: notification persona-routing drift recorded (target = release manager, not sre_oncall)

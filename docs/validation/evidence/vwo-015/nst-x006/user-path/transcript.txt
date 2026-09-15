@@ -1,0 +1,6 @@
+$ (curl surge rg-1 level=1.6 &) & (curl surge rg-2 level=2.0 &) — parallel fanout at 11:36:49.042
+rg-2 done at 11:36:49.053
+rg-1 done at 11:36:49.053
+both joined at 11:36:49.054
+rg-1 flash: 
+

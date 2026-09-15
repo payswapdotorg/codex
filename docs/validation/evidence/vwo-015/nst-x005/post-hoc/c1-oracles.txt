@@ -1,0 +1,3 @@
+C1-1 combined-file-rows-equal-join: PASS (3 projects x 3 deps, week-joined)
+C1-2 both-sources-authenticated-browser-reads: PASS (dana.reyes + raj.patel authenticated fetches in the transcript)
+C2-3 pm-readable-formatting: PASS

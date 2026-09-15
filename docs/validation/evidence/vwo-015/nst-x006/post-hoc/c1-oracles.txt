@@ -1,0 +1,5 @@
+surge levels: {'rg-1': 1.6, 'rg-2': 2, 'rg-3': 1, 'rg-4': 1.2}
+surge events: [('ops.surge_adjusted', '2026-09-15T11:36:49.051'), ('ops.surge_adjusted', '2026-09-15T11:36:49.050')]
+C1-1 both-broadcasts-exactly-once: PASS
+C1-2 decisions-overlapped-in-time: PASS (parallel fanout — both branches completed within 11:36:27.32x, transcript)
+C1-3 approval (2026-09-15T11:36:27.299Z) precedes both surge events: PASS

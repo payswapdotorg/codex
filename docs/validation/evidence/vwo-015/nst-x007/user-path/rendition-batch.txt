@@ -1,0 +1,2 @@
+published stories: ['st-0201']
+their image assets: ['a-0301']

@@ -1,0 +1,4 @@
+$ sha256sum digest-file -> 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5 (size 207)
+advertised sha256: 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5 (size 207)
+VERIFIED: checksums+size match — install gate OPEN
+control run: tampered digest sha=314cbe4410c173d9716307a8d25f58f61f3afe467a47f0272020ff3db29a17b2 != advertised -> gate CLOSED -> install NOT attempted (control branch)

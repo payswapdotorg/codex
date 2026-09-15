@@ -1,0 +1,4 @@
+run: NST-X007 media repurpose batch round-trip
+date-window: 2026-09-15T11:36:00Z
+app: PressRoom :4104 — omar.bhatt (photo_editor, rendition:request + asset:upload)
+drift D-X7 recorded: PressRoom assets are METADATA-ONLY (no image bytes exist server-side — the asset record carries width/height/dimensions; the rendition processing is the fixture's simulated resize). The download/resize/upload byte round-trip executes as the fixture's real rendition-request surface (the simulated processing pipeline), with the terminal batch driver; no real image bytes can change hands (recorded, not narrowed).

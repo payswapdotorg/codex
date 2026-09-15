@@ -1,0 +1,43 @@
+=== STEP 4: create the bulletin story (hana) + submit with the ARMED 503 (first attempt), then retry ===
+create: {
+  "ok": false,
+  "error": "validation_error",
+  "message": "A story title is required."
+}
+bulletin story: st-0206
+$ submit with the armed 503 (first attempt)
+{
+  "ok": false,
+  "error": "service_unavailable",
+  "message": "The \"media-asset-pipeline\" service is unavailable (simulated). State-changing requests are re <- armed 503 observed
+$ retry cleanly
+{
+  "ok": true,
+  "message": "Story st-0206 submitted for review.",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+=== STEP 5: desk-chief approval (camille) — the gate BEFORE publish ===
+approve: {
+  "ok": true,
+  "message": "Story st-0206 approved for publication.",
+  "warning": null,
+  "redirect": "/stories/st-02
+=== STEP 6: publish to the newsroom channel ===
+publish: {
+  "ok": false,
+  "error": "expected_version_required",
+  "message": "Story st-0206 requires an expectedVersion on publish — pass the version you approved (c
+publishing st-0206 at expectedVersion=1
+publish: {
+  "ok": false,
+  "error": "missing_asset",
+  "message": "Hero image could not be resolved for \"Tuesday Bulletin — Story Stats\" — no hero image is attached. Publication blocked.",
+  "storyId": 
+publish: {
+  "ok": true,
+  "message": "Story st-0206 published (1/1 channels delivered).",
+  "warning": null,
+  "redirect": "/stories/st-0206",
+  "story": {
+    "id": "st-0206",
+    "slug": "tuesday-bulletin-s

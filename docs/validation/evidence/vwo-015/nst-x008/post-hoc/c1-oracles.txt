@@ -1,0 +1,4 @@
+request.rejected events: ['Rejected POST /api/installs/rollback — data_conflict (HTTP 4', 'Rejected POST /api/installs/upgrade — stale_entitlement (HTT']
+C1-1 final-pin-last-good-with-records: PASS
+C1-2 entitlement-revocation-mid-upgrade-fail-closed: PASS
+C1-3 terminal-digest-verification-gates-the-install: PASS

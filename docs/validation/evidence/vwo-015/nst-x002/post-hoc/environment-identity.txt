@@ -1,0 +1,4 @@
+run: NST-X002 terminal -> API -> desktop -> approval -> notification
+date-window: 2026-09-15T11:38:00Z
+apps: ForgeOps :4102 (deployments API + mei.chen sre_oncall notification) + NotaryPad :4201 (GUI editor review window) + operator channel (the release-manager approval gate, §5-1 fidelity note)
+drift D-X2 recorded: the fixture's deploy notification targets the promotion approver (release_manager raj.patel) — the sre_oncall persona (mei.chen) is not a notification target on any trigger (verified: all repos' first reviewer = u-2; the staged-deploy notify hardcodes u-3). The deploy notification row EXISTS (raj's inbox) via the real pipeline (PR -> approve -> merge -> staging deploy); the persona-routing drift recorded.

@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "message": "Installed \"Warehouse Slot Optimizer\" v1.2.0 for Acme Retail (install ins-0402, entitlement ent-0504).",
+  "warning": null,
+  "redirect": "/installs",
+  "install": {
+    "id": "ins-0402",
+    "orgId": "o-2",
+    "packageId": "pk-103",
+    "version": "1.2.0",
+    "status": "active",
+    "config": {},
+    "installedById": "u-6",
+    "installedAt": "2026-09-15T11:34:51.477Z",
+    "entitlementId": "ent-0504",
+    "history": [
+      {
+        "action": "installed",
+        "fromVersion": null,
+        "toVersion": "1.2.0",
+        "at": "2026-09-15T11:34:51.477Z",
+        "byId": "u-6"
+      }
+    ]
+  },
+  "entitlement": {
+    "id": "ent-0504",
+    "orgId": "o-2",
+    "packageId": "pk-103",
+    "type": "trial",
+    "seats": null,
+    "status": "active",
+    "validUntil": "2026-10-12",
+    "grantedAt": "2026-09-12",
+    "grantedById": null
+  }
+}
