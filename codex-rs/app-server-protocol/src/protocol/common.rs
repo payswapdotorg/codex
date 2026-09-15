@@ -621,6 +621,42 @@ client_request_definitions! {
         response: v2::WorkflowForkResponse,
     },
 
+    #[experimental("workflow/improve/propose")]
+    /// Propose improvement candidates for a published version from newly
+    /// recorded execution evidence.
+    WorkflowImprovePropose => "workflow/improve/propose" {
+        params: v2::WorkflowImproveProposeParams,
+        serialization: None,
+        response: v2::WorkflowImproveProposeResponse,
+    },
+
+    #[experimental("workflow/improve/validate")]
+    /// Validate one improvement candidate through the replay,
+    /// differential, and policy gates.
+    WorkflowImproveValidate => "workflow/improve/validate" {
+        params: v2::WorkflowImproveValidateParams,
+        serialization: None,
+        response: v2::WorkflowImproveValidateResponse,
+    },
+
+    #[experimental("workflow/improve/approve")]
+    /// Record an explicit approval decision on a validated improvement
+    /// candidate: the gate publication refuses to cross without.
+    WorkflowImproveApprove => "workflow/improve/approve" {
+        params: v2::WorkflowImproveApproveParams,
+        serialization: None,
+        response: v2::WorkflowImproveApproveResponse,
+    },
+
+    #[experimental("workflow/improve/publish")]
+    /// Publish a validated and approved improvement candidate as a new
+    /// immutable successor version with its governed lineage.
+    WorkflowImprovePublish => "workflow/improve/publish" {
+        params: v2::WorkflowImprovePublishParams,
+        serialization: None,
+        response: v2::WorkflowImprovePublishResponse,
+    },
+
     #[experimental("workflow/instance/run")]
     /// Run one instance of a published workflow version to a terminal state.
     WorkflowInstanceRun => "workflow/instance/run" {

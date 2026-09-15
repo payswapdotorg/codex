@@ -1086,6 +1086,30 @@ impl MessageProcessor {
                 .fork(params)
                 .map(|response| Some(response.into()))
                 .map_err(workflow_error),
+            ClientRequest::WorkflowImprovePropose { params, .. } => self
+                .workflow
+                .improve_propose(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowImproveValidate { params, .. } => self
+                .workflow
+                .improve_validate(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowImproveApprove { params, .. } => self
+                .workflow
+                .improve_approve(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
+            ClientRequest::WorkflowImprovePublish { params, .. } => self
+                .workflow
+                .improve_publish(params)
+                .await
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
             ClientRequest::WorkflowInstanceRun { params, .. } => self
                 .workflow
                 .instance_run(params)
@@ -1850,6 +1874,36 @@ fn workflow_error(
             | codex_workflow_distribution::WorkflowDistributionError::InvalidMetadata { .. }
             | codex_workflow_distribution::WorkflowDistributionError::UnknownRelease { .. }
             | codex_workflow_distribution::WorkflowDistributionError::AlreadyPublished { .. } => {
+                invalid_params(inner.to_string())
+            }
+            _ => internal_error(inner.to_string()),
+        },
+        WorkflowControlPlaneError::Forge(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Evolution(inner) => match &inner {
+            // Request-shaped evolution refusals: an unknown, stale, or
+            // already-promoted candidate, a missing or failed validation,
+            // a missing, rejected, or mismatched approval (the RWO-006
+            // approval gate), a no-op evolution, oversized provenance, or
+            // credential-shaped content.
+            codex_workflow_evolution::WorkflowEvolutionError::CandidateNotFound { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::CandidateAlreadyKnown { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::StaleCandidate { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::InvalidCandidate { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::NoopEvolution { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::CredentialContamination {
+                ..
+            }
+            | codex_workflow_evolution::WorkflowEvolutionError::ProvenanceTooLarge { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::ValidationFailed { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::ValidationNotRun { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::ApprovalRequired { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::ApprovalRejected { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::ApprovalMismatch { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::CandidateAlreadyPromoted {
+                ..
+            }
+            | codex_workflow_evolution::WorkflowEvolutionError::CandidateNotPromoted { .. }
+            | codex_workflow_evolution::WorkflowEvolutionError::LineageAlreadyRecorded { .. } => {
                 invalid_params(inner.to_string())
             }
             _ => internal_error(inner.to_string()),

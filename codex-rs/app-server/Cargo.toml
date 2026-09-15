@@ -81,11 +81,13 @@ codex-protocol = { workspace = true }
 codex-queue-extension = { workspace = true }
 codex-app-server-protocol = { workspace = true }
 codex-app-server-transport = { workspace = true }
+codex-eval-compat = { workspace = true }
 codex-teaching-compiler = { workspace = true }
 codex-workflow-app = { workspace = true }
 codex-workflow-contracts = { workspace = true }
 codex-workflow-distribution = { workspace = true }
 codex-workflow-durable = { workspace = true }
+codex-workflow-evolution = { workspace = true }
 codex-workflow-forge = { workspace = true }
 codex-workflow-triggers = { workspace = true }
 codex-execution-contracts = { workspace = true }
@@ -117,6 +119,7 @@ tokio = { workspace = true, features = [
     "process",
     "rt-multi-thread",
     "signal",
+    "sync",
 ] }
 tokio-util = { workspace = true }
 tracing = { workspace = true, features = ["log"] }

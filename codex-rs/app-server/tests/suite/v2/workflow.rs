@@ -463,3 +463,242 @@ async fn fork_publishes_a_new_immutable_release_with_lineage_over_jsonrpc() -> R
     assert_eq!(run["workflow"], "forkable-report");
     Ok(())
 }
+
+#[tokio::test]
+async fn improvement_lifecycle_is_governed_over_jsonrpc() -> Result<()> {
+    let mut app_server = TestAppServer::builder().build().await?;
+    initialize_experimental(&mut app_server).await?;
+    let published = teach_publish(
+        &mut app_server,
+        "instruct",
+        "improvable-standup-report",
+        Some("Summarize the daily progress report."),
+        None,
+    )
+    .await?;
+    let version_id = published["versionId"]
+        .as_str()
+        .expect("version id")
+        .to_string();
+
+    // Evidence -> candidate: the proposal records execution evidence and
+    // returns candidates that cite it.
+    let proposal = request(
+        &mut app_server,
+        "workflow/improve/propose",
+        json!({"versionId": version_id}),
+    )
+    .await?;
+    assert_eq!(proposal["workflow"], "improvable-standup-report");
+    assert_eq!(proposal["incumbentVersionId"], version_id);
+    assert_eq!(proposal["incumbentSemanticVersion"], "1.0.0");
+    assert_eq!(
+        proposal["evidence"]["references"].as_array().map(Vec::len),
+        Some(1)
+    );
+    assert_eq!(proposal["evidence"]["references"][0]["kind"], "trace");
+    assert_eq!(
+        proposal["evidence"]["runs"].as_array().map(Vec::len),
+        Some(1)
+    );
+    assert_eq!(proposal["evidence"]["runs"][0]["versionId"], version_id);
+    assert_eq!(proposal["evidence"]["runs"][0]["status"], "succeeded");
+    let candidates = proposal["candidates"].as_array().expect("candidates");
+    assert!(!candidates.is_empty());
+    for candidate in candidates {
+        // Every candidate cites the recorded evidence.
+        assert_eq!(candidate["evidence"], proposal["evidence"]);
+        assert_eq!(candidate["incumbentVersionId"], version_id);
+    }
+    let candidate = candidates
+        .iter()
+        .find(|candidate| candidate["changeKind"] == "definitionDelta")
+        .expect("definition-delta candidate");
+    let candidate_id = candidate["candidateId"]
+        .as_str()
+        .expect("candidate id")
+        .to_string();
+
+    // Publishing before validating is refused.
+    let unvalidated = request_error(
+        &mut app_server,
+        "workflow/improve/publish",
+        json!({"candidateId": candidate_id, "releaseTag": "improve-1.0.1"}),
+    )
+    .await?;
+    assert_eq!(unvalidated.code, -32602);
+    assert!(
+        unvalidated.message.contains("no validation report yet"),
+        "unexpected message: {}",
+        unvalidated.message
+    );
+
+    // The validation step: replay, differential, policy.
+    let validated = request(
+        &mut app_server,
+        "workflow/improve/validate",
+        json!({"candidateId": candidate_id, "successorVersion": "1.0.1"}),
+    )
+    .await?;
+    assert_eq!(validated["passed"], true);
+    let stages = validated["stages"].as_array().expect("stages");
+    assert_eq!(stages.len(), 3);
+    assert_eq!(stages[0]["stage"], "replay");
+    assert_eq!(stages[1]["stage"], "differential");
+    assert_eq!(stages[2]["stage"], "policy");
+    assert!(stages.iter().all(|stage| stage["passed"] == true));
+
+    // THE APPROVAL GATE: publication without an approval decision is
+    // refused over JSON-RPC exactly as the engine refuses it.
+    let unapproved = request_error(
+        &mut app_server,
+        "workflow/improve/publish",
+        json!({"candidateId": candidate_id, "releaseTag": "improve-1.0.1"}),
+    )
+    .await?;
+    assert_eq!(unapproved.code, -32602);
+    assert!(
+        unapproved.message.contains("no approval decision"),
+        "unexpected message: {}",
+        unapproved.message
+    );
+
+    // The explicit approval decision.
+    let approved = request(
+        &mut app_server,
+        "workflow/improve/approve",
+        json!({
+            "candidateId": candidate_id,
+            "approver": "tech-lead",
+            "decision": "approved",
+            "note": "evidence-cited description refresh looks right"
+        }),
+    )
+    .await?;
+    assert_eq!(approved["approved"], true);
+    assert_eq!(approved["approver"], "tech-lead");
+    assert_eq!(approved["incumbentVersionId"], version_id);
+    assert!(
+        approved["validationDigest"]
+            .as_str()
+            .expect("validation digest")
+            .starts_with("sha256:")
+    );
+
+    // After approval, the improvement lands as a new immutable version
+    // with its governed lineage.
+    let improvement = request(
+        &mut app_server,
+        "workflow/improve/publish",
+        json!({"candidateId": candidate_id, "releaseTag": "improve-1.0.1"}),
+    )
+    .await?;
+    assert_ne!(improvement["versionId"], published["versionId"]);
+    assert_eq!(improvement["semanticVersion"], "1.0.1");
+    assert_ne!(
+        improvement["definitionDigest"],
+        published["definitionDigest"]
+    );
+    assert_eq!(
+        improvement["dependencyLockDigest"],
+        published["dependencyLockDigest"]
+    );
+    assert_eq!(improvement["workflow"], "improvable-standup-report");
+    assert_eq!(
+        improvement["lineage"]["predecessorVersionId"],
+        published["versionId"]
+    );
+    assert_eq!(
+        improvement["lineage"]["successorVersionId"],
+        improvement["versionId"]
+    );
+    assert_eq!(improvement["lineage"]["candidateId"], candidate_id);
+    assert_eq!(improvement["lineage"]["approver"], "tech-lead");
+    assert_eq!(improvement["lineage"]["releaseTag"], "improve-1.0.1");
+    assert_eq!(improvement["evidence"], proposal["evidence"]);
+
+    // The successor is a real immutable release instances can pin.
+    let run = request(
+        &mut app_server,
+        "workflow/instance/run",
+        json!({"versionId": improvement["versionId"]}),
+    )
+    .await?;
+    assert_eq!(run["status"], "succeeded");
+    assert_eq!(run["terminal"]["kind"], "completed");
+    assert_eq!(run["workflow"], "improvable-standup-report");
+    Ok(())
+}
+
+#[tokio::test]
+async fn improvement_rejection_refuses_publication_over_jsonrpc() -> Result<()> {
+    let mut app_server = TestAppServer::builder().build().await?;
+    initialize_experimental(&mut app_server).await?;
+    let published = teach_publish(
+        &mut app_server,
+        "instruct",
+        "rejected-improvement-report",
+        Some("Summarize the daily progress report."),
+        None,
+    )
+    .await?;
+    let proposal = request(
+        &mut app_server,
+        "workflow/improve/propose",
+        json!({"versionId": published["versionId"]}),
+    )
+    .await?;
+    let candidate_id = proposal["candidates"][0]["candidateId"]
+        .as_str()
+        .expect("candidate id")
+        .to_string();
+    request(
+        &mut app_server,
+        "workflow/improve/validate",
+        json!({"candidateId": candidate_id, "successorVersion": "1.0.1"}),
+    )
+    .await?;
+    // A rejection without a reason is an input error.
+    let unreasoned = request_error(
+        &mut app_server,
+        "workflow/improve/approve",
+        json!({"candidateId": candidate_id, "approver": "tech-lead", "decision": "rejected"}),
+    )
+    .await?;
+    assert_eq!(unreasoned.code, -32602);
+    assert!(
+        unreasoned.message.contains("must carry a reason"),
+        "unexpected message: {}",
+        unreasoned.message
+    );
+    // The recorded rejection refuses publication.
+    let rejected = request(
+        &mut app_server,
+        "workflow/improve/approve",
+        json!({
+            "candidateId": candidate_id,
+            "approver": "tech-lead",
+            "decision": "rejected",
+            "reason": "the successor description loses operator context"
+        }),
+    )
+    .await?;
+    assert_eq!(rejected["approved"], false);
+    assert_eq!(
+        rejected["reason"],
+        "the successor description loses operator context"
+    );
+    let refused = request_error(
+        &mut app_server,
+        "workflow/improve/publish",
+        json!({"candidateId": candidate_id, "releaseTag": "improve-rejected"}),
+    )
+    .await?;
+    assert_eq!(refused.code, -32602);
+    assert!(
+        refused.message.contains("was rejected by approver"),
+        "unexpected message: {}",
+        refused.message
+    );
+    Ok(())
+}
