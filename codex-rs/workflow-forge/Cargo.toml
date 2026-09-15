@@ -1,10 +1,14 @@
 [package]
 name = "codex-workflow-forge"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 rust-version = "1.75"
 description = "Git-native workflow collaboration (WO-009): forge adapters, package and dependency-lock semantics, and explicit install and update records for the Codex universal workflow platform."
+license.workspace = true
 publish = false
+
+[lints]
+workspace = true
 
 [lib]
 name = "codex_workflow_forge"
