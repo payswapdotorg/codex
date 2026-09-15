@@ -1,0 +1,10 @@
+Wave-4 lane merges 2026-09-15T13:25Z:
+VWO-012 PR #46 (merge a7e3008355) · VWO-013 PR #47 (merge 242f235b43) · VWO-014 PR #48 (merge bcd9759d85) · VWO-015 PR #49 (merge 8757a6b7e2)
+
+Merged-tree checks: vwo-012: RESULT: PASS — Class A, 10 scenario block(s), 2 warning(s)
+vwo-013: RESULT: PASS — Class A, 10 scenario block(s), 2 warning(s)
+vwo-014: RESULT: PASS — Class A, 10 scenario block(s), 2 warning(s)
+vwo-015: RESULT: PASS — Class A, 8 scenario block(s), 2 warning(s)
+corpus-scan: scan: 831 files checked, 0 with violations
+
+VWO-012 NST-D 10/10 · VWO-013 NST-B 10/10 (F-B1 missing-capability + 4 drifts) · VWO-014 NST-T 10/10 (3 drifts) · VWO-015 NST-X 8/8 (4 drifts). Remaining roadmap: VWO-016 (held-out; operator-gated per catalog §7).
