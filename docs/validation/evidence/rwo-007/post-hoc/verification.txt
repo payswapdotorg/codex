@@ -1,4 +1,4 @@
-== RWO-007 verification (all real runs, 2026-09-15 ~05:05Z) ==
+== RWO-007 verification (all real runs, 2026-09-15 ~04:20Z) ==
 Worktree: /home/z/codex, branch rwo-007/upgrade-direction-semantics (off main @ c5e7f2647)
 Fixture: docs/validation/fixtures/marketplace (FlowMart, port 4105)
 

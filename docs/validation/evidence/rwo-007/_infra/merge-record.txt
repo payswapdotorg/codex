@@ -1,5 +1,5 @@
 RWO-007 merged via PR #42 (merge commit 68bec5816c766bc6bdf15d20abcf05561cb9abdb)
-into main at 2026-09-15T05:15Z.
+into main at 2026-09-15T04:35Z.
 
 Family G product half + Family M: FlowMart upgrade/rollback direction semantics.
 upgradeInstall refuses older targets (409 implicit_downgrade_refused, no mutation);
