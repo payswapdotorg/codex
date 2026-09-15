@@ -8,3 +8,5 @@ vwo-015: RESULT: PASS — Class A, 8 scenario block(s), 2 warning(s)
 corpus-scan: scan: 831 files checked, 0 with violations
 
 VWO-012 NST-D 10/10 · VWO-013 NST-B 10/10 (F-B1 missing-capability + 4 drifts) · VWO-014 NST-T 10/10 (3 drifts) · VWO-015 NST-X 8/8 (4 drifts). Remaining roadmap: VWO-016 (held-out; operator-gated per catalog §7).
+
+North-star gate merge 2026-09-15T23:33Z: VWO-017 PR #54 (merge fd1e48bc1) — verdict NORTH_STAR_PARTIALLY_SUPPORTED (7/8 verdict classes demonstrated at task level through the product path; class-7 held-out generalization operator-gated not-exercised). Required artifacts: north-star/NORTH-STAR-VALIDATION.md + coverage-matrix.md (reconciled at evidence base 9f5eaffff) + generalization-results.md; VWO-017-report.md validates PASS Class B. Roadmap terminal state: VWO-001..015 merged · RWO-001..012 merged · APP-001..004 merged · VWO-017 merged · VWO-016 remains operator-gated-by-design (independent held-out briefs never delivered; escalation path documented in NORTH-STAR-VALIDATION §6).
