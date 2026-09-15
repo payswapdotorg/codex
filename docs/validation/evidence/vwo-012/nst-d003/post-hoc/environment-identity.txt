@@ -1,0 +1,8 @@
+run: NST-D003 two-window clipboard transfer
+date-window: 2026-09-15T09:59:09Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24 (windows A=2097155 RidePilot left, B=10485763 NotaryPad right)
+input: HYBRID — mouse drag-select + menu clicks (POINTER), ctrl+c/ctrl+v/typing (KEY)
+apps: RidePilot fixture http://localhost:4103/ dashboard (public; Regions & surge table) + NotaryPad :4201
+deviation: catalog C1 names GET /api/trips/regions; fixture provides GET /api/regions (per-region surge/drivers/demand) — clone wins, recorded
+clipboard oracle: xclip -selection clipboard -o dump at copy time

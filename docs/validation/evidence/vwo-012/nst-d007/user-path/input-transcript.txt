@@ -1,0 +1,18 @@
+10:23:02.775 KEY xdotool windowfocus --sync 2097155
+10:23:02.915 POINTER xdotool mousemove --sync 633 250
+10:23:03.072 POINTER xdotool click 1
+10:23:03.478 KEY xdotool type --delay 30 Site Safety Briefing — Level 13 Formwork
+- Guardrail straps replaced on the east edge; verify before shift start.
+- Crane B exclusion zone re-marked; only certified riggers inside.
+- Housekeeping: clear formwork offcuts from the east stair before 14:00.
+Date: 2026-09-12
+10:23:08.542 POINTER xdotool mousemove --sync 151 163
+10:23:08.710 POINTER xdotool click 1
+10:23:09.239 POINTER xdotool mousemove --sync 225 300
+10:23:09.394 POINTER xdotool click 1
+10:23:10.433 POINTER xdotool mousemove --sync 633 462
+10:23:10.588 POINTER xdotool click 1
+10:23:10.993 KEY xdotool key ctrl+a
+10:23:11.175 KEY xdotool type --delay 45 safety-briefing
+10:23:11.652 POINTER xdotool mousemove --sync 788 520
+10:23:11.807 POINTER xdotool click 1

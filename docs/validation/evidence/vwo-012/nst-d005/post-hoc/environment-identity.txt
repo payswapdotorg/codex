@@ -1,0 +1,8 @@
+run: NST-D005 file-picker upload and save-as download
+date-window: 2026-09-15T10:53:54Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+apps: SiteBuild :4101 (upload surface) + SiteReports :4205 (purpose-built report export, §5 note 4) + Cabinet :4206 (workspace-rooted, GUI file-move)
+input: HYBRID (form fill + navigation keyboard; buttons/dialogs mouse)
+deviation recorded: SiteBuild's upload is the fixture's real name-based simulated upload (no OS file picker exists in the fixture — clone wins); download lands in the browser's XDG dir then is filed into weekly/ via the GUI (browser save-dialog absent in the fallback profile)
+persona: marco.silva (site_foreman; demo credential from /api/demo-hints)

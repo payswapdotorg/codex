@@ -1,0 +1,15 @@
+Region	Code	Surge	Active drivers	Demand	Status
+Downtown Core	DT	1.4×	34	
+82	normal
+Airport Corridor	AP	1.8×	12	
+71	surge
+Northside	NS	1.0×	9	
+24	normal
+Riverside	RV	1.2×	15	
+38	normal
+Recent activity
+Time	Type	Summary
+2026-09-15T09:58:54.932Z	world.reset	Demo world reset to seed state (reset #1)
+Live region map · failure switches · repository: docs/validation/fixtures/rideshare/.
+
+RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credenti

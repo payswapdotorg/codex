@@ -1,0 +1,14 @@
+[d009 10:39:26] site-east-formwork: ops=resize status="photo: site-east-formwork"
+[d009 10:39:33] site-crane-b: ops=resize status="photo: site-crane-b"
+[d009 10:39:40] site-level13-slab: ops=resize status="photo: site-level13-slab"
+[d009 10:39:48] site-safety-walk-sideways: ops=rotate resize status="photo: site-safety-walk-sideways"
+INPUT TRANSCRIPT ORACLE: KEY-injections=1 POINTER-injections=34 (mode=HYBRID)
+MODALITY VERDICT: HYBRID PASS
+=== C1 oracle (post-hoc) 10:39:49 ===
+site-east-formwork: 800x600 (expect 800x600 template) PASS
+site-crane-b: 800x600 (expect 800x600 template) PASS
+site-level13-slab: 800x600 (expect 800x600 template) PASS
+site-safety-walk-sideways: 800x600 (expect 800x600 template) PASS
+C1-1 output-dimensions-match-template: PASS
+C2-1 visual-confirmation screenshots: 4 of 4 PASS
+[d009 10:39:49] D009 run complete

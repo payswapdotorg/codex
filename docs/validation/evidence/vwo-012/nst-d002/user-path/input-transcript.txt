@@ -1,0 +1,66 @@
+09:54:31.477 POINTER xdotool mousemove --sync 640 400
+09:54:47.162 POINTER xdotool mousemove 479 168  # nav-desk
+09:54:47.163 POINTER xdotool mousemove --sync 479 168
+09:54:47.319 POINTER xdotool click 1
+09:54:49.829 POINTER xdotool mousemove 242 507  # open-story-st-0203
+09:54:49.830 POINTER xdotool mousemove --sync 242 507
+09:54:49.986 POINTER xdotool click 1
+09:54:52.533 POINTER xdotool mousemove 534 168  # nav-assets-gallery
+09:54:52.534 POINTER xdotool mousemove --sync 534 168
+09:54:52.688 POINTER xdotool click 1
+09:54:54.395 POINTER xdotool click 5
+09:54:54.806 POINTER xdotool click 5
+09:54:56.112 POINTER xdotool mousemove 486 168  # back-to-desk
+09:54:56.113 POINTER xdotool mousemove --sync 486 168
+09:54:56.270 POINTER xdotool click 1
+09:54:58.348 POINTER xdotool mousemove 242 507  # reopen-story-st-0203
+09:54:58.349 POINTER xdotool mousemove --sync 242 507
+09:54:58.505 POINTER xdotool click 1
+09:55:00.380 POINTER close-popup-click 632 259
+09:55:01.631 POINTER xdotool mousemove --sync 398 471
+09:55:01.838 POINTER xdotool click 1
+09:55:02.805 POINTER click-option run1-asset popup=(118,489,560x106) row_h=26 idx=2 at 398,554 (attempt 1)
+09:55:03.006 POINTER xdotool mousemove --sync 398 554
+09:55:03.174 POINTER xdotool click 1
+09:55:04.082 POINTER close-popup-click 632 259
+09:55:05.321 POINTER xdotool mousemove --sync 398 471
+09:55:05.527 POINTER xdotool click 1
+09:55:06.478 POINTER click-option run1-role popup=(118,490,560x80) row_h=26 idx=0 at 398,503 (attempt 1)
+09:55:06.647 POINTER xdotool mousemove --sync 398 503
+09:55:06.805 POINTER xdotool click 1
+09:55:08.282 POINTER xdotool mousemove 186 517  # run1-attach-submit
+09:55:08.283 POINTER xdotool mousemove --sync 186 517
+09:55:08.438 POINTER xdotool click 1
+09:55:11.824 POINTER xdotool mousemove 479 168  # nav-desk-2
+09:55:11.825 POINTER xdotool mousemove --sync 479 168
+09:55:11.985 POINTER xdotool click 1
+09:55:14.059 POINTER xdotool mousemove 234 623  # open-story-st-0205
+09:55:14.060 POINTER xdotool mousemove --sync 234 623
+09:55:14.219 POINTER xdotool click 1
+09:55:16.199 POINTER close-popup-click 632 259
+09:55:17.448 POINTER xdotool mousemove --sync 398 471
+09:55:17.654 POINTER xdotool click 1
+09:55:18.578 POINTER click-option run2-asset popup=(118,489,560x106) row_h=26 idx=0 at 398,502 (attempt 1)
+09:55:18.775 POINTER xdotool mousemove --sync 398 502
+09:55:18.933 POINTER xdotool click 1
+09:55:19.791 POINTER close-popup-click 632 259
+09:55:21.043 POINTER xdotool mousemove --sync 398 471
+09:55:21.248 POINTER xdotool click 1
+09:55:22.246 POINTER click-option run2-role popup=(118,489,560x80) row_h=26 idx=0 at 398,502 (attempt 1)
+09:55:22.468 POINTER xdotool mousemove --sync 398 502
+09:55:22.623 POINTER xdotool click 1
+09:55:24.106 POINTER xdotool mousemove 186 517  # run2-attach-submit
+09:55:24.107 POINTER xdotool mousemove --sync 186 517
+09:55:24.265 POINTER xdotool click 1
+09:55:27.632 POINTER xdotool mousemove 479 168  # nav-desk-final
+09:55:27.633 POINTER xdotool mousemove --sync 479 168
+09:55:27.793 POINTER xdotool click 1
+09:55:29.870 POINTER xdotool mousemove 242 507  # story-hero-verify
+09:55:29.871 POINTER xdotool mousemove --sync 242 507
+09:55:30.026 POINTER xdotool click 1
+09:55:32.475 POINTER xdotool mousemove 479 168  # nav-desk-x
+09:55:32.476 POINTER xdotool mousemove --sync 479 168
+09:55:32.634 POINTER xdotool click 1
+09:55:34.689 POINTER xdotool mousemove 234 623  # story2-hero-verify
+09:55:34.689 POINTER xdotool mousemove --sync 234 623
+09:55:34.847 POINTER xdotool click 1

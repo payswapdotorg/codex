@@ -1,0 +1,30 @@
+[d001 09:35:29] construction fixture reset
+pre-state: 62 %, 1 report(s) OK
+[d001 09:35:32] window id=2097155: Sign in — SiteBuild Field Suite - Google Chrome for Testing
+[d001 09:35:37] TAB-SEARCH-FAILED at login/username: got 'A' after 10 tabs
+[d001 09:35:52] construction fixture reset
+pre-state: 62 %, 1 report(s) OK
+[d001 09:35:55] window id=2097155: Sign in — SiteBuild Field Suite - Google Chrome for Testing
+[d001 09:36:00] reached login/username after 10 Tabs (cycle-aware)
+[d001 09:36:01] reached login/password after 0 Tabs (cycle-aware)
+[d001 09:36:04] login submitted — {"url":"http://localhost:4101/?ok=Signed+in+as+Marco+Silva+%28site_f","flash":"Signed in as Marco Silva (site_foreman)."}
+[d001 09:36:04] dashboard screenshot captured
+[d001 09:36:08] navigated — "http://localhost:4101/projects/p-101"
+[d001 09:36:12] reached form/reportDate after 10 Tabs (cycle-aware)
+[d001 09:36:13] reached form/taskIds after 4 Tabs (cycle-aware)
+[d001 09:36:14] taskIds selection state: {"sel":["t-101c"],"opts":["t-101c","t-101d"]}
+[d001 09:36:15] reached form/percent after 1 Tabs (cycle-aware)
+[d001 09:36:16] reached form/notes after 1 Tabs (cycle-aware)
+[d001 09:36:18] form filled screenshot captured
+[d001 09:36:18] reached form/submit after 1 Tabs (cycle-aware)
+[d001 09:36:22] post-submit screenshot — {"url":"http://localhost:4101/projects/p-101?ok=Progress+report+pr-4002+saved+","flash":"Progress report pr-4002 saved for Harborview Tower (72%)."}
+INPUT TRANSCRIPT ORACLE (xdotool injections): KEY-injections=42 POINTER-injections=0
+MODALITY VERDICT: keyboard-only PASS (zero pointer injections)
+=== C1 oracle pulls (post-hoc) 09:36:22 ===
+project.percentComplete = 72 (expect 72)
+new report id = pr-4002 author = u-2 percent = 72
+taskIds = ['t-101c'] (expect [t-101c]: the UI-selected first unfinished task)
+notes = 'Keyboard-only entry: level 13 formwork complete, guardrail straps replaced on east edge.'
+C1-1 report-values-exact: PASS
+C1-2 project-percent-moved: PASS
+[d001 09:36:22] D001 run complete — evidence in /home/z/codex/docs/validation/evidence/vwo-012/nst-d001

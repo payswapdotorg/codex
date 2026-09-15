@@ -1,0 +1,7 @@
+=== C1 oracle pulls (post-hoc) 09:36:22 ===
+project.percentComplete = 72 (expect 72)
+new report id = pr-4002 author = u-2 percent = 72
+taskIds = ['t-101c'] (expect [t-101c]: the UI-selected first unfinished task)
+notes = 'Keyboard-only entry: level 13 formwork complete, guardrail straps replaced on east edge.'
+C1-1 report-values-exact: PASS
+C1-2 project-percent-moved: PASS

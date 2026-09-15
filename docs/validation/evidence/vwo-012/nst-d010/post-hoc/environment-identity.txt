@@ -1,0 +1,8 @@
+run: NST-D010 crash mid-edit and recovery
+date-window: 2026-09-15T10:41:23Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+app: NotaryPad purpose-built fixture :4201 (§5 note 4; server-side autosave every 2s while dirty)
+input: DEMONSTRATE (typing + menu/dialog clicks)
+crash: kill -9 of the editor process mid-edit, before any save
+recovery: relaunch -> recovery banner -> Restore draft -> finish -> Save As incident-note

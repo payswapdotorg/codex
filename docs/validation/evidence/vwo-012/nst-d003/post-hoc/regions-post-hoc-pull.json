@@ -1,0 +1,65 @@
+{
+  "ok": true,
+  "regions": [
+    {
+      "id": "rg-1",
+      "name": "Downtown Core",
+      "code": "DT",
+      "surgeLevel": 1.4,
+      "activeDrivers": 34,
+      "demandIndex": 82,
+      "status": "normal",
+      "map": {
+        "x": 1,
+        "y": 1,
+        "w": 2,
+        "h": 2
+      }
+    },
+    {
+      "id": "rg-2",
+      "name": "Airport Corridor",
+      "code": "AP",
+      "surgeLevel": 1.8,
+      "activeDrivers": 12,
+      "demandIndex": 71,
+      "status": "surge",
+      "map": {
+        "x": 4,
+        "y": 0,
+        "w": 2,
+        "h": 2
+      }
+    },
+    {
+      "id": "rg-3",
+      "name": "Northside",
+      "code": "NS",
+      "surgeLevel": 1,
+      "activeDrivers": 9,
+      "demandIndex": 24,
+      "status": "normal",
+      "map": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 2
+      }
+    },
+    {
+      "id": "rg-4",
+      "name": "Riverside",
+      "code": "RV",
+      "surgeLevel": 1.2,
+      "activeDrivers": 15,
+      "demandIndex": 38,
+      "status": "normal",
+      "map": {
+        "x": 2,
+        "y": 3,
+        "w": 2,
+        "h": 1
+      }
+    }
+  ]
+}

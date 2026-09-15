@@ -1,0 +1,7 @@
+run: NST-D007 document editing end-to-end
+date-window: 2026-09-15T10:23:13Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+app: NotaryPad purpose-built fixture :4201 (§5 note 4)
+input: HYBRID (typing + menu/dialog clicks)
+save target: team-notes/safety-briefing.txt (where the team can find it)

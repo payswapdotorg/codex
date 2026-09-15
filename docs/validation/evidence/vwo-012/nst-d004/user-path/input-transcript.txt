@@ -1,0 +1,24 @@
+10:16:14.373 KEY xdotool windowfocus --sync 2097155
+10:16:14.536 POINTER xdotool mousemove --sync 633 288
+10:16:14.691 POINTER xdotool click 1
+10:16:15.095 KEY xdotool type --delay 30 Site safety briefing: level 13 formwork complete. Guardrail straps replaced on the east edge.
+10:16:17.154 POINTER xdotool mousemove --sync 151 163
+10:16:17.308 POINTER xdotool click 1
+10:16:18.004 POINTER xdotool mousemove --sync 225 300
+10:16:18.160 POINTER xdotool click 1
+10:16:19.579 POINTER xdotool mousemove --sync 633 462
+10:16:19.735 POINTER xdotool click 1
+10:16:20.140 KEY xdotool key ctrl+a
+10:16:20.322 KEY xdotool type --delay 45 close-test-note
+10:16:21.058 POINTER xdotool mousemove --sync 788 520
+10:16:21.213 POINTER xdotool click 1
+10:16:23.095 POINTER xdotool mousemove --sync 633 288
+10:16:23.251 POINTER xdotool click 1
+10:16:23.657 KEY xdotool key End
+10:16:23.887 KEY xdotool type --delay 40  UNSAVED TRAILING LINE THAT MUST NOT BE SAVED.
+10:16:25.413 POINTER xdotool mousemove --sync 151 163
+10:16:25.572 POINTER xdotool click 1
+10:16:26.102 POINTER xdotool mousemove --sync 225 335
+10:16:26.258 POINTER xdotool click 1
+10:16:27.659 POINTER xdotool mousemove --sync 732 504
+10:16:27.814 POINTER xdotool click 1

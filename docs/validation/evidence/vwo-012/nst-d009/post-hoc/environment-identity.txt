@@ -1,0 +1,8 @@
+run: NST-D009 GUI media manipulation with visual confirmation
+date-window: 2026-09-15T10:39:49Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+app: PhotoPrep purpose-built fixture :4203 (§5 note 4; ffmpeg deterministic backend)
+input: HYBRID (filmstrip/menu clicks; no typing needed)
+gate: server-enforced confirm-before-save (visual confirmation is part of the task)
+template: 800x600; sideways photo rotated 90 CW then resized

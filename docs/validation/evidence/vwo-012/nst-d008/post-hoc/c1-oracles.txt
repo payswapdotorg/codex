@@ -1,0 +1,14 @@
+=== C1 oracle (post-hoc) 10:38:10 ===
+CSV file: /home/z/Downloads/expense-sheet-week37.csv (198 bytes)
+CSV rows: 7
+   ['vendor', 'amount', 'note']
+   ['Coral Hardware', '48.50', '']
+   ['Metro Concrete', '612.00', '']
+   ['Rebar Supply Co', '275.25', '']
+   ['LiftIt Crane Svcs', '340.00', '']
+   ['Coral Hardware', '96.75', '']
+   ['TOTAL', '1372.50', '=SUM(B2:B6)']
+five-rows-correct: PASS
+total-value: PASS
+C1-1 exported-CSV-content: PASS
+C2 formula-bar-screenshot: present

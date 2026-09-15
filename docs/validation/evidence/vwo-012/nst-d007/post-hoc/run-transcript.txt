@@ -1,0 +1,10 @@
+[d007 10:23:08] briefing composed (title, 3 bullets, date)
+[d007 10:23:13] saved as: "safety-briefing.txt"
+INPUT TRANSCRIPT ORACLE: KEY-injections=4 POINTER-injections=10 (mode=HYBRID)
+MODALITY VERDICT: HYBRID PASS
+=== C1 oracle (post-hoc) 10:23:13 ===
+bullets found: 3 (expect >=3); title: True; date: True
+C1-1 saved-file-content: PASS
+exact-bytes: PASS
+C2 typing-screenshot: present
+[d007 10:23:13] D007 run complete

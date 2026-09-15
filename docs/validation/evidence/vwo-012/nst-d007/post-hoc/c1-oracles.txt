@@ -1,0 +1,5 @@
+=== C1 oracle (post-hoc) 10:23:13 ===
+bullets found: 3 (expect >=3); title: True; date: True
+C1-1 saved-file-content: PASS
+exact-bytes: PASS
+C2 typing-screenshot: present

@@ -1,0 +1,16 @@
+[d003 09:58:54] rideshare fixture reset
+[d003 09:58:54] regions pulled (oracle snapshot): 4 regions: Downtown Core, Airport Corridor, Northside, Riverside
+[d003 09:59:01] both windows mapped side by side: A(RidePilot)=2097155 left, B(NotaryPad)=10485763 right
+[d003 09:59:03] regions table drag-selected (mouse) (35,532)->(590,776)
+[d003 09:59:03] clipboard captured: 14 lines
+[d003 09:59:07] pasted into editor buffer (screenshot before save)
+[d003 09:59:09] saved via File > Save (default name untitled.txt)
+INPUT TRANSCRIPT ORACLE: KEY-injections=4 POINTER-injections=17
+MODALITY VERDICT: HYBRID PASS (both modalities exercised)
+=== C1 oracle pulls (post-hoc) 09:59:09 ===
+saved note path: /tmp/nstd-workspace/team-notes/untitled.txt (534 chars)
+per-region values checked: name/surge/drivers/demand for 4 regions
+missing values: none — all present
+C1-1 note-contains-exact-region-numbers: PASS
+C1-3 clipboard-transcript-matches: PASS
+[d003 09:59:09] D003 run complete — evidence in /home/z/codex/docs/validation/evidence/vwo-012/nst-d003

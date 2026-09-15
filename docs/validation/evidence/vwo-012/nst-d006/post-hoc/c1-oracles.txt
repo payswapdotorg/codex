@@ -1,0 +1,6 @@
+=== C1 oracle (post-hoc) 10:42:40 ===
+actual tree:   ['archive/note-2026-09-08.txt', 'archive/note-2026-09-09.txt', 'archive/note-2026-09-10.txt', 'archive/note-2026-09-11.txt', 'archive/note-2026-09-12.txt', 'field-notes-week-37-backup.txt', 'old-archive/note-2026-08-28.txt']
+expected tree: ['archive/note-2026-09-08.txt', 'archive/note-2026-09-09.txt', 'archive/note-2026-09-10.txt', 'archive/note-2026-09-11.txt', 'archive/note-2026-09-12.txt', 'field-notes-week-37-backup.txt', 'old-archive/note-2026-08-28.txt']
+C1-1 final-tree-equality: PASS
+C1-3 contents-preserved-in-renamed-backup: PASS
+C2-2 confirm-gate-screenshot: present

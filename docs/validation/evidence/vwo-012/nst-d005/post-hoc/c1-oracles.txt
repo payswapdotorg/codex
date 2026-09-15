@@ -1,0 +1,7 @@
+=== C1b oracle (post-hoc) 10:53:54 ===
+report size: 1600 bytes (non-trivial: True )
+checksum-of-payload stable across re-pull: PASS
+C1b report-in-weekly-stable: PASS
+C2 01-upload-form-filled.png: present
+C2 02-upload-confirmation.png: present
+C2 03-report-downloaded.png: present

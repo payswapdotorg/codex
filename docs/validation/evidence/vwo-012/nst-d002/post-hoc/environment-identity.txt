@@ -1,0 +1,8 @@
+run: NST-D002 mouse-only hero-photo selection
+date-window: 2026-09-15T09:55:36Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24 (window id 2097155)
+input: xdotool X11 pointer events only in run window (auth in documented setup phase)
+app: PressRoom fixture http://localhost:4104 (reset to seed: st-0203 draft/no-assets, st-0205 no-assets)
+persona: diego.morales (section_editor, story:edit; demo credential from /api/demo-hints)
+run1: st-0203 hero <- a-0303 (ferry-terminal-render.png); run2: st-0205 hero <- a-0301 (harbor-bridge-aerial.jpg)

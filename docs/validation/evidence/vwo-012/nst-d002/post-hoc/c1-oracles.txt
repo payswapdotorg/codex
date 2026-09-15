@@ -1,0 +1,4 @@
+=== C1 oracle pulls (post-hoc) 09:55:36 ===
+st-0203 heroAssetId = ['a-0303'] (expect [a-0303 ferry-terminal-render.png])
+st-0205 heroAssetId = ['a-0301'] (expect [a-0301 harbor-bridge-aerial.jpg])
+C1 hero-both-runs: PASS

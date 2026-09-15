@@ -1,0 +1,42 @@
+09:35:55.982 KEY xdotool windowfocus --sync 2097155
+09:35:56.593 KEY xdotool key Tab
+09:35:56.939 KEY xdotool key Tab
+09:35:57.281 KEY xdotool key Tab
+09:35:57.619 KEY xdotool key Tab
+09:35:57.965 KEY xdotool key Tab
+09:35:58.305 KEY xdotool key Tab
+09:35:58.648 KEY xdotool key Tab
+09:35:59.010 KEY xdotool key Tab
+09:35:59.367 KEY xdotool key Tab
+09:35:59.715 KEY xdotool key Tab
+09:36:00.070 KEY xdotool type --delay 55 marco.silva
+09:36:00.692 KEY xdotool key Tab
+09:36:01.120 KEY xdotool type --delay 55 demo-pass-marco
+09:36:01.851 KEY xdotool key Return
+09:36:04.684 KEY xdotool key ctrl+l
+09:36:05.218 KEY xdotool type --delay 30 http://localhost:4101/projects/p-101
+09:36:05.994 KEY xdotool key Return
+09:36:08.739 KEY xdotool key Tab
+09:36:09.081 KEY xdotool key Tab
+09:36:09.427 KEY xdotool key Tab
+09:36:09.768 KEY xdotool key Tab
+09:36:10.110 KEY xdotool key Tab
+09:36:10.482 KEY xdotool key Tab
+09:36:10.830 KEY xdotool key Tab
+09:36:11.232 KEY xdotool key Tab
+09:36:11.625 KEY xdotool key Tab
+09:36:11.981 KEY xdotool key Tab
+09:36:12.502 KEY xdotool key Tab
+09:36:12.863 KEY xdotool key Tab
+09:36:13.210 KEY xdotool key Tab
+09:36:13.566 KEY xdotool key Tab
+09:36:13.915 KEY xdotool key Down
+09:36:14.132 KEY xdotool key space
+09:36:14.682 KEY xdotool key Tab
+09:36:15.026 KEY xdotool key ctrl+a
+09:36:15.209 KEY xdotool type --delay 40 72
+09:36:15.559 KEY xdotool key Tab
+09:36:15.885 KEY xdotool key Tab
+09:36:16.235 KEY xdotool type --delay 25 Keyboard-only entry: level 13 formwork complete, guardrail straps replaced on east edge.
+09:36:18.241 KEY xdotool key Tab
+09:36:18.749 KEY xdotool key Return

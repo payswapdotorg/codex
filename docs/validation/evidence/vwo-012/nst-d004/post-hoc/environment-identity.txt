@@ -1,0 +1,7 @@
+run: NST-D004 menus, dialogs and transient warnings
+date-window: 2026-09-15T10:16:44Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 — NotaryPad purpose-built fixture :4201 (§5 note 4)
+dialogs: Save As app-level dialog (typed name, OK); unsaved-changes close-confirmation (Close without saving = dismissed without saving)
+design note: dialogs are app-level in-page modals (real-editor style) — the fallback-profile substitution for OS-native dialogs, recorded
+url-after-exit: BLOCKED

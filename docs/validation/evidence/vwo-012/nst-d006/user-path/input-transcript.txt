@@ -1,0 +1,90 @@
+10:41:49.006 KEY xdotool windowfocus --sync 2097155
+10:41:49.165 POINTER xdotool mousemove --sync 166 166
+10:41:49.353 POINTER xdotool click 1
+10:41:50.293 POINTER xdotool mousemove --sync 640 461
+10:41:50.447 POINTER xdotool click 1
+10:41:50.852 KEY xdotool key ctrl+a
+10:41:50.985 KEY xdotool type --delay 40 archive
+10:41:51.286 POINTER xdotool mousemove --sync 675 519
+10:41:51.444 POINTER xdotool click 1
+10:41:52.813 POINTER xdotool mousemove --sync 490 330
+10:41:52.970 POINTER xdotool click 1
+10:41:53.807 POINTER xdotool mousemove --sync 288 166
+10:41:53.964 POINTER xdotool click 1
+10:41:55.443 POINTER xdotool mousemove --sync 640 461
+10:41:55.650 POINTER xdotool click 1
+10:41:56.580 POINTER click-option move-dest-note-2026-09-08.txt popup=(464,478,352x74) row_h=24 idx=1 at 640,514 (attempt 1)
+10:41:56.802 POINTER xdotool mousemove --sync 640 514
+10:41:56.961 POINTER xdotool click 1
+10:41:57.812 POINTER xdotool mousemove --sync 680 520
+10:41:57.968 POINTER xdotool click 1
+10:41:59.296 POINTER xdotool mousemove --sync 490 330
+10:41:59.452 POINTER xdotool click 1
+10:42:00.288 POINTER xdotool mousemove --sync 288 166
+10:42:00.445 POINTER xdotool click 1
+10:42:01.931 POINTER xdotool mousemove --sync 640 461
+10:42:02.139 POINTER xdotool click 1
+10:42:03.068 POINTER click-option move-dest-note-2026-09-09.txt popup=(464,478,352x74) row_h=24 idx=1 at 640,514 (attempt 1)
+10:42:03.236 POINTER xdotool mousemove --sync 640 514
+10:42:03.396 POINTER xdotool click 1
+10:42:04.297 POINTER xdotool mousemove --sync 680 520
+10:42:04.454 POINTER xdotool click 1
+10:42:05.793 POINTER xdotool mousemove --sync 490 330
+10:42:05.950 POINTER xdotool click 1
+10:42:06.791 POINTER xdotool mousemove --sync 288 166
+10:42:06.948 POINTER xdotool click 1
+10:42:08.445 POINTER xdotool mousemove --sync 640 461
+10:42:08.651 POINTER xdotool click 1
+10:42:09.657 POINTER click-option move-dest-note-2026-09-10.txt popup=(464,478,352x74) row_h=24 idx=1 at 640,514 (attempt 1)
+10:42:09.825 POINTER xdotool mousemove --sync 640 514
+10:42:09.982 POINTER xdotool click 1
+10:42:10.870 POINTER xdotool mousemove --sync 680 520
+10:42:11.026 POINTER xdotool click 1
+10:42:12.388 POINTER xdotool mousemove --sync 490 330
+10:42:12.543 POINTER xdotool click 1
+10:42:13.381 POINTER xdotool mousemove --sync 288 166
+10:42:13.538 POINTER xdotool click 1
+10:42:15.177 POINTER xdotool mousemove --sync 640 461
+10:42:15.382 POINTER xdotool click 1
+10:42:16.313 POINTER click-option move-dest-note-2026-09-11.txt popup=(464,478,352x74) row_h=24 idx=1 at 640,514 (attempt 1)
+10:42:16.516 POINTER xdotool mousemove --sync 640 514
+10:42:16.674 POINTER xdotool click 1
+10:42:17.552 POINTER xdotool mousemove --sync 680 520
+10:42:17.713 POINTER xdotool click 1
+10:42:19.047 POINTER xdotool mousemove --sync 490 330
+10:42:19.202 POINTER xdotool click 1
+10:42:20.041 POINTER xdotool mousemove --sync 288 166
+10:42:20.196 POINTER xdotool click 1
+10:42:21.691 POINTER xdotool mousemove --sync 640 461
+10:42:21.897 POINTER xdotool click 1
+10:42:22.854 POINTER click-option move-dest-note-2026-09-12.txt popup=(464,478,352x74) row_h=24 idx=1 at 640,514 (attempt 1)
+10:42:23.061 POINTER xdotool mousemove --sync 640 514
+10:42:23.222 POINTER xdotool click 1
+10:42:24.065 POINTER xdotool mousemove --sync 680 520
+10:42:24.222 POINTER xdotool click 1
+10:42:25.756 POINTER xdotool mousemove --sync 490 330
+10:42:25.913 POINTER xdotool click 1
+10:42:26.753 POINTER xdotool mousemove --sync 385 166
+10:42:26.909 POINTER xdotool click 1
+10:42:27.950 POINTER xdotool mousemove --sync 640 441
+10:42:28.107 POINTER xdotool click 1
+10:42:28.513 KEY xdotool key ctrl+a
+10:42:28.655 KEY xdotool type --delay 40 scratch-todo-backup-2026-09-12.txt
+10:42:29.550 POINTER xdotool mousemove --sync 681 540
+10:42:29.705 POINTER xdotool click 1
+10:42:31.043 POINTER xdotool mousemove --sync 490 330
+10:42:31.197 POINTER xdotool click 1
+10:42:32.108 POINTER xdotool mousemove --sync 476 166
+10:42:32.264 POINTER xdotool click 1
+10:42:33.305 POINTER xdotool mousemove --sync 640 461
+10:42:33.460 POINTER xdotool click 1
+10:42:33.865 KEY xdotool key ctrl+a
+10:42:33.997 KEY xdotool type --delay 40 field-notes-week-37-backup.txt
+10:42:34.752 POINTER xdotool mousemove --sync 703 519
+10:42:34.909 POINTER xdotool click 1
+10:42:36.245 POINTER xdotool mousemove --sync 490 359
+10:42:36.401 POINTER xdotool click 1
+10:42:37.254 POINTER xdotool mousemove --sync 572 166
+10:42:37.412 POINTER xdotool click 1
+10:42:38.911 POINTER xdotool mousemove --sync 739 540
+10:42:39.068 POINTER xdotool click 1

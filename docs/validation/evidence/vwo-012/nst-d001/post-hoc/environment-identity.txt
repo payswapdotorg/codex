@@ -1,0 +1,8 @@
+run: NST-D001 keyboard-only daily report entry
+date-window: 2026-09-15T09:36:22Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24 (window id 2097155)
+input: xdotool X11 keystrokes only; transcript: injection log (xev single-client key-selection limitation recorded)
+app: SiteBuild fixture http://localhost:4101 (reset to seed before run: percent 62, 1 report)
+persona: marco.silva (site_foreman; demo credential from /api/demo-hints)
+focus-verification: read-only CDP activeElement probe before every field act

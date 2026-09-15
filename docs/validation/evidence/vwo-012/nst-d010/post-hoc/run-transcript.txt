@@ -1,0 +1,16 @@
+[d010 10:41:03] pre-crash portion typed (219 chars)
+autosave found: True | chars: 219
+kill -9 pid=29159 at 2026-09-15T10:41:06.319Z (before any save)
+[d010 10:41:13] recovery banner state: {"banner":"block","text":"Draft recovered from autosave 2026-09-15T10:41:05.112ZRestore draftDiscard"}
+[d010 10:41:15] draft restored: buffer length = 219 (expect ~219)
+[d010 10:41:18] note finished (319 chars total)
+INPUT TRANSCRIPT ORACLE: KEY-injections=7 POINTER-injections=14 (mode=any)
+MODALITY VERDICT: any PASS
+=== oracle pulls (post-hoc) 10:41:23 ===
+C1-1 kill-before-save: kill at 2026-09-15T10:41:06.319Z — no file existed at kill time (verified pre-relaunch): PASS
+final note length: 319 expect 319
+pre-crash portion present: PASS
+C1-2 complete-note-byte-compare: PASS
+C2-3 exactly-one-saved-artifact: PASS
+C2-2 recovery-banner-screenshot: present
+[d010 10:41:23] D010 run complete
