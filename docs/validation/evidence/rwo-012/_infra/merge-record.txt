@@ -1,0 +1,16 @@
+RWO-012 merged via PR #45 (merge commit 03c2aa2e3) into main at 2026-09-15T05:39Z.
+
+Substring-scoped exemption markers in the evidence checker (Family K; closes
+VWO-008 F5): per-match exemption evaluation (marker in the match text, or in
+the single whitespace-delimited segment containing the match); assignment
+value {8}->{8,} for full-value capture (detection semantics unchanged);
+--selftest added (9/9 incl. the WO cases and the AC2 bypass shape); --scan
+added (corpus re-scan: 525 files, 0 violations after one documented redaction
+of the F5 residual in VWO-008's own injection transcript). AC2 fail-closed
+proven live (exit 1, nothing written).
+
+Residual documented: validate-report.py carries the same line-scoped
+ALLOW_RE.search(line) shape — recommended follow-up (out of WO scope).
+
+This closes ALL TWELVE RWOs (12/12). VWO-001..011 complete; remaining
+roadmap: VWO-012..016.
