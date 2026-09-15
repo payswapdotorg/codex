@@ -4,8 +4,10 @@
 //! a normal person can teach a workflow (DEMONSTRATE, INSTRUCT, or HYBRID),
 //! compile it, review it, approve it, and publish an immutable version, fork
 //! a published version into a new immutable release that carries its
-//! lineage (RWO-005), then operate durable instances. Every response
-//! carries the Workflow Identity fields that apply to it: workflow
+//! lineage (RWO-005), propose an improvement candidate from recorded
+//! execution evidence and publish it only after validation and an explicit
+//! approval decision (RWO-006), then operate durable instances. Every
+//! response carries the Workflow Identity fields that apply to it: workflow
 //! definition id, semantic version, version digest, and dependency-lock
 //! identity where they exist.
 //!
@@ -638,6 +640,269 @@ pub struct WorkflowForkResponse {
     /// The attribution the fork release carries forward from its
     /// upstream, as recorded in its sealed lineage.
     pub attribution: Vec<WorkflowForkAttribution>,
+}
+
+/// The category of one proposed improvement change (RWO-006).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase", export_to = "v2/")]
+pub enum WorkflowChangeKind {
+    /// A delta to the workflow definition.
+    DefinitionDelta,
+    /// A change to the declared capability bindings of step nodes.
+    CapabilityBinding,
+    /// An adjustment to the binding/recovery policy.
+    RecoveryPolicy,
+    /// A change to the resolved dependency lock.
+    DependencyChoice,
+    /// A tuning of the trigger schedule.
+    ScheduleTuning,
+}
+
+/// The content-addressed identity of one recorded execution run an
+/// improvement candidate cites (RWO-006).
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowRunProvenance {
+    /// The immutable version the cited run pinned.
+    pub version_id: String,
+    /// The semantic fingerprint digest of the run record.
+    pub fingerprint: String,
+    /// The settled instance status of the run.
+    pub status: WorkflowInstanceStatus,
+}
+
+/// The execution evidence summary attached to an improvement candidate
+/// (RWO-006): the evidence references the candidate cites plus the
+/// content-addressed identities of the recorded runs it was derived from.
+///
+/// This is the minimal evidence surface of the improvement lifecycle: the
+/// dedicated monitoring surface is a later work order's scope.
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowEvidenceSummary {
+    /// The execution evidence references backing the proposal.
+    pub references: Vec<WorkflowEvidenceReference>,
+    /// The recorded runs the proposal was derived from.
+    pub runs: Vec<WorkflowRunProvenance>,
+}
+
+/// One proposed improvement candidate derived from recorded execution
+/// evidence (RWO-006): what it evolves, what it proposes, why, and the
+/// evidence it cites.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImprovementCandidate {
+    /// The candidate's control-plane identity.
+    pub candidate_id: String,
+    /// The workflow the candidate evolves.
+    pub workflow: String,
+    /// The immutable published version the candidate evolves.
+    pub incumbent_version_id: String,
+    /// The category of the proposed change.
+    pub change_kind: WorkflowChangeKind,
+    /// Why the candidate proposes the change (bounded, derived text).
+    pub rationale: String,
+    /// The execution evidence the candidate cites.
+    pub evidence: WorkflowEvidenceSummary,
+}
+
+/// One stage of the improvement validation pipeline (RWO-006).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase", export_to = "v2/")]
+pub enum WorkflowValidationStageName {
+    /// The deterministic replay of incumbent and successor.
+    Replay,
+    /// The differential comparison of the two replay records.
+    Differential,
+    /// The authorization, resource, and compatibility checks.
+    Policy,
+}
+
+/// The outcome of one validation stage (RWO-006).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowValidationStage {
+    /// The stage.
+    pub stage: WorkflowValidationStageName,
+    /// Whether the stage passed.
+    pub passed: bool,
+}
+
+/// An explicit approval decision on an improvement candidate (RWO-006):
+/// the governed gate publication refuses to cross without.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase", export_to = "v2/")]
+pub enum WorkflowImprovementDecision {
+    /// Approve the candidate for publication.
+    Approved,
+    /// Reject the candidate.
+    Rejected,
+}
+
+/// The governed lineage record of one published improvement (RWO-006):
+/// predecessor to successor with the full decision trail.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImprovementLineage {
+    /// The workflow that evolved.
+    pub workflow: String,
+    /// The immutable version identity of the predecessor.
+    pub predecessor_version_id: String,
+    /// The semantic version of the predecessor.
+    pub predecessor_semantic_version: String,
+    /// The immutable version identity of the successor.
+    pub successor_version_id: String,
+    /// The semantic version of the successor.
+    pub successor_semantic_version: String,
+    /// The candidate that proposed the change.
+    pub candidate_id: String,
+    /// The digest of the validation report that gated the succession.
+    pub validation_digest: String,
+    /// The validation stage outcomes.
+    pub validation_stages: Vec<WorkflowValidationStage>,
+    /// The principal that approved the succession.
+    pub approver: String,
+    /// The release tag the successor was published under.
+    pub release_tag: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveProposeParams {
+    /// The published workflow version to improve, in sha256-hex form.
+    pub version_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveProposeResponse {
+    /// The workflow the candidates evolve.
+    pub workflow: String,
+    /// The immutable version the candidates were derived from.
+    pub incumbent_version_id: String,
+    /// The semantic version of the incumbent.
+    pub incumbent_semantic_version: String,
+    /// The execution evidence recorded for the proposal.
+    pub evidence: WorkflowEvidenceSummary,
+    /// The improvement candidates the evidence supports.
+    pub candidates: Vec<WorkflowImprovementCandidate>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveValidateParams {
+    /// The improvement candidate to validate.
+    pub candidate_id: String,
+    /// The semantic version of the proposed successor.
+    pub successor_version: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveValidateResponse {
+    /// The validated candidate.
+    pub candidate_id: String,
+    /// The workflow the candidate evolves.
+    pub workflow: String,
+    /// The semantic version validated for the successor.
+    pub successor_version: String,
+    /// Whether every validation gate passed explicitly.
+    pub passed: bool,
+    /// The validation stage outcomes, in pipeline order.
+    pub stages: Vec<WorkflowValidationStage>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveApproveParams {
+    /// The validated candidate the decision covers.
+    pub candidate_id: String,
+    /// The approving or rejecting principal (human or policy identity).
+    pub approver: String,
+    /// The explicit decision.
+    pub decision: WorkflowImprovementDecision,
+    /// Optional note recorded with an approval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub note: Option<String>,
+    /// Why the candidate was rejected; required when the decision is
+    /// rejected.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub reason: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImproveApproveResponse {
+    /// The candidate the decision covers.
+    pub candidate_id: String,
+    /// The workflow the candidate evolves.
+    pub workflow: String,
+    /// The incumbent version the approval binds to.
+    pub incumbent_version_id: String,
+    /// The digest of the validation report the approval covers.
+    pub validation_digest: String,
+    /// Whether the decision approves.
+    pub approved: bool,
+    /// The principal that decided.
+    pub approver: String,
+    /// The approval note, when one was recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub note: Option<String>,
+    /// The rejection reason, when the candidate was rejected.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub reason: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImprovePublishParams {
+    /// The validated and approved candidate to publish.
+    pub candidate_id: String,
+    /// The release tag the successor is published under.
+    pub release_tag: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowImprovePublishResponse {
+    /// The workflow that evolved.
+    pub workflow: String,
+    /// The immutable version identity of the successor.
+    pub version_id: String,
+    /// The semantic version of the successor.
+    pub semantic_version: String,
+    /// Digest of the successor's frozen workflow definition.
+    pub definition_digest: String,
+    /// Digest of the successor's resolved dependency lock.
+    pub dependency_lock_digest: String,
+    /// The successor's repository identity.
+    pub repository: String,
+    /// The immutable commit the successor anchors at.
+    pub commit_sha: String,
+    /// The governed lineage connecting predecessor to successor.
+    pub lineage: WorkflowImprovementLineage,
+    /// The execution evidence the published improvement cites.
+    pub evidence: WorkflowEvidenceSummary,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]

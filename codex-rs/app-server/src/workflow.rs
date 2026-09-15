@@ -9,7 +9,14 @@
 //! `codex-workflow-durable`, `codex-workflow-contracts`). The fork path
 //! (RWO-005) likewise delegates to the frozen distribution port's `fork`:
 //! the derived release is the engine's sealed record, never a mount-side
-//! re-derivation.
+//! re-derivation. The improvement path (RWO-006) delegates to the frozen
+//! evolution port's governed lifecycle: the mount records execution
+//! evidence (one deterministic evaluation run plus a durable trace
+//! reference), generates candidates through the engine's evidence-driven
+//! generator, and drives validate -> approve -> publish through the
+//! engine's [`EvolutionGovernor`] — publication lands as a new immutable
+//! successor version mirrored into the same durable version store every
+//! other published release uses.
 //!
 //! State layout, following the RWO-001 bound of in-memory doubles first:
 //!
@@ -17,6 +24,11 @@
 //!   (the in-memory double policy): teaching is one process's work, and
 //!   the durable teaching artifacts are the immutable versions that
 //!   publication seals.
+//! - Improvement sessions (one evolution governor per proposal, shared by
+//!   every candidate it generated) live in process memory the same way:
+//!   improving is one process's governed conversation, and the durable
+//!   artifacts are the immutable successor versions and the durable
+//!   execution-evidence references.
 //! - Workflow versions, instances, evidence, and run positions live in the
 //!   file-backed durable stores from `codex-workflow-durable` (MWO-001)
 //!   under the control-plane root, so instances survive kill/restart.
@@ -25,6 +37,7 @@
 //! method is called; the durable root is opened lazily on first use.
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -33,6 +46,11 @@ use std::sync::MutexGuard;
 use std::sync::PoisonError;
 
 use codex_app_server_protocol as rpc;
+use codex_eval_compat::EVAL_MODEL_SLUG;
+use codex_eval_compat::ScriptedModelProvider;
+use codex_eval_compat::WorkflowEvalHarness;
+use codex_eval_compat::WorkflowRunRecord;
+use codex_eval_compat::equivalent_capabilities;
 use codex_teaching_compiler::ApprovalDecision;
 use codex_teaching_compiler::ApprovalDecisionKind;
 use codex_teaching_compiler::CandidateOrigin;
@@ -50,12 +68,14 @@ use codex_teaching_compiler::TrajectoryEvent;
 use codex_teaching_compiler::ValidationSummary;
 use codex_teaching_compiler::WorkflowCandidate;
 use codex_teaching_compiler::compile;
+use codex_workflow_app::EvidenceStore;
 use codex_workflow_app::LifecycleDeps;
 use codex_workflow_app::PublishRequest;
 use codex_workflow_app::RecordingEventSink;
 use codex_workflow_app::RunPositionStore;
 use codex_workflow_app::RunTerminal;
 use codex_workflow_app::ScriptedActionSource;
+use codex_workflow_app::WalkConfig;
 use codex_workflow_app::WorkflowAppError;
 use codex_workflow_app::WorkflowInstanceStore;
 use codex_workflow_app::WorkflowLifecycle;
@@ -93,11 +113,30 @@ use codex_workflow_distribution::UpgradePolicySetting;
 use codex_workflow_distribution::WorkflowDistributionError;
 use codex_workflow_durable::DurableRunPositionStore;
 use codex_workflow_durable::DurableStores;
+use codex_workflow_evolution::ApprovalDecision as EvolutionApprovalDecision;
+use codex_workflow_evolution::CandidateGenerator;
+use codex_workflow_evolution::CandidateId;
+
+use codex_workflow_evolution::ChangeKind;
+use codex_workflow_evolution::EvalReplayPort;
+use codex_workflow_evolution::EvidenceCorpus;
+use codex_workflow_evolution::EvolutionGovernor;
+use codex_workflow_evolution::EvolutionPolicy;
+use codex_workflow_evolution::ImprovementCandidate;
+use codex_workflow_evolution::InMemoryApprovalPort;
+use codex_workflow_evolution::PolicyGate;
+use codex_workflow_evolution::RetentionPolicy;
+use codex_workflow_evolution::RunProvenance;
+use codex_workflow_evolution::StageName;
+use codex_workflow_evolution::WorkflowEvolutionError;
+use codex_workflow_forge::InstallRegistry;
 use codex_workflow_forge::PublishedVersionRef;
+use codex_workflow_forge::WorkflowForgeError;
 use codex_workflow_triggers::InstanceControl;
 use codex_workflow_triggers::ResumeDirective;
 use codex_workflow_triggers::WorkflowTriggerError;
 use thiserror::Error;
+use tokio::sync::Mutex as TokioMutex;
 use uuid::Uuid;
 
 use crate::workflow::approval::DurableBackedApprovalSource;
@@ -119,6 +158,11 @@ const DEFAULT_FORK_OWNER: &str = "cli-user";
 /// mount when the caller declares none: an explicit custom-license marker
 /// that makes no claim about the upstream's terms.
 const DEFAULT_FORK_LICENSE: &str = "LicenseRef-Unspecified";
+/// The provider identity the mount's evidence-recording evaluation run
+/// registers its scripted model double under (RWO-006). The provider key
+/// is excluded from run fingerprints, so it identifies the recorder
+/// without touching equivalence classes.
+const EVIDENCE_PROVIDER_ID: &str = "workflow-mount-evidence";
 
 /// Errors surfaced by the workflow control plane mount.
 #[derive(Debug, Error)]
@@ -147,6 +191,18 @@ pub enum WorkflowControlPlaneError {
     /// errors; integrity failures surface as internal errors.
     #[error("workflow distribution error: {0}")]
     Distribution(#[from] WorkflowDistributionError),
+    /// A forge-plane operation failed (RWO-006: installing the incumbent
+    /// release into the evaluation registry). Integrity failures surface
+    /// as internal errors.
+    #[error("workflow forge error: {0}")]
+    Forge(#[from] WorkflowForgeError),
+    /// An evolution-plane operation failed (RWO-006). Refusals (an
+    /// unknown, stale, or already-promoted candidate, a missing or failed
+    /// validation, a missing, rejected, or mismatched approval, a no-op
+    /// evolution, or credential-shaped content) surface as request
+    /// errors; integrity failures surface as internal errors.
+    #[error("workflow evolution error: {0}")]
+    Evolution(#[from] WorkflowEvolutionError),
 }
 
 /// The in-memory state of the control plane mount.
@@ -156,6 +212,7 @@ struct WorkflowState {
     candidates: BTreeMap<String, CandidateEntry>,
     stores: Option<Arc<DurableStores>>,
     reconciled: bool,
+    improvements: BTreeMap<String, Arc<TokioMutex<EvolutionGovernor<EvalReplayPort, PolicyGate>>>>,
 }
 
 /// One open or closed teaching session.
@@ -692,6 +749,253 @@ impl WorkflowControlPlane {
         })
     }
 
+    /// Proposes improvement candidates for a published version from newly
+    /// recorded execution evidence (RWO-006).
+    ///
+    /// The mount records execution evidence exactly the way the engine's
+    /// hosts are documented to: it runs the incumbent once through
+    /// eval-compat's deterministic harness (the same evaluation runtime
+    /// the validation pipeline replays through) and stores the run's
+    /// canonical semantic projection as a durable trace reference in the
+    /// control-plane evidence store. The engine's evidence-driven
+    /// [`CandidateGenerator`] then derives candidates over that corpus —
+    /// each candidate cites the evidence references and the run's
+    /// content-addressed fingerprint, and the response surfaces the
+    /// evidence summary. Nothing is validated or approved yet: candidates
+    /// are proposals that live or die by the governed lifecycle.
+    pub async fn improve_propose(
+        &self,
+        params: rpc::WorkflowImproveProposeParams,
+    ) -> Result<rpc::WorkflowImproveProposeResponse, WorkflowControlPlaneError> {
+        let stores = self.refresh_stores()?;
+        let incumbent_id = parse_version_id(&params.version_id)?;
+        let incumbent = stores.versions.load(&incumbent_id)?.ok_or_else(|| {
+            WorkflowControlPlaneError::NotFound(format!(
+                "unknown published workflow version `{}`",
+                params.version_id
+            ))
+        })?;
+        // Record execution evidence: one deterministic evaluation run of
+        // the incumbent (empty scripts — the mount's published versions
+        // declare no capabilities, so the walk never consults the action
+        // or environment seams; a future capability-bearing version would
+        // fail this run loudly rather than record half an execution).
+        let record = execution_evidence_run(&incumbent).await?;
+        // The run's canonical trace becomes a durable, verifiable evidence
+        // reference the candidates cite.
+        let payload = record.semantic_projection();
+        let mut evidence_store = stores.evidence.clone();
+        let reference = evidence_store.store(EvidenceKind::Trace, &payload)?;
+        // The engine's corpus + generator, reused as-is.
+        let corpus = EvidenceCorpus::from_observations(
+            &incumbent,
+            std::slice::from_ref(&record),
+            vec![reference],
+            BTreeSet::new(),
+            None,
+        )?;
+        let candidates = CandidateGenerator::new().generate(&corpus)?;
+        // One governor per proposal: the engine's governed lifecycle over
+        // the incumbent (a fresh install registry seeded with it), with
+        // the engine's in-memory approval port (the RWO-001 in-memory
+        // double bound; the approval gate itself is engine-enforced
+        // refusal, not a note).
+        let mut installs = InstallRegistry::new();
+        installs.install(&PublishedVersionRef::of(&incumbent))?;
+        let mut governor = EvolutionGovernor::over_incumbent(
+            incumbent.clone(),
+            installs,
+            EvalReplayPort::new(Vec::new(), Vec::new()),
+            PolicyGate::new(EvolutionPolicy::conservative()),
+            Box::new(InMemoryApprovalPort::new()),
+            RetentionPolicy::default(),
+        )?;
+        for candidate in &candidates {
+            governor.record_candidate(candidate.clone())?;
+        }
+        // Every candidate of this proposal shares the governor; later
+        // validate/approve/publish calls reach it by candidate id.
+        let shared = Arc::new(TokioMutex::new(governor));
+        {
+            let mut state = self.lock();
+            for candidate in &candidates {
+                state
+                    .improvements
+                    .insert(candidate.id.to_string(), Arc::clone(&shared));
+            }
+        }
+        let identity = &incumbent.identity;
+        Ok(rpc::WorkflowImproveProposeResponse {
+            workflow: identity.workflow.to_string(),
+            incumbent_version_id: incumbent.version_id.to_string(),
+            incumbent_semantic_version: identity.semantic_version.to_string(),
+            evidence: evidence_summary_protocol(&corpus.references, &corpus.runs),
+            candidates: candidates
+                .iter()
+                .map(improvement_candidate_protocol)
+                .collect(),
+        })
+    }
+
+    /// Validates one improvement candidate (RWO-006): replay, differential
+    /// comparison, and policy checks through the engine's pipeline.
+    ///
+    /// The report and the staged succession are recorded whether or not
+    /// the gates passed — failed validation is governance evidence too.
+    pub async fn improve_validate(
+        &self,
+        params: rpc::WorkflowImproveValidateParams,
+    ) -> Result<rpc::WorkflowImproveValidateResponse, WorkflowControlPlaneError> {
+        let candidate = parse_candidate_id(&params.candidate_id)?;
+        let successor = semver::Version::parse(&params.successor_version).map_err(|error| {
+            WorkflowControlPlaneError::InvalidRequest(format!(
+                "invalid successor semantic version `{}`: {error}",
+                params.successor_version
+            ))
+        })?;
+        let session = self.improvement_session(&candidate)?;
+        let mut governor = session.lock().await;
+        let report = governor.validate_candidate(&candidate, &successor).await?;
+        Ok(rpc::WorkflowImproveValidateResponse {
+            candidate_id: candidate.to_string(),
+            workflow: governor.workflow().to_string(),
+            successor_version: params.successor_version,
+            passed: report.passed(),
+            stages: report
+                .summaries()
+                .iter()
+                .map(validation_stage_protocol)
+                .collect(),
+        })
+    }
+
+    /// Records an explicit approval decision on a validated candidate
+    /// (RWO-006): the approval gate.
+    ///
+    /// The decision crosses the engine's approval port — the only
+    /// authorization path — and binds to the candidate's validation
+    /// digest, so it never transfers to a different validation outcome.
+    /// Rejection is recorded too: audit covers both directions, and a
+    /// rejected candidate can never publish.
+    pub async fn improve_approve(
+        &self,
+        params: rpc::WorkflowImproveApproveParams,
+    ) -> Result<rpc::WorkflowImproveApproveResponse, WorkflowControlPlaneError> {
+        let candidate = parse_candidate_id(&params.candidate_id)?;
+        let decision = match params.decision {
+            rpc::WorkflowImprovementDecision::Approved => EvolutionApprovalDecision::Approve {
+                approver: params.approver.clone(),
+                note: params.note.clone(),
+            },
+            rpc::WorkflowImprovementDecision::Rejected => EvolutionApprovalDecision::Reject {
+                approver: params.approver.clone(),
+                reason: params.reason.clone().ok_or_else(|| {
+                    WorkflowControlPlaneError::InvalidRequest(
+                        "a rejection must carry a reason".to_string(),
+                    )
+                })?,
+            },
+        };
+        let session = self.improvement_session(&candidate)?;
+        let mut governor = session.lock().await;
+        let record = governor.decide_approval(&candidate, decision)?;
+        let request = &record.request;
+        Ok(rpc::WorkflowImproveApproveResponse {
+            candidate_id: request.candidate.to_string(),
+            workflow: request.workflow.to_string(),
+            incumbent_version_id: request.incumbent.to_string(),
+            validation_digest: request.validation_digest.to_string(),
+            approved: record.approves(),
+            approver: params.approver,
+            note: match &record.decision {
+                EvolutionApprovalDecision::Approve { note, .. } => note.clone(),
+                _ => None,
+            },
+            reason: match &record.decision {
+                EvolutionApprovalDecision::Reject { reason, .. } => Some(reason.clone()),
+                _ => None,
+            },
+        })
+    }
+
+    /// Publishes a validated and approved candidate as a new immutable
+    /// successor version (RWO-006).
+    ///
+    /// The engine refuses publication unless the validation passed and a
+    /// recorded approval matches the candidate, its validation digest, and
+    /// the incumbent — the approval gate is a real, engine-enforced step.
+    /// The governed publication itself is the existing path: the engine's
+    /// forge cuts the release at the staged revision and records the
+    /// immutable lineage (predecessor, successor, candidate provenance,
+    /// validation evidence, approval), and the mount mirrors the sealed
+    /// successor into the same durable version store every other
+    /// published release uses — refusing an identity that is already
+    /// published, never overwriting — so instances can pin the successor
+    /// like any other immutable version. The predecessor is untouched.
+    pub async fn improve_publish(
+        &self,
+        params: rpc::WorkflowImprovePublishParams,
+    ) -> Result<rpc::WorkflowImprovePublishResponse, WorkflowControlPlaneError> {
+        let candidate = parse_candidate_id(&params.candidate_id)?;
+        let stores = self.refresh_stores()?;
+        let session = self.improvement_session(&candidate)?;
+        let mut governor = session.lock().await;
+        let publication = governor.publish_successor(&candidate, &params.release_tag)?;
+        let successor_id = publication.successor.version_id.clone();
+        if stores.versions.load(&successor_id)?.is_some() {
+            return Err(WorkflowControlPlaneError::InvalidRequest(format!(
+                "workflow version `{successor_id}` of workflow `{}` is already published",
+                publication.lineage.workflow,
+            )));
+        }
+        // The sealed successor record, mirrored into the durable store.
+        let successor = governor
+            .version_record(&successor_id)?
+            .ok_or_else(|| {
+                WorkflowControlPlaneError::InvalidRequest(
+                    "the published successor is missing from the governor".to_owned(),
+                )
+            })?
+            .clone();
+        let mut versions = stores.versions.clone();
+        versions.publish(successor)?;
+        let lineage = &publication.lineage;
+        let identity = &publication.successor.identity;
+        Ok(rpc::WorkflowImprovePublishResponse {
+            workflow: lineage.workflow.to_string(),
+            version_id: successor_id.to_string(),
+            semantic_version: identity.semantic_version.to_string(),
+            definition_digest: identity.definition_digest.to_string(),
+            dependency_lock_digest: identity.dependency_lock_digest.to_string(),
+            repository: identity.repository.to_string(),
+            commit_sha: identity.source_revision.commit_sha.to_string(),
+            lineage: rpc::WorkflowImprovementLineage {
+                workflow: lineage.workflow.to_string(),
+                predecessor_version_id: lineage.predecessor.version_id.to_string(),
+                predecessor_semantic_version: lineage
+                    .predecessor
+                    .identity
+                    .semantic_version
+                    .to_string(),
+                successor_version_id: lineage.successor.version_id.to_string(),
+                successor_semantic_version: lineage.successor.identity.semantic_version.to_string(),
+                candidate_id: lineage.candidate.to_string(),
+                validation_digest: lineage.validation_digest.to_string(),
+                validation_stages: lineage
+                    .validation_stages
+                    .iter()
+                    .map(validation_stage_protocol)
+                    .collect(),
+                approver: lineage.approval.decision.approver().to_string(),
+                release_tag: lineage.release_tag.clone(),
+            },
+            evidence: evidence_summary_protocol(
+                &lineage.provenance.evidence,
+                &lineage.provenance.runs,
+            ),
+        })
+    }
+
     /// Runs one instance of a published version to a terminal state.
     ///
     /// Instantiation runs the engine gates (validate -> approve -> bind)
@@ -846,6 +1150,27 @@ impl WorkflowControlPlane {
         Ok(rpc::WorkflowInstanceCancelResponse {
             instance: instance_record(&instance, &positions)?,
         })
+    }
+
+    /// The improvement session (governor handle) one candidate belongs to.
+    fn improvement_session(
+        &self,
+        candidate: &CandidateId,
+    ) -> Result<
+        Arc<TokioMutex<EvolutionGovernor<EvalReplayPort, PolicyGate>>>,
+        WorkflowControlPlaneError,
+    > {
+        let state = self.lock();
+        state
+            .improvements
+            .get(candidate.as_ref())
+            .cloned()
+            .ok_or_else(|| {
+                WorkflowControlPlaneError::NotFound(format!(
+                    "unknown improvement candidate `{candidate}` (improvement sessions are \
+                 process-local: propose again in this process to re-derive them)"
+                ))
+            })
     }
 
     /// Builds one ephemeral lifecycle over the shared durable stores.
@@ -1029,6 +1354,114 @@ fn seeded_release_metadata(
         UpgradePolicySetting::Pin,
     )
     .map_err(WorkflowControlPlaneError::Distribution)
+}
+
+/// Records one execution of a published version through eval-compat's
+/// deterministic harness (RWO-006).
+///
+/// The harness is the engine's evaluation runtime — the same one the
+/// validation pipeline replays through — so the run record it returns is
+/// a real, fingerprinted execution of the incumbent: terminal state,
+/// settled status, visited path, action footprints, evidence and recovery
+/// histograms, escalations, and model invocations. The mount's published
+/// versions declare no capabilities, so the scripted model and
+/// environment doubles stay empty: the walk never consults them, and a
+/// capability-bearing version would fail loudly instead of recording a
+/// half-scripted execution.
+async fn execution_evidence_run(
+    incumbent: &codex_workflow_contracts::WorkflowVersion,
+) -> Result<WorkflowRunRecord, WorkflowControlPlaneError> {
+    let provider = Arc::new(
+        ScriptedModelProvider::new(EVIDENCE_PROVIDER_ID, Vec::new()).with_capability(
+            EVAL_MODEL_SLUG,
+            equivalent_capabilities(EVIDENCE_PROVIDER_ID),
+        ),
+    );
+    let mut harness = WorkflowEvalHarness::new(provider, Vec::new())
+        .map_err(WorkflowControlPlaneError::Engine)?;
+    let version = harness
+        .publish_version_record(incumbent.clone())
+        .map_err(WorkflowControlPlaneError::Engine)?;
+    harness
+        .run(&version, WalkConfig::default())
+        .await
+        .map_err(WorkflowControlPlaneError::Engine)
+}
+
+/// Parses an improvement candidate identity.
+fn parse_candidate_id(candidate_id: &str) -> Result<CandidateId, WorkflowControlPlaneError> {
+    CandidateId::parse(candidate_id).map_err(|error| {
+        WorkflowControlPlaneError::InvalidRequest(format!(
+            "invalid improvement candidate id `{candidate_id}`: {error}"
+        ))
+    })
+}
+
+/// Maps one change category to the protocol kind.
+fn change_kind_protocol(kind: ChangeKind) -> rpc::WorkflowChangeKind {
+    match kind {
+        ChangeKind::DefinitionDelta => rpc::WorkflowChangeKind::DefinitionDelta,
+        ChangeKind::CapabilityBinding => rpc::WorkflowChangeKind::CapabilityBinding,
+        ChangeKind::RecoveryPolicy => rpc::WorkflowChangeKind::RecoveryPolicy,
+        ChangeKind::DependencyChoice => rpc::WorkflowChangeKind::DependencyChoice,
+        ChangeKind::ScheduleTuning => rpc::WorkflowChangeKind::ScheduleTuning,
+    }
+}
+
+/// Maps one validation stage name to the protocol stage.
+fn stage_name_protocol(stage: StageName) -> rpc::WorkflowValidationStageName {
+    match stage {
+        StageName::Replay => rpc::WorkflowValidationStageName::Replay,
+        StageName::Differential => rpc::WorkflowValidationStageName::Differential,
+        StageName::Policy => rpc::WorkflowValidationStageName::Policy,
+    }
+}
+
+/// Maps one validation stage summary to the protocol stage.
+fn validation_stage_protocol(
+    summary: &codex_workflow_evolution::StageSummary,
+) -> rpc::WorkflowValidationStage {
+    rpc::WorkflowValidationStage {
+        stage: stage_name_protocol(summary.stage),
+        passed: summary.passed,
+    }
+}
+
+/// Builds the evidence summary from a candidate's provenance: the
+/// references it cites plus the content-addressed identities of the runs
+/// it was derived from (RWO-006's minimal evidence surface).
+fn evidence_summary_protocol(
+    references: &[EvidenceReference],
+    runs: &[RunProvenance],
+) -> rpc::WorkflowEvidenceSummary {
+    rpc::WorkflowEvidenceSummary {
+        references: references.iter().map(evidence_reference_protocol).collect(),
+        runs: runs
+            .iter()
+            .map(|run| rpc::WorkflowRunProvenance {
+                version_id: run.version.to_string(),
+                fingerprint: run.fingerprint.to_string(),
+                status: instance_status_protocol(run.status),
+            })
+            .collect(),
+    }
+}
+
+/// Maps one improvement candidate to its protocol record.
+fn improvement_candidate_protocol(
+    candidate: &ImprovementCandidate,
+) -> rpc::WorkflowImprovementCandidate {
+    rpc::WorkflowImprovementCandidate {
+        candidate_id: candidate.id.to_string(),
+        workflow: candidate.workflow().to_string(),
+        incumbent_version_id: candidate.incumbent.version_id.to_string(),
+        change_kind: change_kind_protocol(candidate.change_kind()),
+        rationale: candidate.rationale.clone(),
+        evidence: evidence_summary_protocol(
+            &candidate.provenance.evidence,
+            &candidate.provenance.runs,
+        ),
+    }
 }
 
 /// Looks up one teaching session mutably.

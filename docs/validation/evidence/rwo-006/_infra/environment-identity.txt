@@ -1,0 +1,26 @@
+== RWO-006 environment identity ==
+Date (UTC): 2026-09-15T00:26:06Z
+Worktree: /home/z/codex-rwo006 (git worktree of payswapdotorg/codex)
+Branch: rwo-006/improvement-approval-surface
+Base commit: 275ddd077cd696b8a8ace725bb67a73424d2529a
+Base commit subject: docs(state): RWO-005 MERGED via PR #40 (Family C fork+lineage product surface mounted through RWO-001: protocol method + CLI subcommand + lineage rendering, engine reused as-is; forge 44 / distribution 16+8 real-pass, cargo check clean x3, precomputed export regenerated with zero-collateral proof; merged-tree identity 0e993075f); 7/12 RWOs — remaining: rwo-006/007/010/011/012 + VWO-012..016
+Remote: <redacted> (never printed; PAT lives only in .git/config)
+
+-- rust toolchain --
+rustc 1.95.0 (59807616e 2026-04-14)
+cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+1.95.0-x86_64-unknown-linux-gnu (default)
+
+-- pod constraints (documented, RWO-005 precedent) --
+memory.max: 4294967296 (4 GiB cgroup)
+c-6aa8301a-14f3c1c7-e217ca1f9cee-rootfs  9.9G  4.0G  5.4G  43% /
+
+-- link discipline (as actually executed) --
+CARGO_INCREMENTAL=0 for test/test-check builds; foreground cargo runs (the sandbox reaps
+detached ones); one cargo clean between the check battery and the engine-test run.
+Pod-verified constraint (RWO-005 precedent, re-observed): the app-server-protocol /
+app-server / cli lib-test binaries and eval-compat integration binaries cannot LINK in
+this 4 GiB / 9.9 GB pod (disk-bound collect2 SIGBUS; evolution test bins ~400 MB each).
+Verification scope: cargo test -p codex-workflow-evolution (35/35 PASS) + cargo check
+(lib+bins and --tests) x {protocol, app-server, cli} + nightly fmt on the branch files
++ the zst regeneration proof. See post-hoc/build-verification-and-constraints.txt.

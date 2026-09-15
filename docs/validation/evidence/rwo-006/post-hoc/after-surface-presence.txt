@@ -1,0 +1,40 @@
+== RWO-006 after-probe: the Family D surface mounted ==
+Date (UTC): 2026-09-15T04:26:52Z
+Repo: payswapdotorg/codex (worktree /home/z/codex-rwo006, branch rwo-006/improvement-approval-surface)
+Base commit: 275ddd077cd696b8a8ace725bb67a73424d2529a
+
+-- probe 1: workspace crates whose Cargo.toml names codex-workflow-evolution --
+codex-rs/Cargo.toml:315:codex-workflow-evolution = { path = "workflow-evolution" }
+codex-rs/app-server/Cargo.toml:90:codex-workflow-evolution = { workspace = true }
+
+-- probe 2: the crate now aliased under [workspace.dependencies] --
+314:codex-eval-compat = { path = "eval-compat" }
+315:codex-workflow-evolution = { path = "workflow-evolution" }
+
+-- probe 3: the improvement product surface (protocol methods) --
+624:    #[experimental("workflow/improve/propose")]
+633:    #[experimental("workflow/improve/validate")]
+642:    #[experimental("workflow/improve/approve")]
+651:    #[experimental("workflow/improve/publish")]
+
+-- probe 4: the mounted workflow method inventory after (delta: +4 improve methods) --
+18
+
+-- probe 5: the CLI subcommand family --
+59:    Improve(ImproveCommand),
+196:pub enum ImproveSubcommand {
+199:    Propose(ImproveProposeArgs),
+202:    Validate(ImproveValidateArgs),
+204:    Approve(ImproveApproveArgs),
+206:    Reject(ImproveRejectArgs),
+209:    Publish(ImprovePublishArgs),
+
+-- probe 6: the engine's governed lifecycle is the mount's only path --
+17://! engine's [`EvolutionGovernor`] — publication lands as a new immutable
+123:use codex_workflow_evolution::EvolutionGovernor;
+215:    improvements: BTreeMap<String, Arc<TokioMutex<EvolutionGovernor<EvalReplayPort, PolicyGate>>>>,
+805:        let mut governor = EvolutionGovernor::over_incumbent(
+858:        let report = governor.validate_candidate(&candidate, &successor).await?;
+901:        let record = governor.decide_approval(&candidate, decision)?;
+943:        let publication = governor.publish_successor(&candidate, &params.release_tag)?;
+1160:        Arc<TokioMutex<EvolutionGovernor<EvalReplayPort, PolicyGate>>>,

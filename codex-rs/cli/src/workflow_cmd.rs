@@ -13,6 +13,15 @@
 //!   release whose lineage pins the upstream (RWO-005): forked-from
 //!   version id, upstream digests, and carried attribution render on the
 //!   fork and are inspectable with `--json`.
+//! - `codex workflow improve ...` runs the governed improvement
+//!   lifecycle (RWO-006): propose candidates from recorded execution
+//!   evidence, validate them (replay, differential, policy), approve or
+//!   reject explicitly — the gate publication refuses to cross without —
+//!   then publish the approved candidate as a new immutable successor
+//!   version whose lineage pins the full decision trail. Improvement
+//!   sessions are process-local (the RWO-001 in-memory-double bound),
+//!   exactly like teaching; the durable artifacts are the immutable
+//!   successor versions and the durable evidence references.
 //! - `codex workflow instance ...` operates the durable instance
 //!   lifecycle (run, list, get, resume, cancel) across invocations.
 
@@ -45,6 +54,9 @@ pub enum WorkflowSubcommand {
     /// Fork a published workflow version into a new immutable release
     /// that carries its lineage.
     Fork(ForkArgs),
+    /// Run the governed improvement lifecycle: propose from evidence,
+    /// validate, approve, publish.
+    Improve(ImproveCommand),
     /// Operate durable workflow instances.
     Instance(InstanceCommand),
 }
@@ -173,6 +185,113 @@ pub struct ForkArgs {
     pub json: bool,
 }
 
+/// The `codex workflow improve` command group (RWO-006).
+#[derive(Debug, Parser)]
+pub struct ImproveCommand {
+    #[command(subcommand)]
+    pub subcommand: ImproveSubcommand,
+}
+
+#[derive(Debug, clap::Subcommand)]
+pub enum ImproveSubcommand {
+    /// Propose improvement candidates for a published version from newly
+    /// recorded execution evidence.
+    Propose(ImproveProposeArgs),
+    /// Validate one candidate through the replay, differential, and
+    /// policy gates.
+    Validate(ImproveValidateArgs),
+    /// Approve a validated candidate: the gate publication requires.
+    Approve(ImproveApproveArgs),
+    /// Reject a validated candidate with an explicit reason.
+    Reject(ImproveRejectArgs),
+    /// Publish an approved candidate as a new immutable successor
+    /// version.
+    Publish(ImprovePublishArgs),
+}
+
+#[derive(Debug, Parser)]
+pub struct ImproveProposeArgs {
+    /// The published workflow version to improve, in sha256-hex form.
+    pub version_id: String,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct ImproveValidateArgs {
+    /// The improvement candidate to validate.
+    pub candidate_id: String,
+
+    /// The semantic version of the proposed successor (an allowed patch
+    /// or minor bump of the incumbent).
+    #[arg(long = "version", value_name = "SEMVER")]
+    pub successor_version: String,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct ImproveApproveArgs {
+    /// The validated candidate to approve.
+    pub candidate_id: String,
+
+    /// The approving principal (human or policy identity).
+    #[arg(
+        long = "approver",
+        value_name = "PRINCIPAL",
+        default_value = "cli-user"
+    )]
+    pub approver: String,
+
+    /// Optional note recorded with the approval.
+    #[arg(long = "note", value_name = "TEXT")]
+    pub note: Option<String>,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct ImproveRejectArgs {
+    /// The validated candidate to reject.
+    pub candidate_id: String,
+
+    /// The rejecting principal (human or policy identity).
+    #[arg(
+        long = "approver",
+        value_name = "PRINCIPAL",
+        default_value = "cli-user"
+    )]
+    pub approver: String,
+
+    /// Why the candidate is rejected (recorded with the decision).
+    #[arg(long = "reason", value_name = "TEXT")]
+    pub reason: String,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct ImprovePublishArgs {
+    /// The validated and approved candidate to publish.
+    pub candidate_id: String,
+
+    /// The release tag the successor is published under.
+    #[arg(long = "tag", value_name = "TAG")]
+    pub release_tag: String,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
 #[derive(Debug, clap::Subcommand)]
 pub enum InstanceSubcommand {
     /// Run one instance of a published workflow version.
@@ -248,6 +367,7 @@ pub async fn run(cli: WorkflowCli) -> Result<()> {
     match cli.subcommand {
         WorkflowSubcommand::Teach(args) => run_teach(&plane, args).await,
         WorkflowSubcommand::Fork(args) => run_fork(&plane, args),
+        WorkflowSubcommand::Improve(command) => run_improve(&plane, command).await,
         WorkflowSubcommand::Instance(command) => run_instance(&plane, command).await,
     }
 }
@@ -533,6 +653,197 @@ fn run_fork(plane: &WorkflowControlPlane, args: ForkArgs) -> Result<()> {
     Ok(())
 }
 
+/// Entry point for `codex workflow improve ...`.
+async fn run_improve(plane: &WorkflowControlPlane, command: ImproveCommand) -> Result<()> {
+    match command.subcommand {
+        ImproveSubcommand::Propose(args) => {
+            let response = plane
+                .improve_propose(rpc::WorkflowImproveProposeParams {
+                    version_id: args.version_id,
+                })
+                .await
+                .map_err(command_error)?;
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&response)?);
+            } else {
+                println!(
+                    "Recorded execution evidence for {} {} ({}):",
+                    response.workflow,
+                    response.incumbent_semantic_version,
+                    response.incumbent_version_id
+                );
+                print_evidence_summary(&response.evidence);
+                if response.candidates.is_empty() {
+                    println!("The recorded evidence supports no improvement candidate.");
+                } else {
+                    println!("Improvement candidates (nothing validated or approved yet):");
+                    for candidate in &response.candidates {
+                        println!(
+                            "  {}  [{}]",
+                            candidate.candidate_id,
+                            change_kind_label(&candidate.change_kind)
+                        );
+                        println!("    {}", candidate.rationale);
+                        println!(
+                            "    cites {} evidence reference(s), {} run(s)",
+                            candidate.evidence.references.len(),
+                            candidate.evidence.runs.len()
+                        );
+                    }
+                }
+            }
+        }
+        ImproveSubcommand::Validate(args) => {
+            let response = plane
+                .improve_validate(rpc::WorkflowImproveValidateParams {
+                    candidate_id: args.candidate_id,
+                    successor_version: args.successor_version,
+                })
+                .await
+                .map_err(command_error)?;
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&response)?);
+            } else {
+                println!(
+                    "candidate {} ({}) — validation {}:",
+                    response.candidate_id,
+                    response.workflow,
+                    if response.passed { "PASSED" } else { "FAILED" }
+                );
+                for stage in &response.stages {
+                    println!(
+                        "  {}: {}",
+                        validation_stage_label(&stage.stage),
+                        if stage.passed { "passed" } else { "FAILED" }
+                    );
+                }
+            }
+        }
+        ImproveSubcommand::Approve(args) => {
+            let response = plane
+                .improve_approve(rpc::WorkflowImproveApproveParams {
+                    candidate_id: args.candidate_id,
+                    approver: args.approver,
+                    decision: rpc::WorkflowImprovementDecision::Approved,
+                    note: args.note,
+                    reason: None,
+                })
+                .await
+                .map_err(command_error)?;
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&response)?);
+            } else {
+                print_approval(&response);
+            }
+        }
+        ImproveSubcommand::Reject(args) => {
+            let response = plane
+                .improve_approve(rpc::WorkflowImproveApproveParams {
+                    candidate_id: args.candidate_id,
+                    approver: args.approver,
+                    decision: rpc::WorkflowImprovementDecision::Rejected,
+                    note: None,
+                    reason: Some(args.reason),
+                })
+                .await
+                .map_err(command_error)?;
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&response)?);
+            } else {
+                print_approval(&response);
+            }
+        }
+        ImproveSubcommand::Publish(args) => {
+            let response = plane
+                .improve_publish(rpc::WorkflowImprovePublishParams {
+                    candidate_id: args.candidate_id,
+                    release_tag: args.release_tag,
+                })
+                .await
+                .map_err(command_error)?;
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&response)?);
+            } else {
+                println!(
+                    "Published {} {} as a new immutable version:",
+                    response.workflow, response.semantic_version
+                );
+                println!("  version:          {}", response.version_id);
+                println!("  definitionDigest: {}", response.definition_digest);
+                println!("  dependencyLock:   {}", response.dependency_lock_digest);
+                println!("  repository:       {}", response.repository);
+                println!("  commit:           {}", response.commit_sha);
+                let lineage = &response.lineage;
+                println!(
+                    "  evolved from:     {} {} ({})",
+                    lineage.workflow,
+                    lineage.predecessor_semantic_version,
+                    lineage.predecessor_version_id
+                );
+                println!("  candidate:        {}", lineage.candidate_id);
+                println!("  validation:       {}", lineage.validation_digest);
+                for stage in &lineage.validation_stages {
+                    println!(
+                        "    {}: {}",
+                        validation_stage_label(&stage.stage),
+                        if stage.passed { "passed" } else { "FAILED" }
+                    );
+                }
+                println!("  approved by:      {}", lineage.approver);
+                println!("  release tag:      {}", lineage.release_tag);
+                println!("  evidence cited:");
+                print_evidence_summary(&response.evidence);
+                println!(
+                    "Run it with: codex workflow instance run {}",
+                    response.version_id
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Prints the evidence summary: references plus run provenance.
+fn print_evidence_summary(evidence: &rpc::WorkflowEvidenceSummary) {
+    for reference in &evidence.references {
+        println!(
+            "    {} {} ({})",
+            reference.kind, reference.locator, reference.digest
+        );
+    }
+    for run in &evidence.runs {
+        println!(
+            "    run of {} — {} ({})",
+            run.version_id,
+            run.fingerprint,
+            instance_status_label(&run.status)
+        );
+    }
+}
+
+/// Prints one approval decision.
+fn print_approval(response: &rpc::WorkflowImproveApproveResponse) {
+    println!(
+        "candidate {} {} by {}",
+        response.candidate_id,
+        if response.approved {
+            "APPROVED"
+        } else {
+            "REJECTED"
+        },
+        response.approver
+    );
+    println!("  workflow:     {}", response.workflow);
+    println!("  incumbent:    {}", response.incumbent_version_id);
+    println!("  validation:   {}", response.validation_digest);
+    if let Some(note) = response.note.as_deref() {
+        println!("  note:         {note}");
+    }
+    if let Some(reason) = response.reason.as_deref() {
+        println!("  reason:       {reason}");
+    }
+}
+
 /// Parses one `--carry` value: `Name` or `Name <contact>`.
 fn parse_attribution(value: &str) -> Result<rpc::WorkflowForkAttribution> {
     let trimmed = value.trim();
@@ -751,6 +1062,26 @@ fn candidate_status_label(status: &rpc::WorkflowCandidateStatus) -> &'static str
         rpc::WorkflowCandidateStatus::Validated => "validated",
         rpc::WorkflowCandidateStatus::Approved => "approved",
         rpc::WorkflowCandidateStatus::PublicationReady => "publication-ready",
+    }
+}
+
+/// The lowercase label of an improvement change kind.
+fn change_kind_label(kind: &rpc::WorkflowChangeKind) -> &'static str {
+    match kind {
+        rpc::WorkflowChangeKind::DefinitionDelta => "definition-delta",
+        rpc::WorkflowChangeKind::CapabilityBinding => "capability-binding",
+        rpc::WorkflowChangeKind::RecoveryPolicy => "recovery-policy",
+        rpc::WorkflowChangeKind::DependencyChoice => "dependency-choice",
+        rpc::WorkflowChangeKind::ScheduleTuning => "schedule-tuning",
+    }
+}
+
+/// The lowercase label of an improvement validation stage.
+fn validation_stage_label(stage: &rpc::WorkflowValidationStageName) -> &'static str {
+    match stage {
+        rpc::WorkflowValidationStageName::Replay => "replay",
+        rpc::WorkflowValidationStageName::Differential => "differential",
+        rpc::WorkflowValidationStageName::Policy => "policy",
     }
 }
 

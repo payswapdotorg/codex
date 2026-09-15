@@ -779,7 +779,7 @@ async fn fork_validates_its_inputs() {
         "unexpected error: {version}"
     );
     let mut bad_commit = fork_params(
-        published.version_id,
+        published.version_id.clone(),
         "local/workflows/forks/fork-input-guards",
     );
     bad_commit.commit_sha = Some("abbrev".to_string());
@@ -799,4 +799,381 @@ async fn fork_validates_its_inputs() {
         .await
         .expect("the upstream release is untouched and runnable");
     assert_eq!(run.status, rpc::WorkflowInstanceStatus::Succeeded);
+}
+
+/// Proposes improvements for one published version and returns the
+/// proposal (the tests then drive one candidate through the lifecycle).
+async fn propose_improvement(
+    plane: &WorkflowControlPlane,
+    name: &str,
+) -> (
+    rpc::WorkflowPublishResponse,
+    rpc::WorkflowImproveProposeResponse,
+) {
+    let published = publish_taught(plane, name).await;
+    let proposal = plane
+        .improve_propose(rpc::WorkflowImproveProposeParams {
+            version_id: published.version_id.clone(),
+        })
+        .await
+        .expect("improve_propose");
+    (published, proposal)
+}
+
+#[tokio::test]
+async fn improve_propose_generates_candidates_citing_recorded_evidence() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let (published, proposal) = propose_improvement(&plane, "evidence-cited-report").await;
+
+    // The proposal is anchored at the incumbent the user named.
+    assert_eq!(proposal.workflow, "evidence-cited-report");
+    assert_eq!(proposal.incumbent_version_id, published.version_id);
+    assert_eq!(proposal.incumbent_semantic_version, "1.0.0");
+    // The recorded execution evidence: one durable trace reference plus
+    // the run's content-addressed provenance pinning the incumbent.
+    assert_eq!(proposal.evidence.references.len(), 1);
+    assert_eq!(proposal.evidence.references[0].kind, "trace");
+    assert!(
+        proposal.evidence.references[0]
+            .locator
+            .starts_with("evidence://"),
+        "unexpected locator: {}",
+        proposal.evidence.references[0].locator
+    );
+    assert!(
+        proposal.evidence.references[0]
+            .digest
+            .starts_with("sha256:")
+    );
+    assert_eq!(proposal.evidence.runs.len(), 1);
+    assert_eq!(proposal.evidence.runs[0].version_id, published.version_id);
+    assert!(proposal.evidence.runs[0].fingerprint.starts_with("sha256:"));
+    assert_eq!(
+        proposal.evidence.runs[0].status,
+        rpc::WorkflowInstanceStatus::Succeeded
+    );
+    // The evidence supports at least one candidate, and every candidate
+    // cites the same evidence stream.
+    assert!(!proposal.candidates.is_empty());
+    for candidate in &proposal.candidates {
+        assert_eq!(candidate.workflow, "evidence-cited-report");
+        assert_eq!(candidate.incumbent_version_id, published.version_id);
+        assert_eq!(candidate.evidence, proposal.evidence);
+        assert!(!candidate.rationale.is_empty());
+    }
+    // The deterministic generator's trace rule fires on the recorded
+    // trace: a definition-delta candidate that refreshes the description.
+    assert!(
+        proposal
+            .candidates
+            .iter()
+            .any(|candidate| candidate.change_kind == rpc::WorkflowChangeKind::DefinitionDelta),
+        "expected a definition-delta candidate, got {:?}",
+        proposal
+            .candidates
+            .iter()
+            .map(|candidate| candidate.change_kind)
+            .collect::<Vec<_>>()
+    );
+}
+
+#[tokio::test]
+async fn improvement_publish_requires_validation_then_approval_before_landing() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let (published, proposal) = propose_improvement(&plane, "governed-improvement-report").await;
+    let candidate = proposal
+        .candidates
+        .iter()
+        .find(|candidate| candidate.change_kind == rpc::WorkflowChangeKind::DefinitionDelta)
+        .expect("definition-delta candidate")
+        .candidate_id
+        .clone();
+
+    // Publishing before validating is refused: no validation report yet.
+    let unvalidated = plane
+        .improve_publish(rpc::WorkflowImprovePublishParams {
+            candidate_id: candidate.clone(),
+            release_tag: "improve-1.0.1".to_string(),
+        })
+        .await
+        .expect_err("publish before validate must fail");
+    assert!(
+        unvalidated.to_string().contains("no validation report yet"),
+        "unexpected error: {unvalidated}"
+    );
+
+    // The validation step: replay, differential, and policy all pass for
+    // a description-only delta at a patch bump.
+    let validated = plane
+        .improve_validate(rpc::WorkflowImproveValidateParams {
+            candidate_id: candidate.clone(),
+            successor_version: "1.0.1".to_string(),
+        })
+        .await
+        .expect("improve_validate");
+    assert!(validated.passed);
+    assert_eq!(validated.stages.len(), 3);
+    assert!(validated.stages.iter().all(|stage| stage.passed));
+    assert_eq!(
+        validated
+            .stages
+            .iter()
+            .map(|stage| stage.stage)
+            .collect::<Vec<_>>(),
+        vec![
+            rpc::WorkflowValidationStageName::Replay,
+            rpc::WorkflowValidationStageName::Differential,
+            rpc::WorkflowValidationStageName::Policy,
+        ]
+    );
+
+    // THE APPROVAL GATE: publishing without an approval decision is
+    // refused by the engine, not by convention.
+    let unapproved = plane
+        .improve_publish(rpc::WorkflowImprovePublishParams {
+            candidate_id: candidate.clone(),
+            release_tag: "improve-1.0.1".to_string(),
+        })
+        .await
+        .expect_err("publish without approval must fail");
+    assert!(
+        unapproved.to_string().contains("no approval decision"),
+        "unexpected error: {unapproved}"
+    );
+
+    // The explicit approval decision, recorded through the product
+    // surface and bound to the validation digest.
+    let approved = plane
+        .improve_approve(rpc::WorkflowImproveApproveParams {
+            candidate_id: candidate.clone(),
+            approver: "tech-lead".to_string(),
+            decision: rpc::WorkflowImprovementDecision::Approved,
+            note: Some("evidence-cited description refresh looks right".to_string()),
+            reason: None,
+        })
+        .await
+        .expect("improve_approve");
+    assert!(approved.approved);
+    assert_eq!(approved.approver, "tech-lead");
+    assert_eq!(approved.candidate_id, candidate);
+    assert_eq!(approved.incumbent_version_id, published.version_id);
+    assert!(
+        approved.validation_digest.starts_with("sha256:"),
+        "the approval must bind to the validation digest"
+    );
+
+    // After approval, publication lands as a NEW immutable version.
+    let published_improvement = plane
+        .improve_publish(rpc::WorkflowImprovePublishParams {
+            candidate_id: candidate.clone(),
+            release_tag: "improve-1.0.1".to_string(),
+        })
+        .await
+        .expect("improve_publish after approval");
+    assert_ne!(published_improvement.version_id, published.version_id);
+    assert_eq!(published_improvement.semantic_version, "1.0.1");
+    // The description delta changes the definition content; the lock is
+    // carried over.
+    assert_ne!(
+        published_improvement.definition_digest,
+        published.definition_digest
+    );
+    assert_eq!(
+        published_improvement.dependency_lock_digest,
+        published.dependency_lock_digest
+    );
+    assert_eq!(
+        published_improvement.workflow,
+        "governed-improvement-report"
+    );
+    // The governed lineage pins the full trail.
+    let lineage = &published_improvement.lineage;
+    assert_eq!(lineage.predecessor_version_id, published.version_id);
+    assert_eq!(lineage.predecessor_semantic_version, "1.0.0");
+    assert_eq!(
+        lineage.successor_version_id,
+        published_improvement.version_id
+    );
+    assert_eq!(lineage.successor_semantic_version, "1.0.1");
+    assert_eq!(lineage.candidate_id, candidate);
+    assert_eq!(lineage.validation_digest, approved.validation_digest);
+    assert_eq!(lineage.approver, "tech-lead");
+    assert_eq!(lineage.release_tag, "improve-1.0.1");
+    assert!(lineage.validation_stages.iter().all(|stage| stage.passed));
+    // The published improvement still cites its evidence.
+    assert_eq!(published_improvement.evidence, proposal.evidence);
+
+    // The successor is a real immutable release instances can pin, and
+    // the predecessor is untouched and still runnable.
+    let successor_run = plane
+        .instance_run(rpc::WorkflowInstanceRunParams {
+            version_id: published_improvement.version_id.clone(),
+        })
+        .await
+        .expect("instance_run of the successor");
+    assert_eq!(successor_run.status, rpc::WorkflowInstanceStatus::Succeeded);
+    assert_eq!(successor_run.version_id, published_improvement.version_id);
+    let predecessor_run = plane
+        .instance_run(rpc::WorkflowInstanceRunParams {
+            version_id: published.version_id,
+        })
+        .await
+        .expect("the predecessor release is untouched and runnable");
+    assert_eq!(
+        predecessor_run.status,
+        rpc::WorkflowInstanceStatus::Succeeded
+    );
+
+    // Re-publishing the promoted candidate is refused: lineage is
+    // append-only history.
+    let republish = plane
+        .improve_publish(rpc::WorkflowImprovePublishParams {
+            candidate_id: candidate.clone(),
+            release_tag: "improve-1.0.1-again".to_string(),
+        })
+        .await
+        .expect_err("re-publishing a promoted candidate must fail");
+    assert!(
+        republish.to_string().contains("already promoted"),
+        "unexpected error: {republish}"
+    );
+}
+
+#[tokio::test]
+async fn improvement_rejection_refuses_publication() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let (_published, proposal) = propose_improvement(&plane, "rejected-improvement").await;
+    let candidate = proposal.candidates[0].candidate_id.clone();
+    plane
+        .improve_validate(rpc::WorkflowImproveValidateParams {
+            candidate_id: candidate.clone(),
+            successor_version: "1.0.1".to_string(),
+        })
+        .await
+        .expect("improve_validate");
+
+    // A rejection without a reason is an input error, not a decision.
+    let unreasoned = plane
+        .improve_approve(rpc::WorkflowImproveApproveParams {
+            candidate_id: candidate.clone(),
+            approver: "tech-lead".to_string(),
+            decision: rpc::WorkflowImprovementDecision::Rejected,
+            note: None,
+            reason: None,
+        })
+        .await
+        .expect_err("a rejection must carry a reason");
+    assert!(
+        unreasoned.to_string().contains("must carry a reason"),
+        "unexpected error: {unreasoned}"
+    );
+
+    // The recorded rejection refuses publication — both directions of
+    // the gate are real.
+    let rejected = plane
+        .improve_approve(rpc::WorkflowImproveApproveParams {
+            candidate_id: candidate.clone(),
+            approver: "tech-lead".to_string(),
+            decision: rpc::WorkflowImprovementDecision::Rejected,
+            note: None,
+            reason: Some("the successor description loses operator context".to_string()),
+        })
+        .await
+        .expect("improve_approve (rejection)");
+    assert!(!rejected.approved);
+    assert_eq!(
+        rejected.reason.as_deref(),
+        Some("the successor description loses operator context")
+    );
+    let refused = plane
+        .improve_publish(rpc::WorkflowImprovePublishParams {
+            candidate_id: candidate.clone(),
+            release_tag: "improve-rejected".to_string(),
+        })
+        .await
+        .expect_err("publishing a rejected candidate must fail");
+    assert!(
+        refused.to_string().contains("was rejected by approver"),
+        "unexpected error: {refused}"
+    );
+}
+
+#[tokio::test]
+async fn improve_validates_its_inputs() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    // An unknown incumbent release is refused.
+    let unknown = plane
+        .improve_propose(rpc::WorkflowImproveProposeParams {
+            version_id: format!("sha256:{}", "ab".repeat(32)),
+        })
+        .await
+        .expect_err("improve_propose of an unknown version must fail");
+    assert!(
+        unknown
+            .to_string()
+            .contains("unknown published workflow version"),
+        "unexpected error: {unknown}"
+    );
+    let malformed = plane
+        .improve_propose(rpc::WorkflowImproveProposeParams {
+            version_id: "not-a-digest".to_string(),
+        })
+        .await
+        .expect_err("improve_propose of a malformed version id must fail");
+    assert!(
+        malformed
+            .to_string()
+            .contains("invalid workflow version id"),
+        "unexpected error: {malformed}"
+    );
+    // Unknown candidates are refused on every lifecycle step.
+    for error in [
+        plane
+            .improve_validate(rpc::WorkflowImproveValidateParams {
+                candidate_id: "evolution-none".to_string(),
+                successor_version: "1.0.1".to_string(),
+            })
+            .await
+            .expect_err("validate of an unknown candidate must fail"),
+        plane
+            .improve_approve(rpc::WorkflowImproveApproveParams {
+                candidate_id: "evolution-none".to_string(),
+                approver: "tech-lead".to_string(),
+                decision: rpc::WorkflowImprovementDecision::Approved,
+                note: None,
+                reason: None,
+            })
+            .await
+            .expect_err("approve of an unknown candidate must fail"),
+        plane
+            .improve_publish(rpc::WorkflowImprovePublishParams {
+                candidate_id: "evolution-none".to_string(),
+                release_tag: "none".to_string(),
+            })
+            .await
+            .expect_err("publish of an unknown candidate must fail"),
+    ] {
+        assert!(
+            error.to_string().contains("unknown improvement candidate"),
+            "unexpected error: {error}"
+        );
+    }
+    // A malformed successor version is an input error.
+    let (_published, proposal) = propose_improvement(&plane, "input-guard-report").await;
+    let candidate = proposal.candidates[0].candidate_id.clone();
+    let bad_version = plane
+        .improve_validate(rpc::WorkflowImproveValidateParams {
+            candidate_id: candidate,
+            successor_version: "not-a-version".to_string(),
+        })
+        .await
+        .expect_err("an invalid successor version must fail");
+    assert!(
+        bad_version.to_string().contains("semantic version"),
+        "unexpected error: {bad_version}"
+    );
 }

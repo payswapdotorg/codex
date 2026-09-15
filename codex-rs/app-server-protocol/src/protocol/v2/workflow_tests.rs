@@ -371,3 +371,245 @@ fn instance_list_params_is_an_empty_object() {
         params
     );
 }
+
+#[test]
+fn improve_propose_params_round_trip_and_reject_unknown_fields() {
+    let params = WorkflowImproveProposeParams {
+        version_id: format!("sha256:{}", "cd".repeat(32)),
+    };
+    assert_eq!(
+        serde_json::to_value(&params).unwrap(),
+        json!({
+            "versionId": format!("sha256:{}", "cd".repeat(32)),
+        })
+    );
+    assert_eq!(
+        serde_json::from_value::<WorkflowImproveProposeParams>(
+            serde_json::to_value(&params).unwrap()
+        )
+        .unwrap(),
+        params
+    );
+    assert!(
+        serde_json::from_value::<WorkflowImproveProposeParams>(json!({
+            "versionId": format!("sha256:{}", "cd".repeat(32)),
+            "unexpected": true
+        }))
+        .is_err()
+    );
+}
+
+#[test]
+fn improve_validate_and_approve_params_round_trip() {
+    let validate = WorkflowImproveValidateParams {
+        candidate_id: "evolution-definition-delta-abcd".into(),
+        successor_version: "1.0.1".into(),
+    };
+    assert_eq!(
+        serde_json::to_value(&validate).unwrap(),
+        json!({
+            "candidateId": "evolution-definition-delta-abcd",
+            "successorVersion": "1.0.1"
+        })
+    );
+    assert_eq!(
+        serde_json::from_value::<WorkflowImproveValidateParams>(
+            serde_json::to_value(&validate).unwrap()
+        )
+        .unwrap(),
+        validate
+    );
+    let approve = WorkflowImproveApproveParams {
+        candidate_id: "evolution-definition-delta-abcd".into(),
+        approver: "tech-lead".into(),
+        decision: WorkflowImprovementDecision::Approved,
+        note: Some("evidence-cited description refresh looks right".into()),
+        reason: None,
+    };
+    assert_eq!(
+        serde_json::to_value(&approve).unwrap(),
+        json!({
+            "candidateId": "evolution-definition-delta-abcd",
+            "approver": "tech-lead",
+            "decision": "approved",
+            "note": "evidence-cited description refresh looks right"
+        })
+    );
+    // A rejection decodes with its reason; the note stays optional.
+    let rejected = serde_json::from_value::<WorkflowImproveApproveParams>(json!({
+        "candidateId": "evolution-definition-delta-abcd",
+        "approver": "tech-lead",
+        "decision": "rejected",
+        "reason": "the successor description loses operator context"
+    }))
+    .unwrap();
+    assert_eq!(rejected.decision, WorkflowImprovementDecision::Rejected);
+    assert_eq!(rejected.note, None);
+    assert_eq!(
+        rejected.reason.as_deref(),
+        Some("the successor description loses operator context")
+    );
+    // Unknown decisions and unknown fields are refused.
+    assert!(
+        serde_json::from_value::<WorkflowImproveApproveParams>(json!({
+            "candidateId": "cand",
+            "approver": "tech-lead",
+            "decision": "maybe"
+        }))
+        .is_err()
+    );
+    assert!(
+        serde_json::from_value::<WorkflowImproveApproveParams>(json!({
+            "candidateId": "cand",
+            "approver": "tech-lead",
+            "decision": "approved",
+            "unexpected": true
+        }))
+        .is_err()
+    );
+}
+
+#[test]
+fn improve_propose_response_serializes_candidates_with_evidence() {
+    let evidence = WorkflowEvidenceSummary {
+        references: vec![WorkflowEvidenceReference {
+            kind: "trace".into(),
+            locator: "evidence://trace/0001".into(),
+            digest: format!("sha256:{}", "ab".repeat(32)),
+        }],
+        runs: vec![WorkflowRunProvenance {
+            version_id: format!("sha256:{}", "cd".repeat(32)),
+            fingerprint: format!("sha256:{}", "ef".repeat(32)),
+            status: WorkflowInstanceStatus::Succeeded,
+        }],
+    };
+    let response = WorkflowImproveProposeResponse {
+        workflow: "daily-standup-report".into(),
+        incumbent_version_id: format!("sha256:{}", "cd".repeat(32)),
+        incumbent_semantic_version: "1.0.0".into(),
+        evidence: evidence.clone(),
+        candidates: vec![WorkflowImprovementCandidate {
+            candidate_id: "evolution-definition-delta-abcd".into(),
+            workflow: "daily-standup-report".into(),
+            incumbent_version_id: format!("sha256:{}", "cd".repeat(32)),
+            change_kind: WorkflowChangeKind::DefinitionDelta,
+            rationale: "1 trace reference(s) across 1 run(s): refresh the definition \
+                        description from the recorded traces"
+                .into(),
+            evidence,
+        }],
+    };
+    let value = serde_json::to_value(&response).unwrap();
+    // The candidate cites the evidence: references and run provenance.
+    assert_eq!(
+        value["candidates"][0]["evidence"]["references"][0]["kind"],
+        "trace"
+    );
+    assert_eq!(
+        value["candidates"][0]["evidence"]["runs"][0]["fingerprint"],
+        format!("sha256:{}", "ef".repeat(32))
+    );
+    assert_eq!(
+        value["candidates"][0]["evidence"]["runs"][0]["status"],
+        "succeeded"
+    );
+    assert_eq!(value["candidates"][0]["changeKind"], "definitionDelta");
+    assert_eq!(
+        serde_json::from_value::<WorkflowImproveProposeResponse>(value).unwrap(),
+        response
+    );
+    // The change-kind keys render in the engine's stable vocabulary.
+    assert_eq!(
+        serde_json::to_value(WorkflowChangeKind::CapabilityBinding).unwrap(),
+        json!("capabilityBinding")
+    );
+    assert_eq!(
+        serde_json::to_value(WorkflowChangeKind::RecoveryPolicy).unwrap(),
+        json!("recoveryPolicy")
+    );
+    assert_eq!(
+        serde_json::to_value(WorkflowChangeKind::DependencyChoice).unwrap(),
+        json!("dependencyChoice")
+    );
+    assert_eq!(
+        serde_json::to_value(WorkflowChangeKind::ScheduleTuning).unwrap(),
+        json!("scheduleTuning")
+    );
+}
+
+#[test]
+fn improve_publish_response_serializes_lineage_and_evidence() {
+    let response = WorkflowImprovePublishResponse {
+        workflow: "daily-standup-report".into(),
+        version_id: format!("sha256:{}", "ef".repeat(32)),
+        semantic_version: "1.0.1".into(),
+        definition_digest: format!("sha256:{}", "ab".repeat(32)),
+        dependency_lock_digest: format!("sha256:{}", "cd".repeat(32)),
+        repository: "local/workflows/taught".into(),
+        commit_sha: "a".repeat(40),
+        lineage: WorkflowImprovementLineage {
+            workflow: "daily-standup-report".into(),
+            predecessor_version_id: format!("sha256:{}", "cd".repeat(32)),
+            predecessor_semantic_version: "1.0.0".into(),
+            successor_version_id: format!("sha256:{}", "ef".repeat(32)),
+            successor_semantic_version: "1.0.1".into(),
+            candidate_id: "evolution-definition-delta-abcd".into(),
+            validation_digest: format!("sha256:{}", "12".repeat(32)),
+            validation_stages: vec![
+                WorkflowValidationStage {
+                    stage: WorkflowValidationStageName::Replay,
+                    passed: true,
+                },
+                WorkflowValidationStage {
+                    stage: WorkflowValidationStageName::Differential,
+                    passed: true,
+                },
+                WorkflowValidationStage {
+                    stage: WorkflowValidationStageName::Policy,
+                    passed: true,
+                },
+            ],
+            approver: "tech-lead".into(),
+            release_tag: "improve-1.0.1".into(),
+        },
+        evidence: WorkflowEvidenceSummary {
+            references: vec![WorkflowEvidenceReference {
+                kind: "trace".into(),
+                locator: "evidence://trace/0001".into(),
+                digest: format!("sha256:{}", "ab".repeat(32)),
+            }],
+            runs: vec![WorkflowRunProvenance {
+                version_id: format!("sha256:{}", "cd".repeat(32)),
+                fingerprint: format!("sha256:{}", "ef".repeat(32)),
+                status: WorkflowInstanceStatus::Succeeded,
+            }],
+        },
+    };
+    let value = serde_json::to_value(&response).unwrap();
+    // The governed trail: predecessor to successor through candidate,
+    // validation, and an explicit approver.
+    assert_eq!(
+        value["lineage"]["predecessorVersionId"],
+        format!("sha256:{}", "cd".repeat(32))
+    );
+    assert_eq!(
+        value["lineage"]["successorVersionId"],
+        format!("sha256:{}", "ef".repeat(32))
+    );
+    assert_eq!(
+        value["lineage"]["candidateId"],
+        "evolution-definition-delta-abcd"
+    );
+    assert_eq!(value["lineage"]["validationStages"][0]["stage"], "replay");
+    assert_eq!(value["lineage"]["approver"], "tech-lead");
+    assert_eq!(value["lineage"]["releaseTag"], "improve-1.0.1");
+    // The published improvement still cites its evidence.
+    assert_eq!(
+        value["evidence"]["references"][0]["locator"],
+        "evidence://trace/0001"
+    );
+    assert_eq!(
+        serde_json::from_value::<WorkflowImprovePublishResponse>(value).unwrap(),
+        response
+    );
+}

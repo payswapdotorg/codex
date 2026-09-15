@@ -1,0 +1,41 @@
+== RWO-006 build verification + pod constraints ==
+Date (UTC): 2026-09-15 (03:25Z-04:35Z window)
+Toolchain: rustc/cargo 1.95.0; nightly rustfmt (imports_granularity=Item, edition 2024)
+
+-- compile battery (all real runs, this pod) --
+1. cargo check -p codex-app-server-protocol -p codex-app-server -p codex-cli
+   => Finished `dev` profile in 9m 22s. CLEAN (lib+bins).
+2. cargo check --tests -p codex-app-server-protocol
+   => Finished in 4m 55s. CLEAN (type-checks the new protocol test module).
+3. cargo check --tests -p codex-cli
+   => Finished in 5m 54s. CLEAN.
+4. cargo check --tests -p codex-app-server
+   => Finished in 25.03s (incremental). CLEAN — after fixing 4 never-compiled
+      test-code defects inherited from the worker flight (see below).
+5. nightly rustfmt --check on all nine touched Rust files: CLEAN (after one
+   fmt application pass on workflow_tests.rs wrapping).
+
+-- inherited test-code defects found by check #4 and fixed by the TL --
+The worker flight died before any test-target compilation; check #4 surfaced:
+  E0425 x3: `candidate_id,` struct-literal shorthand in workflow_tests.rs where the
+    local is named `candidate` (improve_publish re-publish / rejection-refusal /
+    validate input-guard call sites) -> made explicit `candidate_id: candidate[..]`.
+  E0382: `published.version_id` moved into fork_params then used again in the same
+    fork input-guard test -> `.clone()` at the move site (matching the test's own
+    established pattern).
+No product code (non-test) changes were needed: the lib+bins check (#1) was clean
+on the inherited implementation as-written.
+
+-- pod constraints (honest record) --
+memory.max: 4294967296 (4 GiB cgroup). Disk: 9.9 GB total.
+The app-server-protocol / app-server / cli LIB-TEST binaries and eval-compat's
+integration binaries cannot LINK in this pod (RWO-005 precedent, reproduced again
+this delivery: evolution's own test bins are ~400 MB each and the link is disk-bound
+- collect2 SIGBUS on write). Verification scope is therefore: engine tests (verbatim
+in engine-verification.txt), full compile battery above, and the precomputed-export
+regeneration proof. CI is not arbitratable on this repo (RWO-005 control experiment:
+rust-ci-full on main fails 26/34 jobs with job-for-job identical signature).
+Disk operations during verification: one cargo clean between the check battery and
+the engine-test run (duplicated target generations from RUSTFLAGS/incremental churn,
+RWO-005 lesson); the CLI-tree rlibs and recorded test binaries were removed after
+their results were captured, then the whole target was cleaned post-verification.
