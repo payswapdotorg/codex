@@ -1,0 +1,6 @@
+$ find /tmp/nstd-t003/batch2 -name '*-notes.md' | sort
+/tmp/nstd-t003/batch2/2026-09-29-notes.md
+/tmp/nstd-t003/batch2/2026-10-06-notes.md
+date,site,note_count
+2026-09-29,Riverside Clinic,2
+2026-10-06,Harborview Tower,3

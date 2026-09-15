@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "family": "construction",
+  "count": 4,
+  "events": [
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-15T11:27:18.001Z",
+      "type": "notification.delivered",
+      "actor": "priya.nair",
+      "subject": "notification:n-0001",
+      "summary": "Notification \"Invoice inv-9001 approved\" delivered to dana.reyes",
+      "data": {
+        "notificationId": "n-0001",
+        "to": "dana.reyes",
+        "type": "finance"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-15T11:27:18.001Z",
+      "type": "invoice.approved",
+      "actor": "priya.nair",
+      "subject": "inv-9001",
+      "summary": "Invoice inv-9001 ($182,400) approved for payment by Priya Nair",
+      "data": {
+        "invoiceId": "inv-9001",
+        "amountUsd": 182400,
+        "vendorId": "c-1"
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-15T11:27:17.976Z",
+      "type": "auth.login",
+      "actor": "priya.nair",
+      "subject": "user:u-3",
+      "summary": "priya.nair signed in",
+      "data": {
+        "role": "finance_accountant"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-15T11:27:17.935Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "construction"
+      }
+    }
+  ]
+}

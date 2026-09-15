@@ -1,0 +1,5 @@
+invoice.approved events: 1 Invoice inv-9001 ($182,400) approved for payment by Priya Nair
+priya logins: 1
+C1-1 invoice-approved-by-finance-persona: PASS
+C1-2 credential-from-binding-path: PASS
+C2 login+approve-commands-with-secrets-redacted: PASS

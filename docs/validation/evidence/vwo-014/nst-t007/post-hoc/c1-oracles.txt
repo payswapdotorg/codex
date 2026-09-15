@@ -1,0 +1,4 @@
+sweep results in transcript: [('43', '16'), ('59', '0')]
+C1-1 final-sweep-59-passed: PASS
+C1-2 conditional-branch (first run failed -> reset+re-run evidenced -> 59/59): PASS
+C1-3 verdict-matches-transcript: PASS — final verdict: fixtures healthy for demo (59/59 after the conditional reset+re-run)

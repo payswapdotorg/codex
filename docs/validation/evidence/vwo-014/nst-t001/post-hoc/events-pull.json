@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "family": "media",
+  "count": 4,
+  "events": [
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-15T09:55:24.290Z",
+      "type": "story.asset_attached",
+      "actor": "diego.morales",
+      "subject": "st-0205",
+      "summary": "Asset a-0301 (harbor-bridge-aerial.jpg) attached to \"Council votes on stadium funding tonight\" as hero",
+      "data": {
+        "storyId": "st-0205",
+        "assetId": "a-0301",
+        "role": "hero"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-15T09:55:08.452Z",
+      "type": "story.asset_attached",
+      "actor": "diego.morales",
+      "subject": "st-0203",
+      "summary": "Asset a-0303 (ferry-terminal-render.png) attached to \"New ferry terminal designs unveiled\" as hero",
+      "data": {
+        "storyId": "st-0203",
+        "assetId": "a-0303",
+        "role": "hero"
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-15T09:54:28.825Z",
+      "type": "auth.login",
+      "actor": "diego.morales",
+      "subject": "user:u-2",
+      "summary": "diego.morales signed in",
+      "data": {
+        "role": "section_editor"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-15T09:54:19.378Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "media"
+      }
+    }
+  ]
+}

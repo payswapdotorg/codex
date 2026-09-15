@@ -1,0 +1,21 @@
+VWO-014 ENVIRONMENT PROBE (NST-T terminal lane) — recorded 2026-09-15 11:20–11:55 UTC
+========================================================================================
+
+EXECUTION CONTEXT
+- Executor: Tech Lead local delivery (lesson-120 protocol; recorded).
+- Base: main @ def56454acce47f5d14daf475511c427518d3cdc (verified).
+
+TERMINAL-LANE TOOLING (probed live)
+- bash; coreutils: grep/sed/awk/find/xargs/sha256sum/tar/gzip (all present, exercised)
+- git 2.47.3 (clone/branch/commit/merge-base/ls-remote exercised; anonymous public clone)
+- node v24.19.0 (fixture runtime + json processing); Python 3.12.14 (pipelines/oracles)
+- curl 8.x (all fixture APIs); agent-browser 0.35.0 (T002's browser confirmation)
+- Fixture ecosystem: five VWO-002 apps on 127.0.0.1:4101–4105 (run-all.sh lifecycle,
+  verify-sweep.sh 59/59 canonical gate; per-family reset via POST /api/reset)
+- Scratch trees: seeded per task under /tmp (T003 weekly-notes batches; T005 archive;
+  T010 checkpoints); scratch git clones under /tmp (T006/T008)
+
+FALLBACK-PROFILE STATEMENT
+The terminal lane executes in the fallback proving ground (same sandbox; bash + node/
+python + curl against the fixture apps). Process control (ps/pgrep/kill, SIGSTOP wedge,
+service relaunch) is real Linux process management within the sandbox. No E2B pool.

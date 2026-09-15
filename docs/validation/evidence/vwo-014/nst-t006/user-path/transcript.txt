@@ -1,0 +1,9 @@
+$ git clone -q https://github.com/payswapdotorg/codex.git /tmp/nstd-t006 && git checkout def56454acce47f5d14daf475511c427518d3cdc
+$ git checkout -b t006/scratch-branch
+$ git merge-base --is-ancestor def56454acce47f5d14daf475511c427518d3cdc HEAD && echo ON-BASE
+ON-BASE: yes
+$ git log --oneline -2
+8e03b8631 chore: NST-T006 scratch change
+def56454a docs(state): RWO-012 MERGED via PR #45 (substring-scoped checker exemptions; selftest 9/9; corpus 525/0; merged-tree identity 03c2aa2e3) — ALL 12 RWOs COMPLETE (12/12); remaining: VWO-012..016
+$ git status --porcelain (empty = clean)
+0

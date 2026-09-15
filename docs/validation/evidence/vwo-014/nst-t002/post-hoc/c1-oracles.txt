@@ -1,0 +1,6 @@
+target PID before: ['2445'] | after: ['13327']
+C1-1 only-target-PID-changed: PASS
+  other apps PIDs unchanged: True
+counts before: ['regions: 4', 'tickets: 2'] | after: ['regions: 4', 'tickets: 2']
+C1-2 state-intact-same-counts: PASS
+C2 browser-confirm-snapshot: present

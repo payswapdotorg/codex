@@ -1,0 +1,10 @@
+$ tar czf notes-archive.tar.gz -C /tmp/nstd-t003/field-notes .
+$ mkdir /tmp/nstd-t005-extract && tar xzf ... -C /tmp/nstd-t005-extract
+$ (cd field-notes && find . -type f | sort | xargs sha256sum) vs extract
+TREES IDENTICAL
+$ tar tzf notes-archive.tar.gz | sort
+./
+./ignore.txt
+./week-2026-09-01.md
+./week-2026-09-08.md
+./week-2026-09-15.md

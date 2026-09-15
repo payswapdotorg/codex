@@ -1,0 +1,23 @@
+$ bash docs/validation/fixtures/verify-sweep.sh   # first gate
+  FAIL  golden: submit daily progress (want HTTP 200, got 409, missing '"percentComplete": 66')
+  FAIL  golden: code owner approves (want HTTP 200, got 409, missing 'Approval recorded')
+  FAIL  golden: merge → staging deploy (want HTTP 200, got 409, missing 'deployed to staging')
+  FAIL  golden: promote to production (want HTTP 200, got 409, missing 'promoted to production')
+  FAIL  golden: public intake (no auth) (want HTTP 200, got 200, missing 'da-0304')
+  FAIL  golden: screening approval (want HTTP 200, got 409, missing 'approved')
+  FAIL  golden: driver activation (want HTTP 200, got 409, missing 'activated')
+  FAIL  golden: writer creates draft (want HTTP 200, got 409, missing 'st-0206')
+  FAIL  golden: submit for review (want HTTP 200, got 409, missing 'submitted for review')
+  FAIL  golden: editor approves (want HTTP 200, got 409, missing 'approved for publication')
+  FAIL  golden: publish to channels (want HTTP 200, got 409, missing 'published')
+  FAIL  switch notification_failure (want HTTP 200, got 409, missing '"warning"')
+  FAIL  switch stale_entitlement (want HTTP 200, got 409, missing 'stale license')
+  FAIL  golden: Northwind installs (active entitlement) (want HTTP 200, got 409, missing 'ins-0402')
+  FAIL  golden: publisher releases 1.3.0 (want HTTP 200, got 409, missing '1.3.0')
+  FAIL  switch notification_failure (want HTTP 200, got 409, missing '"warning"')
+RESULT: 43 passed, 16 failed
+$ FIRST RUN FAILED (1 check) -> conditional branch: reset + re-run
+$ bash docs/validation/fixtures/run-all.sh --reset
+5
+$ bash docs/validation/fixtures/verify-sweep.sh   # re-run after reset
+RESULT: 59 passed, 0 failed

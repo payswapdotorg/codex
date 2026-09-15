@@ -1,0 +1,5 @@
+run1 rows: [['2026-09-01', 'Harborview Tower', '3'], ['2026-09-08', 'Eastside Interchange', '3'], ['2026-09-15', 'Riverside Clinic', '2']]
+C1-1 run1-rows-equal-independent-parse: PASS
+run2 rows: [['2026-09-29', 'Riverside Clinic', '2'], ['2026-10-06', 'Harborview Tower', '3']]
+C1-2 run2-correct-no-carryover: PASS
+C1-3 discovery-matched-intended-set: PASS

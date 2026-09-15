@@ -1,0 +1,4 @@
+$ for p in p-101 p-102 p-103; curl /api/projects/$p; collect open PRs; sort by amount desc
+id,vendor,amount,status
+prq-5001,c-2,1104000,submitted
+prq-5003,c-1,87000,submitted

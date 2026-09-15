@@ -1,0 +1,16 @@
+=== STEP 0: fixtures run FROM THIS SCRATCH CLONE; reset; baseline sweep ===
+RESULT: 59 passed, 0 failed
+=== STEP 1: WRONG edit (per the task script) — corrupt the sweep-checked string ===
+113:    message: `Approval recordded for PR #${pr.number} (${pr.approvals.length} approval${pr.approvals.length === 1 ? '' : 's'}).`,
+--- restart software from the edited clone; reset; sweep (expect the approval golden to FAIL) ---
+  FAIL  golden: code owner approves (want HTTP 200, got 200, missing 'Approval recorded')
+RESULT: 58 passed, 1 failed
+=== STEP 2: revert the WRONG edit; apply the CORRECT edit (punctuation clarity) ===
+113:    message: `Approval recorded — PR #${pr.number} (${pr.approvals.length} approval${pr.approvals.length === 1 ? '' : 's'}).`,
+Terminated
+--- reset; sweep after the correct edit (expect 59/59) ---
+RESULT: 59 passed, 0 failed
+=== STEP 3: Terminated
+900875269 fix(fixture): clarify the PR approval response message punctuation (NST-T008)
+0
+Terminated
