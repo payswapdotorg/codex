@@ -1,0 +1,8 @@
+# RWO-005 merge record
+- merged: PR #40, merge commit 0e993075f2122ea557978c753097e13c674b6321
+- merged-tree identity verified: git fetch origin main && git log -1 origin/main
+- verification of record: TL local battery (engine 44+16+8 PASS, cargo check
+  clean x3, nightly-fmt clean branch files, zst structural + zero-collateral)
+- CI posture: structurally red on main (control run 34907844687); not
+  arbitratable — PRs #35-#39 precedent
+- 2026-09-15T00:11Z
