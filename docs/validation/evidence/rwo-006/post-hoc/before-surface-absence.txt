@@ -1,0 +1,42 @@
+== RWO-006 before-probe: the Family D absence at the base commit ==
+Date (UTC): 2026-09-15T00:25:56Z
+Repo: payswapdotorg/codex (worktree /home/z/codex-rwo006)
+Base commit: 275ddd077cd696b8a8ace725bb67a73424d2529a (main @ 275ddd077, includes merged RWO-005 0e993075f)
+
+Finding closed (VWO-010 synthesis of VWO-005 F5): the codex-workflow-evolution crate
+implements candidate/approval but has zero dependents and no mount.
+
+-- probe 1: workspace crates whose Cargo.toml names codex-workflow-evolution --
+(no matches: no crate in the workspace depends on codex-workflow-evolution — library-only, zero consumers)
+
+-- probe 2: the crate is a workspace member but absent from [workspace.dependencies] --
+(no matches under [workspace.dependencies]: no path alias exists for any consumer to use)
+
+-- probe 3: no improvement product surface (protocol methods or CLI subcommands) --
+(no matches: no improvement-proposal path anywhere in the mount)
+
+-- probe 4: the mounted workflow method inventory at base (for the delta record) --
+      1 #[experimental("workflow/approve")]
+      1 #[experimental("workflow/compile")]
+      1 #[experimental("workflow/fork")]
+      1 #[experimental("workflow/instance/cancel")]
+      1 #[experimental("workflow/instance/get")]
+      1 #[experimental("workflow/instance/list")]
+      1 #[experimental("workflow/instance/resume")]
+      1 #[experimental("workflow/instance/run")]
+      1 #[experimental("workflow/publish")]
+      1 #[experimental("workflow/review")]
+      1 #[experimental("workflow/teach/demonstrate")]
+      1 #[experimental("workflow/teach/instruct")]
+      1 #[experimental("workflow/teach/reconcile")]
+      1 #[experimental("workflow/teach/start")]
+
+-- probe 5: the evolution port's public surface being closed (mount-relevant API) --
+101:pub use approval::{
+104:pub use candidate::{
+108:pub use error::WorkflowEvolutionError;
+109:pub use evolution::{
+112:pub use generate::{CandidateGenerator, EvidenceCorpus, GenerationPolicy};
+113:pub use ledger::{
+116:pub use scrub::{REDACTED_MARKER, ScrubFinding, ScrubReport, require_clean_json, scrub_json};
+117:pub use validate::{

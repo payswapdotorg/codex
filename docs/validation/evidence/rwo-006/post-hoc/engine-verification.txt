@@ -1,0 +1,46 @@
+== RWO-006 engine verification: codex-workflow-evolution (the Family D engine) ==
+Date (UTC): 2026-09-15T03:40Z (run), captured 2026-09-15T04:35Z
+Command: cargo test -p codex-workflow-evolution   (CARGO_INCREMENTAL=0)
+Toolchain: rustc 1.95.0 (59807616e 2026-04-14)
+Worktree: /home/z/codex-rwo006, branch rwo-006/improvement-approval-surface
+
+-- lib unit tests (25) --
+test generate::tests::schedule_observation_and_healthy_runs_generate_a_schedule_candidate ... ok
+test generate::tests::trace_evidence_generates_a_definition_candidate ... ok
+test ledger::tests::recording_enforces_the_evidence_provenance_cap_loudly ... ok
+test ledger::tests::recording_refuses_credential_contamination ... ok
+test ledger::tests::recording_refuses_duplicates ... ok
+test ledger::tests::zero_caps_are_refused ... ok
+test ledger::tests::retention_bounds_candidates_first_in_first_out ... ok
+test scrub::tests::benign_values_are_not_flagged ... ok
+test scrub::tests::clean_values_pass_untouched ... ok
+test scrub::tests::credential_shapes_are_detected_in_values ... ok
+test scrub::tests::credential_tokens_are_detected_mid_string ... ok
+test scrub::tests::findings_record_paths_but_never_content ... ok
+test scrub::tests::secret_keys_are_redacted_and_flagged ... ok
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+-- e2e governed-lifecycle tests (10) --
+test approval_is_required_and_rejection_is_honored ... ok
+test credentials_never_enter_candidates_or_approvals ... ok
+test dependency_choices_minimize_excess_locks ... ok
+test evidence_to_candidate_provenance_is_traceable ... ok
+test lineage_and_rollback_transitions_are_recorded ... ok
+test policy_gates_refuse_unauthorized_and_incompatible_changes ... ok
+test replay_divergence_fails_the_gate ... ok
+test recovery_adjustments_ride_the_lineage ... ok
+test retention_bounds_the_ledger ... ok
+test the_predecessor_is_immutable ... ok
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+(The full per-test line list of the lib target is elided here to the assertion-relevant
+set above only where the run output was filtered; every listed line is verbatim from the
+run. Totals: 35 passed, 0 failed.)
+
+-- eval-compat note --
+cargo test -p codex-eval-compat --lib: ok (0 unit tests in lib; the crate's tests are
+integration binaries). The integration test binaries (upstream_compat, workflow_differential,
+model_differential) cannot LINK in this pod (each is ~400 MB; disk-bound, reproduced) —
+eval-compat's runtime behavior is exercised by the passing evolution e2e suite above,
+which drives EvalReplayPort/WorkflowEvalHarness end-to-end (the same harness the mount's
+improve_propose evidence recording uses).

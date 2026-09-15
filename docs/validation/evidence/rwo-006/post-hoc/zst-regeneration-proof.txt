@@ -1,0 +1,74 @@
+== RWO-006 precomputed export regeneration: method + proof ==
+Date (UTC): 2026-09-15T03:19Z-04:20Z
+Artifact: codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst
+Method: python replication (regen_zst006.py at the worktree root; RWO-001 lesson-118
+lineage, RWO-005 zero-collateral precedent). Format rules re-derived from the vendored
+tree and verified against the merged RWO-005 entries byte-for-byte.
+
+-- fidelity self-test (generation core proven against the merged zst) --
+Regenerating the RWO-005 fork entries from the same source with this script's functions:
+  ts  WorkflowForkParams:     IDENTICAL
+  ts  WorkflowForkResponse:    IDENTICAL
+  arm workflow/fork (main bundle, incl. title "Workflow/forkRequest" + doc-text
+      description):               IDENTICAL
+  (WorkflowForkAttribution / WorkflowForkLineage differed ONLY by the missing
+   type-level docs — the RWO-005 defect repaired below.)
+
+-- worker-script defects found by the TL audit and fixed before running --
+  1. arm title slicing [:-8] produced "...Reque" instead of "...Request" (real
+     convention strips "Method", 6 chars).
+  2. method-doc extraction regexed for a nonexistent `/*< */` comment form (never
+     matched; would have emitted method names as descriptions). Now reads the ///
+     doc lines under the #[experimental] attribute and joins them with spaces —
+     byte-verified against the merged fork arm.
+  3. extract_struct/extract_enum returned 3-tuples while schema_of/transitive
+     unpack 4-tuples (the worker never ran the script successfully; the zst was
+     untouched at handover).
+  4. sorted(list) | set TypeError in the ClientRequest.json step.
+  5. enum camelCase wire names: the variant-wire conversion split on underscores
+     (no-op for PascalCase variants). Real serde/ts-rs camelCase lowercases the
+     first character: DefinitionDelta -> definitionDelta. Verified against original
+     enums (accessKeys, pendingInit, spawnAgent, ...) and against the byte-identical
+     regeneration of WorkflowInstanceStatus (wires pending/running/... ). The
+     worker's own protocol tests already asserted the camelCase wires.
+  6. additionalProperties: false is emitted ONLY for structs carrying
+     serde(deny_unknown_fields) (verified: WorkflowEvidenceReference lacks the attr
+     and its real schema lacks the key; 585 v2 object defs follow the rule).
+  7. method-file definitions = the full transitive closure, lazily extracting
+     pre-existing referenced types (WorkflowEvidenceReference,
+     WorkflowInstanceStatus) — matching the real generator (every one of the 166
+     original method files that reference types carries a definitions block; the
+     inlined copies are byte-identical to their existing entries in
+     WorkflowInstanceGetResponse.json / WorkflowInstanceRunResponse.json).
+
+-- RWO-005 fidelity repairs included in this regeneration (each proven) --
+  a) v2/WorkflowForkParams.json carried "$ref": "#/definitions/WorkflowForkAttribution"
+     with NO definitions block (dangling ref) -> regenerated with the definitions
+     block; properties/required/title byte-identical to the merged file.
+  b) the fork attribution/lineage entries lacked their type-level docs everywhere
+     (ts doc blocks + json descriptions) -> re-emitted with docs; everything else
+     byte-identical (verified per-field).
+  c) ClientRequest.ts never imported WorkflowForkParams -> the import block now
+     carries it alongside the four improve params imports (roots-then-v2,
+     both alphabetical — the block convention verified against the merged file).
+
+-- decode-diff (zero collateral) --
+ts: +16 files (the improve types), ~4 (ClientRequest.ts: +5 imports + 4 arms on the
+    export line; v2/index.ts: +16 sorted export lines; the two fork ts files:
+    doc-block-only additions)
+json_schema: +8 method files, ~5 (main bundle, flat v2 bundle, ClientRequest.json:
+    +16 v2 defs / +4 arms after workflow/fork / fork-entry repairs;
+    v2/WorkflowForkParams.json + v2/WorkflowForkResponse.json: regenerated with
+    definitions + descriptions)
+internal_json_schema: IDENTICAL. Nothing removed. Every changed entry enumerated
+above; all other entries byte-identical.
+
+-- structural invariants (all pass) --
+I1 all 16 ts files present; index.ts sorted; all indexed.
+I2 all 16 defs in both bundles.
+I3 arm order after workflow/fork = propose/validate/approve/publish then
+   workflow/instance/run, in all three arm locations; fork arm unchanged.
+I4 every $ref in the new method files resolves inside its file; root titles present.
+I5 ClientRequest.ts import block: roots sorted, v2 sorted, all five new imports present.
+I6 enum ts unions carry camelCase wires (definitionDelta | ...).
+Final size: 184726 bytes (base 180466).
