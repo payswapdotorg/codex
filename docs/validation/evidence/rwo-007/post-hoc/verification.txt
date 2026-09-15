@@ -1,0 +1,36 @@
+== RWO-007 verification (all real runs, 2026-09-15 ~05:05Z) ==
+Worktree: /home/z/codex, branch rwo-007/upgrade-direction-semantics (off main @ c5e7f2647)
+Fixture: docs/validation/fixtures/marketplace (FlowMart, port 4105)
+
+-- full ecosystem sweep (regression gate) --
+$ bash run-all.sh --reset   (all five fixture apps up)
+$ bash verify-sweep.sh
+RESULT: 59 passed, 0 failed
+(includes the golden path: upgrade 1.2.0 -> 1.3.0 PASS, rollback to 1.2.0 PASS,
+ provenance digest PASS, and every failure switch)
+
+-- AC1: upgrade with an older target is refused; nothing mutates --
+legit forward upgrade ins-0402 1.2.0 -> 1.3.0: HTTP 200 "upgraded 1.2.0 → 1.3.0"
+upgrade {targetVersion: "1.2.0"} on the 1.3.0 pin:
+  HTTP 409 {"error":"implicit_downgrade_refused","currentVersion":"1.3.0",
+            "targetVersion":"1.2.0","message":"... an upgrade cannot move the pin
+            backward. Roll back instead (rollback returns to the version the pin
+            came from)."}
+state after the refusal: version 1.3.0; history unchanged (no new entry); no event.
+
+-- AC2: rollback lands on the upgrade's fromVersion, never forward --
+rollback ins-0402 from 1.3.0: HTTP 200 "rolled back 1.3.0 → 1.2.0", pin 1.2.0.
+final history entry: ('rolled_back', 1.3.0 -> 1.2.0); backward move: True.
+(the VWO-009 F5 bug shape — rollback selecting a NEWER toVersion and moving the
+ pin forward — is structurally impossible: the target is the most recent
+ `upgraded` entry's fromVersion.)
+
+-- AC3: pre-existing guards unchanged --
+same-version upgrade (1.2.0 -> 1.2.0): HTTP 409 duplicate_event (unchanged)
+stale expectedCurrentVersion (expect 1.3.0, actual 1.2.0): HTTP 409 data_conflict (unchanged)
+entitlement / cross-tenant / failure-switch paths: covered by the 59/59 sweep above.
+
+-- no-prior-upgrade rollback (unchanged error) --
+an install with no `upgraded` history entry keeps the data_conflict
+"no prior version to roll back to" refusal (code inspection: the null
+fromVersion path is identical to the pre-change null toVersion path).

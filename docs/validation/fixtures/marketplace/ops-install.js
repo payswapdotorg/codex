@@ -159,6 +159,20 @@ function plusDays(dateStr, days) {
   return d.toISOString().slice(0, 10);
 }
 
+// RWO-007 (Family G product half): segment-wise numeric semver comparison.
+// Fixture versions are numeric dotted strings ("1.2.0"); missing segments
+// count as 0. Returns <0 when a is older than b, 0 when equal, >0 when newer.
+function cmpSemver(a, b) {
+  const pa = String(a).split('.');
+  const pb = String(b).split('.');
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const na = parseInt(pa[i], 10) || 0;
+    const nb = parseInt(pb[i], 10) || 0;
+    if (na !== nb) return na < nb ? -1 : 1;
+  }
+  return 0;
+}
+
 function configureInstall(ctx) {
   const b = ctx.body;
   const inst = find(ctx.state.installs, b.installId);
@@ -212,6 +226,14 @@ function upgradeInstall(ctx) {
   if (targetVersion === inst.version) {
     throw new R.AppError(409, 'duplicate_event', `Install ${inst.id} is already at v${targetVersion}.`, { installId: inst.id });
   }
+  // RWO-007 (Family G product half, VWO-009 F4): an upgrade only moves the
+  // pin forward. An older target is an implicit downgrade — refused with the
+  // pointer to the rollback op; nothing (pin, history, events) is mutated.
+  if (cmpSemver(targetVersion, inst.version) < 0) {
+    throw new R.AppError(409, 'implicit_downgrade_refused',
+      `Install ${inst.id} is at v${inst.version}; target v${targetVersion} is older — an upgrade cannot move the pin backward. Roll back instead (rollback returns to the version the pin came from).`,
+      { installId: inst.id, currentVersion: inst.version, targetVersion });
+  }
   const from = inst.version;
   inst.version = targetVersion;
   inst.history.push({ action: 'upgraded', fromVersion: from, toVersion: targetVersion, at: new Date().toISOString(), byId: ctx.user.id });
@@ -246,8 +268,12 @@ function rollbackInstall(ctx) {
   if (ctx.failure === 'data_conflict') {
     throw new R.AppError(409, 'data_conflict', `Install ${inst.id} was rolled back by another admin concurrently (simulated).`, { installId: inst.id, simulated: true });
   }
-  const prevEntry = [...inst.history].reverse().find((h) => h.toVersion && h.toVersion !== inst.version);
-  const prevVersion = prevEntry ? prevEntry.toVersion : null;
+  // RWO-007 (Family M, VWO-009 F5): rollback only moves the pin backward —
+  // to the fromVersion of the most recent `upgraded` history entry (the
+  // version the pin came from). It can never select a newer version or
+  // mislabel a forward move as a rollback.
+  const lastUpgrade = [...inst.history].reverse().find((h) => h.action === 'upgraded');
+  const prevVersion = lastUpgrade ? lastUpgrade.fromVersion : null;
   if (!prevVersion) {
     throw new R.AppError(409, 'data_conflict', `Install ${inst.id} has no prior version to roll back to (installed at v${inst.version}, never upgraded).`, { installId: inst.id });
   }

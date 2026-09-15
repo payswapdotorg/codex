@@ -1,0 +1,10 @@
+== RWO-007 environment identity ==
+Date (UTC): 2026-09-15T05:05Z
+Repo: payswapdotorg/codex, branch rwo-007/upgrade-direction-semantics
+Base commit: c5e7f2647 (main, post-RWO-006 state commit)
+Runtime: node (fixture apps are dependency-free Node HTTP servers; run-all.sh)
+Change surface: docs/validation/fixtures/marketplace/ops-install.js (single file,
+  +28/-2: cmpSemver helper + implicit_downgrade_refused guard + rollback
+  fromVersion derivation) and FAILURES.md (contract section).
+No Rust, no protocol, no zst, no engine changes (Family G engine half is
+RWO-009's rider; surfaces disjoint).

@@ -46,6 +46,28 @@ Consequences:
   the **most recent** such record — the newest relevant entitlement, pointing
   operators at the record that needs replacing.
 
+## Upgrade/rollback direction contract (RWO-007 — VWO-010 Family G product half + Family M)
+
+Version-movement semantics are honest at the product layer — neither op can
+mislabel its effect:
+
+- **Upgrade only moves the pin forward.** `POST /api/installs/upgrade` with a
+  `targetVersion` older than the install's current version is refused with
+  HTTP 409 `implicit_downgrade_refused` (naming `currentVersion` and
+  `targetVersion`) and the pointer to the rollback op. The refusal happens
+  before any mutation: pin, history, and events are unchanged. Natural case:
+  upgrading a v1.3.0 install to 1.2.0.
+- **Rollback only moves the pin backward.** `POST /api/installs/rollback`
+  derives its target from the `fromVersion` of the most recent `upgraded`
+  history entry — the version the pin came from — never from "any entry whose
+  toVersion differs from the current pin" (which could select a NEWER version
+  and move the pin forward labeled "rolled back"). After a legit upgrade
+  1.2.0 → 1.3.0, rollback lands on 1.2.0. An install with no `upgraded`
+  history entry keeps the existing `data_conflict` "no prior version" refusal.
+- The pre-existing guards are unchanged: same-version upgrade
+  (`duplicate_event`), stale `expectedCurrentVersion` (`data_conflict`),
+  duplicate install, and the entitlement checks.
+
 ## Golden human path (discover → install → configure → upgrade → rollback → verify)
 
 1. Buyer admin (iris.chen) signs in → `/catalog` → searches "triage" → opens the listing.
