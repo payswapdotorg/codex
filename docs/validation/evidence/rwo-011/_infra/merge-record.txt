@@ -1,0 +1,17 @@
+RWO-011 merged via PR #44 (merge commit fa829d3ce) into main at 2026-09-15T05:31Z.
+
+Rejection/conflict audit events in the shared fixture runtime (Family J; closes
+VWO-007 F2, VWO-008 F6, VWO-009 F3): one emit site in handle()'s catch block —
+every 409/403/503 AppError records a typed request.rejected event ({op, code,
+status, actor}, simulated flag when switch-driven) before the error propagates.
+Additive: idempotency ledger, success events, and responses unchanged;
+validation 400s and 401/404 stay silent. README contract bullet added.
+
+Verification: verify-sweep 59/59; live AC battery — storm probe 8 parallel
+identical POSTs → exactly 7 rejection events naming op+code; approval-race
+losing/stale/permission probes audited with actors; FlowMart 503 upgrade
+refusal, stale_entitlement, and natural data_conflict blocks all in the feed
+(docs/validation/evidence/rwo-011/post-hoc/verification.txt).
+
+Scope decision documented: emit covers 409/403/503 (WO AC3 requires the
+503-refused upgrade; the parenthetical's 409/403 was incomplete).
