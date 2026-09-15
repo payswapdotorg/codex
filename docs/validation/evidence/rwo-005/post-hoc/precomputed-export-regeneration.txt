@@ -58,3 +58,17 @@ The CI test experimental_precomputed_exports_match_generated (runs on the
 PR's GitHub Actions) regenerates from the live derives and compares:
 typescript trees byte-exact, json_schema trees value-exact. CI green =
 artifact verified. (The delivery merge is gated on CI green.)
+
+## addendum: zero-collateral proof (2026-09-14T23:45Z)
+Decoding BOTH the base artifact (9441a823f) and the branch artifact
+(3898d1292) and diffing the full trees:
+- typescript: exactly 4 added entries (the fork types) + 2 expected edits
+  (ClientRequest.ts arm, v2/index.ts exports); every other pre-existing
+  entry byte-identical.
+- json_schema: exactly 2 added entries (the method files) + 3 expected
+  envelope edits; main bundle +4 definitions.v2 entries +1 ClientRequest
+  arm; flat v2 bundle +4 local defs +1 arm; standalone ClientRequest.json
+  +2 defs (Params, Attribution) +1 arm.
+- internal_json_schema: byte-identical.
+The regeneration is surgical: no pre-existing entry was altered beyond the
+five surfaces the work order's addition necessarily touches.

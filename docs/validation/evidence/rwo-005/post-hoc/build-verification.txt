@@ -34,3 +34,26 @@ completion report; the merge gate is CI green.
 - the regenerated precomputed export passes all structural invariants
   (precomputed-export-regeneration.txt); byte/value-exactness is judged
   by the CI test experimental_precomputed_exports_match_generated
+
+## addendum: the CI control experiment (2026-09-14T23:30Z)
+The repo's Actions have NEVER run (zero historical workflow runs; PRs #35-#39
+merged on Tech-Lead local verification). Both rust-ci and rust-ci-full were
+manually dispatched (workflow_dispatch) on this branch (runs 34904837641 +
+34904995053) and — as a control — rust-ci-full on main @ 9441a823 (run
+34907844687). RESULTS:
+- main control: FAILURE — 26/34 jobs failed, including every Lint/Build and
+  every Tests job on every platform ("Build nextest" fails before any test
+  executes; job logs expire instantly — BlobNotFound).
+- branch run: FAILURE with a job-for-job IDENTICAL failure signature (same
+  jobs fail, same jobs skip). The failure is structural, pre-existing,
+  and unpayable inside any bounded work order (never-linted tree: fmt drift
+  in workflow-forge/browser-use-adapter/env-adapters/resource-providers/
+  teaching-compiler, misplaced tokio+serde_json in workflow-triggers,
+  clippy -D warnings debt, etc.).
+- This branch introduces NO new lint findings: its own files are nightly-fmt
+  clean (commit 3898d1292), its +lines carry no argument-comment violations
+  (string-literal-exempt), and cargo-shear's findings are in untouched
+  crates.
+CONSEQUENCE: CI cannot arbitrate any commit in this repo's current state;
+the verification of record is the Tech-Lead local battery (this file) per
+the repo's own merge convention (PRs #35-#39).

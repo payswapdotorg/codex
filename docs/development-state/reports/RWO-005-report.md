@@ -26,8 +26,8 @@
 
 - `cargo test -p codex-workflow-forge -p codex-workflow-distribution` (work-order command 1, REAL local runs, rustc 1.95.0 workspace pin): **forge 44 passed; distribution 16 + 8 (e2e) passed; 0 failed** — evidence/post-hoc/engine-verification.txt.
 - `cargo check -p codex-app-server-protocol -p codex-app-server -p codex-cli`: **clean, 8m26s** — evidence/post-hoc/build-verification.txt.
-- `cargo test -p codex-app-server-protocol -p codex-cli` (work-order command 2): **runs on the PR's GitHub Actions CI** — this pod's 4 GiB cgroup cannot link the protocol lib-test binary (kernel OOM at rustc anon-rss 2.7 GB, reproduced 4× with lld/-j1/debug-stripped; disk likewise insufficient for three target generations). The repo's rust-ci workflow on 2-core/7G+ runners is the authoritative judge; the merge gate is CI green, including `experimental_precomputed_exports_match_generated` byte/value-verifying the regenerated export.
-- Precomputed export: regenerated (see evidence/post-hoc/precomputed-export-regeneration.txt) — structural invariants verified locally (single arm after publish, resolving refs both namespaces, hoisted-vs-inline definitions matching the WorkflowPublish* shape, alphabetical required arrays, paragraph-joined descriptions byte-checked against CommandExecParams).
+- `cargo test -p codex-app-server-protocol -p codex-cli` (work-order command 2): **not executable in any available environment** — (a) this pod's 4 GiB cgroup cannot link the protocol lib-test binary (kernel OOM at rustc anon-rss 2.7 GB, reproduced 4× with lld/-j1/debug-stripped; disk likewise insufficient for the app-server/cli dep trees — the morning chat-worker on this same work order died at the identical phase); (b) the repo's CI is STRUCTURALLY RED on main (control experiment: rust-ci-full dispatched on main @ 9441a823 fails 26/34 jobs with a job-for-job identical signature to this branch's run — every Tests job fails at "Build nextest" before any test executes; the repo has zero historical CI runs; PRs #35-#39 all merged on Tech-Lead local verification). The verification of record is therefore the TL local battery per the repo's own convention, with the constraint documented in evidence/post-hoc/build-verification.txt.
+- Precomputed export: regenerated (see evidence/post-hoc/precomputed-export-regeneration.txt) — structural invariants verified locally (single arm after publish, resolving refs both namespaces, hoisted-vs-inline definitions matching the WorkflowPublish* shape, alphabetical required arrays, paragraph-joined descriptions byte-checked against CommandExecParams), plus a ZERO-COLLATERAL proof: a full decode-and-diff of the base artifact vs the branch artifact shows exactly the 4+2 typescript and 2+3 json_schema additions/edits the work order requires and byte-identical everything-else.
 
 ## Deviations (honest)
 
@@ -38,7 +38,7 @@
 === RWO-005 COMPLETION REPORT ===
 - base branch: main
 - base SHA: 9441a823f576a53591a6ce3a96a5ed47b6e9ca85
-- head SHA: (this commit — see `git rev-parse HEAD` on rwo-005/fork-lineage-surface after the delivery commits)
+- head SHA: 3898d1292 (fmt fix; delivery commits 6b9aadbb0 + d6f241fdf)
 - tests: forge 44 passed / 0 failed; distribution 16+8 passed / 0 failed (local, real); protocol + app-server + cli suites via PR CI (gate: green)
 - evidence: docs/validation/evidence/rwo-005/
 - report: docs/development-state/reports/RWO-005-report.md
