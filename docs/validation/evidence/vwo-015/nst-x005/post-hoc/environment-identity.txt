@@ -1,0 +1,3 @@
+run: NST-X005 cross-app reconciliation report
+date-window: 2026-09-15T11:31:41Z
+apps: SiteBuild :4101 (projects, authenticated browser session) + ForgeOps :4102 (deployments, authenticated browser session); join by week; combined PM-readable file

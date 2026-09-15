@@ -1,0 +1,4 @@
+run: NST-X001 export -> transform -> review -> approve -> publish
+date-window: 2026-09-15T11:41:18Z
+apps: PressRoom :4104 (story stats via API + the bulletin as a new story: hana.kim creates, camille.dubois approves+publishes) + terminal (bulletin build) + Xvfb GUI review window + operator channel (desk-chief sign-off record, §5-1)
+drift D-X1 recorded: the catalog's "armed 503 on export" premise — PressRoom's service_unavailable switch (like RidePilot's) applies to state-changing requests only; the armed 503 landed on the bulletin's SUBMIT (first attempt) with a clean retry (ledgered request.rejected), preserving the mid-run-failure + recovery substance. In-world gate: camille.dubois (editor_in_chief) approved BEFORE publish (event ordering verified); the operator-channel sign-off record mirrors it (§5-1 fidelity note).

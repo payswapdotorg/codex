@@ -1,0 +1,25 @@
+VWO-015 ENVIRONMENT PROBE (NST-X cross-application lane) — recorded 2026-09-15 11:30–12:05 UTC
+=============================================================================================
+
+EXECUTION CONTEXT
+- Executor: Tech Lead local delivery (lesson-120 protocol; recorded).
+- Base: main @ def56454acce47f5d14daf475511c427518d3cdc (verified).
+
+CROSS-APP TOOLING (probed live, reused from the sibling lanes at the same base)
+- Browser: agent-browser 0.35.0 (a11y snapshots, uploads/downloads, tabs, evals)
+- Terminal: bash/coreutils/python3/curl/sha256sum/tar/git (all exercised)
+- GUI: Xvfb :97 + GUI chromium + xdotool + ffmpeg x11grab (review windows: NotaryPad :4201)
+- API: the five VWO-002 fixture apps :4101–4105 with their failure switches
+  (service_unavailable, stale_entitlement armed per task; reads exempt — D-T10/D-X1 recorded)
+- Purpose-built fixtures (additive under vwo-015/_fixtures, copied from the VWO-013 tree for
+  self-containment): MarketplaceDigests :4209 (digest download + advertised integrity),
+  ForgeExport :4210 (deployment-log export)
+- Fixtures verify-sweep 59/59 at the base (VWO-012 probe, same tree)
+
+FALLBACK-PROFILE STATEMENT
+The cross-app lane executes in the fallback proving ground. The human-approval gates execute
+as: in-world persona approvals where the fixture provides the surface (X001 desk-chief approve;
+X002 release-manager approval record + the fixture's deploy-notification surface) with the
+operator channel (agent_outbox timestamped records) as the §5-1 fidelity mirror. The metadata-
+only PressRoom assets (no image bytes) and the reads-exempt failure switches are recorded as
+task-level drifts (D-X7, D-X1), never silently narrowed.

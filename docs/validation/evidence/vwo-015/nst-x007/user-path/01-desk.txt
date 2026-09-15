@@ -1,0 +1,84 @@
+- banner
+  - link "PressRoommedia fixture · VWO-002" [ref=e1]
+    - StaticText "PressRoommedia fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Desk" [ref=e6]
+    - link "Assets" [ref=e7]
+    - link "Social" [ref=e8]
+    - link "Channels" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - link "sign in" [ref=e3]
+- main
+  - heading "Editorial desk" [level=1, ref=e4]
+  - generic
+    - heading "All stories" [level=2, ref=e13]
+    - table
+      - rowgroup
+        - row
+          - columnheader "STORY" [ref=e49]
+          - columnheader "ID" [ref=e50]
+          - columnheader "SECTION" [ref=e51]
+          - columnheader "AUTHOR" [ref=e52]
+          - columnheader "STATUS" [ref=e53]
+          - columnheader "VERSION" [ref=e54]
+          - columnheader "DEK" [ref=e55]
+      - row
+        - cell "Harbor bridge retrofit begins Monday" [ref=e14]
+          - link "Harbor bridge retrofit begins Monday" [ref=e56]
+        - cell "st-0201" [ref=e15]
+          - code
+            - StaticText "st-0201"
+        - cell "news" [ref=e16]
+        - cell "Hana Kim" [ref=e17]
+        - cell "published" [ref=e18]
+        - cell "v3" [ref=e19]
+        - cell "Two-year closure plan for the upper deck starts with night work." [ref=e20]
+      - row
+        - cell "City budget hearings: five things to watch" [ref=e21]
+          - link "City budget hearings: five things to watch" [ref=e57]
+        - cell "st-0202" [ref=e22]
+          - code
+            - StaticText "st-0202"
+        - cell "metro" [ref=e23]
+        - cell "Hana Kim" [ref=e24]
+        - cell "in_review" [ref=e25]
+        - cell "v2" [ref=e26]
+        - cell "Housing, transit and the library levy dominate a long agenda." [ref=e27]
+      - row
+        - cell "New ferry terminal designs unveiled" [ref=e28]
+          - link "New ferry terminal designs unveiled" [ref=e58]
+        - cell "st-0203" [ref=e29]
+          - code
+            - StaticText "st-0203"
+        - cell "news" [ref=e30]
+        - cell "Hana Kim" [ref=e31]
+        - cell "draft" [ref=e32]
+        - cell "v1" [ref=e33]
+        - cell "Three concepts, one very public fight about sightlines." [ref=e34]
+      - row
+        - cell "Marathon route changes draw mixed reviews" [ref=e35]
+          - link "Marathon route changes draw mixed reviews" [ref=e59]
+        - cell "st-0204" [ref=e36]
+          - code
+            - StaticText "st-0204"
+        - cell "sports" [ref=e37]
+        - cell "Hana Kim" [ref=e38]
+        - cell "approved" [ref=e39]
+        - cell "v2" [ref=e40]
+        - cell "Runners like the flatter course; downtown merchants do not." [ref=e41]
+      - row
+        - cell "Council votes on stadium funding tonight" [ref=e42]
+          - link "Council votes on stadium funding tonight" [ref=e60]
+        - cell "st-0205" [ref=e43]
+          - code
+            - StaticText "st-0205"
+        - cell "metro" [ref=e44]
+        - cell "Hana Kim" [ref=e45]
+        - cell "approved" [ref=e46]
+        - cell "v1" [ref=e47]
+        - cell "A late amendment could delay the vote again." [ref=e48]
+- contentinfo
+  - StaticText "PressRoom is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

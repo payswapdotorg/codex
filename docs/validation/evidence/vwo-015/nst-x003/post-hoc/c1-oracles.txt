@@ -1,0 +1,4 @@
+C1-1 install-exists-only-if-verified: PASS
+C1-2 verification-transcript-checksum-comparison: PASS
+C1-3 manifest-browser-vs-api-field-compare: PASS (api: True — "[{\"v\":\"2.3.1\",\"digest\":\"sha256:04cf049e110cc2cc\"}]"; browser listing: True)
+control-run tampered->no-install: PASS (documented branch)

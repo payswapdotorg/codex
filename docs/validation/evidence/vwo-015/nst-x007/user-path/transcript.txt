@@ -1,0 +1,12 @@
+$ for asset in <week's published-story images>: request social-card rendition
+Traceback (most recent call last):
+published stories: ['st-0201']
+their image assets: ['a-0301']
+  File "<stdin>", line 12, in <module>
+NameError: name 'allasset' is not defined. Did you mean: 'allassets'?
+{
+  "ok": true,
+  "message": "Rendition \"social-card\" rendered for a-0301.",
+  "redirect": "/assets",
+  "asset": {
+   

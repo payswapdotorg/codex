@@ -1,0 +1,18 @@
+- heading "MarketplaceDigests — package digest exports" [level=1, ref=e1]
+- main
+  - heading "Current digest file — support-triage-assistant" [level=2, ref=e2]
+  - paragraph
+    - link "Download digest file" [ref=e3]
+  - table
+    - row
+      - cell "current version" [ref=e4]
+      - cell "2.3.1" [ref=e5]
+    - row
+      - cell "file size" [ref=e6]
+      - cell "207 bytes" [ref=e7]
+    - row
+      - cell "file sha256" [ref=e8]
+      - cell "52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5" [ref=e9]
+    - row
+      - cell "package sha256 (content)" [ref=e10]
+      - cell "sha256:04cf049e110cc2cc" [ref=e11]

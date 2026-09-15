@@ -1,0 +1,5 @@
+st-0206 events: [('story.published', '2026-09-15T11:42:06'), ('distribution.sent', '2026-09-15T11:42:06'), ('story.asset_attached', '2026-09-15T11:42:06'), ('story.approved', '2026-09-15T11:41:45'), ('story.submitted_for_review', '2026-09-15T11:41:45'), ('story.created', '2026-09-15T11:41:45')]
+C1-1 published-exactly-once-with-derived-content: PASS
+C1-2 approval-before-publish: PASS (approve 2026-09-15T11:41:45 < publish 2026-09-15T11:42:06)
+C1-3 armed-503-recovered: PASS
+C2-4 GUI-review-screenshot: present

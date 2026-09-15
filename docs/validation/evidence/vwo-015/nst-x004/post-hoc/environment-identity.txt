@@ -1,0 +1,3 @@
+run: NST-X004 long-running weekly report with restart
+date-window: 2026-09-15T11:32:20Z
+app: SiteBuild :4101 — read the week's progress entries, compute totals in the terminal, post the weekly summary back; kill -9 mid-run; resume; exactly-once

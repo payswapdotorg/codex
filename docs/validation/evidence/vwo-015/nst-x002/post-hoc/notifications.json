@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "notifications": [
+    {
+      "id": "n-0003",
+      "userId": "u-3",
+      "to": "raj.patel",
+      "type": "deploy",
+      "subject": "payments-service 4.8.2 staged — promotion approval needed",
+      "text": "PR #303 merged. Staging deployment dep-1104 is awaiting your promotion decision.",
+      "status": "delivered",
+      "createdAt": "2026-09-15T11:40:54.972Z"
+    }
+  ]
+}

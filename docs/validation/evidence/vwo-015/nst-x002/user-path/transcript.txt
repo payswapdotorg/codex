@@ -1,0 +1,23 @@
+$ curl /api/deployments -> digest file
+Tonight's deployment digest — ForgeOps (2026-09-15)
+==================================================
+dep-1103  repo=r-2  env=production  status=succeeded
+dep-1102  repo=r-1  env=production  status=succeeded
+dep-1101  repo=r-1  env=staging  status=promoted
+==================================================
+total: 3 deployments; production: 2
+APPROVAL RECORDED at 2026-09-15T11:38:07.837Z
+promote dep-1101 (the deployment event that notifies the on-call SRE): {
+  "ok": false,
+  "error": "data_conflict",
+  "message": "Deployment dep-1101 is env \"staging\" / status \"promoted\" — only successful staging de
+
+PR opened: pr-0304
+PR approved by noor
+merge: {
+  "ok": true,
+  "message": "PR #303 merged; payments-service 4.8.2 deployed to staging (deployment dep-1104).",
+  "warning": null,
+  "redirect": "/repos/r-1",
+  "pullRequest": {
+    "id": "pr-0304",

@@ -1,0 +1,3 @@
+run: NST-X003 browser -> API/tool -> filesystem -> terminal -> browser
+date-window: 2026-09-15T11:33:31Z
+apps: FlowMart :4105 + MarketplaceDigests :4209 (purpose-built digest surface, §5 note 4) + terminal sha256

@@ -1,0 +1,4 @@
+run: NST-X008 install-verify-rollback across surfaces
+date-window: 2026-09-15T11:37:10Z
+apps: FlowMart :4105 (iris.chen o-2 admin, install:manage; ins-0401 pk-102 active) + MarketplaceDigests :4209 (terminal digest verification) + terminal
+controlled failure: stale_entitlement armed on the mid-flight upgrade (the entitlement revocation)
