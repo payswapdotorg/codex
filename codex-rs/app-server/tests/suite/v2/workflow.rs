@@ -364,3 +364,102 @@ async fn unknown_records_surface_as_invalid_params() -> Result<()> {
     );
     Ok(())
 }
+
+#[tokio::test]
+async fn fork_publishes_a_new_immutable_release_with_lineage_over_jsonrpc() -> Result<()> {
+    let mut app_server = TestAppServer::builder().build().await?;
+    initialize_experimental(&mut app_server).await?;
+    let published = teach_publish(
+        &mut app_server,
+        "instruct",
+        "forkable-report",
+        Some("Summarize the daily progress report."),
+        None,
+    )
+    .await?;
+    let version_id = published["versionId"]
+        .as_str()
+        .expect("version id")
+        .to_string();
+    let fork_request = json!({
+        "versionId": version_id,
+        "forkRepository": "local/workflows/forks/forkable-report",
+        "attribution": [{"name": "tech-lead", "contact": "tech-lead@example.com"}]
+    });
+
+    let forked = request(&mut app_server, "workflow/fork", fork_request.clone()).await?;
+    // A NEW immutable release: different version identity, inherited
+    // definition and lock digests, the fork's repository.
+    assert_ne!(forked["versionId"], published["versionId"]);
+    assert_eq!(forked["workflow"], "forkable-report");
+    assert_eq!(forked["semanticVersion"], published["semanticVersion"]);
+    assert_eq!(forked["definitionDigest"], published["definitionDigest"]);
+    assert_eq!(
+        forked["dependencyLockDigest"],
+        published["dependencyLockDigest"]
+    );
+    assert_eq!(
+        forked["repository"],
+        "local/workflows/forks/forkable-report"
+    );
+    assert_eq!(forked["commitSha"], published["commitSha"]);
+    // The upstream is pinned in the lineage record: forked-from id plus
+    // the upstream digests.
+    assert_eq!(forked["lineage"]["versionId"], published["versionId"]);
+    assert_eq!(forked["lineage"]["workflow"], "forkable-report");
+    assert_eq!(forked["lineage"]["repository"], published["repository"]);
+    assert_eq!(
+        forked["lineage"]["definitionDigest"],
+        published["definitionDigest"]
+    );
+    assert_eq!(
+        forked["lineage"]["dependencyLockDigest"],
+        published["dependencyLockDigest"]
+    );
+    // The carried attribution renders on the release.
+    assert_eq!(forked["attribution"][0]["name"], "tech-lead");
+    assert_eq!(forked["attribution"][0]["contact"], "tech-lead@example.com");
+
+    // Re-publishing the same fork identity is refused (invalid params,
+    // never a silent overwrite).
+    let refused = request_error(&mut app_server, "workflow/fork", fork_request).await?;
+    assert_eq!(refused.code, -32602);
+    assert!(
+        refused.message.contains("already published"),
+        "unexpected message: {}",
+        refused.message
+    );
+
+    // An empty carried attribution is refused by the engine's rule
+    // ("a fork must carry upstream attribution").
+    let unattributed = request_error(
+        &mut app_server,
+        "workflow/fork",
+        json!({
+            "versionId": version_id,
+            "forkRepository": "local/workflows/forks/unattributed",
+            "attribution": []
+        }),
+    )
+    .await?;
+    assert_eq!(unattributed.code, -32602);
+    assert!(
+        unattributed
+            .message
+            .contains("must carry upstream attribution"),
+        "unexpected message: {}",
+        unattributed.message
+    );
+
+    // The fork release is real and runnable: an instance pins it.
+    let run = request(
+        &mut app_server,
+        "workflow/instance/run",
+        json!({"versionId": forked["versionId"]}),
+    )
+    .await?;
+    assert_eq!(run["status"], "succeeded");
+    assert_eq!(run["terminal"]["kind"], "completed");
+    assert_eq!(run["workflow"], "forkable-report");
+    Ok(())
+}

@@ -586,3 +586,217 @@ fn review_of_an_unknown_candidate_is_rejected() {
         "unexpected error: {error}"
     );
 }
+
+/// The default fork request used by the fork tests: carried attribution
+/// naming the upstream's author.
+fn fork_params(version_id: String, repository: &str) -> rpc::WorkflowForkParams {
+    rpc::WorkflowForkParams {
+        version_id,
+        fork_repository: repository.to_string(),
+        semantic_version: None,
+        commit_sha: None,
+        owner: None,
+        license: None,
+        attribution: vec![rpc::WorkflowForkAttribution {
+            name: "tech-lead".to_string(),
+            contact: Some("tech-lead@example.com".to_string()),
+        }],
+    }
+}
+
+#[tokio::test]
+async fn fork_produces_a_new_immutable_release_with_pinned_lineage() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let published = publish_taught(&plane, "forkable-report").await;
+
+    let forked = plane
+        .fork(fork_params(
+            published.version_id.clone(),
+            "local/workflows/forks/forkable-report",
+        ))
+        .expect("fork");
+    // A NEW immutable release: a different version identity carrying the
+    // upstream's frozen definition and lock under the fork's repository.
+    assert_ne!(forked.version_id, published.version_id);
+    assert_eq!(forked.workflow, "forkable-report");
+    assert_eq!(forked.semantic_version, published.semantic_version);
+    assert_eq!(forked.definition_digest, published.definition_digest);
+    assert_eq!(
+        forked.dependency_lock_digest,
+        published.dependency_lock_digest
+    );
+    assert_eq!(forked.repository, "local/workflows/forks/forkable-report");
+    assert_eq!(forked.commit_sha, published.commit_sha);
+    // The upstream is pinned in the lineage record, id and digests.
+    assert_eq!(forked.lineage.workflow, "forkable-report");
+    assert_eq!(forked.lineage.version_id, published.version_id);
+    assert_eq!(forked.lineage.semantic_version, published.semantic_version);
+    assert_eq!(forked.lineage.repository, published.repository);
+    assert_eq!(
+        forked.lineage.definition_digest,
+        published.definition_digest
+    );
+    assert_eq!(
+        forked.lineage.dependency_lock_digest,
+        published.dependency_lock_digest
+    );
+    assert_eq!(forked.lineage.commit_sha, published.commit_sha);
+    // The carried attribution renders on the release.
+    assert_eq!(forked.attribution.len(), 1);
+    assert_eq!(forked.attribution[0].name, "tech-lead");
+    assert_eq!(
+        forked.attribution[0].contact.as_deref(),
+        Some("tech-lead@example.com")
+    );
+
+    // The fork appears as a new immutable release: a FRESH control plane
+    // over the same root (the restart story) runs an instance pinned to
+    // the fork's version identity.
+    let reopened = WorkflowControlPlane::new(root.path());
+    let run = reopened
+        .instance_run(rpc::WorkflowInstanceRunParams {
+            version_id: forked.version_id.clone(),
+        })
+        .await
+        .expect("instance_run of the fork release");
+    assert_eq!(run.status, rpc::WorkflowInstanceStatus::Succeeded);
+    assert_eq!(run.terminal.kind, rpc::WorkflowRunTerminalKind::Completed);
+    assert_eq!(run.version_id, forked.version_id);
+    assert_eq!(run.workflow, "forkable-report");
+}
+
+#[tokio::test]
+async fn reforking_the_same_identity_is_refused() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let published = publish_taught(&plane, "refork-guard").await;
+    let params = fork_params(
+        published.version_id.clone(),
+        "local/workflows/forks/refork-guard",
+    );
+    let forked = plane.fork(params.clone()).expect("first fork");
+    assert_ne!(forked.version_id, published.version_id);
+    // The same fork request derives the same immutable identity: the
+    // re-publish is refused, never a silent overwrite.
+    let refused = plane
+        .fork(params)
+        .expect_err("re-forking the same identity must fail");
+    assert!(
+        refused.to_string().contains("already published"),
+        "unexpected error: {refused}"
+    );
+    // The refusal survives the restart story: a fresh control plane over
+    // the same root refuses the same identity too.
+    let reopened = WorkflowControlPlane::new(root.path());
+    let refused = reopened
+        .fork(fork_params(
+            published.version_id,
+            "local/workflows/forks/refork-guard",
+        ))
+        .expect_err("re-forking after restart must fail");
+    assert!(
+        refused.to_string().contains("already published"),
+        "unexpected error: {refused}"
+    );
+}
+
+#[tokio::test]
+async fn fork_requires_carried_attribution() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let published = publish_taught(&plane, "attribution-guard").await;
+    let mut params = fork_params(
+        published.version_id,
+        "local/workflows/forks/attribution-guard",
+    );
+    params.attribution = Vec::new();
+    // The ENGINE refuses (workflow-distribution memory.rs: "a fork must
+    // carry upstream attribution"; enforcing test
+    // metadata_tests.rs:140 forks_must_carry_upstream_attribution); the
+    // mount surfaces the refusal.
+    let error = plane
+        .fork(params)
+        .expect_err("a fork without carried attribution must fail");
+    assert!(
+        error
+            .to_string()
+            .contains("must carry upstream attribution"),
+        "unexpected error: {error}"
+    );
+}
+
+#[tokio::test]
+async fn fork_validates_its_inputs() {
+    let root = tempfile::tempdir().expect("root");
+    let plane = WorkflowControlPlane::new(root.path());
+    let published = publish_taught(&plane, "fork-input-guards").await;
+    // Unknown upstream release.
+    let unknown = plane
+        .fork(fork_params(
+            format!("sha256:{}", "ab".repeat(32)),
+            "local/workflows/forks/fork-input-guards",
+        ))
+        .expect_err("fork of an unknown version must fail");
+    assert!(
+        unknown
+            .to_string()
+            .contains("unknown published workflow version"),
+        "unexpected error: {unknown}"
+    );
+    // A fork repository equal to the upstream's is refused by the engine
+    // ("a fork's repository must differ from its upstream's").
+    let same_repository = plane
+        .fork(fork_params(
+            published.version_id.clone(),
+            &published.repository,
+        ))
+        .expect_err("fork into the upstream's repository must fail");
+    assert!(
+        same_repository
+            .to_string()
+            .contains("must differ from its upstream's"),
+        "unexpected error: {same_repository}"
+    );
+    // Malformed fork inputs are input errors.
+    let repository = plane
+        .fork(fork_params(published.version_id.clone(), "not a remote"))
+        .expect_err("invalid fork repository must fail");
+    assert!(
+        repository.to_string().contains("repository"),
+        "unexpected error: {repository}"
+    );
+    let mut bad_version = fork_params(
+        published.version_id.clone(),
+        "local/workflows/forks/fork-input-guards",
+    );
+    bad_version.semantic_version = Some("not-a-version".to_string());
+    let version = plane
+        .fork(bad_version)
+        .expect_err("invalid fork semantic version must fail");
+    assert!(
+        version.to_string().contains("semantic version"),
+        "unexpected error: {version}"
+    );
+    let mut bad_commit = fork_params(
+        published.version_id,
+        "local/workflows/forks/fork-input-guards",
+    );
+    bad_commit.commit_sha = Some("abbrev".to_string());
+    let commit = plane
+        .fork(bad_commit)
+        .expect_err("invalid fork commit sha must fail");
+    assert!(
+        commit.to_string().contains("commit sha"),
+        "unexpected error: {commit}"
+    );
+    // Nothing was recorded by the refused attempts: only the upstream
+    // release is durable.
+    let run = plane
+        .instance_run(rpc::WorkflowInstanceRunParams {
+            version_id: published.version_id,
+        })
+        .await
+        .expect("the upstream release is untouched and runnable");
+    assert_eq!(run.status, rpc::WorkflowInstanceStatus::Succeeded);
+}

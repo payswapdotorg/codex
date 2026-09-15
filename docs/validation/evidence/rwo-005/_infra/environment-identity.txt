@@ -1,0 +1,50 @@
+# RWO-005 environment identity
+# Captured: 2026-09-14T18:30:16Z (UTC)
+
+## Repository
+- worktree: /home/z/codex-rwo005 (git worktree of the payswapdotorg/codex clone)
+- clone: payswapdotorg/codex (push remote URL deliberately not printed; credentials live only in .git/config, never committed)
+- base: main @ 9441a823f576a53591a6ce3a96a5ed47b6e9ca85 (verified: git rev-parse HEAD)
+- branch: rwo-005/fork-lineage-surface (cut from the verified base)
+
+## Toolchain probe (exact commands and results)
+\$ cargo --version
+cargo 1.98.1 (797e8a9bc 2026-08-05)
+\$ rustc --version
+rustc 1.98.1 (48a229cea 2026-09-01)
+\$ rustup toolchain list
+stable-x86_64-unknown-linux-gnu (active, default)
+1.95.0-x86_64-unknown-linux-gnu
+  (note: the workspace rust-toolchain.toml pins channel 1.95.0; the first cargo
+   invocation auto-installed the pinned toolchain via rustup — all verification
+   below runs on the PINNED 1.95.0, the same channel the RWO-001 Tech-Lead
+   verification used)
+\$ git --version
+git version 2.47.3
+\$ rg --version | head -1
+ripgrep 14.1.1
+\$ python3 --version
+Python 3.12.14
+
+## Disk headroom at start
+\$ df -h /
+Filesystem                               Size  Used Avail Use% Mounted on
+c-6aa8301a-14f3c1c7-e217ca1f9cee-rootfs  9.9G  2.6G  6.8G  28% /
+
+\$ cd codex-rs && cargo --version   # under the workspace rust-toolchain.toml pin
+cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+\$ cd codex-rs && rustc --version
+rustc 1.95.0 (59807616e 2026-04-14)
+  (this is the toolchain every workspace cargo command in this evidence tree ran on)
+
+## Tech-Lead completion addendum (2026-09-14T21:30Z)
+- flight-1 worker died 18:36 UTC (context death, uncommitted); the Tech
+  Lead audited and completed on the same worktree (lesson-120 protocol).
+- completion toolchain: rustc 1.95.0 (workspace pin, active for all
+  verification runs); pod limits: cgroup memory.max = 4294967296 (4 GiB),
+  rootfs 9.9 GB (documented in build-verification.txt).
+- precomputed export regenerated via python replication (ts-rs 11.1.0 +
+  schemars 0.8.22 semantics re-derived from the vendored tree and the
+  generator sources in ~/.cargo/registry); CI judges byte/value-exactness.
+- no credentials anywhere in the tree (PAT lives only in .git/config of
+  the parent clone; never printed, never committed).

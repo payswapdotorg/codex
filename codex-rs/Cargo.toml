@@ -309,6 +309,8 @@ codex-utils-rustls-provider = { path = "utils/rustls-provider" }
 codex-utils-sandbox-summary = { path = "utils/sandbox-summary" }
 codex-worktree = { path = "worktree" }
 codex-workflow-contracts = { path = "workflow-contracts" }
+codex-workflow-forge = { path = "workflow-forge" }
+codex-workflow-distribution = { path = "workflow-distribution" }
 codex-execution-contracts = { path = "execution-contracts" }
 codex-workflow-app = { path = "workflow-app" }
 codex-workflow-durable = { path = "workflow-durable" }

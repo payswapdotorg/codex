@@ -1081,6 +1081,11 @@ impl MessageProcessor {
                 .publish(params)
                 .map(|response| Some(response.into()))
                 .map_err(workflow_error),
+            ClientRequest::WorkflowFork { params, .. } => self
+                .workflow
+                .fork(params)
+                .map(|response| Some(response.into()))
+                .map_err(workflow_error),
             ClientRequest::WorkflowInstanceRun { params, .. } => self
                 .workflow
                 .instance_run(params)
@@ -1837,6 +1842,18 @@ fn workflow_error(
         WorkflowControlPlaneError::Teaching(inner) => internal_error(inner.to_string()),
         WorkflowControlPlaneError::Trigger(inner) => internal_error(inner.to_string()),
         WorkflowControlPlaneError::Durable(inner) => internal_error(inner.to_string()),
+        WorkflowControlPlaneError::Distribution(inner) => match &inner {
+            // Request-shaped distribution refusals: an unknown upstream,
+            // an invalid fork record (for example empty carried
+            // attribution), or an already-published identity.
+            codex_workflow_distribution::WorkflowDistributionError::InvalidRecord { .. }
+            | codex_workflow_distribution::WorkflowDistributionError::InvalidMetadata { .. }
+            | codex_workflow_distribution::WorkflowDistributionError::UnknownRelease { .. }
+            | codex_workflow_distribution::WorkflowDistributionError::AlreadyPublished { .. } => {
+                invalid_params(inner.to_string())
+            }
+            _ => internal_error(inner.to_string()),
+        },
     }
 }
 

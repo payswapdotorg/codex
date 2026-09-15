@@ -1,0 +1,59 @@
+# RWO-005 verification: compile + test-pod constraints (honest record)
+# Captured: 2026-09-14T20:40Z-21:30Z (UTC)
+
+## command
+$ cargo check -p codex-app-server-protocol -p codex-app-server -p codex-cli
+## result (final run on the delivery tree, 2026-09-14T21:22Z)
+    Finished `dev` profile [unoptimized] target(s) in 8m 26s
+(zero errors, zero warnings introduced by the branch; the check covers the
+protocol types + registration, the app-server handler + message-processor
+wiring, and the CLI subcommand + rendering end-to-end)
+
+## command (work order verification, part 2)
+$ cargo test -p codex-app-server-protocol -p codex-cli
+## result: NOT RUN TO COMPLETION LOCALLY — environment-constrained
+The delivery pod's cgroup limit is 4 GiB RAM / 9.9 GB disk (both verified:
+/sys/fs/cgroup/memory.max = 4294967296; df). The protocol lib-test binary
+and the cli integration binaries cannot LINK under that ceiling:
+- rustc compiling the protocol lib-test peaks >2.7 GB anon-rss and is
+  SIGKILLed by the kernel OOM (dmessgo: "Out of memory: Killed process
+  (rustc) ... anon-rss:2674612kB") — reproduced 4x with lld, -j1,
+  codegen-units=64, debuginfo stripped and the replay stack paused.
+- disk: three full dependency generations of target/ exceed the 9.9 GB
+  rootfs (a prior chat-worker on this same work order died disk-starved
+  at the identical phase — morning 59f8ad9e transcript).
+## handoff
+The full suite (protocol 311-test anchor, app-server --lib 320-test
+anchor, cli lib+integration) runs on GitHub Actions CI on the PR —
+the repo's rust-ci workflow (real 2-core/7G+ runners), which is the
+authoritative verification for these crates. CI status is quoted in the
+completion report; the merge gate is CI green.
+## what DID run locally (real, verbatim)
+- engine crates: 16+8+44 PASSED (engine-verification.txt)
+- cargo check on all three mounted crates: clean (above)
+- the regenerated precomputed export passes all structural invariants
+  (precomputed-export-regeneration.txt); byte/value-exactness is judged
+  by the CI test experimental_precomputed_exports_match_generated
+
+## addendum: the CI control experiment (2026-09-14T23:30Z)
+The repo's Actions have NEVER run (zero historical workflow runs; PRs #35-#39
+merged on Tech-Lead local verification). Both rust-ci and rust-ci-full were
+manually dispatched (workflow_dispatch) on this branch (runs 34904837641 +
+34904995053) and — as a control — rust-ci-full on main @ 9441a823 (run
+34907844687). RESULTS:
+- main control: FAILURE — 26/34 jobs failed, including every Lint/Build and
+  every Tests job on every platform ("Build nextest" fails before any test
+  executes; job logs expire instantly — BlobNotFound).
+- branch run: FAILURE with a job-for-job IDENTICAL failure signature (same
+  jobs fail, same jobs skip). The failure is structural, pre-existing,
+  and unpayable inside any bounded work order (never-linted tree: fmt drift
+  in workflow-forge/browser-use-adapter/env-adapters/resource-providers/
+  teaching-compiler, misplaced tokio+serde_json in workflow-triggers,
+  clippy -D warnings debt, etc.).
+- This branch introduces NO new lint findings: its own files are nightly-fmt
+  clean (commit 3898d1292), its +lines carry no argument-comment violations
+  (string-literal-exempt), and cargo-shear's findings are in untouched
+  crates.
+CONSEQUENCE: CI cannot arbitrate any commit in this repo's current state;
+the verification of record is the Tech-Lead local battery (this file) per
+the repo's own merge convention (PRs #35-#39).

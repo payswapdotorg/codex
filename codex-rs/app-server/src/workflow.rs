@@ -6,7 +6,10 @@
 //! compilation, validation, simulation, approval, publication, and the
 //! durable instance lifecycle all delegate to the frozen crates
 //! (`codex-teaching-compiler`, `codex-workflow-app`,
-//! `codex-workflow-durable`, `codex-workflow-contracts`).
+//! `codex-workflow-durable`, `codex-workflow-contracts`). The fork path
+//! (RWO-005) likewise delegates to the frozen distribution port's `fork`:
+//! the derived release is the engine's sealed record, never a mount-side
+//! re-derivation.
 //!
 //! State layout, following the RWO-001 bound of in-memory doubles first:
 //!
@@ -58,6 +61,7 @@ use codex_workflow_app::WorkflowInstanceStore;
 use codex_workflow_app::WorkflowLifecycle;
 use codex_workflow_app::WorkflowVersionStore;
 use codex_workflow_app::publish;
+use codex_workflow_contracts::Attribution;
 use codex_workflow_contracts::DependencyLock;
 use codex_workflow_contracts::EvidenceKind;
 use codex_workflow_contracts::EvidenceReference;
@@ -71,9 +75,25 @@ use codex_workflow_contracts::WorkflowInstanceId;
 use codex_workflow_contracts::WorkflowInstanceStatus;
 use codex_workflow_contracts::WorkflowIrNode;
 use codex_workflow_contracts::WorkflowRepositoryId;
+use codex_workflow_contracts::WorkflowVersion;
 use codex_workflow_contracts::WorkflowVersionId;
+use codex_workflow_distribution::CompatibilitySpec;
+use codex_workflow_distribution::DistributionPort;
+use codex_workflow_distribution::ForkRequest;
+use codex_workflow_distribution::InMemoryAccessPolicy;
+use codex_workflow_distribution::InMemoryEntitlements;
+use codex_workflow_distribution::InMemoryMarketplace;
+use codex_workflow_distribution::LicenseTerms;
+use codex_workflow_distribution::MarketplacePrincipal;
+use codex_workflow_distribution::PublicationMetadata;
+use codex_workflow_distribution::PublicationScope;
+use codex_workflow_distribution::PublishSubmission;
+use codex_workflow_distribution::SourceLineage;
+use codex_workflow_distribution::UpgradePolicySetting;
+use codex_workflow_distribution::WorkflowDistributionError;
 use codex_workflow_durable::DurableRunPositionStore;
 use codex_workflow_durable::DurableStores;
+use codex_workflow_forge::PublishedVersionRef;
 use codex_workflow_triggers::InstanceControl;
 use codex_workflow_triggers::ResumeDirective;
 use codex_workflow_triggers::WorkflowTriggerError;
@@ -90,8 +110,15 @@ pub const DEFAULT_WORKFLOW_NAME: &str = "taught-workflow";
 pub const DEFAULT_REPOSITORY: &str = "local/workflows/taught";
 /// The default semantic version when publish does not provide one.
 pub const DEFAULT_SEMANTIC_VERSION: &str = "1.0.0";
-/// The attribution label the mount's approval source records.
+/// The default attribution label the mount's approval source records.
 const MOUNT_APPROVER: &str = "workflow-mount";
+/// The default owning principal of a fork made through the mount when the
+/// caller names none (opaque, credential-free).
+const DEFAULT_FORK_OWNER: &str = "cli-user";
+/// The default license identifier recorded on a fork made through the
+/// mount when the caller declares none: an explicit custom-license marker
+/// that makes no claim about the upstream's terms.
+const DEFAULT_FORK_LICENSE: &str = "LicenseRef-Unspecified";
 
 /// Errors surfaced by the workflow control plane mount.
 #[derive(Debug, Error)]
@@ -114,6 +141,12 @@ pub enum WorkflowControlPlaneError {
     /// A durable store operation failed.
     #[error("workflow durable store error: {0}")]
     Durable(#[from] codex_workflow_durable::DurableStoreError),
+    /// A distribution-plane operation failed. Refusals (an unknown
+    /// upstream, an invalid fork record such as empty carried
+    /// attribution, or an already-published identity) surface as request
+    /// errors; integrity failures surface as internal errors.
+    #[error("workflow distribution error: {0}")]
+    Distribution(#[from] WorkflowDistributionError),
 }
 
 /// The in-memory state of the control plane mount.
@@ -483,6 +516,182 @@ impl WorkflowControlPlane {
         })
     }
 
+    /// Forks a published version into a new immutable release whose
+    /// lineage pins the upstream (RWO-005).
+    ///
+    /// The upstream release is loaded from the durable version store and
+    /// seeded into a fresh engine marketplace; the distribution port's
+    /// existing `fork` (reused as-is, no new fork semantics) derives the
+    /// new sealed release — the upstream's frozen definition and
+    /// dependency lock re-sealed under the fork's repository, revision,
+    /// and version, with provenance pointing back at the upstream. The
+    /// mount then mirrors the derived sealed version into the durable
+    /// store so it appears as a new immutable release instances can pin,
+    /// refusing if that identity was already published: published
+    /// releases are never silently overwritten.
+    ///
+    /// Defaults: the derived release keeps the upstream's semantic
+    /// version and commit unless overridden, is owned by
+    /// [`DEFAULT_FORK_OWNER`] unless named, carries
+    /// [`DEFAULT_FORK_LICENSE`] unless declared, and pins its upgrade
+    /// policy (a fork never auto-surfaces upgrade proposals). The
+    /// carried attribution is passed through untouched — the engine
+    /// refuses a fork whose carried attribution is empty.
+    pub fn fork(
+        &self,
+        params: rpc::WorkflowForkParams,
+    ) -> Result<rpc::WorkflowForkResponse, WorkflowControlPlaneError> {
+        let stores = self.refresh_stores()?;
+        let upstream_id = parse_version_id(&params.version_id)?;
+        let upstream = stores.versions.load(&upstream_id)?.ok_or_else(|| {
+            WorkflowControlPlaneError::NotFound(format!(
+                "unknown published workflow version `{}`",
+                params.version_id
+            ))
+        })?;
+        let fork_repository =
+            WorkflowRepositoryId::parse(params.fork_repository.clone()).map_err(|error| {
+                WorkflowControlPlaneError::InvalidRequest(format!(
+                    "invalid fork repository identity: {error}"
+                ))
+            })?;
+        let semantic_version = match &params.semantic_version {
+            Some(version) => semver::Version::parse(version).map_err(|error| {
+                WorkflowControlPlaneError::InvalidRequest(format!(
+                    "invalid semantic version `{version}`: {error}"
+                ))
+            })?,
+            None => upstream.identity.semantic_version.clone(),
+        };
+        let commit_sha = match &params.commit_sha {
+            Some(sha) => RevisionSha::parse(sha.clone()).map_err(|error| {
+                WorkflowControlPlaneError::InvalidRequest(format!("invalid commit sha: {error}"))
+            })?,
+            None => upstream.identity.source_revision.commit_sha.clone(),
+        };
+        let owner = MarketplacePrincipal::parse(
+            params
+                .owner
+                .clone()
+                .unwrap_or_else(|| DEFAULT_FORK_OWNER.to_string()),
+        )
+        .map_err(|error| {
+            WorkflowControlPlaneError::InvalidRequest(format!("invalid fork owner: {error}"))
+        })?;
+        let licensing = LicenseTerms {
+            identifier: params
+                .license
+                .clone()
+                .unwrap_or_else(|| DEFAULT_FORK_LICENSE.to_string()),
+            url: None,
+            custom_terms_digest: None,
+        };
+        let carried_attribution = params
+            .attribution
+            .iter()
+            .map(|entry| Attribution {
+                name: entry.name.clone(),
+                contact: entry.contact.clone(),
+            })
+            .collect::<Vec<_>>();
+
+        // Drive the engine's distribution port exactly as documented: the
+        // upstream must be a marketplace entry, so a fresh in-memory
+        // marketplace is seeded with the durable release (the RWO-001
+        // bound: the mount's publication path seals versions without
+        // distribution metadata), then `fork` derives the new release.
+        let mut marketplace = InMemoryMarketplace::new(
+            Box::new(InMemoryAccessPolicy::new()),
+            Box::new(InMemoryEntitlements::new()),
+        );
+        marketplace
+            .publish(PublishSubmission {
+                metadata: seeded_release_metadata(&upstream)?,
+                version: upstream.clone(),
+                commercial: None,
+                scope: PublicationScope::Unlisted,
+            })
+            .map_err(WorkflowControlPlaneError::Distribution)?;
+        let listing = marketplace
+            .fork(ForkRequest {
+                upstream: PublishedVersionRef::of(&upstream),
+                fork_repository,
+                fork_revision: ImmutableSourceRevision::pin_commit(commit_sha),
+                fork_version: semantic_version,
+                owner,
+                licensing,
+                carried_attribution,
+                upgrade_policy: UpgradePolicySetting::Pin,
+            })
+            .map_err(WorkflowControlPlaneError::Distribution)?;
+        let derived_id = listing.metadata.release.version_id.clone();
+        let derived = marketplace
+            .fetch_version(&listing.metadata.release.identity.workflow, &derived_id)
+            .map_err(WorkflowControlPlaneError::Distribution)?
+            .ok_or_else(|| {
+                WorkflowControlPlaneError::InvalidRequest(
+                    "the forked release is missing from the engine marketplace".to_owned(),
+                )
+            })?;
+
+        // The fork is a NEW immutable release: mirror the sealed version
+        // into the durable store, refusing an identity that is already
+        // published (the engine refuses the same collision inside one
+        // marketplace; the durable store is the mount's record of truth
+        // across processes, so the refusal survives restarts).
+        if stores.versions.load(&derived_id)?.is_some() {
+            return Err(WorkflowControlPlaneError::InvalidRequest(format!(
+                "workflow version `{derived_id}` of workflow `{}` is already published",
+                listing.metadata.release.identity.workflow,
+            )));
+        }
+        let mut versions = stores.versions.clone();
+        versions
+            .publish(derived)
+            .map_err(WorkflowControlPlaneError::Engine)?;
+
+        let identity = &listing.metadata.release.identity;
+        let lineage = listing
+            .metadata
+            .provenance
+            .forked_from
+            .as_ref()
+            .ok_or_else(|| {
+                WorkflowControlPlaneError::InvalidRequest(
+                    "the forked release carries no lineage record".to_owned(),
+                )
+            })?;
+        let upstream_identity = &lineage.identity;
+        Ok(rpc::WorkflowForkResponse {
+            workflow: identity.workflow.to_string(),
+            version_id: derived_id.to_string(),
+            semantic_version: identity.semantic_version.to_string(),
+            definition_digest: identity.definition_digest.to_string(),
+            dependency_lock_digest: identity.dependency_lock_digest.to_string(),
+            repository: identity.repository.to_string(),
+            commit_sha: identity.source_revision.commit_sha.to_string(),
+            lineage: rpc::WorkflowForkLineage {
+                workflow: upstream_identity.workflow.to_string(),
+                version_id: lineage.version_id.to_string(),
+                semantic_version: upstream_identity.semantic_version.to_string(),
+                repository: upstream_identity.repository.to_string(),
+                definition_digest: upstream_identity.definition_digest.to_string(),
+                dependency_lock_digest: upstream_identity.dependency_lock_digest.to_string(),
+                commit_sha: upstream_identity.source_revision.commit_sha.to_string(),
+            },
+            attribution: listing
+                .metadata
+                .provenance
+                .carried_attribution
+                .iter()
+                .map(|entry| rpc::WorkflowForkAttribution {
+                    name: entry.name.clone(),
+                    contact: entry.contact.clone(),
+                })
+                .collect(),
+        })
+    }
+
     /// Runs one instance of a published version to a terminal state.
     ///
     /// Instantiation runs the engine gates (validate -> approve -> bind)
@@ -761,6 +970,65 @@ fn reconciled_hybrid_session(
         reconciled.close();
     }
     Ok(reconciled)
+}
+
+/// Builds the marketplace entry metadata for one durable published
+/// version, so the engine's fork port can be driven against it (the
+/// port's documented precondition: the upstream must be a marketplace
+/// entry).
+///
+/// The mount's publication path seals versions without distribution
+/// metadata (the RWO-001 bound), so this derives the entry's facts
+/// honestly from the sealed record itself: the compatibility spec covers
+/// every capability the version's steps declare and every resource its
+/// dependencies declare — exactly what the engine's
+/// `validate_against_version` demands — and the attribution is the
+/// sealed provenance's authorship when the version carries one.
+fn seeded_release_metadata(
+    version: &WorkflowVersion,
+) -> Result<PublicationMetadata, WorkflowControlPlaneError> {
+    let mut required_capabilities = Vec::new();
+    for node in version.definition.ir.nodes.values() {
+        if let WorkflowIrNode::Step(step) = node {
+            for requirement in &step.capabilities {
+                if !required_capabilities.contains(&requirement.capability) {
+                    required_capabilities.push(requirement.capability.clone());
+                }
+            }
+        }
+    }
+    let mut required_resources = Vec::new();
+    for resource in &version.definition.dependencies.resources {
+        if !required_resources.contains(&resource.resource_type) {
+            required_resources.push(resource.resource_type.clone());
+        }
+    }
+    let attribution = version
+        .provenance
+        .as_ref()
+        .map(|provenance| provenance.authors.clone())
+        .unwrap_or_default();
+    PublicationMetadata::seal(
+        PublishedVersionRef::of(version),
+        attribution,
+        MarketplacePrincipal::parse(MOUNT_APPROVER).map_err(|error| {
+            WorkflowControlPlaneError::InvalidRequest(format!("invalid principal: {error}"))
+        })?,
+        LicenseTerms {
+            identifier: DEFAULT_FORK_LICENSE.to_owned(),
+            url: None,
+            custom_terms_digest: None,
+        },
+        SourceLineage::default(),
+        CompatibilitySpec {
+            minimum_runtime: semver::Version::new(0, 0, 0),
+            required_capabilities,
+            capability_classes: Vec::new(),
+            required_resources,
+        },
+        UpgradePolicySetting::Pin,
+    )
+    .map_err(WorkflowControlPlaneError::Distribution)
 }
 
 /// Looks up one teaching session mutably.

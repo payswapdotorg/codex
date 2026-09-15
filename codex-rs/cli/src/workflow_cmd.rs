@@ -9,6 +9,10 @@
 //!   review -> approve -> publish). Teaching state is deliberately
 //!   process-local (the RWO-001 in-memory-double bound); the durable
 //!   artifacts are the immutable versions publication seals.
+//! - `codex workflow fork` forks a published version into a new immutable
+//!   release whose lineage pins the upstream (RWO-005): forked-from
+//!   version id, upstream digests, and carried attribution render on the
+//!   fork and are inspectable with `--json`.
 //! - `codex workflow instance ...` operates the durable instance
 //!   lifecycle (run, list, get, resume, cancel) across invocations.
 
@@ -38,6 +42,9 @@ pub enum WorkflowSubcommand {
     /// Teach a workflow, compile it, review it, approve it, and publish
     /// an immutable version — one guided invocation.
     Teach(TeachArgs),
+    /// Fork a published workflow version into a new immutable release
+    /// that carries its lineage.
+    Fork(ForkArgs),
     /// Operate durable workflow instances.
     Instance(InstanceCommand),
 }
@@ -121,6 +128,51 @@ pub struct InstanceCommand {
     pub subcommand: InstanceSubcommand,
 }
 
+/// Arguments of `codex workflow fork` (RWO-005).
+#[derive(Debug, Parser)]
+pub struct ForkArgs {
+    /// The published version to fork, as <workflow>@<version-id>. The
+    /// version id (sha256:...) is the authoritative release identity.
+    #[arg(value_name = "WORKFLOW@VERSION_ID")]
+    pub target: String,
+
+    /// The fork's own repository identity; must differ from the
+    /// upstream's.
+    #[arg(long = "as", value_name = "REMOTE")]
+    pub as_repository: String,
+
+    /// Semantic version of the fork release; defaults to the upstream's.
+    #[arg(long = "version", value_name = "SEMVER")]
+    pub semantic_version: Option<String>,
+
+    /// Full commit SHA (40 or 64 lowercase hex) the fork stands at;
+    /// defaults to the upstream's.
+    #[arg(long = "commit-sha", value_name = "SHA")]
+    pub commit_sha: Option<String>,
+
+    /// The owning principal of the fork.
+    #[arg(long = "owner", value_name = "PRINCIPAL", default_value = "cli-user")]
+    pub owner: String,
+
+    /// SPDX-style license identifier recorded on the fork release.
+    #[arg(
+        long = "license",
+        value_name = "SPDX",
+        default_value = "LicenseRef-Unspecified"
+    )]
+    pub license: String,
+
+    /// Attribution carried forward from the upstream: `Name` or
+    /// `Name <contact>`. Repeatable; a fork must carry at least one
+    /// (the engine refuses an empty carried attribution).
+    #[arg(long = "carry", value_name = "ATTRIBUTION")]
+    pub carry: Vec<String>,
+
+    /// Output the full response as JSON.
+    #[arg(long = "json", default_value_t = false)]
+    pub json: bool,
+}
+
 #[derive(Debug, clap::Subcommand)]
 pub enum InstanceSubcommand {
     /// Run one instance of a published workflow version.
@@ -195,6 +247,7 @@ pub async fn run(cli: WorkflowCli) -> Result<()> {
     let plane = WorkflowControlPlane::new(control_plane_root()?);
     match cli.subcommand {
         WorkflowSubcommand::Teach(args) => run_teach(&plane, args).await,
+        WorkflowSubcommand::Fork(args) => run_fork(&plane, args),
         WorkflowSubcommand::Instance(command) => run_instance(&plane, command).await,
     }
 }
@@ -401,6 +454,111 @@ async fn run_teach(plane: &WorkflowControlPlane, args: TeachArgs) -> Result<()> 
         },
     );
     Ok(())
+}
+
+/// Runs the fork command: one published version in, one new immutable
+/// release out, with the upstream pinned in its lineage.
+fn run_fork(plane: &WorkflowControlPlane, args: ForkArgs) -> Result<()> {
+    let (_workflow, version_id) = args
+        .target
+        .rsplit_once('@')
+        .filter(|(workflow, version_id)| !workflow.is_empty() && !version_id.is_empty())
+        .with_context(|| {
+            format!(
+                "`{}` is not a <workflow>@<version-id> release reference",
+                args.target
+            )
+        })?;
+    let attribution = args
+        .carry
+        .iter()
+        .map(|value| parse_attribution(value))
+        .collect::<Result<Vec<_>>>()?;
+    if attribution.is_empty() {
+        bail!("a fork must carry upstream attribution; pass --carry <NAME> at least once");
+    }
+    let response = plane
+        .fork(rpc::WorkflowForkParams {
+            version_id: version_id.to_string(),
+            fork_repository: args.as_repository.clone(),
+            semantic_version: args.semantic_version.clone(),
+            commit_sha: args.commit_sha.clone(),
+            owner: Some(args.owner.clone()),
+            license: Some(args.license.clone()),
+            attribution,
+        })
+        .map_err(command_error)?;
+    // The version digest is the authoritative release identity: the
+    // response names the workflow actually forked (rendered below in
+    // both output modes), so a mislabeled <workflow>@ prefix is visible
+    // rather than silently trusted.
+    if args.json {
+        println!("{}", serde_json::to_string_pretty(&response)?);
+    } else {
+        println!("Forked {} as a new immutable release:", response.workflow);
+        println!("  version:          {}", response.semantic_version);
+        println!("  versionId:        {}", response.version_id);
+        println!("  definitionDigest: {}", response.definition_digest);
+        println!("  dependencyLock:   {}", response.dependency_lock_digest);
+        println!("  repository:       {}", response.repository);
+        println!("  commit:           {}", response.commit_sha);
+        println!(
+            "  forked from:      {} {} ({})",
+            response.lineage.workflow,
+            response.lineage.semantic_version,
+            response.lineage.version_id
+        );
+        println!(
+            "    upstream digest: {}",
+            response.lineage.definition_digest
+        );
+        println!(
+            "    upstream lock:   {}",
+            response.lineage.dependency_lock_digest
+        );
+        println!("    upstream commit: {}", response.lineage.commit_sha);
+        println!("    upstream repo:   {}", response.lineage.repository);
+        println!("  carried attribution:");
+        for entry in &response.attribution {
+            match entry.contact.as_deref() {
+                Some(contact) => println!("    {} <{}>", entry.name, contact),
+                None => println!("    {}", entry.name),
+            }
+        }
+        println!(
+            "Run it with: codex workflow instance run {}",
+            response.version_id
+        );
+    }
+    Ok(())
+}
+
+/// Parses one `--carry` value: `Name` or `Name <contact>`.
+fn parse_attribution(value: &str) -> Result<rpc::WorkflowForkAttribution> {
+    let trimmed = value.trim();
+    let parsed = if let Some((name, contact)) = trimmed
+        .strip_suffix('>')
+        .and_then(|rest| rest.split_once('<'))
+    {
+        let name = name.trim();
+        let contact = contact.trim();
+        if name.is_empty() || contact.is_empty() {
+            None
+        } else {
+            Some(rpc::WorkflowForkAttribution {
+                name: name.to_string(),
+                contact: Some(contact.to_string()),
+            })
+        }
+    } else if !trimmed.is_empty() && !trimmed.contains(['<', '>']) {
+        Some(rpc::WorkflowForkAttribution {
+            name: trimmed.to_string(),
+            contact: None,
+        })
+    } else {
+        None
+    };
+    parsed.with_context(|| format!("attribution `{value}` must be `Name` or `Name <contact>`"))
 }
 
 /// Collects the instruction and demonstration statements for a teach run.

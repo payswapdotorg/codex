@@ -255,6 +255,114 @@ fn approve_params_reject_unknown_fields_and_decode_decisions() {
 }
 
 #[test]
+fn fork_params_round_trip_and_reject_unknown_fields() {
+    let params = WorkflowForkParams {
+        version_id: format!("sha256:{}", "cd".repeat(32)),
+        fork_repository: "local/workflows/forks/daily-standup-report".into(),
+        semantic_version: Some("1.1.0".into()),
+        commit_sha: Some("a".repeat(40)),
+        owner: Some("alice".into()),
+        license: Some("Apache-2.0".into()),
+        attribution: vec![WorkflowForkAttribution {
+            name: "acme-ops".into(),
+            contact: Some("acme-ops@example.com".into()),
+        }],
+    };
+    assert_eq!(
+        serde_json::to_value(&params).unwrap(),
+        json!({
+            "versionId": format!("sha256:{}", "cd".repeat(32)),
+            "forkRepository": "local/workflows/forks/daily-standup-report",
+            "semanticVersion": "1.1.0",
+            "commitSha": "a".repeat(40),
+            "owner": "alice",
+            "license": "Apache-2.0",
+            "attribution": [{
+                "name": "acme-ops",
+                "contact": "acme-ops@example.com"
+            }]
+        })
+    );
+    assert_eq!(
+        serde_json::from_value::<WorkflowForkParams>(serde_json::to_value(&params).unwrap())
+            .unwrap(),
+        params
+    );
+    // Optional identity inputs default to the upstream's; an omitted
+    // attribution decodes as empty (the engine refuses it).
+    let defaulted = serde_json::from_value::<WorkflowForkParams>(json!({
+        "versionId": format!("sha256:{}", "cd".repeat(32)),
+        "forkRepository": "local/workflows/forks/daily-standup-report",
+        "attribution": []
+    }))
+    .unwrap();
+    assert_eq!(defaulted.semantic_version, None);
+    assert_eq!(defaulted.commit_sha, None);
+    assert_eq!(defaulted.owner, None);
+    assert_eq!(defaulted.license, None);
+    assert!(defaulted.attribution.is_empty());
+    assert!(
+        serde_json::from_value::<WorkflowForkParams>(json!({
+            "versionId": format!("sha256:{}", "cd".repeat(32)),
+            "forkRepository": "local/workflows/forks/daily-standup-report",
+            "attribution": [],
+            "unexpected": true
+        }))
+        .is_err()
+    );
+}
+
+#[test]
+fn fork_response_serializes_lineage_and_attribution() {
+    let response = WorkflowForkResponse {
+        workflow: "daily-standup-report".into(),
+        version_id: format!("sha256:{}", "ef".repeat(32)),
+        semantic_version: "1.0.0".into(),
+        definition_digest: format!("sha256:{}", "ab".repeat(32)),
+        dependency_lock_digest: format!("sha256:{}", "cd".repeat(32)),
+        repository: "local/workflows/forks/daily-standup-report".into(),
+        commit_sha: "a".repeat(40),
+        lineage: WorkflowForkLineage {
+            workflow: "daily-standup-report".into(),
+            version_id: format!("sha256:{}", "cd".repeat(32)),
+            semantic_version: "1.0.0".into(),
+            repository: "local/workflows/taught".into(),
+            definition_digest: format!("sha256:{}", "ab".repeat(32)),
+            dependency_lock_digest: format!("sha256:{}", "cd".repeat(32)),
+            commit_sha: "a".repeat(40),
+        },
+        attribution: vec![WorkflowForkAttribution {
+            name: "acme-ops".into(),
+            contact: Some("acme-ops@example.com".into()),
+        }],
+    };
+    let value = serde_json::to_value(&response).unwrap();
+    assert_eq!(value["workflow"], "daily-standup-report");
+    assert_eq!(value["versionId"], format!("sha256:{}", "ef".repeat(32)));
+    // The lineage pins the forked-from version id and the upstream digests.
+    assert_eq!(
+        value["lineage"]["versionId"],
+        format!("sha256:{}", "cd".repeat(32))
+    );
+    assert_eq!(
+        value["lineage"]["definitionDigest"],
+        format!("sha256:{}", "ab".repeat(32))
+    );
+    assert_eq!(
+        value["lineage"]["dependencyLockDigest"],
+        format!("sha256:{}", "cd".repeat(32))
+    );
+    assert_eq!(value["lineage"]["repository"], "local/workflows/taught");
+    // The carried attribution renders.
+    assert_eq!(value["attribution"][0]["name"], "acme-ops");
+    assert_eq!(value["attribution"][0]["contact"], "acme-ops@example.com");
+    assert_eq!(
+        serde_json::from_value::<WorkflowForkResponse>(value).unwrap(),
+        response
+    );
+}
+
+#[test]
 fn instance_list_params_is_an_empty_object() {
     let params = WorkflowInstanceListParams {};
     assert_eq!(serde_json::to_value(&params).unwrap(), json!({}));

@@ -2,10 +2,12 @@
 //!
 //! These contracts mount the workflow family behind user-facing surfaces:
 //! a normal person can teach a workflow (DEMONSTRATE, INSTRUCT, or HYBRID),
-//! compile it, review it, approve it, and publish an immutable version, then
-//! operate durable instances. Every response carries the Workflow Identity
-//! fields that apply to it: workflow definition id, semantic version, version
-//! digest, and dependency-lock identity where they exist.
+//! compile it, review it, approve it, and publish an immutable version, fork
+//! a published version into a new immutable release that carries its
+//! lineage (RWO-005), then operate durable instances. Every response
+//! carries the Workflow Identity fields that apply to it: workflow
+//! definition id, semantic version, version digest, and dependency-lock
+//! identity where they exist.
 //!
 //! All methods are experimental and require the `experimentalApi` capability.
 //! Identifiers and digests are opaque strings at this boundary: session and
@@ -531,6 +533,111 @@ pub struct WorkflowPublishResponse {
     pub commit_sha: String,
     /// The binding-resolution audit record.
     pub binding_resolution: WorkflowBindingResolution,
+}
+
+/// One attribution record a fork release carries forward from its
+/// upstream (RWO-005).
+///
+/// Attribution preserves authorship across the fork boundary: the fork
+/// request must carry at least one record, and the derived release's
+/// lineage renders them. Verifying attribution CONTENT is RWO-016's
+/// scope, not this surface's.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowForkAttribution {
+    /// The attributed author or contributor name.
+    pub name: String,
+    /// A contact reference, when one is recorded.
+    pub contact: Option<String>,
+}
+
+/// The lineage record a fork release pins to its upstream (RWO-005):
+/// the forked-from version identity plus the upstream digests.
+///
+/// Every field is copied from the engine-sealed lineage record of the
+/// derived release, so inspection of the fork provably shows where it
+/// came from: which immutable version, at which digests, from which
+/// repository, at which commit.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowForkLineage {
+    /// The workflow definition id of the forked-from upstream release.
+    pub workflow: String,
+    /// The immutable version identity digest of the upstream release.
+    pub version_id: String,
+    /// The semantic version of the upstream release.
+    pub semantic_version: String,
+    /// The canonical repository identity of the upstream release.
+    pub repository: String,
+    /// Digest of the upstream's frozen workflow definition.
+    pub definition_digest: String,
+    /// Digest of the upstream's resolved dependency lock.
+    pub dependency_lock_digest: String,
+    /// The immutable commit the upstream release was anchored at.
+    pub commit_sha: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowForkParams {
+    /// The published workflow version to fork, in sha256-hex form.
+    pub version_id: String,
+    /// The fork's own repository identity (the `--as` identity); must
+    /// differ from the upstream's.
+    pub fork_repository: String,
+    /// Semantic version of the derived release; defaults to the
+    /// upstream's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub semantic_version: Option<String>,
+    /// Full commit SHA (40 or 64 lowercase hex) the fork stands at;
+    /// defaults to the upstream's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub commit_sha: Option<String>,
+    /// The owning principal of the fork (opaque, credential-free).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub owner: Option<String>,
+    /// SPDX-style license identifier for the derived release.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub license: Option<String>,
+    /// Attribution carried forward from the upstream. Required non-empty
+    /// in spirit: the engine refuses a fork whose carried attribution is
+    /// empty ("a fork must carry upstream attribution").
+    pub attribution: Vec<WorkflowForkAttribution>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct WorkflowForkResponse {
+    /// The workflow definition id of the fork release (inherited from
+    /// the upstream's frozen definition).
+    pub workflow: String,
+    /// The immutable version identity digest of the fork release.
+    pub version_id: String,
+    /// The semantic version of the fork release.
+    pub semantic_version: String,
+    /// Digest of the frozen workflow definition (inherited from the
+    /// upstream).
+    pub definition_digest: String,
+    /// Digest of the resolved dependency lock (inherited from the
+    /// upstream).
+    pub dependency_lock_digest: String,
+    /// The fork's repository identity.
+    pub repository: String,
+    /// The immutable commit the fork stands at.
+    pub commit_sha: String,
+    /// The lineage record pinning the upstream release.
+    pub lineage: WorkflowForkLineage,
+    /// The attribution the fork release carries forward from its
+    /// upstream, as recorded in its sealed lineage.
+    pub attribution: Vec<WorkflowForkAttribution>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
