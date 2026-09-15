@@ -1,0 +1,17 @@
+RWO-006 merged via PR #41 (merge commit 285512cdbcbd79b43c1bdbee42ae7d85ba6fc522)
+into main at 2026-09-15T04:55Z.
+
+Family D (improvement-candidate + approval-before-publish surface) mounted through
+the RWO-001 control plane: 4 experimental protocol methods (workflow/improve/
+propose, validate, approve, publish) + CLI subcommand family, engine
+(codex-workflow-evolution) reused as-is, evidence recorded through eval-compat's
+deterministic harness + durable trace references, successor versions sealed by the
+engine's forge with governed lineage and mirrored into the durable version store.
+
+Verification of record: evolution engine 35/35 PASS; cargo check clean x3;
+cargo check --tests clean x3; nightly fmt clean; precomputed export regenerated
+with byte-level fidelity self-test, zero-collateral decode-diff and structural
+invariants (including three byte-diff-verified RWO-005 zst repairs).
+CI not arbitratable (structurally red on main; control run 34907844687).
+
+State after merge: 8/12 RWOs — remaining rwo-007/010/011/012 + VWO-012..016.
