@@ -1,0 +1,15 @@
+RWO-007 merged via PR #42 (merge commit 68bec5816c766bc6bdf15d20abcf05561cb9abdb)
+into main at 2026-09-15T05:15Z.
+
+Family G product half + Family M: FlowMart upgrade/rollback direction semantics.
+upgradeInstall refuses older targets (409 implicit_downgrade_refused, no mutation);
+rollbackInstall derives its target from the most recent upgraded entry's fromVersion
+(rollback always moves backward). FAILURES.md contract section added. The Family G
+engine half (decide_upgrade ordering in codex-workflow-distribution) remains
+RWO-009's rider — surfaces disjoint.
+
+Verification of record: run-all.sh --reset + verify-sweep.sh 59/59 PASS; live AC
+battery (refusal + state unchanged, backward rollback, unchanged guards).
+Evidence: docs/validation/evidence/rwo-007/.
+
+State after merge: 9/12 RWOs — remaining rwo-010/011/012 + VWO-012..016.
