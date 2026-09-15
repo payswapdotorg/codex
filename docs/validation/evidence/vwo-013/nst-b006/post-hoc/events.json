@@ -1,0 +1,67 @@
+{
+  "ok": true,
+  "family": "construction",
+  "count": 5,
+  "events": [
+    {
+      "id": "ev-0005",
+      "ts": "2026-09-15T11:11:17.759Z",
+      "type": "notification.delivered",
+      "actor": "marco.silva",
+      "subject": "notification:n-0001",
+      "summary": "Notification \"New moderate incident on Harborview Tower\" delivered to sam.oconnell",
+      "data": {
+        "notificationId": "n-0001",
+        "to": "sam.oconnell",
+        "type": "safety"
+      }
+    },
+    {
+      "id": "ev-0004",
+      "ts": "2026-09-15T11:11:17.759Z",
+      "type": "safety.incident_reported",
+      "actor": "marco.silva",
+      "subject": "si-2003",
+      "summary": "Safety incident (moderate/equipment) reported on Harborview Tower",
+      "data": {
+        "incidentId": "si-2003",
+        "projectId": "p-101",
+        "severity": "moderate",
+        "category": "equipment"
+      }
+    },
+    {
+      "id": "ev-0003",
+      "ts": "2026-09-15T11:11:14.872Z",
+      "type": "auth.login",
+      "actor": "marco.silva",
+      "subject": "user:u-2",
+      "summary": "marco.silva signed in",
+      "data": {
+        "role": "site_foreman"
+      }
+    },
+    {
+      "id": "ev-0002",
+      "ts": "2026-09-15T11:11:03.111Z",
+      "type": "auth.login",
+      "actor": "marco.silva",
+      "subject": "user:u-2",
+      "summary": "marco.silva signed in",
+      "data": {
+        "role": "site_foreman"
+      }
+    },
+    {
+      "id": "ev-0001",
+      "ts": "2026-09-15T11:11:01.412Z",
+      "type": "world.reset",
+      "actor": "system",
+      "subject": "state",
+      "summary": "Demo world reset to seed state (reset #1)",
+      "data": {
+        "family": "construction"
+      }
+    }
+  ]
+}

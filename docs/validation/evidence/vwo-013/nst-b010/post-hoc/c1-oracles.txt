@@ -1,0 +1,4 @@
+terminal count: 2 | independent recompute: 2
+C1-1 posted-number-equals-recompute: COUNT-MATCH PASS (the number 2 == recompute 2)
+  post-back surface: BLOCKED — no comment/release-thread surface exists in ForgeOps (missing-capability finding, feeds the remediation loop)
+C1-2 export-via-browser-download: PASS (agent-browser download of the purpose-built export; file at /tmp/nstd-forge/)

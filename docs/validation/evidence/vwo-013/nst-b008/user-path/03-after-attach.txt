@@ -1,0 +1,40 @@
+- heading "TeamPad" [level=1, ref=e1]
+- button "B" [ref=e2]
+- button "• List" [ref=e3]
+- button "Attach…" [ref=e4]
+- button "Save" [ref=e5]
+- main
+  - generic "Document body" [ref=e6] editable [contenteditable]: 
+
+
+
+09:02 alert fired (p99 over 2s)
+09:07 cache miss storm identified
+09:15 hotfix rolled out
+09:40 latency normalized
+
+
+    - LineBreak "\n"
+    - LineBreak "\n"
+    - list
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "09:02 alert fired (p99 over 2s)"
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "09:07 cache miss storm identified"
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "09:15 hotfix rolled out"
+      - listitem [level=1]
+        - ListMarker "• "
+        - StaticText "09:40 latency normalized"
+      - listitem [level=1]
+        - ListMarker "• "
+        - LineBreak "\n"
+  - heading "Attachments" [level=2, ref=e7]
+  - list
+    - listitem [level=1]
+      - ListMarker "• "
+      - StaticText "incident-screenshot.png (40522 B, sha256 6e0340ef671d0f5c4e33bee155a72c9667fb4c99f46a1a18757a02f7a65688b0)"
+  - StaticText "attached incident-screenshot.png (40522 B)"

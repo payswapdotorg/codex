@@ -1,0 +1,62 @@
+- banner
+  - link "SiteBuild Field Suiteconstruction fixture · VWO-002" [ref=e1]
+    - StaticText "SiteBuild Field Suiteconstruction fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Projects" [ref=e6]
+    - link "Procurement" [ref=e7]
+    - link "Safety" [ref=e8]
+    - link "Notifications" [ref=e9]
+    - link "Events" [ref=e10]
+    - link "Failure switches" [ref=e11]
+  - StaticText "Sam O’Connell · safety_officer · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Safety incidents" [level=1, ref=e4]
+  - generic
+    - heading "All incidents" [level=2, ref=e12]
+    - table
+      - rowgroup
+        - row
+          - columnheader "ID" [ref=e28]
+          - columnheader "PROJECT" [ref=e29]
+          - columnheader "SEVERITY" [ref=e30]
+          - columnheader "CATEGORY" [ref=e31]
+          - columnheader "STATUS" [ref=e32]
+          - columnheader "DESCRIPTION" [ref=e33]
+          - columnheader "REPORTED BY" [ref=e34]
+          - columnheader "RESOLUTION / ACTION" [ref=e35]
+      - row
+        - cell "si-2002" [ref=e13]
+          - code
+            - StaticText "si-2002"
+        - cell "p-102" [ref=e14]
+          - code
+            - StaticText "p-102"
+        - cell "moderate" [ref=e15]
+        - cell "utility-strike" [ref=e16]
+        - cell "closed" [ref=e17]
+        - cell "Telecom duct nicked during trenching; service restored same day." [ref=e18]
+        - cell "Marco Silva" [ref=e19]
+        - cell "Closed after utility sign-off." [ref=e20]
+      - row
+        - cell "si-2001" [ref=e21]
+          - code
+            - StaticText "si-2001"
+        - cell "p-101" [ref=e22]
+          - code
+            - StaticText "p-101"
+        - cell "minor" [ref=e23]
+        - cell "near-miss" [ref=e24]
+        - cell "investigating" [ref=e25]
+        - cell "Scaffold clamp dropped from level 8 barricaded zone; no injuries." [ref=e26]
+        - cell "Marco Silva" [ref=e27]
+        - cell
+          - form
+            - StaticText ","
+            - LabelText
+              - StaticText "Resolution"
+            - textbox [ref=e36]
+            - button "Close incident" [ref=e37]
+- contentinfo
+  - StaticText "SiteBuild Field Suite is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

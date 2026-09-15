@@ -1,0 +1,4 @@
+busiest region (RidePilot, this week): Downtown Core demand 82
+cross-check: FlowMart catalog checked (snapshot 04) — 0 listings mention any region name
+C1-2 matching-install: NOT-FIRED (conditional branch correctly not taken — no listing mentions the busiest region; catalog/fixture drift recorded as a finding)
+C1-1 both-tab sessions: verified via browser-side fetches on both origins (see transcript)

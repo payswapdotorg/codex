@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "tickets": [
+    {
+      "id": "tk-0701",
+      "openedBy": "passenger (Nadia F.)",
+      "subject": "Charged twice for a cancelled trip",
+      "category": "billing",
+      "priority": "high",
+      "status": "open",
+      "assigneeId": "u-3",
+      "messages": [
+        {
+          "from": "passenger",
+          "role": "customer",
+          "at": "2026-09-11T16:20:00Z",
+          "text": "My card was charged twice after I cancelled within the free window."
+        },
+        {
+          "from": "ana.silva",
+          "role": "agent",
+          "at": "2026-09-11T16:41:00Z",
+          "text": "Thanks — I can see the duplicate authorization. Requesting a reversal."
+        },
+        {
+          "from": "ana.silva",
+          "role": "agent",
+          "at": "2026-09-15T11:12:10.458Z",
+          "text": "Checked with ops: refund hold released; rider notified with apology credit."
+        }
+      ]
+    },
+    {
+      "id": "tk-0702",
+      "openedBy": "driver (Ilya V.)",
+      "subject": "App crashes when ending a trip",
+      "category": "technical",
+      "priority": "medium",
+      "status": "escalated",
+      "assigneeId": "u-3",
+      "messages": [
+        {
+          "from": "driver",
+          "role": "customer",
+          "at": "2026-09-09T08:05:00Z",
+          "text": "The app force-closes on trip end; fare shows 0 afterwards."
+        },
+        {
+          "from": "ana.silva",
+          "role": "agent",
+          "at": "2026-09-09T08:30:00Z",
+          "text": "Reproduced on Android 14. Escalating to engineering."
+        }
+      ]
+    }
+  ]
+}

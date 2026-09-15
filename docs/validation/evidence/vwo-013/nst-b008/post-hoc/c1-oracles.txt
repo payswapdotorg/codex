@@ -1,0 +1,5 @@
+C1-1 round-trip headline-bold: PASS
+C1-1 round-trip list-items: 5 <li> elements; 4 timeline entries preserved
+C1-1 list-preserved: PASS
+C1-1 attachment-present: PASS
+C1-3 attachment-byte-identical: PASS (40522 bytes)

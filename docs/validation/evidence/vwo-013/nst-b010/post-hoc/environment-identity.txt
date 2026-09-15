@@ -1,0 +1,4 @@
+run: NST-B010 browser-to-terminal/file handoff
+date-window: 2026-09-15T11:18:09Z
+apps: ForgeExport purpose-built :4210 (§5 note 4 download surface, as NST-B005) + ForgeOps :4102 + terminal
+missing-capability recorded: ForgeOps has NO comment/release-thread surface (consistent with the B003 finding) — the post-back step terminates in a recorded BLOCKED finding; the count itself is computed and verified

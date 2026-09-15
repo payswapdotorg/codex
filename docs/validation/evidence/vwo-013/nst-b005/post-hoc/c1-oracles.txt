@@ -1,0 +1,6 @@
+downloaded file: /tmp/nstd-audit/support-triage-assistant-digest.txt
+size: 207 (advertised 207)
+sha256: 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5
+advertised sha256: 52466b1afc55219bac264b7a2d2bcb6696ca3428fb0ec7d974ab231fbea14eb5
+C1-1 file-exact-size-and-checksum: PASS
+C1-2 browser-download-path: PASS (agent-browser download = click-driven browser download, not shell curl)

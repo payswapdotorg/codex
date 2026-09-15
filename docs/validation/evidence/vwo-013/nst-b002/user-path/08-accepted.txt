@@ -1,0 +1,44 @@
+- heading "VendorGate — vendor registration" [level=1, ref=e1]
+- main
+  - LabelText
+    - StaticText "Company name"
+  - textbox "Acme Trenching Ltd" [ref=e2]: Corral Trenching Ltd
+    - StaticText "Corral Trenching Ltd"
+  - LabelText
+    - StaticText "Vendor type"
+  - combobox [expanded=false, ref=e3]: Contractor
+    - MenuListPopup
+      - option "— pick —" [ref=e8]
+      - option "Supplier" [ref=e9]
+      - option "Contractor" [selected, ref=e10]
+  - generic
+    - LabelText
+      - StaticText "License number"
+    - textbox "LIC-000000" [ref=e5]: LIC-445566
+      - StaticText "LIC-445566"
+    - StaticText "Required for contractors (state license)."
+  - LabelText
+    - StaticText "Tax ID"
+  - textbox "VEN-0000000" [ref=e4]: VEN-1234567
+    - StaticText "VEN-1234567"
+  - generic
+    - heading "Review your registration" [level=2, ref=e6]
+    - table
+      - row
+        - cell "Company" [ref=e11]
+        - cell "Corral Trenching Ltd" [ref=e12]
+      - row
+        - cell "Type" [ref=e13]
+        - cell "contractor" [ref=e14]
+      - row
+        - cell "License" [ref=e15]
+        - cell "LIC-445566" [ref=e16]
+      - row
+        - cell "Tax ID" [ref=e17]
+        - cell "VEN-1234567" [ref=e18]
+  - paragraph
+    - button "Submit registration" [disabled, ref=e7]
+  - generic
+    - StaticText "Registration accepted — reference "
+    - StaticText "VG-0001"
+    - StaticText ". A reviewer will contact you."

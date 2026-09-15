@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "pullRequest": {
+    "id": "pr-0301",
+    "repoId": "r-1",
+    "number": 302,
+    "title": "Refund idempotency keys",
+    "authorId": "u-1",
+    "branch": "ari/refund-idem",
+    "base": "main",
+    "status": "open",
+    "additions": 214,
+    "deletions": 38,
+    "approvals": [],
+    "ciRuns": [
+      "run-0071"
+    ],
+    "summary": "Adds idempotency keys to the refund path to stop duplicate refunds under retry."
+  },
+  "ciRuns": [
+    {
+      "id": "run-0071",
+      "prId": "pr-0301",
+      "repoId": "r-1",
+      "status": "passed",
+      "startedAt": "2026-09-10T18:03:00Z",
+      "steps": [
+        {
+          "name": "checkout",
+          "status": "passed",
+          "durationSec": 8
+        },
+        {
+          "name": "lint",
+          "status": "passed",
+          "durationSec": 22
+        },
+        {
+          "name": "unit-tests",
+          "status": "passed",
+          "durationSec": 46
+        },
+        {
+          "name": "integration-tests",
+          "status": "passed",
+          "durationSec": 92
+        }
+      ]
+    }
+  ]
+}

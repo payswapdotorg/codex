@@ -1,0 +1,177 @@
+{
+  "ok": true,
+  "project": {
+    "id": "p-101",
+    "code": "HVT",
+    "name": "Harborview Tower",
+    "site": "400 Pier Ave, Bay District",
+    "status": "active",
+    "phase": "structural",
+    "percentComplete": 62,
+    "budgetUsd": 4250000,
+    "spentUsd": 2641000,
+    "managerId": "u-1",
+    "contractorIds": [
+      "c-1",
+      "c-2"
+    ],
+    "dueDate": "2027-03-15"
+  },
+  "tasks": [
+    {
+      "id": "t-101a",
+      "projectId": "p-101",
+      "title": "Pour level-12 slab",
+      "trade": "concrete",
+      "status": "done",
+      "assigneeId": "u-2"
+    },
+    {
+      "id": "t-101b",
+      "projectId": "p-101",
+      "title": "Erect tower crane B",
+      "trade": "rigging",
+      "status": "done",
+      "assigneeId": "u-2"
+    },
+    {
+      "id": "t-101c",
+      "projectId": "p-101",
+      "title": "Level-13 formwork",
+      "trade": "formwork",
+      "status": "in_progress",
+      "assigneeId": "u-2"
+    },
+    {
+      "id": "t-101d",
+      "projectId": "p-101",
+      "title": "Facade framing",
+      "trade": "envelope",
+      "status": "todo",
+      "assigneeId": null
+    }
+  ],
+  "reports": [
+    {
+      "id": "pr-4001",
+      "projectId": "p-101",
+      "reportDate": "2026-09-10",
+      "authorId": "u-2",
+      "taskIds": [
+        "t-101a",
+        "t-101b"
+      ],
+      "percentComplete": 60,
+      "notes": "Slab pour complete; crane B certified and released for ops.",
+      "photoIds": [
+        "a-101",
+        "a-102"
+      ]
+    }
+  ],
+  "purchaseRequests": [
+    {
+      "id": "prq-5001",
+      "projectId": "p-101",
+      "item": "High-tensile rebar Grade 60",
+      "qty": 1200,
+      "unit": "tonne",
+      "unitCostUsd": 920,
+      "totalUsd": 1104000,
+      "vendorId": "c-2",
+      "status": "submitted",
+      "requestedById": "u-2",
+      "approvals": [],
+      "poNumber": null,
+      "note": "Level 13-15 structural package."
+    }
+  ],
+  "incidents": [
+    {
+      "id": "si-2001",
+      "projectId": "p-101",
+      "severity": "minor",
+      "category": "near-miss",
+      "description": "Scaffold clamp dropped from level 8 barricaded zone; no injuries.",
+      "status": "investigating",
+      "reportedById": "u-2",
+      "actions": [
+        {
+          "byId": "u-4",
+          "text": "Barricade re-inspected; toolbox talk scheduled.",
+          "at": "2026-09-08T07:40:00Z"
+        }
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "id": "d-7001",
+      "projectId": "p-101",
+      "name": "Structural report R3",
+      "assetId": "a-105",
+      "version": 3,
+      "owner": "u-1"
+    },
+    {
+      "id": "d-7002",
+      "projectId": "p-101",
+      "name": "Site safety plan v4",
+      "assetId": "a-106",
+      "version": 4,
+      "owner": "u-4"
+    }
+  ],
+  "photos": [
+    {
+      "id": "a-101",
+      "projectId": "p-101",
+      "kind": "photo",
+      "name": "site-overview-l12.jpg",
+      "sizeKb": 2400,
+      "caption": "Level 12 slab pour — overview",
+      "checksum": "b81f34c2",
+      "uploadedBy": "u-2"
+    },
+    {
+      "id": "a-102",
+      "projectId": "p-101",
+      "kind": "photo",
+      "name": "crane-b-erection.jpg",
+      "sizeKb": 1850,
+      "caption": "Tower crane B certified",
+      "checksum": "7caa9102",
+      "uploadedBy": "u-2"
+    },
+    {
+      "id": "a-0107",
+      "projectId": "p-101",
+      "kind": "photo",
+      "name": "trench-north-loop-2026-09-12.png",
+      "sizeKb": 2200,
+      "caption": "trench photo run1",
+      "checksum": "a267cc9a",
+      "uploadedBy": "u-2"
+    }
+  ],
+  "contractors": [
+    {
+      "id": "c-1",
+      "company": "ConcreteWorks LLC",
+      "trade": "concrete",
+      "contact": "R. Alvarez",
+      "rating": 4.6,
+      "active": true,
+      "contractValidUntil": "2027-06-30"
+    },
+    {
+      "id": "c-2",
+      "company": "SteelCo Fabrication",
+      "trade": "steel",
+      "contact": "L. Hart",
+      "rating": 4.2,
+      "active": true,
+      "contractValidUntil": "2026-08-01"
+    }
+  ]
+}

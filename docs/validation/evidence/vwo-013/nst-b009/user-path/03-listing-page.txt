@@ -1,0 +1,122 @@
+- banner
+  - link "FlowMartmarketplace fixture · VWO-002" [ref=e1]
+    - StaticText "FlowMartmarketplace fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Catalog" [ref=e6]
+    - link "Publisher" [ref=e7]
+    - link "Installs" [ref=e8]
+    - link "Entitlements" [ref=e9]
+    - link "Notifications" [ref=e10]
+    - link "Events" [ref=e11]
+    - link "Failure switches" [ref=e12]
+  - link "sign in" [ref=e3]
+- main
+  - heading "Invoice Autofill for ERPs invoice-autofill" [level=1, ref=e4]
+    - StaticText "Invoice Autofill for ERPs invoice-autofill"
+  - generic
+    - heading "Listing overview" [level=2, ref=e13]
+    - table
+      - row
+        - cell "ID" [ref=e17]
+        - cell "pk-101" [ref=e18]
+          - code
+            - StaticText "pk-101"
+      - row
+        - cell "Publisher" [ref=e19]
+        - cell "Vera Osei" [ref=e20]
+      - row
+        - cell "Category" [ref=e21]
+        - cell "finance-ops" [ref=e22]
+      - row
+        - cell "License model" [ref=e23]
+        - cell "subscription" [ref=e24]
+      - row
+        - cell "Latest version" [ref=e25]
+        - cell "1.1.0" [ref=e26]
+          - code
+            - StaticText "1.1.0"
+      - row
+        - cell "Latest digest" [ref=e27]
+        - cell "sha256:177bdac24f14b662" [ref=e28]
+          - code
+            - StaticText "sha256:177bdac24f14b662"
+      - row
+        - cell "Stats" [ref=e29]
+        - cell "412 installs · ★4.6 · 28 reviews" [ref=e30]
+      - row
+        - cell "Tags" [ref=e31]
+        - cell "invoice erp data-entry" [ref=e32]
+          - StaticText "invoice"
+          - StaticText "erp"
+          - StaticText "data-entry"
+      - row
+        - cell "Description" [ref=e33]
+        - cell "A package that reads inbound invoice documents, extracts structured fields and pre-fills the ERP invoice form. Ships with field mappings for three ERP products." [ref=e34]
+  - generic
+    - heading "Versions (immutable, newest first)" [level=2, ref=e14]
+    - table
+      - rowgroup
+        - row
+          - columnheader "VERSION" [ref=e57]
+          - columnheader "RELEASED" [ref=e58]
+          - columnheader "CHANGELOG" [ref=e59]
+          - columnheader "DIGEST" [ref=e60]
+          - columnheader "COMMIT" [ref=e61]
+          - columnheader "BUILT BY" [ref=e62]
+      - row
+        - cell "1.1.0" [ref=e35]
+          - code
+            - StaticText "1.1.0"
+        - cell "2026-09-02" [ref=e36]
+        - cell "Adds ERP-C mapping; faster table detection." [ref=e37]
+        - cell "sha256:177bdac24f14b662" [ref=e38]
+          - code
+            - StaticText "sha256:177bdac24f14b662"
+        - cell "e4f5a6b" [ref=e39]
+          - code
+            - StaticText "e4f5a6b"
+        - cell "vera.osei" [ref=e40]
+      - row
+        - cell "1.0.0" [ref=e41]
+          - code
+            - StaticText "1.0.0"
+        - cell "2026-07-14" [ref=e42]
+        - cell "Initial release." [ref=e43]
+        - cell "sha256:0e5bf35c9f8a5147" [ref=e44]
+          - code
+            - StaticText "sha256:0e5bf35c9f8a5147"
+        - cell "a1b2c3d" [ref=e45]
+          - code
+            - StaticText "a1b2c3d"
+        - cell "vera.osei" [ref=e46]
+  - generic
+    - heading "Provenance & attribution (latest)" [level=2, ref=e15]
+    - table
+      - row
+        - cell "Source repository" [ref=e47]
+        - cell "https://git.example.internal/vera/invoice-autofill" [ref=e48]
+          - code
+            - StaticText "https://git.example.internal/vera/invoice-autofill"
+      - row
+        - cell "Commit" [ref=e49]
+        - cell "e4f5a6b" [ref=e50]
+          - code
+            - StaticText "e4f5a6b"
+      - row
+        - cell "Built by" [ref=e51]
+        - cell "vera.osei" [ref=e52]
+      - row
+        - cell "Signed by" [ref=e53]
+        - cell "vera.osei" [ref=e54]
+      - row
+        - cell "Manifest digest" [ref=e55]
+        - cell "sha256:177bdac24f14b662" [ref=e56]
+          - code
+            - StaticText "sha256:177bdac24f14b662"
+  - generic
+    - heading "Reviews" [level=2, ref=e16]
+    - paragraph
+      - StaticText "No reviews yet."
+- contentinfo
+  - StaticText "FlowMart is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

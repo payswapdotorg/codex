@@ -1,0 +1,122 @@
+- banner
+  - link "RidePilotrideshare fixture · VWO-002" [ref=e1]
+    - StaticText "RidePilotrideshare fixture · VWO-002"
+  - navigation "Main" [ref=e2]
+    - link "Dashboard" [ref=e5]
+    - link "Onboarding" [ref=e6]
+    - link "Apply to drive" [ref=e7]
+    - link "Support" [ref=e8]
+    - link "Ops" [ref=e9]
+    - link "Map" [ref=e10]
+    - link "Payments" [ref=e11]
+    - link "Incidents" [ref=e12]
+    - link "Notifications" [ref=e13]
+    - link "Events" [ref=e14]
+    - link "Failure switches" [ref=e15]
+  - StaticText "Ana Silva · support_agent · "
+  - link "sign out" [ref=e3]
+- main
+  - heading "Driver & passenger support" [level=1, ref=e4]
+  - generic
+    - heading "Ticket tk-0701 — Charged twice for a cancelled trip <span class=\"pill p-neutral\">open</span>" [level=2, ref=e16]
+    - table
+      - row
+        - cell "Opened by" [ref=e23]
+        - cell "passenger (Nadia F.)" [ref=e24]
+      - row
+        - cell "Category" [ref=e25]
+        - cell "billing" [ref=e26]
+      - row
+        - cell "Priority" [ref=e27]
+        - cell "high" [ref=e28]
+      - row
+        - cell "Assignee" [ref=e29]
+        - cell "Ana Silva" [ref=e30]
+    - table
+      - rowgroup
+        - row
+          - columnheader "FROM" [ref=e60]
+          - columnheader "ROLE" [ref=e61]
+          - columnheader "AT" [ref=e62]
+          - columnheader "MESSAGE" [ref=e63]
+      - row
+        - cell "passenger" [ref=e31]
+        - cell "neutral customer" [ref=e32]
+          - StaticText "neutral customer"
+        - cell "2026-09-11T16:20:00Z" [ref=e33]
+        - cell "My card was charged twice after I cancelled within the free window." [ref=e34]
+      - row
+        - cell "ana.silva" [ref=e35]
+        - cell "info agent" [ref=e36]
+          - StaticText "info agent"
+        - cell "2026-09-11T16:41:00Z" [ref=e37]
+        - cell "Thanks — I can see the duplicate authorization. Requesting a reversal." [ref=e38]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Reply"
+      - textbox [ref=e18]
+      - button "Send reply" [ref=e39]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Escalation reason"
+      - textbox [ref=e19]: Needs ops attention
+        - StaticText "Needs ops attention"
+      - button "Escalate to ops" [ref=e40]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Resolution"
+      - textbox [ref=e20]: Handled.
+        - StaticText "Handled."
+      - button "Resolve" [ref=e41]
+  - generic
+    - heading "Ticket tk-0702 — App crashes when ending a trip <span class=\"pill p-warn\">escalated</span>" [level=2, ref=e17]
+    - table
+      - row
+        - cell "Opened by" [ref=e42]
+        - cell "driver (Ilya V.)" [ref=e43]
+      - row
+        - cell "Category" [ref=e44]
+        - cell "technical" [ref=e45]
+      - row
+        - cell "Priority" [ref=e46]
+        - cell "medium" [ref=e47]
+      - row
+        - cell "Assignee" [ref=e48]
+        - cell "Ana Silva" [ref=e49]
+    - table
+      - rowgroup
+        - row
+          - columnheader "FROM" [ref=e64]
+          - columnheader "ROLE" [ref=e65]
+          - columnheader "AT" [ref=e66]
+          - columnheader "MESSAGE" [ref=e67]
+      - row
+        - cell "driver" [ref=e50]
+        - cell "neutral customer" [ref=e51]
+          - StaticText "neutral customer"
+        - cell "2026-09-09T08:05:00Z" [ref=e52]
+        - cell "The app force-closes on trip end; fare shows 0 afterwards." [ref=e53]
+      - row
+        - cell "ana.silva" [ref=e54]
+        - cell "info agent" [ref=e55]
+          - StaticText "info agent"
+        - cell "2026-09-09T08:30:00Z" [ref=e56]
+        - cell "Reproduced on Android 14. Escalating to engineering." [ref=e57]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Reply"
+      - textbox [ref=e21]
+      - button "Send reply" [ref=e58]
+    - form
+      - StaticText ","
+      - LabelText
+        - StaticText "Resolution"
+      - textbox [ref=e22]: Handled.
+        - StaticText "Handled."
+      - button "Resolve" [ref=e59]
+- contentinfo
+  - StaticText "RidePilot is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with POST /reset."

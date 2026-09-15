@@ -1,0 +1,5 @@
+tk-0701 matching replies (messages): 1
+C1-1 one-response-intended-content: PASS
+  reply: ana.silva 2026-09-15T11:12:10.458Z | Checked with ops: refund hold released; rider notified with 
+C1-2 switch-fired-once-visible: PASS ['request.rejected']
+redirect chain: PRG observed (POST 303 -> /support?ok=...) — snapshots 05; the catalog's redirect-LOOP component has no fixture surface (recorded)

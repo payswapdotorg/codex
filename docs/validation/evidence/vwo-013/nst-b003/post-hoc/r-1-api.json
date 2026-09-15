@@ -1,0 +1,92 @@
+{
+  "ok": true,
+  "repo": {
+    "id": "r-1",
+    "name": "payments-service",
+    "language": "Go",
+    "defaultBranch": "main",
+    "ownerTeamId": "t-1",
+    "reviewerIds": [
+      "u-2"
+    ],
+    "serviceName": "payments-api",
+    "currentStagingVersion": "4.8.1",
+    "productionVersion": "4.8.1"
+  },
+  "pullRequests": [
+    {
+      "id": "pr-0301",
+      "repoId": "r-1",
+      "number": 302,
+      "title": "Refund idempotency keys",
+      "authorId": "u-1",
+      "branch": "ari/refund-idem",
+      "base": "main",
+      "status": "open",
+      "additions": 214,
+      "deletions": 38,
+      "approvals": [],
+      "ciRuns": [
+        "run-0071"
+      ],
+      "summary": "Adds idempotency keys to the refund path to stop duplicate refunds under retry."
+    },
+    {
+      "id": "pr-0303",
+      "repoId": "r-1",
+      "number": 298,
+      "title": "Ledger reconcile fix",
+      "authorId": "u-1",
+      "branch": "ari/recon-fix",
+      "base": "main",
+      "status": "merged",
+      "additions": 96,
+      "deletions": 12,
+      "approvals": [
+        {
+          "byId": "u-2",
+          "at": "2026-09-05T14:02:00Z",
+          "note": "Solid fix."
+        }
+      ],
+      "ciRuns": [
+        "run-0069"
+      ],
+      "mergedById": "u-3",
+      "mergedAt": "2026-09-06T09:30:00Z",
+      "summary": "Fixes off-by-one in nightly reconciliation."
+    }
+  ],
+  "deployments": [
+    {
+      "id": "dep-1101",
+      "repoId": "r-1",
+      "prId": "pr-0303",
+      "env": "staging",
+      "version": "4.8.1",
+      "status": "promoted",
+      "promotedById": "u-3",
+      "artifactId": "art-0901",
+      "at": "2026-09-06T09:35:00Z"
+    },
+    {
+      "id": "dep-1102",
+      "repoId": "r-1",
+      "prId": "pr-0303",
+      "env": "production",
+      "version": "4.8.1",
+      "status": "succeeded",
+      "artifactId": "art-0901",
+      "at": "2026-09-06T10:05:00Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art-0901",
+      "repoId": "r-1",
+      "digest": "sha256:9f2c41ab77e0",
+      "sizeKb": 14320,
+      "builtFromPr": "pr-0303"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+terminal count: production deploys = 2
+$ grep -c 'env=production' forge-deployment-log.txt

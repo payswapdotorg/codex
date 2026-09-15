@@ -1,0 +1,116 @@
+{
+  "ok": true,
+  "project": {
+    "id": "p-102",
+    "code": "ESI",
+    "name": "Eastside Interchange",
+    "site": "Exit 14, Route 9",
+    "status": "active",
+    "phase": "earthwork",
+    "percentComplete": 35,
+    "budgetUsd": 8900000,
+    "spentUsd": 3115000,
+    "managerId": "u-1",
+    "contractorIds": [
+      "c-1"
+    ],
+    "dueDate": "2028-01-20"
+  },
+  "tasks": [
+    {
+      "id": "t-102a",
+      "projectId": "p-102",
+      "title": "Utility relocation — north loop",
+      "trade": "civil",
+      "status": "in_progress",
+      "assigneeId": "u-2"
+    },
+    {
+      "id": "t-102b",
+      "projectId": "p-102",
+      "title": "Retaining wall pour 2",
+      "trade": "concrete",
+      "status": "todo",
+      "assigneeId": null
+    }
+  ],
+  "reports": [],
+  "purchaseRequests": [
+    {
+      "id": "prq-5003",
+      "projectId": "p-102",
+      "item": "Precast box culvert segments",
+      "qty": 60,
+      "unit": "segment",
+      "unitCostUsd": 1450,
+      "totalUsd": 87000,
+      "vendorId": "c-1",
+      "status": "submitted",
+      "requestedById": "u-2",
+      "approvals": [],
+      "poNumber": null,
+      "note": "Retaining wall drainage — north loop."
+    }
+  ],
+  "incidents": [
+    {
+      "id": "si-2002",
+      "projectId": "p-102",
+      "severity": "moderate",
+      "category": "utility-strike",
+      "description": "Telecom duct nicked during trenching; service restored same day.",
+      "status": "closed",
+      "reportedById": "u-2",
+      "actions": [
+        {
+          "byId": "u-4",
+          "text": "Closed after utility sign-off.",
+          "at": "2026-09-04T16:20:00Z"
+        }
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "id": "d-7003",
+      "projectId": "p-102",
+      "name": "Traffic control plan",
+      "assetId": null,
+      "version": 2,
+      "owner": "u-1"
+    }
+  ],
+  "photos": [
+    {
+      "id": "a-103",
+      "projectId": "p-102",
+      "kind": "photo",
+      "name": "eastside-excavation.jpg",
+      "sizeKb": 2100,
+      "caption": "North loop utility trench",
+      "checksum": "30dd77a1",
+      "uploadedBy": "u-2"
+    },
+    {
+      "id": "a-0108",
+      "projectId": "p-102",
+      "kind": "photo",
+      "name": "trench-eastside-excavation-2026-09-13.png",
+      "sizeKb": 2200,
+      "caption": "trench photo run2",
+      "checksum": "c523fe2c",
+      "uploadedBy": "u-2"
+    }
+  ],
+  "contractors": [
+    {
+      "id": "c-1",
+      "company": "ConcreteWorks LLC",
+      "trade": "concrete",
+      "contact": "R. Alvarez",
+      "rating": 4.6,
+      "active": true,
+      "contractValidUntil": "2027-06-30"
+    }
+  ]
+}
