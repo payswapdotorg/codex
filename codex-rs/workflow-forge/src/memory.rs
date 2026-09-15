@@ -25,8 +25,8 @@
 //! - Branch heads move freely; nothing here is an execution anchor.
 
 use std::collections::HashMap;
-use std::future::ready;
 use std::future::Future;
+use std::future::ready;
 
 use codex_workflow_contracts::Attribution;
 use codex_workflow_contracts::DevelopmentRef;
@@ -41,9 +41,9 @@ use codex_workflow_contracts::WorkflowManifest;
 use codex_workflow_contracts::WorkflowRepository;
 use codex_workflow_contracts::WorkflowRepositoryId;
 
-use crate::collaboration::fork_repository;
-use crate::collaboration::CommitSummary;
 use crate::WorkflowForgeError;
+use crate::collaboration::CommitSummary;
+use crate::collaboration::fork_repository;
 
 /// FNV-1a offset basis used for deterministic commit minting.
 const FNV_OFFSET: u64 = 0xcbf29ce484222325;
@@ -569,10 +569,13 @@ mod tests {
     use codex_workflow_contracts::ReviewState;
     use codex_workflow_contracts::WorkflowForge;
 
+    use crate::InMemoryForge;
+    use crate::UpdateDecision;
+    use crate::WorkflowForgeError;
+    use crate::collaboration::ReviewApproval;
     use crate::collaboration::merge_review;
     use crate::collaboration::propose_review;
     use crate::collaboration::publish_release;
-    use crate::collaboration::ReviewApproval;
     use crate::install::InstallRegistry;
     use crate::package::SubworkflowPin;
     use crate::package::WorkflowPackageLock;
@@ -585,9 +588,6 @@ mod tests {
     use crate::test_support::repo_id;
     use crate::test_support::sha;
     use crate::test_support::workflow_id;
-    use crate::InMemoryForge;
-    use crate::UpdateDecision;
-    use crate::WorkflowForgeError;
 
     const ORIGIN: &str = "github.com/acme/ops-workflows";
 
@@ -713,10 +713,12 @@ mod tests {
             record.branches[0].head.as_ref(),
             Some(&second.revision.commit_sha)
         );
-        assert!(local
-            .commit_summary(&origin, &first.revision.commit_sha)
-            .unwrap()
-            .is_some());
+        assert!(
+            local
+                .commit_summary(&origin, &first.revision.commit_sha)
+                .unwrap()
+                .is_some()
+        );
         assert!(local.clone_repository_from(&remote, &origin).is_err());
 
         // Push: local development reaches the remote.

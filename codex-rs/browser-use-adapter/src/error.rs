@@ -4,7 +4,8 @@
 //! callers (and operators) can resolve provisioning or policy gaps without
 //! inspecting adapter internals.
 
-use crate::diagnostics::{AdapterDiagnostic, DiagnosticCode};
+use crate::diagnostics::AdapterDiagnostic;
+use crate::diagnostics::DiagnosticCode;
 use crate::lifecycle::CapabilityLifecycleState;
 use thiserror::Error;
 

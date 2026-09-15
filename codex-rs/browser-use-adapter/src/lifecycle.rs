@@ -10,7 +10,8 @@
 use crate::bridge::EvidenceRecord;
 use crate::error::AdapterError;
 use codex_workflow_contracts::EvidenceKind;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Lifecycle states of the bound capability.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

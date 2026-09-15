@@ -8,8 +8,10 @@
 //! the adapter detect conflicts before binding.
 
 use crate::requirements::AllowDeny;
-use codex_config::{BrowserUseConfigToml, BrowserUseOriginPolicyConfigToml};
-use serde::{Deserialize, Serialize};
+use codex_config::BrowserUseConfigToml;
+use codex_config::BrowserUseOriginPolicyConfigToml;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 /// Snapshot of one origin's configured policy.

@@ -13,8 +13,8 @@ use codex_workflow_contracts::WorkflowRepositoryId;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::canonical::canonical_repository_id;
 use crate::WorkflowForgeError;
+use crate::canonical::canonical_repository_id;
 
 /// A repository discovery query. Unset fields match anything.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -106,8 +106,8 @@ mod tests {
     use crate::test_support::sha;
     use crate::test_support::workflow_id;
 
-    use super::discover_repositories;
     use super::RepositoryQuery;
+    use super::discover_repositories;
 
     fn repository(
         canonical: &str,

@@ -509,9 +509,7 @@ impl DistributionPort for InMemoryMarketplace {
         // (visibility → integrity → access → entitlement). An upgrade
         // the guards or gates would refuse is refused with the
         // decision data and changes nothing.
-        if proposal.to.identity.semantic_version
-            < install.installed.identity.semantic_version
-        {
+        if proposal.to.identity.semantic_version < install.installed.identity.semantic_version {
             return Err(WorkflowDistributionError::IllegalDowngrade {
                 workflow: workflow.to_string(),
                 expected_newer_than: install.installed.identity.semantic_version.clone(),
@@ -520,12 +518,7 @@ impl DistributionPort for InMemoryMarketplace {
         }
         let entry = self.entry_for(&workflow, &proposal.to.version_id)?.clone();
         let principal = install.principal.clone();
-        if !release_installable(
-            &entry.metadata,
-            entry.state,
-            &entry.audience,
-            &principal,
-        ) {
+        if !release_installable(&entry.metadata, entry.state, &entry.audience, &principal) {
             return Err(WorkflowDistributionError::ReleaseNotVisible {
                 workflow: workflow.to_string(),
                 version: proposal.to.version_id.to_string(),

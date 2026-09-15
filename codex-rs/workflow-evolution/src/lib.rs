@@ -98,24 +98,48 @@ mod validate;
 #[cfg(test)]
 mod test_support;
 
-pub use approval::{
-    ApprovalDecision, ApprovalPort, ApprovalRecord, ApprovalRequest, InMemoryApprovalPort,
-};
-pub use candidate::{
-    CandidateId, CandidateProvenance, ChangeKind, ImprovementCandidate, ProposedChange,
-    RunProvenance, VersionBump,
-};
+pub use approval::ApprovalDecision;
+pub use approval::ApprovalPort;
+pub use approval::ApprovalRecord;
+pub use approval::ApprovalRequest;
+pub use approval::InMemoryApprovalPort;
+pub use candidate::CandidateId;
+pub use candidate::CandidateProvenance;
+pub use candidate::ChangeKind;
+pub use candidate::ImprovementCandidate;
+pub use candidate::ProposedChange;
+pub use candidate::RunProvenance;
+pub use candidate::VersionBump;
 pub use error::WorkflowEvolutionError;
-pub use evolution::{
-    AppliedAdjustment, EVOLUTION_AUTHOR, EvolutionGovernor, SuccessorPublication, VersionLineage,
-};
-pub use generate::{CandidateGenerator, EvidenceCorpus, GenerationPolicy};
-pub use ledger::{
-    CandidateOutcome, EvolutionLedger, LedgerEntry, RetentionPolicy, StagedSuccession,
-};
-pub use scrub::{REDACTED_MARKER, ScrubFinding, ScrubReport, require_clean_json, scrub_json};
-pub use validate::{
-    EvalReplayPort, EvolutionPolicy, PolicyCheck, PolicyContext, PolicyGate, PolicyPort,
-    REPLAY_PROVIDER_ID, ReplayOutcome, ReplayPort, StageEvidence, StageName, StageSummary,
-    ValidationPipeline, ValidationReport,
-};
+pub use evolution::AppliedAdjustment;
+pub use evolution::EVOLUTION_AUTHOR;
+pub use evolution::EvolutionGovernor;
+pub use evolution::SuccessorPublication;
+pub use evolution::VersionLineage;
+pub use generate::CandidateGenerator;
+pub use generate::EvidenceCorpus;
+pub use generate::GenerationPolicy;
+pub use ledger::CandidateOutcome;
+pub use ledger::EvolutionLedger;
+pub use ledger::LedgerEntry;
+pub use ledger::RetentionPolicy;
+pub use ledger::StagedSuccession;
+pub use scrub::REDACTED_MARKER;
+pub use scrub::ScrubFinding;
+pub use scrub::ScrubReport;
+pub use scrub::require_clean_json;
+pub use scrub::scrub_json;
+pub use validate::EvalReplayPort;
+pub use validate::EvolutionPolicy;
+pub use validate::PolicyCheck;
+pub use validate::PolicyContext;
+pub use validate::PolicyGate;
+pub use validate::PolicyPort;
+pub use validate::REPLAY_PROVIDER_ID;
+pub use validate::ReplayOutcome;
+pub use validate::ReplayPort;
+pub use validate::StageEvidence;
+pub use validate::StageName;
+pub use validate::StageSummary;
+pub use validate::ValidationPipeline;
+pub use validate::ValidationReport;

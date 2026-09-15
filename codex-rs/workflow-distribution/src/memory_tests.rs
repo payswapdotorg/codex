@@ -53,8 +53,8 @@ use crate::PublicationScope;
 use crate::PublishSubmission;
 use crate::SourceLineage;
 use crate::UpgradeDecision;
-use crate::UpgradeProposal;
 use crate::UpgradePolicySetting;
+use crate::UpgradeProposal;
 use crate::WorkflowDistributionError;
 
 const OWNER_REPO: &str = "https://github.com/acme/ops-workflows";
@@ -141,11 +141,7 @@ fn publication_metadata(
 }
 
 /// Publishes a free follow-policy release under a scope.
-fn publish(
-    market: &mut InMemoryMarketplace,
-    version: WorkflowVersion,
-    scope: PublicationScope,
-) {
+fn publish(market: &mut InMemoryMarketplace, version: WorkflowVersion, scope: PublicationScope) {
     market
         .publish(PublishSubmission {
             metadata: publication_metadata(&version, "acme-ops", UpgradePolicySetting::Follow),
@@ -274,7 +270,11 @@ fn decide_upgrade_refuses_smuggled_proposals_targeting_invisible_releases() {
     let base = sealed_version("smuggled-report", 75, (1, 0, 0));
     let private_newer = sealed_version("smuggled-report", 76, (2, 0, 0));
     publish(&mut market, base.clone(), PublicationScope::Public);
-    publish(&mut market, private_newer.clone(), PublicationScope::Private);
+    publish(
+        &mut market,
+        private_newer.clone(),
+        PublicationScope::Private,
+    );
     install(&mut market, &mut access, &base, "bob", 24_000);
     let smuggled = UpgradeProposal {
         workflow: base.identity.workflow.clone(),
@@ -295,7 +295,10 @@ fn decide_upgrade_refuses_smuggled_proposals_targeting_invisible_releases() {
         base.version_id,
         "the pin is unchanged"
     );
-    assert!(market.upgrade_history().is_empty(), "refused proposals record nothing");
+    assert!(
+        market.upgrade_history().is_empty(),
+        "refused proposals record nothing"
+    );
 }
 
 #[test]
@@ -338,7 +341,10 @@ fn decide_upgrade_refuses_targets_older_than_the_pin() {
         pin.version_id,
         "the pin is unchanged"
     );
-    assert!(market.upgrade_history().is_empty(), "refused proposals record nothing");
+    assert!(
+        market.upgrade_history().is_empty(),
+        "refused proposals record nothing"
+    );
 }
 
 #[test]

@@ -7,11 +7,12 @@
 //! Keeping the adapter-facing types neutral also keeps browser-specific
 //! detail out of workflow semantic types.
 
-use codex_config::{
-    AllowDenyRequirementToml, BrowserUseAccessApprovalLifetimeToml, BrowserUseOriginPolicyToml,
-    BrowserUseRequirementsToml,
-};
-use serde::{Deserialize, Serialize};
+use codex_config::AllowDenyRequirementToml;
+use codex_config::BrowserUseAccessApprovalLifetimeToml;
+use codex_config::BrowserUseOriginPolicyToml;
+use codex_config::BrowserUseRequirementsToml;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 /// Whether a policy aspect must be allowed or denied.

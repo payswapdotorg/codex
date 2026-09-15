@@ -8,9 +8,11 @@
 //! it. Identity strings are credential-free by construction.
 
 use crate::canonical::canonical_digest;
-use crate::diagnostics::{AdapterDiagnostic, DiagnosticCode};
+use crate::diagnostics::AdapterDiagnostic;
+use crate::diagnostics::DiagnosticCode;
 use crate::requirements::FallbackNeeds;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// The universal capability id this adapter binds workflow execution to.
 pub const BROWSER_USE_CAPABILITY_ID: &str = "codex.browser-use";

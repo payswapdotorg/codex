@@ -66,35 +66,63 @@ pub mod lifecycle;
 pub mod requirements;
 pub mod session;
 
-pub use adapter::{BrowserUseAdapter, PrepareReport, RecoveryRemediation};
-pub use authorization::{
-    AuthorizationOutcome, AuthorizationViolation, SessionGovernance, check_authorization,
-};
-pub use binding::{
-    BROWSER_USE_CAPABILITY_ID, BindingIdentity, BrowserAdapterKind, BrowserSessionIdentity,
-    FallbackAdapter, FallbackCapabilities, FallbackEvaluation, FallbackRecord, evaluate_fallback,
-};
-pub use bridge::{EvidenceRecord, EvidenceSink, attach_evidence};
-pub use canonical::{Canonical, canonical_digest, sha256_hex};
-pub use codex_workflow_contracts::{
-    ContentDigest, EvidenceKind, EvidenceReference, WorkflowInstance, WorkflowInstanceStatus,
-};
-pub use config_snapshot::{
-    BrowserUseConfigSnapshot, EffectiveOriginPolicy, OriginPolicySnapshot, PolicySource,
-};
-pub use diagnostics::{AdapterDiagnostic, BridgeProbe, DiagnosticCode};
+pub use adapter::BrowserUseAdapter;
+pub use adapter::PrepareReport;
+pub use adapter::RecoveryRemediation;
+pub use authorization::AuthorizationOutcome;
+pub use authorization::AuthorizationViolation;
+pub use authorization::SessionGovernance;
+pub use authorization::check_authorization;
+pub use binding::BROWSER_USE_CAPABILITY_ID;
+pub use binding::BindingIdentity;
+pub use binding::BrowserAdapterKind;
+pub use binding::BrowserSessionIdentity;
+pub use binding::FallbackAdapter;
+pub use binding::FallbackCapabilities;
+pub use binding::FallbackEvaluation;
+pub use binding::FallbackRecord;
+pub use binding::evaluate_fallback;
+pub use bridge::EvidenceRecord;
+pub use bridge::EvidenceSink;
+pub use bridge::attach_evidence;
+pub use canonical::Canonical;
+pub use canonical::canonical_digest;
+pub use canonical::sha256_hex;
+pub use codex_workflow_contracts::ContentDigest;
+pub use codex_workflow_contracts::EvidenceKind;
+pub use codex_workflow_contracts::EvidenceReference;
+pub use codex_workflow_contracts::WorkflowInstance;
+pub use codex_workflow_contracts::WorkflowInstanceStatus;
+pub use config_snapshot::BrowserUseConfigSnapshot;
+pub use config_snapshot::EffectiveOriginPolicy;
+pub use config_snapshot::OriginPolicySnapshot;
+pub use config_snapshot::PolicySource;
+pub use diagnostics::AdapterDiagnostic;
+pub use diagnostics::BridgeProbe;
+pub use diagnostics::DiagnosticCode;
 pub use error::AdapterError;
-pub use lifecycle::{
-    CapabilityLifecycle, CapabilityLifecycleState, InterruptionKind, LifecycleTransition,
-    TransitionKind,
-};
-pub use requirements::{
-    AccessApprovalLifetime, AllowDeny, BrowserUseRequirement, FallbackNeeds,
-    OriginPolicyRequirement,
-};
-pub use session::{
-    BrowserAction, BrowserActionKind, BrowserActionOutcome, BrowserActionResult, BrowserApproval,
-    BrowserApprovalDecision, BrowserApprovalSubject, BrowserArtifact, BrowserExecutionSession,
-    BrowserObservation, BrowserRecoveryNote, BrowserVerification, ExecutionOutcome, SessionEnd,
-    suggested_instance_status,
-};
+pub use lifecycle::CapabilityLifecycle;
+pub use lifecycle::CapabilityLifecycleState;
+pub use lifecycle::InterruptionKind;
+pub use lifecycle::LifecycleTransition;
+pub use lifecycle::TransitionKind;
+pub use requirements::AccessApprovalLifetime;
+pub use requirements::AllowDeny;
+pub use requirements::BrowserUseRequirement;
+pub use requirements::FallbackNeeds;
+pub use requirements::OriginPolicyRequirement;
+pub use session::BrowserAction;
+pub use session::BrowserActionKind;
+pub use session::BrowserActionOutcome;
+pub use session::BrowserActionResult;
+pub use session::BrowserApproval;
+pub use session::BrowserApprovalDecision;
+pub use session::BrowserApprovalSubject;
+pub use session::BrowserArtifact;
+pub use session::BrowserExecutionSession;
+pub use session::BrowserObservation;
+pub use session::BrowserRecoveryNote;
+pub use session::BrowserVerification;
+pub use session::ExecutionOutcome;
+pub use session::SessionEnd;
+pub use session::suggested_instance_status;

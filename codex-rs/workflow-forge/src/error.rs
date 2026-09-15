@@ -156,7 +156,9 @@ pub enum WorkflowForgeError {
 
     /// A version reference's recorded id does not match the recomputed
     /// digest of its execution identity tuple.
-    #[error("version identity mismatch for workflow {workflow:?}: recorded {recorded}, recomputed {recomputed}")]
+    #[error(
+        "version identity mismatch for workflow {workflow:?}: recorded {recorded}, recomputed {recomputed}"
+    )]
     VersionIdentityMismatch {
         /// The workflow whose version failed verification.
         workflow: WorkflowDefinitionId,
@@ -254,7 +256,9 @@ pub enum WorkflowForgeError {
     /// An update plan no longer matches the installed version, because a
     /// different update was decided in the meantime. Stale plans must be
     /// re-proposed and re-reviewed, never applied blindly.
-    #[error("stale update plan for workflow {workflow:?}: expected from {expected_from}, installed {actual_from}")]
+    #[error(
+        "stale update plan for workflow {workflow:?}: expected from {expected_from}, installed {actual_from}"
+    )]
     StaleUpdatePlan {
         /// The workflow whose update plan is stale.
         workflow: WorkflowDefinitionId,

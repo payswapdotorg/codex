@@ -12,20 +12,29 @@
 //! never mutates workflow semantics, and never bypasses Codex approvals
 //! or sandboxing.
 
-use crate::authorization::{AuthorizationOutcome, SessionGovernance, check_authorization};
-use crate::binding::{
-    BROWSER_USE_CAPABILITY_ID, BindingIdentity, BrowserAdapterKind, BrowserSessionIdentity,
-    FallbackAdapter, FallbackRecord, evaluate_fallback, fallback_incompatible_diagnostic,
-};
+use crate::authorization::AuthorizationOutcome;
+use crate::authorization::SessionGovernance;
+use crate::authorization::check_authorization;
+use crate::binding::BROWSER_USE_CAPABILITY_ID;
+use crate::binding::BindingIdentity;
+use crate::binding::BrowserAdapterKind;
+use crate::binding::BrowserSessionIdentity;
+use crate::binding::FallbackAdapter;
+use crate::binding::FallbackRecord;
+use crate::binding::evaluate_fallback;
+use crate::binding::fallback_incompatible_diagnostic;
 use crate::bridge::EvidenceRecord;
 use crate::config_snapshot::BrowserUseConfigSnapshot;
 use crate::diagnostics::BridgeProbe;
 use crate::error::AdapterError;
-use crate::lifecycle::{CapabilityLifecycle, CapabilityLifecycleState, InterruptionKind};
+use crate::lifecycle::CapabilityLifecycle;
+use crate::lifecycle::CapabilityLifecycleState;
+use crate::lifecycle::InterruptionKind;
 use crate::requirements::BrowserUseRequirement;
 use crate::session::BrowserExecutionSession;
 use codex_workflow_contracts::EvidenceKind;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// The result of a successful [`BrowserUseAdapter::prepare`].
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -357,11 +366,14 @@ mod tests {
     use super::*;
     use crate::config_snapshot::OriginPolicySnapshot;
     use crate::diagnostics::DiagnosticCode;
-    use crate::requirements::{AllowDeny, OriginPolicyRequirement};
-    use crate::session::{
-        BrowserAction, BrowserActionKind, BrowserActionOutcome, BrowserActionResult,
-        BrowserObservation, SessionEnd,
-    };
+    use crate::requirements::AllowDeny;
+    use crate::requirements::OriginPolicyRequirement;
+    use crate::session::BrowserAction;
+    use crate::session::BrowserActionKind;
+    use crate::session::BrowserActionOutcome;
+    use crate::session::BrowserActionResult;
+    use crate::session::BrowserObservation;
+    use crate::session::SessionEnd;
     use codex_workflow_contracts::WorkflowInstanceStatus;
     use std::collections::BTreeMap;
 

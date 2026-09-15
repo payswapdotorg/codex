@@ -7,12 +7,16 @@
 //! native runtime enforces. This is a pre-flight only: it never grants
 //! access and never bypasses Codex approvals or sandboxing.
 
-use crate::config_snapshot::{BrowserUseConfigSnapshot, EffectiveOriginPolicy};
-use crate::diagnostics::{AdapterDiagnostic, DiagnosticCode};
-use crate::requirements::{
-    AccessApprovalLifetime, AllowDeny, BrowserUseRequirement, OriginPolicyRequirement,
-};
-use serde::{Deserialize, Serialize};
+use crate::config_snapshot::BrowserUseConfigSnapshot;
+use crate::config_snapshot::EffectiveOriginPolicy;
+use crate::diagnostics::AdapterDiagnostic;
+use crate::diagnostics::DiagnosticCode;
+use crate::requirements::AccessApprovalLifetime;
+use crate::requirements::AllowDeny;
+use crate::requirements::BrowserUseRequirement;
+use crate::requirements::OriginPolicyRequirement;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// An unsatisfied requirement, with remediation.
 #[derive(Clone, Debug, PartialEq, Eq)]

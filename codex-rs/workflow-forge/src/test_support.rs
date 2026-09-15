@@ -23,13 +23,13 @@ use codex_workflow_contracts::ExecutionVersionIdentity;
 use codex_workflow_contracts::ForgeKind;
 use codex_workflow_contracts::ForkLineage;
 use codex_workflow_contracts::ImmutableSourceRevision;
+use codex_workflow_contracts::MANIFEST_FORMAT_VERSION;
 use codex_workflow_contracts::RepositoryRelativePath;
 use codex_workflow_contracts::RevisionSha;
 use codex_workflow_contracts::SemanticVersion;
 use codex_workflow_contracts::WorkflowDefinitionId;
 use codex_workflow_contracts::WorkflowManifest;
 use codex_workflow_contracts::WorkflowRepositoryId;
-use codex_workflow_contracts::MANIFEST_FORMAT_VERSION;
 
 use crate::canonical::repository_id_from_canonical;
 use crate::canonical::workflow_id_from_name;

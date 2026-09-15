@@ -74,22 +74,39 @@ pub mod remote_desktop;
 pub mod remote_desktop_adapter;
 pub mod session;
 
-pub use bridge::{
-    BridgeCallFailure, BridgeEndpoint, BridgeFailureKind, BridgeHealth, normalized_failure,
-};
+pub use bridge::BridgeCallFailure;
+pub use bridge::BridgeEndpoint;
+pub use bridge::BridgeFailureKind;
+pub use bridge::BridgeHealth;
+pub use bridge::normalized_failure;
 pub use error::EnvAdapterError;
-pub use evidence::{AdapterEvidenceRecord, EVIDENCE_LOCATOR_PREFIX, EvidenceJournal};
-pub use mobile_device::{
-    MOBILE_DEVICE_ADAPTER_ID, MOBILE_DEVICE_CAPABILITY, MOBILE_DEVICE_RESOURCE, MobileDeviceAction,
-    MobileDeviceBridge, MobileDeviceClass, MobileDeviceObservation, MobileDeviceOutcome,
-    MobileDevicePolicy,
-};
+pub use evidence::AdapterEvidenceRecord;
+pub use evidence::EVIDENCE_LOCATOR_PREFIX;
+pub use evidence::EvidenceJournal;
+pub use mobile_device::MOBILE_DEVICE_ADAPTER_ID;
+pub use mobile_device::MOBILE_DEVICE_CAPABILITY;
+pub use mobile_device::MOBILE_DEVICE_RESOURCE;
+pub use mobile_device::MobileDeviceAction;
+pub use mobile_device::MobileDeviceBridge;
+pub use mobile_device::MobileDeviceClass;
+pub use mobile_device::MobileDeviceObservation;
+pub use mobile_device::MobileDeviceOutcome;
+pub use mobile_device::MobileDevicePolicy;
 pub use mobile_device_adapter::MobileDeviceEnvironmentAdapter;
-pub use policy::{Access, AccessDecision, AccessTable};
-pub use remote_desktop::{
-    DESKTOP_APP_CAPABILITY, REMOTE_DESKTOP_ADAPTER_ID, REMOTE_DESKTOP_CAPABILITY,
-    REMOTE_DESKTOP_SESSION_RESOURCE, RemoteDesktopAction, RemoteDesktopBridge,
-    RemoteDesktopOutcome, RemoteDesktopPolicy, RemoteScreenObservation, RemoteSessionState,
-};
+pub use policy::Access;
+pub use policy::AccessDecision;
+pub use policy::AccessTable;
+pub use remote_desktop::DESKTOP_APP_CAPABILITY;
+pub use remote_desktop::REMOTE_DESKTOP_ADAPTER_ID;
+pub use remote_desktop::REMOTE_DESKTOP_CAPABILITY;
+pub use remote_desktop::REMOTE_DESKTOP_SESSION_RESOURCE;
+pub use remote_desktop::RemoteDesktopAction;
+pub use remote_desktop::RemoteDesktopBridge;
+pub use remote_desktop::RemoteDesktopOutcome;
+pub use remote_desktop::RemoteDesktopPolicy;
+pub use remote_desktop::RemoteScreenObservation;
+pub use remote_desktop::RemoteSessionState;
 pub use remote_desktop_adapter::RemoteDesktopEnvironmentAdapter;
-pub use session::{OwnerToken, TakeoverMode, TakeoverReceipt};
+pub use session::OwnerToken;
+pub use session::TakeoverMode;
+pub use session::TakeoverReceipt;
