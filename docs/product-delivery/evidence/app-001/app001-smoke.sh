@@ -43,12 +43,24 @@ step(){ echo "== $1"  | tee -a "$EV/transcript.txt"; }
 # The teach pipeline prints one JSON envelope per stage
 # ({"stage": ..., "response": {...}}); the publish stage is the last line.
 stage_field() { # <file> <json-pointer-python-expr over d["response"]>
+  # stderr noise can merge into the 2>&1 capture; scan for the last
+  # parseable {"stage": ...} envelope instead of trusting the last line.
   /usr/bin/python3 - "$1" "$2" <<'PY'
 import json, sys
-lines = [l for l in open(sys.argv[1]) if l.strip()]
-d = json.loads(lines[-1])
-assert d.get("stage") == "publish", f"last stage was {d.get('stage')!r}"
-print(eval(sys.argv[2], {}, {"d": d["response"]}))
+last = None
+for line in open(sys.argv[1]):
+    line = line.strip()
+    if not line:
+        continue
+    try:
+        d = json.loads(line)
+    except Exception:
+        continue
+    if isinstance(d, dict) and "stage" in d:
+        last = d
+assert last is not None, "no parseable stage envelope found"
+assert last.get("stage") == "publish", f"last stage was {last.get('stage')!r}"
+print(eval(sys.argv[2], {}, {"d": last["response"]}))
 PY
 }
 
@@ -64,7 +76,7 @@ grep -q "teach" "$EV/workflow-help.txt" && ok "workflow teach subcommand adverti
 grep -qE "instance" "$EV/workflow-help.txt" && ok "workflow instance subcommand advertised" || bad "workflow instance subcommand advertised"
 
 step "3. teach + compile + review + approve + publish through the real control plane"
-"$CODEX_BIN" workflow teach \
+timeout 90 "$CODEX_BIN" workflow teach \
   --mode instruct \
   --name "daily-standup-digest" \
   --instruct "Collect status updates from the three active project channels" \
@@ -78,18 +90,20 @@ VERSION_ID="$(stage_field "$EV/teach.json" 'd["versionId"]')"
 ok "extracted version id: ${VERSION_ID:0:24}..."
 
 step "4. representative workflow action end-to-end (instance run)"
-"$CODEX_BIN" workflow instance run "$VERSION_ID" --json > "$EV/instance-run.json" 2>&1 \
+timeout 90 "$CODEX_BIN" workflow instance run "$VERSION_ID" --json > "$EV/instance-run.json" 2>&1 \
   && ok "workflow instance run executed" || bad "workflow instance run"
-STATUS="$(/usr/bin/python3 -c 'import json; d=json.loads([l for l in open("'"$EV"'/instance-run.json") if l.strip()][-1]); print(d["response"]["terminal"]["kind"])')"
-[[ "$STATUS" == "Completed" ]] && ok "instance reached terminal state Completed" || bad "instance terminal state: $STATUS"
+# instance run/list/get print their response DIRECTLY (pretty multi-line
+# JSON), not wrapped in {"stage","response"} envelopes: whole-file parse.
+STATUS="$(/usr/bin/python3 -c 'import json; d=json.load(open("'"$EV"'/instance-run.json")); print(d["terminal"]["kind"])')"
+[[ "$STATUS" == "completed" ]] && ok "instance reached terminal state completed" || bad "instance terminal state: $STATUS"
 
 step "5. shutdown/relaunch durability (fresh process, same control plane)"
-"$CODEX_BIN" workflow instance list --json > "$EV/instance-list.json" 2>&1 \
+timeout 90 "$CODEX_BIN" workflow instance list --json > "$EV/instance-list.json" 2>&1 \
   && ok "workflow instance list after relaunch" || bad "workflow instance list"
-COUNT="$(/usr/bin/python3 -c 'import json; d=json.loads([l for l in open("'"$EV"'/instance-list.json") if l.strip()][-1]); print(len(d["response"]["instances"]))')"
+COUNT="$(/usr/bin/python3 -c 'import json; d=json.load(open("'"$EV"'/instance-list.json")); print(len(d["instances"]))')"
 [[ "$COUNT" -ge 1 ]] && ok "durable instances survive process restart ($COUNT listed)" || bad "durable instances after restart"
-INSTANCE_ID="$(/usr/bin/python3 -c 'import json; d=json.loads([l for l in open("'"$EV"'/instance-list.json") if l.strip()][-1]); print(d["response"]["instances"][0]["instanceId"])')"
-"$CODEX_BIN" workflow instance get "$INSTANCE_ID" --json > "$EV/instance-get.json" 2>&1 \
+INSTANCE_ID="$(/usr/bin/python3 -c 'import json; d=json.load(open("'"$EV"'/instance-list.json")); print(d["instances"][0]["instanceId"])')"
+timeout 90 "$CODEX_BIN" workflow instance get "$INSTANCE_ID" --json > "$EV/instance-get.json" 2>&1 \
   && ok "workflow instance get reads persisted evidence" || bad "workflow instance get"
 
 step "6. app-server protocol surface exposes the same workflow contract"
