@@ -1,0 +1,16 @@
+RWO-010 merged via PR #43 (merge commit 9024aba87) into main at 2026-09-15T05:24Z.
+
+Harness alignment batch — six bounded fixture/seed/catalog fixes closing VWO-004
+F2, F3, F4, F5, F6 and VWO-005 F7 (VWO-010 synthesis): construction prq-5003
+(second OPEN PRQ, valid vendor, distinct amount); rideshare ana.silva
++ticket:resolve; media requestRendition missing_asset branch (switch tables
+updated); media ch-6 news-push-alerts push fast channel; catalog F5 step
+rename; media attach-on-approved (publish gate re-validates).
+
+Verification: verify-sweep 59/59 after run-all --reset; live AC battery on all
+six aligned paths (docs/validation/evidence/rwo-010/post-hoc/verification.txt).
+Fixture/seed/catalog-only scope — no Rust, no protocol, no zst, no engine.
+
+Delivery lineage: worker flight 1 (Task-tool) applied all six fixes and died at
+the session boundary pre-verification; TL audit-first completion (lesson-120
+protocol) — audit clean, battery re-run live by TL.
