@@ -16,10 +16,10 @@ path = "src/lib.rs"
 codex-workflow-contracts = { path = "../workflow-contracts" }
 codex-workflow-forge = { path = "../workflow-forge" }
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
 codex-workflow-app = { path = "../workflow-app" }
 codex-workflow-triggers = { path = "../workflow-triggers" }
 pretty_assertions = { workspace = true }
+serde_json = { workspace = true }

@@ -10,6 +10,7 @@ publish = false
 workspace = true
 
 [lib]
+doctest = false
 name = "codex_workflow_forge"
 path = "src/lib.rs"
 
