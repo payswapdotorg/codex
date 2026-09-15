@@ -9,3 +9,5 @@ Package sha256 verified against published manifest: 4a6e7e9e2ecfbe3d86925bb877ce
 
 Program verdict: DOWNLOADABLE_AND_LAUNCHABLE (APP-RELEASE-REPORT §14, all gate boxes checked).
 All four APP work orders ACCEPTED. Remaining roadmap: VWO-016 (held-out; operator-gated per catalog §7) — not part of the app-launch program.
+
+Repo-hygiene follow-up 2026-09-15T19:55Z: PR #52 (hygiene/workflow-forge-manifest) MERGED after all five fixable CI layers verified green on-head (repo-checks/build-test, rust-ci Format, cargo-shear, Codespell x2 including the prettier-quote 'fo' regression). Remaining red checks classified fork-infra-limited/pre-existing on main: Bazel matrix (incl. Argument comment lint, which lints via Bazel), sdk python-sdk/sdks (infra, no annotations), cargo-deny (upstream-lockfile advisories/bans policy). Baseline diff: zero new failures introduced.
