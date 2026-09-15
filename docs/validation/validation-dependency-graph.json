@@ -166,7 +166,7 @@
       ]
     },
     "VWO-011": {
-      "status": "ready",
+      "status": "merged",
       "depends_on": [
         "VWO-010"
       ],
@@ -177,7 +177,7 @@
       ]
     },
     "VWO-012": {
-      "status": "blocked",
+      "status": "merged",
       "depends_on": [
         "VWO-011",
         "VWO-001",
@@ -188,7 +188,7 @@
       ]
     },
     "VWO-013": {
-      "status": "blocked",
+      "status": "merged",
       "depends_on": [
         "VWO-011",
         "VWO-001",
@@ -199,7 +199,7 @@
       ]
     },
     "VWO-014": {
-      "status": "blocked",
+      "status": "merged",
       "depends_on": [
         "VWO-011",
         "VWO-001",
@@ -210,7 +210,7 @@
       ]
     },
     "VWO-015": {
-      "status": "blocked",
+      "status": "merged",
       "depends_on": [
         "VWO-012",
         "VWO-013",
