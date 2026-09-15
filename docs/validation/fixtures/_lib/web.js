@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /**
  * VWO-002 fixture web toolkit — page shell, shared CSS, shared pages (login, events,
  * failures, error) and small HTML composition helpers used by every family's ui.js.
@@ -7,9 +7,12 @@
  */
 
 function esc(s) {
-  return String(s === null || s === undefined ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(s === null || s === undefined ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 const CSS = `
@@ -76,10 +79,21 @@ input[type=checkbox],input[type=radio]{width:auto}
 function page(config, opts) {
   const flash = [];
   const q = opts.query;
-  if (q && q.get('ok')) flash.push(`<div class="flash flash-ok" role="status">${esc(q.get('ok'))}</div>`);
-  if (q && q.get('warn')) flash.push(`<div class="flash flash-warn" role="alert">${esc(q.get('warn'))}</div>`);
-  if (q && q.get('err')) flash.push(`<div class="flash flash-err" role="alert">${esc(q.get('err'))}</div>`);
-  const nav = (config.nav || []).map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`).join('');
+  if (q && q.get("ok"))
+    flash.push(
+      `<div class="flash flash-ok" role="status">${esc(q.get("ok"))}</div>`,
+    );
+  if (q && q.get("warn"))
+    flash.push(
+      `<div class="flash flash-warn" role="alert">${esc(q.get("warn"))}</div>`,
+    );
+  if (q && q.get("err"))
+    flash.push(
+      `<div class="flash flash-err" role="alert">${esc(q.get("err"))}</div>`,
+    );
+  const nav = (config.nav || [])
+    .map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`)
+    .join("");
   const who = opts.user
     ? `<span class="who">${esc(opts.user.name)} · ${esc(opts.user.role)} · <a href="/logout" onclick="return true">sign out</a><form method="post" action="/logout" style="display:none" id="lo"></form></span>`
     : `<span class="who"><a href="/login">sign in</a></span>`;
@@ -94,7 +108,7 @@ function page(config, opts) {
 <nav class="top" aria-label="Main">${nav}</nav>${who}
 </div></header>
 <main>
-${flash.join('')}
+${flash.join("")}
 ${opts.body}
 </main>
 <footer class="foot"><b>${esc(config.appTitle)}</b> is a synthetic validation fixture (work order VWO-002) — all data, users and credentials are fake and reset with <span class="kbd">POST /reset</span>.</footer>
@@ -104,105 +118,163 @@ ${opts.body}
 // ---- composition helpers -------------------------------------------------
 
 function card(title, bodyHtml, extraClass) {
-  return `<section class="card ${extraClass || ''}">${title ? `<h2>${esc(title)}</h2>` : ''}${bodyHtml}</section>`;
+  return `<section class="card ${extraClass || ""}">${title ? `<h2>${esc(title)}</h2>` : ""}${bodyHtml}</section>`;
 }
 function tbl(headers, rowsHtml) {
-  return `<div class="tblwrap"><table class="tbl"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rowsHtml || '<tr><td class="muted">No records yet.</td></tr>'}</tbody></table></div>`;
+  return `<div class="tblwrap"><table class="tbl"><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rowsHtml || '<tr><td class="muted">No records yet.</td></tr>'}</tbody></table></div>`;
 }
-function tr(cells) { return `<tr>${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`; }
-function pill(cls, label) { return `<span class="pill p-${cls}">${esc(label)}</span>`; }
+function tr(cells) {
+  return `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+}
+function pill(cls, label) {
+  return `<span class="pill p-${cls}">${esc(label)}</span>`;
+}
 function statusPill(status) {
-  const s = String(status || '');
-  const cls = /fail|reject|down|err|expired|revoked|stale|blocked/.test(s) ? 'err'
-    : /pend|process|review|screen|submitt|queued|investigat|escalat|changes/i.test(s) ? 'warn'
-    : /pass|approv|paid|deliver|publish|sent|succeed|active|online|ready|healthy|posted|closed|resolved|done/i.test(s) ? 'ok' : 'neutral';
+  const s = String(status || "");
+  const cls = /fail|reject|down|err|expired|revoked|stale|blocked/.test(s)
+    ? "err"
+    : /pend|process|review|screen|submitt|queued|investigat|escalat|changes/i.test(
+          s,
+        )
+      ? "warn"
+      : /pass|approv|paid|deliver|publish|sent|succeed|active|online|ready|healthy|posted|closed|resolved|done/i.test(
+            s,
+          )
+        ? "ok"
+        : "neutral";
   return pill(cls, s);
 }
 function kpi(label, value, sub) {
-  return `<div class="card"><div class="muted">${esc(label)}</div><div class="kpi">${esc(value)} <small>${esc(sub || '')}</small></div></div>`;
+  return `<div class="card"><div class="muted">${esc(label)}</div><div class="kpi">${esc(value)} <small>${esc(sub || "")}</small></div></div>`;
 }
 function progress(pct) {
   const p = Math.max(0, Math.min(100, Number(pct) || 0));
   return `<div class="bar-track" title="${p}%"><div class="bar-fill" style="width:${p}%"></div></div>`;
 }
 function fld(label, inputHtml, hint) {
-  return `<div><label>${esc(label)}</label>${inputHtml}${hint ? `<div class="hint">${esc(hint)}</div>` : ''}</div>`;
+  return `<div><label>${esc(label)}</label>${inputHtml}${hint ? `<div class="hint">${esc(hint)}</div>` : ""}</div>`;
 }
 function txt(name, value, o) {
   const oo = o || {};
-  return `<input name="${esc(name)}" value="${esc(value === undefined ? '' : value)}" type="${esc(oo.type || 'text')}"${oo.required ? ' required' : ''}${oo.placeholder ? ` placeholder="${esc(oo.placeholder)}"` : ''}${oo.min !== undefined ? ` min="${esc(oo.min)}"` : ''}${oo.max !== undefined ? ` max="${esc(oo.max)}"` : ''}${oo.step ? ` step="${esc(oo.step)}"` : ''}>`;
+  return `<input name="${esc(name)}" value="${esc(value === undefined ? "" : value)}" type="${esc(oo.type || "text")}"${oo.required ? " required" : ""}${oo.placeholder ? ` placeholder="${esc(oo.placeholder)}"` : ""}${oo.min !== undefined ? ` min="${esc(oo.min)}"` : ""}${oo.max !== undefined ? ` max="${esc(oo.max)}"` : ""}${oo.step ? ` step="${esc(oo.step)}"` : ""}>`;
 }
 function ta(name, value, rows) {
-  return `<textarea name="${esc(name)}" rows="${rows || 4}">${esc(value === undefined ? '' : value)}</textarea>`;
+  return `<textarea name="${esc(name)}" rows="${rows || 4}">${esc(value === undefined ? "" : value)}</textarea>`;
 }
 function sel(name, options, o) {
   const oo = o || {};
-  const opts = options.map((op) => {
-    const [v, l] = Array.isArray(op) ? op : [op, op];
-    const selected = oo.value !== undefined && String(oo.value) === String(v) ? ' selected' : '';
-    return `<option value="${esc(v)}"${selected}>${esc(l)}</option>`;
-  }).join('');
-  return `<select name="${esc(name)}"${oo.multi ? ' multiple size="' + (oo.size || 4) + '"' : ''}>${opts}</select>`;
+  const opts = options
+    .map((op) => {
+      const [v, l] = Array.isArray(op) ? op : [op, op];
+      const selected =
+        oo.value !== undefined && String(oo.value) === String(v)
+          ? " selected"
+          : "";
+      return `<option value="${esc(v)}"${selected}>${esc(l)}</option>`;
+    })
+    .join("");
+  return `<select name="${esc(name)}"${oo.multi ? ' multiple size="' + (oo.size || 4) + '"' : ""}>${opts}</select>`;
 }
 function checks(name, options) {
-  return `<div class="checks">${options.map(([v, l, checked]) => `<label><input type="checkbox" name="${esc(name)}" value="${esc(v)}"${checked ? ' checked' : ''}> ${esc(l)}</label>`).join('')}</div>`;
+  return `<div class="checks">${options.map(([v, l, checked]) => `<label><input type="checkbox" name="${esc(name)}" value="${esc(v)}"${checked ? " checked" : ""}> ${esc(l)}</label>`).join("")}</div>`;
 }
-function hidden(name, value) { return `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`; }
+function hidden(name, value) {
+  return `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`;
+}
 function frm(action, fieldsHtml, o) {
   const oo = o || {};
-  return `<form class="frm" method="post" action="${esc(action)}">${oo.hidden || ''}${fieldsHtml}
-<div><button class="btn${oo.sec ? ' sec' : ''}" type="submit">${esc(oo.submit || 'Submit')}</button>${oo.cancel ? ` <a class="btn sec" href="${esc(oo.cancel)}">Cancel</a>` : ''}</div>
-${oo.note ? `<div class="hint">${esc(oo.note)}</div>` : ''}</form>`;
+  return `<form class="frm" method="post" action="${esc(action)}">${oo.hidden || ""}${fieldsHtml}
+<div><button class="btn${oo.sec ? " sec" : ""}" type="submit">${esc(oo.submit || "Submit")}</button>${oo.cancel ? ` <a class="btn sec" href="${esc(oo.cancel)}">Cancel</a>` : ""}</div>
+${oo.note ? `<div class="hint">${esc(oo.note)}</div>` : ""}</form>`;
 }
-function link(href, label, cls) { return `<a class="${cls ? 'btn ' + cls : ''}" href="${esc(href)}">${esc(label)}</a>`; }
-function when(cond, html) { return cond ? html : ''; }
-function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
-function pct(n) { return `${Number(n || 0)}%`; }
+function link(href, label, cls) {
+  return `<a class="${cls ? "btn " + cls : ""}" href="${esc(href)}">${esc(label)}</a>`;
+}
+function when(cond, html) {
+  return cond ? html : "";
+}
+function money(n) {
+  return "$" + Number(n || 0).toLocaleString("en-US");
+}
+function pct(n) {
+  return `${Number(n || 0)}%`;
+}
 function dl(pairs) {
-  return `<table class="tbl"><tbody>${pairs.map(([k, v]) => tr([`<span class="muted">${esc(k)}</span>`, v])).join('')}</tbody></table>`;
+  return `<table class="tbl"><tbody>${pairs.map(([k, v]) => tr([`<span class="muted">${esc(k)}</span>`, v])).join("")}</tbody></table>`;
 }
 
 // ---- shared pages --------------------------------------------------------
 
 function loginPage(ctx, config, hints) {
-  const next = ctx.query.get('next') || '/';
+  const next = ctx.query.get("next") || "/";
   const body = `
 <div class="grid grid2">
 <section class="card"><h2>Sign in</h2>
 <form class="frm" method="post" action="/login">
-${hidden('next', next)}
-${fld('Username', txt('username', '', { required: true, placeholder: 'e.g. ' + (hints[0] ? hints[0].username : 'user') }))}
-${fld('Password', txt('password', '', { type: 'password', required: true }))}
+${hidden("next", next)}
+${fld("Username", txt("username", "", { required: true, placeholder: "e.g. " + (hints[0] ? hints[0].username : "user") }))}
+${fld("Password", txt("password", "", { type: "password", required: true }))}
 <div><button class="btn" type="submit">Sign in</button></div>
 </form></section>
 <section class="card"><h2>Demo world</h2>
 <p class="muted">This is a fake enterprise used by the Codex Universal validation program. No real credentials exist: demo passwords are assembled at runtime from fragments. Pick any persona below.</p>
 <details class="demo" open><summary>Show demo personas &amp; passwords</summary>
 <p class="demo-note">Persona list (also available at <code>GET /api/demo-hints</code>):</p>
-${tbl(['Username', 'Password (fake)', 'Role', 'Name'], hints.map((h) => tr([`<code>${esc(h.username)}</code>`, `<code>${esc(h.password)}</code>`, esc(h.role), esc(h.name)])).join(''))}
+${tbl(["Username", "Password (fake)", "Role", "Name"], hints.map((h) => tr([`<code>${esc(h.username)}</code>`, `<code>${esc(h.password)}</code>`, esc(h.role), esc(h.name)])).join(""))}
 </details>
 </section></div>`;
-  return page(config, { title: 'Sign in', body, user: null, query: ctx.query });
+  return page(config, { title: "Sign in", body, user: null, query: ctx.query });
 }
 
 function eventsPage(ctx, config, events) {
   const body = `<h1>Event feed</h1>
 <p class="muted">Every important operation appends an event. Machine feed: <code>GET /events?format=json</code> or <code>GET /api/events?limit=&amp;since=&amp;type=</code>. Newest first.</p>
-${tbl(['Time', 'Type', 'Actor', 'Subject', 'Summary'], events.map((e) => tr([
-  `<span class="mono">${esc(e.ts)}</span>`, `<code>${esc(e.type)}</code>`, esc(e.actor), esc(e.subject || ''), esc(e.summary || ''),
-])).join(''))}`;
-  return page(config, { title: 'Events', body, user: ctx.user, query: ctx.query });
+${tbl(
+  ["Time", "Type", "Actor", "Subject", "Summary"],
+  events
+    .map((e) =>
+      tr([
+        `<span class="mono">${esc(e.ts)}</span>`,
+        `<code>${esc(e.type)}</code>`,
+        esc(e.actor),
+        esc(e.subject || ""),
+        esc(e.summary || ""),
+      ]),
+    )
+    .join(""),
+)}`;
+  return page(config, {
+    title: "Events",
+    body,
+    user: ctx.user,
+    query: ctx.query,
+  });
 }
 
 function failuresPage(ctx, config) {
   const sw = config.failures;
   const body = `<h1>Failure switches</h1>
 <p class="muted">Deterministic, per-request failure simulation. Activate by appending <code class="kbd">?failure=&lt;switch&gt;</code> to any request (forms included) or by sending header <code class="kbd">X-Failure-Switch: &lt;switch&gt;</code>. The switch applies only to the request that carries it. Unknown switch names return HTTP 400 with the known list. Machine-readable: <code>GET /api/failures</code>.</p>
-${tbl(['Switch', 'Applies to', 'Behavior', 'Observable symptom'], sw.map((f) => tr([
-  `<code>${esc(f.switch)}</code>`, esc(f.applies_to || ''), esc(f.behavior || ''), esc(f.symptom || ''),
-])).join(''))}
+${tbl(
+  ["Switch", "Applies to", "Behavior", "Observable symptom"],
+  sw
+    .map((f) =>
+      tr([
+        `<code>${esc(f.switch)}</code>`,
+        esc(f.applies_to || ""),
+        esc(f.behavior || ""),
+        esc(f.symptom || ""),
+      ]),
+    )
+    .join(""),
+)}
 <p class="muted">This table mirrors <code>docs/validation/fixtures/&lt;family&gt;/FAILURES.md</code> in the repository.</p>`;
-  return page(config, { title: 'Failure switches', body, user: ctx.user, query: ctx.query });
+  return page(config, {
+    title: "Failure switches",
+    body,
+    user: ctx.user,
+    query: ctx.query,
+  });
 }
 
 function errorPage(err, config) {
@@ -210,10 +282,38 @@ function errorPage(err, config) {
 <div class="card"><div class="flash flash-err">${esc(err.message)}</div>
 <p>HTTP status <b>${err.status}</b> · error code <code>${esc(err.code)}</code></p>
 <p class="muted">If this was an intentional failure switch, the response above is the expected observable symptom. See <a href="/failures">failure switches</a>.</p></div>`;
-  return page(config, { title: 'Error ' + err.status, body, user: null, query: null });
+  return page(config, {
+    title: "Error " + err.status,
+    body,
+    user: null,
+    query: null,
+  });
 }
 
 module.exports = {
-  esc, page, card, tbl, tr, pill, statusPill, kpi, progress, fld, txt, ta, sel, checks,
-  hidden, frm, link, when, money, pct, dl, loginPage, eventsPage, failuresPage, errorPage,
+  esc,
+  page,
+  card,
+  tbl,
+  tr,
+  pill,
+  statusPill,
+  kpi,
+  progress,
+  fld,
+  txt,
+  ta,
+  sel,
+  checks,
+  hidden,
+  frm,
+  link,
+  when,
+  money,
+  pct,
+  dl,
+  loginPage,
+  eventsPage,
+  failuresPage,
+  errorPage,
 };

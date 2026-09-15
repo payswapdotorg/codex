@@ -4,14 +4,14 @@ This document defines how autonomous agents work on the repository. It is subord
 
 ## Roles
 
-| Role | Authority | May modify code? | Primary output |
-|---|---|---:|---|
-| Tech Lead | Full program execution | Yes | dispatch, integration, acceptance, state |
-| Architect | Architecture guard | Yes when required by autonomous change protocol | invariant decisions, ACRs |
-| Implementation Worker | Assigned Work Order | Yes | focused implementation + tests |
-| Verification Worker | Assigned verification | Only in verification scope | test/evidence report |
-| Review Worker | Adversarial review | Normally no | findings against architecture/WO |
-| Research Worker | Repository/source research | No runtime semantics unless assigned | source-backed audit |
+| Role                  | Authority                  |                                May modify code? | Primary output                           |
+| --------------------- | -------------------------- | ----------------------------------------------: | ---------------------------------------- |
+| Tech Lead             | Full program execution     |                                             Yes | dispatch, integration, acceptance, state |
+| Architect             | Architecture guard         | Yes when required by autonomous change protocol | invariant decisions, ACRs                |
+| Implementation Worker | Assigned Work Order        |                                             Yes | focused implementation + tests           |
+| Verification Worker   | Assigned verification      |                      Only in verification scope | test/evidence report                     |
+| Review Worker         | Adversarial review         |                                     Normally no | findings against architecture/WO         |
+| Research Worker       | Repository/source research |            No runtime semantics unless assigned | source-backed audit                      |
 
 ## Autonomy principle
 
