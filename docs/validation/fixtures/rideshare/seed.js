@@ -18,7 +18,7 @@ function build() {
         ['driver:read', 'driver:screen', 'driver:activate', 'surge:adjust', 'broadcast:send', 'incident:report', 'incident:resolve', 'ticket:read', 'ticket:resolve'],
         ['rp', 'ops', 'jules', 'b318'], ['demo', 'pass', 'jules']),
       user('u-3', 'ana.silva', 'Ana Silva', 'support_agent',
-        ['driver:read', 'ticket:read', 'ticket:respond', 'ticket:escalate', 'incident:report'],
+        ['driver:read', 'ticket:read', 'ticket:respond', 'ticket:escalate', 'ticket:resolve', 'incident:report'],
         ['rp', 'sup', 'ana', '5d92'], ['demo', 'pass', 'ana']),
       user('u-4', 'kwame.mensah', 'Kwame Mensah', 'finance_analyst',
         ['driver:read', 'payout:approve'],

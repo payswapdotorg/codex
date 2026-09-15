@@ -1,0 +1,26 @@
+=== RWO-010 AC battery — 2026-09-15T05:21:18Z ===
+
+--- AC1: full ecosystem regression (verify-sweep) ---
+RESULT: 59 passed, 0 failed
+
+--- AC2a: procurement approve->PO on the second OPEN PRQ (VWO-004 F2) ---
+HTTP 200 | PR prq-5003 approved; purchase order po-2042 issued.
+
+--- AC2b: support-agent resolution (VWO-004 F3) ---
+HTTP 200 | Ticket tk-0702 resolved. | final status: resolved
+
+--- AC2c: rendition missing_asset switch arms and fires (VWO-004 F4) ---
+HTTP 404 | error: missing_asset | simulated: True
+control (switch off, same asset):
+HTTP 200 | Rendition "thumbnail" rendered for a-0301.
+
+--- AC2f: hero attach on APPROVED story (VWO-005 F7, smallest fix) ---
+HTTP 200 | Asset a-0301 attached as hero. | status stays: approved
+
+--- AC2d: breaking-news publishes to the push fast channel (VWO-004 F6) ---
+HTTP 200 | Story st-0205 published (2/2 channels delivered). | jobs: [('ch-1', 'sent'), ('ch-6', 'sent')]
+
+--- AC2e: follow-up-note step name matches surface (VWO-004 F5) ---
+static catalog wording change; verified in commit diff (SCENARIO-CATALOG.md step 3 rename).
+
+=== battery complete ===
