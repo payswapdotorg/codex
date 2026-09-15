@@ -1,0 +1,16 @@
+[d004 10:16:17] note typed
+[d004 10:16:17] File menu opened
+[d004 10:16:19] Save As dialog: {"shown":true,"title":"Save note as…"}
+[d004 10:16:22] Save As completed; docname="close-test-note.txt"
+[d004 10:16:25] buffer dirtied: savestate="unsaved changes"
+[d004 10:16:27] close-confirmation dialog: {"shown":true,"title":"Unsaved changes"}
+[d004 10:16:44] after dismissal: BLOCKED
+INPUT TRANSCRIPT ORACLE: KEY-injections=6 POINTER-injections=18
+MODALITY: menu/dialog traversal (DEMONSTRATE) PASS
+=== oracle pulls (post-hoc) 10:16:44 ===
+C1-1 named-file-exact-bytes: PASS
+C1-2 unsaved-trailing-line-NOT-saved: PASS
+C2 dialog-evidence 02-file-menu-open.png: present
+C2 dialog-evidence 03-saveas-dialog-open.png: present
+C2 dialog-evidence 06-close-confirmation-dialog.png: present
+[d004 10:16:44] D004 run complete — evidence in /home/z/codex/docs/validation/evidence/vwo-012/nst-d004

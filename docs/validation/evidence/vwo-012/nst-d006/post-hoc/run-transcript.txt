@@ -1,0 +1,20 @@
+[d006 10:41:52] archive/ folder created (modal)
+[d006 10:41:57] select move-dest-note-2026-09-08.txt -> archive OK [popup 352x74 row_h=24]
+[d006 10:42:04] select move-dest-note-2026-09-09.txt -> archive OK [popup 352x74 row_h=24]
+[d006 10:42:10] select move-dest-note-2026-09-10.txt -> archive OK [popup 352x74 row_h=24]
+[d006 10:42:17] select move-dest-note-2026-09-11.txt -> archive OK [popup 352x74 row_h=24]
+[d006 10:42:23] select move-dest-note-2026-09-12.txt -> archive OK [popup 352x74 row_h=24]
+[d006 10:42:25] 5 week notes moved into archive/ (Move modal each)
+[d006 10:42:30] backup copy created (Copy modal)
+[d006 10:42:36] backup renamed to field-notes-week-37-backup.txt (Rename modal)
+[d006 10:42:38] delete confirmation gate: {"title":"Delete \"scratch-todo.txt\"?","body":"This will permanently delete \"scratch-todo.txt\" from field-notes.This action cannot be und"}
+[d006 10:42:40] scratch-todo.txt deleted (after confirm)
+INPUT TRANSCRIPT ORACLE: KEY-injections=7 POINTER-injections=83 (mode=any)
+MODALITY VERDICT: any PASS
+=== C1 oracle (post-hoc) 10:42:40 ===
+actual tree:   ['archive/note-2026-09-08.txt', 'archive/note-2026-09-09.txt', 'archive/note-2026-09-10.txt', 'archive/note-2026-09-11.txt', 'archive/note-2026-09-12.txt', 'field-notes-week-37-backup.txt', 'old-archive/note-2026-08-28.txt']
+expected tree: ['archive/note-2026-09-08.txt', 'archive/note-2026-09-09.txt', 'archive/note-2026-09-10.txt', 'archive/note-2026-09-11.txt', 'archive/note-2026-09-12.txt', 'field-notes-week-37-backup.txt', 'old-archive/note-2026-08-28.txt']
+C1-1 final-tree-equality: PASS
+C1-3 contents-preserved-in-renamed-backup: PASS
+C2-2 confirm-gate-screenshot: present
+[d006 10:42:40] D006 run complete

@@ -1,0 +1,80 @@
+10:37:42.320 KEY xdotool windowfocus --sync 2097155
+10:37:42.511 POINTER xdotool mousemove --sync 204 296
+10:37:42.665 POINTER xdotool click 1
+10:37:43.216 POINTER xdotool mousemove --sync 661 206
+10:37:43.371 POINTER xdotool click 1
+10:37:43.776 KEY xdotool key ctrl+a
+10:37:43.907 KEY xdotool type --delay 35 Coral Hardware
+10:37:44.321 KEY xdotool key Return
+10:37:44.719 POINTER xdotool mousemove --sync 333 297
+10:37:44.875 POINTER xdotool click 1
+10:37:45.407 POINTER xdotool mousemove --sync 661 206
+10:37:45.562 POINTER xdotool click 1
+10:37:45.968 KEY xdotool key ctrl+a
+10:37:46.100 KEY xdotool type --delay 35 48.50
+10:37:46.351 KEY xdotool key Return
+10:37:46.749 POINTER xdotool mousemove --sync 204 321
+10:37:46.904 POINTER xdotool click 1
+10:37:47.562 POINTER xdotool mousemove --sync 661 206
+10:37:47.720 POINTER xdotool click 1
+10:37:48.126 KEY xdotool key ctrl+a
+10:37:48.257 KEY xdotool type --delay 35 Metro Concrete
+10:37:48.669 KEY xdotool key Return
+10:37:49.111 POINTER xdotool mousemove --sync 333 322
+10:37:49.268 POINTER xdotool click 1
+10:37:49.819 POINTER xdotool mousemove --sync 661 206
+10:37:49.974 POINTER xdotool click 1
+10:37:50.379 KEY xdotool key ctrl+a
+10:37:50.512 KEY xdotool type --delay 35 612.00
+10:37:50.783 KEY xdotool key Return
+10:37:51.183 POINTER xdotool mousemove --sync 204 346
+10:37:51.337 POINTER xdotool click 1
+10:37:51.875 POINTER xdotool mousemove --sync 661 206
+10:37:52.030 POINTER xdotool click 1
+10:37:52.436 KEY xdotool key ctrl+a
+10:37:52.568 KEY xdotool type --delay 35 Rebar Supply Co
+10:37:52.999 KEY xdotool key Return
+10:37:53.406 POINTER xdotool mousemove --sync 340 347
+10:37:53.561 POINTER xdotool click 1
+10:37:54.096 POINTER xdotool mousemove --sync 661 206
+10:37:54.253 POINTER xdotool click 1
+10:37:54.658 KEY xdotool key ctrl+a
+10:37:54.791 KEY xdotool type --delay 35 275.25
+10:37:55.057 KEY xdotool key Return
+10:37:55.454 POINTER xdotool mousemove --sync 207 371
+10:37:55.610 POINTER xdotool click 1
+10:37:56.144 POINTER xdotool mousemove --sync 661 206
+10:37:56.299 POINTER xdotool click 1
+10:37:56.704 KEY xdotool key ctrl+a
+10:37:56.838 KEY xdotool type --delay 35 LiftIt Crane Svcs
+10:37:57.303 KEY xdotool key Return
+10:37:57.695 POINTER xdotool mousemove --sync 340 372
+10:37:57.851 POINTER xdotool click 1
+10:37:58.400 POINTER xdotool mousemove --sync 661 206
+10:37:58.556 POINTER xdotool click 1
+10:37:58.962 KEY xdotool key ctrl+a
+10:37:59.094 KEY xdotool type --delay 35 340.00
+10:37:59.361 KEY xdotool key Return
+10:37:59.769 POINTER xdotool mousemove --sync 207 396
+10:37:59.924 POINTER xdotool click 1
+10:38:00.477 POINTER xdotool mousemove --sync 661 206
+10:38:00.632 POINTER xdotool click 1
+10:38:01.037 KEY xdotool key ctrl+a
+10:38:01.175 KEY xdotool type --delay 35 Coral Hardware
+10:38:01.661 KEY xdotool key Return
+10:38:02.088 POINTER xdotool mousemove --sync 340 397
+10:38:02.243 POINTER xdotool click 1
+10:38:02.782 POINTER xdotool mousemove --sync 661 206
+10:38:02.938 POINTER xdotool click 1
+10:38:03.343 KEY xdotool key ctrl+a
+10:38:03.476 KEY xdotool type --delay 35 96.75
+10:38:03.725 KEY xdotool key Return
+10:38:04.128 POINTER xdotool mousemove --sync 340 421
+10:38:04.284 POINTER xdotool click 1
+10:38:04.815 POINTER xdotool mousemove --sync 661 206
+10:38:04.971 POINTER xdotool click 1
+10:38:05.382 KEY xdotool key ctrl+a
+10:38:05.513 KEY xdotool type --delay 35 =SUM(B2:B6)
+10:38:05.873 KEY xdotool key Return
+10:38:06.840 POINTER xdotool mousemove --sync 195 164
+10:38:06.995 POINTER xdotool click 1

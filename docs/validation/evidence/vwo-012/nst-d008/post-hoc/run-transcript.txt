@@ -1,0 +1,20 @@
+[d008 10:38:06] grid filled: 5 receipt rows + =SUM(B2:B6) in B7
+[d008 10:38:09] status bar after export click: "exported expense-sheet-week37.csv (total 1372.50)"
+[d008 10:38:09] exported file: /home/z/Downloads/expense-sheet-week37.csv
+INPUT TRANSCRIPT ORACLE: KEY-injections=34 POINTER-injections=46 (mode=HYBRID)
+MODALITY VERDICT: HYBRID PASS
+=== C1 oracle (post-hoc) 10:38:10 ===
+CSV file: /home/z/Downloads/expense-sheet-week37.csv (198 bytes)
+CSV rows: 7
+   ['vendor', 'amount', 'note']
+   ['Coral Hardware', '48.50', '']
+   ['Metro Concrete', '612.00', '']
+   ['Rebar Supply Co', '275.25', '']
+   ['LiftIt Crane Svcs', '340.00', '']
+   ['Coral Hardware', '96.75', '']
+   ['TOTAL', '1372.50', '=SUM(B2:B6)']
+five-rows-correct: PASS
+total-value: PASS
+C1-1 exported-CSV-content: PASS
+C2 formula-bar-screenshot: present
+[d008 10:38:10] D008 run complete

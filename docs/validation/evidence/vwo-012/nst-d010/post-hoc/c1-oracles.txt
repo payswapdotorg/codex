@@ -1,0 +1,7 @@
+=== oracle pulls (post-hoc) 10:41:23 ===
+C1-1 kill-before-save: kill at 2026-09-15T10:41:06.319Z — no file existed at kill time (verified pre-relaunch): PASS
+final note length: 319 expect 319
+pre-crash portion present: PASS
+C1-2 complete-note-byte-compare: PASS
+C2-3 exactly-one-saved-artifact: PASS
+C2-2 recovery-banner-screenshot: present

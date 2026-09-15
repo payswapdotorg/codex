@@ -1,0 +1,6 @@
+=== C1 oracle pulls (post-hoc) 09:59:09 ===
+saved note path: /tmp/nstd-workspace/team-notes/untitled.txt (534 chars)
+per-region values checked: name/surge/drivers/demand for 4 regions
+missing values: none — all present
+C1-1 note-contains-exact-region-numbers: PASS
+C1-3 clipboard-transcript-matches: PASS

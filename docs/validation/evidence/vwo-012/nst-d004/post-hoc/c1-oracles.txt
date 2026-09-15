@@ -1,0 +1,6 @@
+=== oracle pulls (post-hoc) 10:16:44 ===
+C1-1 named-file-exact-bytes: PASS
+C1-2 unsaved-trailing-line-NOT-saved: PASS
+C2 dialog-evidence 02-file-menu-open.png: present
+C2 dialog-evidence 03-saveas-dialog-open.png: present
+C2 dialog-evidence 06-close-confirmation-dialog.png: present

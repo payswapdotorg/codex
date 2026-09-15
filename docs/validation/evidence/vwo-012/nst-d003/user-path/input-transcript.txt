@@ -1,0 +1,21 @@
+09:59:00.013 POINTER xdotool windowsize 2097155 640 780
+09:59:00.015 POINTER xdotool windowmove 2097155 0 0
+09:59:00.018 POINTER xdotool windowsize 10485763 640 780
+09:59:00.020 POINTER xdotool windowmove 10485763 640 0
+09:59:01.418 POINTER xdotool windowfocus --sync 2097155
+09:59:01.824 POINTER xdotool mousemove --sync 35 532
+09:59:02.033 POINTER xdotool mousedown 1
+09:59:02.187 POINTER xdotool mousemove --sync 590 532
+09:59:02.294 POINTER xdotool mousemove --sync 590 776
+09:59:02.598 POINTER xdotool mouseup 1
+09:59:03.271 KEY xdotool key ctrl+c
+09:59:03.912 POINTER xdotool windowfocus --sync 10485763
+09:59:04.781 POINTER xdotool mousemove --sync 953 309
+09:59:04.986 POINTER xdotool click 1
+09:59:05.392 KEY xdotool type --delay 30 Weekly per-region numbers (copied from RidePilot ops):
+09:59:06.239 KEY xdotool key Return
+09:59:06.458 KEY xdotool key ctrl+v
+09:59:07.406 POINTER xdotool mousemove --sync 791 163
+09:59:07.564 POINTER xdotool click 1
+09:59:08.530 POINTER xdotool mousemove --sync 865 265
+09:59:08.686 POINTER xdotool click 1

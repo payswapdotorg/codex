@@ -1,0 +1,7 @@
+=== C1 oracle (post-hoc) 10:39:49 ===
+site-east-formwork: 800x600 (expect 800x600 template) PASS
+site-crane-b: 800x600 (expect 800x600 template) PASS
+site-level13-slab: 800x600 (expect 800x600 template) PASS
+site-safety-walk-sideways: 800x600 (expect 800x600 template) PASS
+C1-1 output-dimensions-match-template: PASS
+C2-1 visual-confirmation screenshots: 4 of 4 PASS

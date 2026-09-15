@@ -1,0 +1,35 @@
+10:39:19.992 KEY xdotool windowfocus --sync 2097155
+10:39:20.222 POINTER xdotool mousemove --sync 85 248
+10:39:20.377 POINTER xdotool click 1
+10:39:21.509 POINTER xdotool mousemove --sync 469 733
+10:39:21.665 POINTER xdotool click 1
+10:39:23.636 POINTER xdotool mousemove --sync 853 733
+10:39:23.791 POINTER xdotool click 1
+10:39:24.846 POINTER xdotool mousemove --sync 1027 733
+10:39:25.004 POINTER xdotool click 1
+10:39:26.999 POINTER xdotool mousemove --sync 85 204
+10:39:27.156 POINTER xdotool click 1
+10:39:28.291 POINTER xdotool mousemove --sync 469 733
+10:39:28.448 POINTER xdotool click 1
+10:39:30.385 POINTER xdotool mousemove --sync 853 733
+10:39:30.541 POINTER xdotool click 1
+10:39:31.579 POINTER xdotool mousemove --sync 1027 733
+10:39:31.734 POINTER xdotool click 1
+10:39:33.685 POINTER xdotool mousemove --sync 85 293
+10:39:33.840 POINTER xdotool click 1
+10:39:35.000 POINTER xdotool mousemove --sync 469 733
+10:39:35.155 POINTER xdotool click 1
+10:39:37.056 POINTER xdotool mousemove --sync 853 733
+10:39:37.212 POINTER xdotool click 1
+10:39:38.403 POINTER xdotool mousemove --sync 1027 733
+10:39:38.558 POINTER xdotool click 1
+10:39:40.495 POINTER xdotool mousemove --sync 85 337
+10:39:40.650 POINTER xdotool click 1
+10:39:41.782 POINTER xdotool mousemove --sync 692 733
+10:39:41.937 POINTER xdotool click 1
+10:39:43.676 POINTER xdotool mousemove --sync 469 733
+10:39:43.832 POINTER xdotool click 1
+10:39:45.732 POINTER xdotool mousemove --sync 853 733
+10:39:45.890 POINTER xdotool click 1
+10:39:46.925 POINTER xdotool mousemove --sync 1027 733
+10:39:47.080 POINTER xdotool click 1

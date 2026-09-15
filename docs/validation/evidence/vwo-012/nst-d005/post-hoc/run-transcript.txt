@@ -1,0 +1,19 @@
+[d005 10:53:27] SETUP: logged in as marco.silva (progress:create + asset upload)
+[d005 10:53:37] upload submitted — flash: "Photo a-0107 (\"site-photo-east-edge-2026-09-12.png\") stored for Harborview Tower."
+INPUT TRANSCRIPT ORACLE: KEY-injections=6 POINTER-injections=8 (mode=HYBRID)
+MODALITY VERDICT: HYBRID PASS
+C1a uploaded-asset-record: PASS
+  record: a-0107 site-photo-east-edge-2026-09-12.png checksum 714916f7 sizeKb 1850 by u-2
+[d005 10:53:43] report downloaded: /home/z/Downloads/harborview-tower-report.json
+[d005 10:53:53] select move-dest-weekly -> weekly OK [popup 378x170 row_h=24]
+[d005 10:53:54] report moved into weekly/ via Cabinet GUI (Move modal)
+INPUT TRANSCRIPT ORACLE: KEY-injections=6 POINTER-injections=24 (mode=HYBRID)
+MODALITY VERDICT: HYBRID PASS
+=== C1b oracle (post-hoc) 10:53:54 ===
+report size: 1600 bytes (non-trivial: True )
+checksum-of-payload stable across re-pull: PASS
+C1b report-in-weekly-stable: PASS
+C2 01-upload-form-filled.png: present
+C2 02-upload-confirmation.png: present
+C2 03-report-downloaded.png: present
+[d005 10:53:54] D005 run complete

@@ -1,0 +1,7 @@
+run: NST-D008 spreadsheet/table manipulation
+date-window: 2026-09-15T10:38:10Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+app: LedgerGrid purpose-built fixture :4202 (§5 note 4; server-side independent =SUM validation)
+input: INSTRUCT (cell selection + formula bar + export, keyboard+mouse)
+export: CSV download -> /home/z/Downloads (XDG default; chrome overwrites preset download dirs — recorded)

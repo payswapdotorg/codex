@@ -1,0 +1,7 @@
+run: NST-D006 GUI file management create/rename/move/copy/delete
+date-window: 2026-09-15T10:42:40Z
+base: main @ def56454acce47f5d14daf475511c427518d3cdc
+display: Xvfb :97 1280x800x24
+app: Cabinet purpose-built fixture :4204 (§5 note 4; rooted at the seeded field-notes tree)
+input: INSTRUCT (toolbar + modal dialogs; destructive delete behind a confirmation gate)
+tree: seeded by _fixtures/seed-workspace.sh (5 week notes + scratch + old-archive)

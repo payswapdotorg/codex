@@ -1,0 +1,30 @@
+10:53:19.575 KEY xdotool windowfocus --sync 2097155
+10:53:31.559 POINTER xdotool mousemove --sync 399 462
+10:53:31.565 POINTER xdotool click 1
+10:53:31.972 KEY xdotool key ctrl+a
+10:53:32.003 KEY xdotool type --delay 35 site-photo-east-edge-2026-09-12.png
+10:53:32.650 POINTER xdotool mousemove --sync 399 557
+10:53:32.654 POINTER xdotool click 1
+10:53:33.059 KEY xdotool type --delay 35 East edge guardrail replacement — today site photo
+10:53:33.978 POINTER xdotool mousemove --sync 399 652
+10:53:33.984 POINTER xdotool click 1
+10:53:34.288 KEY xdotool key ctrl+a
+10:53:34.320 KEY xdotool type --delay 30 1850
+10:53:34.559 POINTER xdotool mousemove --sync 191 700
+10:53:34.716 POINTER xdotool click 1
+10:53:41.117 POINTER xdotool mousemove --sync 372 308
+10:53:41.272 POINTER xdotool click 1
+10:53:47.340 POINTER xdotool mousemove --sync 490 300
+10:53:47.498 POINTER xdotool click 1
+10:53:47.761 POINTER xdotool click 1
+10:53:48.522 POINTER xdotool mousemove --sync 490 270
+10:53:48.528 POINTER xdotool click 1
+10:53:49.183 POINTER xdotool mousemove --sync 288 166
+10:53:49.339 POINTER xdotool click 1
+10:53:50.833 POINTER xdotool mousemove --sync 640 461
+10:53:51.038 POINTER xdotool click 1
+10:53:51.972 POINTER click-option move-dest-weekly popup=(451,478,378x170) row_h=24 idx=6 at 640,634 (attempt 1)
+10:53:52.140 POINTER xdotool mousemove --sync 640 634
+10:53:52.300 POINTER xdotool click 1
+10:53:53.231 POINTER xdotool mousemove --sync 693 520
+10:53:53.388 POINTER xdotool click 1

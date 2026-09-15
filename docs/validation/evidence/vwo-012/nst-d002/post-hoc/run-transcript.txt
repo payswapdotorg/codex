@@ -1,0 +1,24 @@
+[d002 09:54:19] media fixture reset
+pre-state OK: st-0203 draft/no-assets; st-0205 no-assets
+[d002 09:54:22] window id=2097155: Sign in — PressRoom - Google Chrome for Testing
+[d002 09:54:31] SETUP: keyboard login as diego.morales (section_editor, story:edit) — pre-run-window; no on-screen keyboard in fallback profile (recorded fidelity note)
+[d002 09:54:31] setup state: url=http://localhost:4104/?ok=Signed+in+as+Diego+Morales+%28section_editor%29.
+[d002 09:54:46] RUN 1 begins: st-0203 hero <- a-0303 (click-through navigation, mouse only)
+[d002 09:54:49] at desk: http://localhost:4104/desk
+[d002 09:54:51] at story: http://localhost:4104/stories/st-0203
+[d002 09:54:55] gallery scrolled (wheel); at http://localhost:4104/assets
+[d002 09:55:03] select run1-asset -> a-0303 (attempt 1) OK [popup 560x106 row_h=26]
+[d002 09:55:07] select run1-role -> hero (attempt 1) OK [popup 560x80 row_h=26]
+[d002 09:55:11] RUN 1 attach submitted — {"url":"http://localhost:4104/stories/st-0203?ok=Asset+a-0303+attached+as+hero","flash":"Asset a-0303 attached as hero."}
+[d002 09:55:11] RUN 2 begins: st-0205 hero <- a-0301 (different story, different photo — adaptation)
+[d002 09:55:16] at story 2: http://localhost:4104/stories/st-0205
+[d002 09:55:19] select run2-asset -> a-0301 (attempt 1) OK [popup 560x106 row_h=26]
+[d002 09:55:23] select run2-role -> hero (attempt 1) OK [popup 560x80 row_h=26]
+[d002 09:55:26] RUN 2 attach submitted — {"url":"http://localhost:4104/stories/st-0205?ok=Asset+a-0301+attached+as+hero","flash":"Asset a-0301 attached as hero."}
+INPUT TRANSCRIPT ORACLE (run window): POINTER-injections=66 KEY-injections=0
+MODALITY VERDICT: mouse-only PASS (zero key injections in run window)
+=== C1 oracle pulls (post-hoc) 09:55:36 ===
+st-0203 heroAssetId = ['a-0303'] (expect [a-0303 ferry-terminal-render.png])
+st-0205 heroAssetId = ['a-0301'] (expect [a-0301 harbor-bridge-aerial.jpg])
+C1 hero-both-runs: PASS
+[d002 09:55:36] D002 run complete — evidence in /home/z/codex/docs/validation/evidence/vwo-012/nst-d002
