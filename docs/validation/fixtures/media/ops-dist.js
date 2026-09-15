@@ -29,6 +29,11 @@ function requestRendition(ctx) {
   const b = ctx.body;
   const asset = find(ctx.state.assets, b.assetId);
   if (!asset) throw new R.AppError(404, 'asset_not_found', `Asset "${b.assetId}" does not exist.`);
+  if (ctx.failure === 'missing_asset') {
+    throw new R.AppError(404, 'missing_asset',
+      `Asset "${asset.id}" could not be resolved in the asset repository (simulated dangling reference).`,
+      { assetId: asset.id, simulated: true });
+  }
   if (ctx.failure === 'data_conflict') {
     throw new R.AppError(409, 'data_conflict', `Rendition request conflicts with an in-flight job for ${asset.id} (simulated).`, { assetId: asset.id, simulated: true });
   }

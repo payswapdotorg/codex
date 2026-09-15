@@ -1,0 +1,19 @@
+== RWO-010 environment identity ==
+Date (UTC): 2026-09-15T05:21Z
+Repo: payswapdotorg/codex, branch rwo-010/harness-alignment-batch
+Base commit: dfcb74171 (main, post-RWO-007 evidence-timestamps fix)
+Runtime: node (fixture apps are dependency-free Node HTTP servers; run-all.sh)
+Change surface (8 files, +16/-7):
+  docs/validation/fixtures/construction/seed.js  (+prq-5003, prqSeq 5002->5003)
+  docs/validation/fixtures/rideshare/seed.js     (ana.silva +ticket:resolve)
+  docs/validation/fixtures/media/seed.js         (+ch-6 news-push-alerts, kind push)
+  docs/validation/fixtures/media/ops-dist.js     (requestRendition missing_asset branch)
+  docs/validation/fixtures/media/server.js       (switch table: rendition binding)
+  docs/validation/fixtures/media/FAILURES.md     (switch table: rendition binding)
+  docs/validation/fixtures/media/ui.js           (attach form: +approved status)
+  docs/validation/scenarios/SCENARIO-CATALOG.md  (F5 step rename, wording only)
+No Rust, no protocol, no zst, no engine changes.
+Delivery mode: worker flight 1 (Task-tool) applied all six fixes then died at
+session boundary before verification; Tech-Lead audit-first completion
+(lesson-120 protocol) — audit found all six fixes correct against the WO;
+verification battery re-run live by TL.

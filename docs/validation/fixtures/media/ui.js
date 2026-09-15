@@ -91,7 +91,7 @@ function storyPage(ctx) {
     return W.tr([`<code>${esc(a.assetId)}</code> ${W.pill('info', a.role)}`, esc(asset.kind || '?'), esc(asset.name || '?'), esc(asset.credit || ''),
       (asset.renditions || []).map((r) => `${esc(r.name)}:${W.statusPill(r.status)}`).join(' ')]);
   }) : '<p class="muted">No assets attached (a hero image is required to publish).</p>';
-  const attachForm = can(ctx, 'story:edit') && ['draft', 'changes_requested', 'in_review'].includes(story.status) ? W.frm('/ui/stories/attach', [
+  const attachForm = can(ctx, 'story:edit') && ['draft', 'changes_requested', 'in_review', 'approved'].includes(story.status) ? W.frm('/ui/stories/attach', [
     W.hidden('storyId', story.id),
     W.fld('Asset', W.sel('assetId', s.assets.map((a) => [a.id, `${a.id} — ${a.name} (${a.kind})`]))),
     W.fld('Role', W.sel('role', [['hero', 'Hero (required to publish)'], ['inline', 'Inline'], ['video', 'Video']])),

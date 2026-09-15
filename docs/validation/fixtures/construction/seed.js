@@ -67,6 +67,8 @@ function build() {
       { id: 'prq-5002', projectId: 'p-103', item: 'Low-e glazing panels', qty: 300, unit: 'panel', unitCostUsd: 480,
         totalUsd: 144000, vendorId: 'c-3', status: 'po_issued', requestedById: 'u-1',
         approvals: [{ byId: 'u-1', decision: 'approve', note: 'Within budget envelope.', at: '2026-09-02T10:12:00Z' }], poNumber: 'po-2041', note: 'South facade replacement stock.' },
+      { id: 'prq-5003', projectId: 'p-102', item: 'Precast box culvert segments', qty: 60, unit: 'segment', unitCostUsd: 1450,
+        totalUsd: 87000, vendorId: 'c-1', status: 'submitted', requestedById: 'u-2', approvals: [], poNumber: null, note: 'Retaining wall drainage — north loop.' },
     ],
     purchaseOrders: [
       { id: 'po-2041', requestId: 'prq-5002', vendorId: 'c-3', totalUsd: 144000, status: 'issued', issuedById: 'u-1', at: '2026-09-02T10:15:00Z' },
@@ -96,7 +98,7 @@ function build() {
         text: 'Purchase request prq-5001 (High-tensile rebar) needs your decision.', status: 'delivered', createdAt: '2026-09-11T08:00:00Z' },
     ],
     events: [],
-    meta: { today: '2026-09-12', progressSeq: 4001, prqSeq: 5002, poSeq: 2041, invoiceSeq: 9002, safetySeq: 2002, assetSeq: 106, docSeq: 7003 },
+    meta: { today: '2026-09-12', progressSeq: 4001, prqSeq: 5003, poSeq: 2041, invoiceSeq: 9002, safetySeq: 2002, assetSeq: 106, docSeq: 7003 },
   };
 }
 

@@ -34,6 +34,7 @@ function build() {
       { id: 'ch-3', name: 'rss-feed', kind: 'syndication', licenseValidUntil: null },
       { id: 'ch-4', name: 'regional-syndication', kind: 'syndication', licenseValidUntil: '2027-06-30' },
       { id: 'ch-5', name: 'partner-app', kind: 'partner', licenseValidUntil: '2026-06-01' },
+      { id: 'ch-6', name: 'news-push-alerts', kind: 'push', licenseValidUntil: '2027-03-31' },
     ],
     assets: [
       { id: 'a-0301', kind: 'image', name: 'harbor-bridge-aerial.jpg', sizeMb: 4.2, width: 4096, height: 2304, credit: 'City Photo Desk', license: 'editorial',

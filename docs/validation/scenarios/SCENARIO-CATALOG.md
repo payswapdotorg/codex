@@ -284,8 +284,9 @@ primary-owner: VWO-004
   1. Sign in as `marco.silva`; open `/safety`.
   2. Fill the incident report form (severity, category, description) and
      submit; observe the new incident in the register.
-  3. Sign in as `sam.oconnell`; open the new incident; add a follow-up action
-     note.
+  3. Sign in as `sam.oconnell`; open the new incident; add the follow-up as
+     the close-with-resolution note (the fixture captures incident notes at
+     closure — there is no separate follow-up-note form).
   4. Close the incident (status investigating → closed); observe the closure.
   5. Codex Universal surface (INSTRUCT): describe the process ("foreman
      reports, safety officer investigates and closes within 48h, near-misses
