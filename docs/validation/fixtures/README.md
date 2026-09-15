@@ -82,6 +82,7 @@ Seven canonical switches exist in **every** family:
 Contract details (identical in all five apps):
 - switches take precedence over natural record state, so switch behavior is deterministic regardless of current state;
 - every failure is *observable*: distinct HTTP status + machine error code + (where meaningful) event-feed entry and/or persisted record (e.g. failed notification rows stay visible);
+- repelled operations are *auditable* (RWO-011): every HTTP 409/403/503 AppError — dedup replays, conflict/permission refusals, service-unavailability blocks — appends a typed `request.rejected` event to the feed (`data: {op, code, status, actor}`, plus `simulated: true` when switch-driven) before the error propagates, naming the matched op and the code that repelled it; validation 400s and 401/404 stay silent (they are not repelled attacks/races);
 - natural (non-simulated) equivalents exist for most switches and are documented per family in `FAILURES.md`.
 
 ## 5. Endpoints (per family)

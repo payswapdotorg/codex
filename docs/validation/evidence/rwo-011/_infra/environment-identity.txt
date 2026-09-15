@@ -1,0 +1,19 @@
+== RWO-011 environment identity ==
+Date (UTC): 2026-09-15T05:29Z
+Repo: payswapdotorg/codex, branch rwo-011/rejection-audit-events
+Base commit: f501d65fc (main, post-RWO-010 state commit)
+Runtime: node (fixture apps are dependency-free Node HTTP servers; run-all.sh)
+Change surface (2 files):
+  docs/validation/fixtures/_lib/runtime.js (shared request pipeline:
+    handle() hoists matched/user above the try; the catch block emits a typed
+    request.rejected event for every 409/403/503 AppError before propagation)
+  docs/validation/fixtures/README.md (event vocabulary: repelled operations
+    are auditable; 400/401/404 stay silent)
+No Rust, no protocol, no zst, no engine changes. No per-app fixture changes —
+the single shared emit site covers all five apps.
+Scope decision (documented): the WO's fix-scope parenthetical names 409/403,
+but AC3 requires the 503-refused upgrade to appear in the feed; the emit
+therefore covers 409/403/503 (all repelled-operation statuses; validation
+400s and 401/404 remain silent).
+Delivery mode: TL direct execution (rwo-007 precedent — single-file bounded
+scope with a shared-runtime blast radius).
