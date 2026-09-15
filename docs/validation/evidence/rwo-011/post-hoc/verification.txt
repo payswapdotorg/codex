@@ -1,0 +1,41 @@
+=== RWO-011 AC battery — 2026-09-15T05:29:05Z ===
+
+--- AC4: full ecosystem regression (verify-sweep) ---
+RESULT: 59 passed, 0 failed
+
+--- AC1: storm probe — 8 parallel identical driver applications (rideshare) ---
+  HTTP: 409 409 409 200 409 409 409 409 
+  request.rejected count: 7
+  - ev-0010 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0009 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0008 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0007 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0006 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0005 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+  - ev-0004 | actor: anonymous | Rejected POST /api/intake/apply — duplicate_event (HTTP 409) | simulated: None
+
+--- AC2: approval-race context (construction) ---
+  losing race — 2 parallel decides on prq-5003 (valid vendor c-1):
+  HTTP: 200 409 
+  stale re-submission on decisioned prq-5003:
+  HTTP: 409
+  permission-denied probe (marco.silva, no po:approve):
+  HTTP: 403
+  request.rejected count: 3
+  - ev-0010 | actor: marco.silva | Rejected POST /api/procurement/decide — permission_denied (HTTP 403) | simulated: None
+  - ev-0009 | actor: dana.reyes | Rejected POST /api/procurement/decide — data_conflict (HTTP 409) | simulated: None
+  - ev-0008 | actor: dana.reyes | Rejected POST /api/procurement/decide — data_conflict (HTTP 409) | simulated: None
+
+--- AC3: distribution-context blocks (marketplace) ---
+  503-refused upgrade (service_unavailable switch):
+  HTTP: 503
+  stale_entitlement block (switch):
+  HTTP: 409
+  data_conflict (natural stale expectedCurrentVersion):
+  HTTP: 409
+  request.rejected count: 3
+  - ev-0005 | actor: petra.voss | Rejected POST /api/installs/upgrade — data_conflict (HTTP 409) | simulated: None
+  - ev-0004 | actor: petra.voss | Rejected POST /api/installs/upgrade — stale_entitlement (HTTP 409) | simulated: True
+  - ev-0003 | actor: petra.voss | Rejected POST /api/installs/upgrade — service_unavailable (HTTP 503) | simulated: True
+
+=== battery complete ===

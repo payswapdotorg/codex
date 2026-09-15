@@ -429,10 +429,14 @@ function createApp(config) {
     const url = new URL(req.url, `http://localhost:${config.port}`);
     const method = req.method === 'HEAD' ? 'GET' : req.method;
     const pathname = url.pathname.length > 1 && url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
+    // Hoisted so the rejection-audit emit (RWO-011) can name the matched op
+    // and actor even when the error propagated before assignment completed.
+    let matched = null;
+    let user = null;
     try {
       const failure = failureFor(req, url);
-      const user = userFor(req, url);
-      let matched = null, params = null;
+      user = userFor(req, url);
+      let params = null;
       for (const r of routes) {
         params = matchRoute(r, method, pathname);
         if (params) { matched = r; break; }
@@ -465,6 +469,31 @@ function createApp(config) {
     } catch (e) {
       const err = e instanceof AppError ? e : new AppError(500, 'internal_error', String((e && e.message) || e));
       if (!(e instanceof AppError)) console.error('[runtime] internal error:', e);
+      // RWO-011: repelled operations must be durably auditable. Every 409/403/503
+      // AppError — dedup replays, conflict/permission refusals, service-unavailability
+      // blocks — records a typed `request.rejected` event before the error propagates
+      // (VWO-007 F2, VWO-008 F6, VWO-009 F3). Additive by design: the idempotency
+      // ledger, success-path events, and natural record state are unchanged; the
+      // audit emit can never mask the original error. Validation 400s and 401/404
+      // stay silent (they are not repelled attacks/races).
+      if (err.status === 409 || err.status === 403 || err.status === 503) {
+        try {
+          const opKey = matched ? (matched.opKey || `${matched.method} ${matched.pattern}`) : `${method} ${pathname}`;
+          const actor = (user && user.username) || 'anonymous';
+          pushEvent(store.state, actor, 'request.rejected', {
+            subject: `op:${opKey}`,
+            summary: `Rejected ${opKey} — ${err.code} (HTTP ${err.status})`,
+            data: {
+              op: opKey,
+              code: err.code,
+              status: err.status,
+              actor,
+              simulated: err.extra && err.extra.simulated ? true : undefined,
+            },
+          });
+          store.save();
+        } catch { /* ignore — the audit emit must never mask the original error */ }
+      }
       try { store.save(); } catch { /* ignore */ }
       const isApi = pathname.startsWith('/api') || pathname === '/healthz';
       if (err.code === 'unknown_failure_switch' || isApi) {
