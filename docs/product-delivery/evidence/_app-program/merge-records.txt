@@ -1,0 +1,11 @@
+App-launch program merges 2026-09-15T19:40Z:
+APP-002 machinery PR #50 (merge ff936ca5de) · CI hotfix PR #51 (merge 23b7f6c27 = tag rust-v0.1.0) · final delivery PR #53 (merge df9668680)
+
+Release: rust-v0.1.0 → 23b7f6c27, published 2026-09-15T18:34:56Z by run 34997644588 (success), 34 assets.
+Post-merge validation on the published artifacts:
+APP-001 smoke (release binary): RESULT: 13 passed, 0 failed (evidence/app-001/run-20260915T183801Z)
+APP-003 fresh-machine user path: RESULT: 22 passed, 0 failed (evidence/app-003/run-20260915T185129Z)
+Package sha256 verified against published manifest: 4a6e7e9e2ecfbe3d86925bb877ce7751c30cfbd3d901ebcf1544d2c7e69b54d1 (x86_64, 128,736,412 bytes)
+
+Program verdict: DOWNLOADABLE_AND_LAUNCHABLE (APP-RELEASE-REPORT §14, all gate boxes checked).
+All four APP work orders ACCEPTED. Remaining roadmap: VWO-016 (held-out; operator-gated per catalog §7) — not part of the app-launch program.
