@@ -1,0 +1,17 @@
+$ DEMO_HINTS=$(curl -s http://localhost:4101/api/demo-hints)   # the product's credential binding path
+$ PRIYA_PASS=$(echo $DEMO | python3 -c '...extract priya.nair password...')   # credential stays in the environment, never in source/evidence
+$ curl -s -X POST /login -d username=priya.nair -d password=***REDACTED*** -c cookiejar
+login HTTP 303
+$ curl -s -b cookiejar -X POST /api/invoices/approve -d invoiceId=inv-9001 ...
+{
+  "ok": true,
+  "message": "Invoice inv-9001 approved for payment.",
+  "redirect": "/procurement",
+  "invoice": {
+    "id": "inv-9001",
+    "vendorId": "c-1",
+    "poNumber": "po-2038",
+    "amountUsd": 182400,
+    "status": "approved",
+    "dueDate": "2026-10-01",
+    "note": "Concrete deliveries

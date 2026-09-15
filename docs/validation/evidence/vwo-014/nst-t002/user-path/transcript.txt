@@ -1,0 +1,20 @@
+$ pgrep -f 'node.*server.js' (process listing)
+2443 node construction/server.js --port 4101
+2445 node rideshare/server.js --port 4103
+2447 node media/server.js --port 4104
+2449 node marketplace/server.js --port 4105
+2458 node software/server.js --port 4102
+$ curl health check on 4103 (wedge confirmed by timeout)
+HEALTH TIMEOUT — wedged (SIGSTOP confirmed)
+$ kill -CONT then clean restart: kill <pid>; relaunch rideshare
+relaunched rideshare on :4103
+{
+  "ok": true,
+  "family": "rideshare",
+  "app": "RidePilot",
+  "port": 4103,
+  "version": "1.0.0",
+  "uptimeSec": 2,
+  "events": 4,
+  "resets": 1
+} <- health OK after restart

@@ -1,0 +1,3 @@
+summary lines: 3 | distinct types: 3
+C1-1 counts-equal-independent-recount: PASS
+C1-2 real-shell-pipeline: PASS (curl | python transcript captured)

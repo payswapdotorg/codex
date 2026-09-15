@@ -1,0 +1,3 @@
+run: NST-T004 structured-data reshape
+date-window: 2026-09-15T11:22:44Z
+source: SiteBuild project-detail APIs (the fixture exposes purchase requests per project; no /api/procurement route exists — clone wins, recorded)

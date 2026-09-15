@@ -1,0 +1,4 @@
+$ curl -s http://localhost:4104/api/events | python3 -c '...type counts...'
+auth.login=1
+story.asset_attached=2
+world.reset=1

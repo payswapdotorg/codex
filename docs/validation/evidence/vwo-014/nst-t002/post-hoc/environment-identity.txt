@@ -1,0 +1,3 @@
+run: NST-T002 process inspection and service restart
+date-window: 2026-09-15T11:23:11Z
+target: the rideshare fixture (wedged via SIGSTOP — the controlled wedge); restart = kill + relaunch from run-all

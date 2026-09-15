@@ -1,0 +1,19 @@
+$ bash pipeline.sh (per-region pulls; stale checkpoint; exactly-once)
+STALE CHECKPOINT DETECTED (run=NONE != 20260915T112833Z) — superseding, not trusting
+rg-1=1
+rg-2=2
+rg-3=0
+rg-4=1
+PIPELINE DONE
+region,count
+rg-1,1
+rg-2,2
+rg-3,0
+rg-4,1
+
+=== the service hiccup (armed 503 on a state-changing ops call, once) + recovery ===
+login HTTP 303
+$ POST /ui/regions/surge?failure=service_unavailable (armed once)
+ <- 503 observed
+$ retry cleanly (no switch)
+retry HTTP 303

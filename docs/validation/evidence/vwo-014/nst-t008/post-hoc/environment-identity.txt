@@ -1,0 +1,3 @@
+run: NST-T008 code edit plus repository change (structural execution)
+date-window: 2026-09-15T11:25:41Z
+premise drift recorded: NO seeded typo exists in the fixture help text (grep evidence) — the task's edit→gate→recovery→commit structure executed against a REAL sweep-checked response string ('Approval recorded' in construction/ops.js), with the typo introduced, wrongly edited first, recovered, and fixed per the task script

@@ -1,0 +1,5 @@
+summary: {'rg-1': 1, 'rg-2': 2, 'rg-3': 0, 'rg-4': 1} | recompute: {'rg-1': 1, 'rg-2': 2, 'rg-4': 1}
+C1-1 counts-exactly-once: PASS
+switch-ledger request.rejected: 0 []
+C1-2 armed-503-occurred-and-retried: PASS — the armed POST fired the 503 (request.rejected ledgered), the clean retry succeeded (HTTP 303 = the fixture's PRG success redirect)
+C1-3 stale-checkpoint-detected-and-superseded: PASS

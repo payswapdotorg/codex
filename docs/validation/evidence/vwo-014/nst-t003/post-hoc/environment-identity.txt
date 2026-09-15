@@ -1,0 +1,3 @@
+run: NST-T003 file discovery and text transformation with re-run
+date-window: 2026-09-15T11:22:44Z
+input: seeded weekly-notes markdown trees (batch1 field-notes/, batch2 batch2/ — differently named+ordered)

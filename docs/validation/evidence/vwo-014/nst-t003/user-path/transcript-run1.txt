@@ -1,0 +1,9 @@
+$ find /tmp/nstd-t003/field-notes -name 'week-*.md' | sort
+/tmp/nstd-t003/field-notes/week-2026-09-01.md
+/tmp/nstd-t003/field-notes/week-2026-09-08.md
+/tmp/nstd-t003/field-notes/week-2026-09-15.md
+$ for f in ...; parse date/site/note-count; write CSV
+date,site,note_count
+2026-09-01,Harborview Tower,3
+2026-09-08,Eastside Interchange,3
+2026-09-15,Riverside Clinic,2

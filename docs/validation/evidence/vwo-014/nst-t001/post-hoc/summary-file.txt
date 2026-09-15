@@ -1,0 +1,3 @@
+auth.login=1
+story.asset_attached=2
+world.reset=1

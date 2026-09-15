@@ -1,0 +1,3 @@
+CSV rows: [['prq-5001', 'c-2', '1104000', 'submitted'], ['prq-5003', 'c-1', '87000', 'submitted']]
+C1-1 rows-equal-independent-recompute: PASS
+C1-2 sorted-descending-by-amount: PASS

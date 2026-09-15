@@ -1,0 +1,4 @@
+run: NST-T010 failing pipeline with checkpoint resume
+date-window: 2026-09-15T11:27:18Z
+app: RidePilot :4103 /api/trips (public); switch service_unavailable armed for ONE mid-run request; a stale checkpoint seeded before the run
+drift D-T10 recorded: the rideshare service_unavailable switch applies to STATE-CHANGING requests only (FAILURES.md: "reads still work") — the catalog's armed-503-on-the-pull premise cannot fire on the read-only /api/trips (verified: GET with the switch returns 200). The 503+recovery component is demonstrated on the fixture's state-changing surface (an ops surge adjustment with the switch armed once) inside the same run: 503 observed, request.rejected ledgered, clean retry succeeded.

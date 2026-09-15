@@ -1,0 +1,3 @@
+run: NST-T009 API-first task with CLI credential binding
+date-window: 2026-09-15T11:27:17Z
+app: SiteBuild :4101 — priya.nair (finance_accountant, invoice:approve); credential from the product's approved binding path (/api/demo-hints — the fixture's documented credential surface); NEVER hard-coded in the workflow source (read at run time into an env var)
