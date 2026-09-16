@@ -161,6 +161,7 @@ members = [
     "workflow-distribution",
     "resource-providers",
     "workflow-durable",
+    "pack-contracts",
 ]
 resolver = "2"
 
@@ -309,6 +310,7 @@ codex-utils-rustls-provider = { path = "utils/rustls-provider" }
 codex-utils-sandbox-summary = { path = "utils/sandbox-summary" }
 codex-worktree = { path = "worktree" }
 codex-workflow-contracts = { path = "workflow-contracts" }
+codex-pack-contracts = { path = "pack-contracts" }
 codex-workflow-forge = { path = "workflow-forge" }
 codex-workflow-distribution = { path = "workflow-distribution" }
 codex-eval-compat = { path = "eval-compat" }
