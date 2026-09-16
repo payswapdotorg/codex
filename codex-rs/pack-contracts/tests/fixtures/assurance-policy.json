@@ -1,0 +1,9 @@
+{
+  "modelPinning": {
+    "kind": "required",
+    "pin": {
+      "digest": "sha256:3202f2ba6a0e45c39adb639881393e7b4028689acbbd8235bd775394ced35cbd",
+      "model": "fixture-reasoner"
+    }
+  }
+}

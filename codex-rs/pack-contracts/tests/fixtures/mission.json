@@ -1,0 +1,29 @@
+{
+  "author": {
+    "kind": "user",
+    "subject": "org:fixture"
+  },
+  "contextModel": {
+    "notes": [
+      {
+        "statement": "Fixture region is active."
+      }
+    ]
+  },
+  "hardConstraints": [
+    {
+      "statement": "Never store credentials in pack artifacts."
+    }
+  ],
+  "id": "fixture-mission",
+  "preferences": [],
+  "statement": "Run fixture operations end to end.",
+  "successMeasures": [],
+  "valueModel": {
+    "objectives": [
+      {
+        "statement": "Deliver verified outcomes first."
+      }
+    ]
+  }
+}

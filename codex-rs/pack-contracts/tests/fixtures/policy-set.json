@@ -1,0 +1,34 @@
+{
+  "constitution": {
+    "protectedInvariants": [
+      "platformConstitution",
+      "authorization",
+      "credentials",
+      "evidence",
+      "security"
+    ],
+    "rules": [
+      {
+        "auditRequirement": {
+          "statement": "Every fixture promotion records an audit entry."
+        }
+      }
+    ]
+  },
+  "policies": [
+    {
+      "authorityBoundary": {
+        "governs": "How fixture dependencies may be updated.",
+        "retainedAuthorities": [
+          "workflowTransitions",
+          "credentials",
+          "evidence"
+        ]
+      },
+      "scope": "dependencyUpdates",
+      "statements": [
+        "Dependency updates require a new candidate revision."
+      ]
+    }
+  ]
+}

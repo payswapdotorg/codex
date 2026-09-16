@@ -1,0 +1,132 @@
+{
+  "dependencyLock": {
+    "entries": {
+      "capability:fixture_capability": {
+        "contentDigest": "sha256:46ab698fc75f5b9ceac0d13de8dee9f32356b9aea9573699750460d5f337ab8c",
+        "key": "capability:fixture_capability",
+        "resolved": {
+          "capability": "navigate_web"
+        }
+      },
+      "workflow:fixture_workflow": {
+        "contentDigest": "sha256:84d4683dbeadbc7278baa4cfaa74249d8d37ebaeac5de5d12da43483b94f2915",
+        "key": "workflow:fixture_workflow",
+        "resolved": {
+          "workflowVersion": "sha256:d2818deab82648771abd77b36089477a8cf5c82876fb9ab2f69221c50b8bf6a5"
+        }
+      }
+    }
+  },
+  "dependencyLockDigest": "sha256:436dec72e55616eae319d977bd595724178d3c6163b7ea7f8c76abe22e360b02",
+  "mission": {
+    "author": {
+      "kind": "user",
+      "subject": "org:fixture"
+    },
+    "contextModel": {
+      "notes": [
+        {
+          "statement": "Fixture region is active."
+        }
+      ]
+    },
+    "hardConstraints": [
+      {
+        "statement": "Never store credentials in pack artifacts."
+      }
+    ],
+    "id": "fixture-mission",
+    "preferences": [],
+    "statement": "Run fixture operations end to end.",
+    "successMeasures": [],
+    "valueModel": {
+      "objectives": [
+        {
+          "statement": "Deliver verified outcomes first."
+        }
+      ]
+    }
+  },
+  "missionDigest": "sha256:c7d867c2127109a4ec8fa120496573616b6f3d9f3359604e270a26c8afa90081",
+  "packId": "fixture",
+  "parentRevision": {
+    "label": "weekly baseline",
+    "revision": "sha256:eeb1c7a5efaf7055cff8f9611f5cbd796811d4606e7a2aa1aea411879e1352d9"
+  },
+  "policyDigest": "sha256:efac36b6c4261948a5b43c3507eb1249b1d4c07f09779173e5e393537e8ffb5b",
+  "policySet": {
+    "constitution": {
+      "protectedInvariants": [
+        "platformConstitution",
+        "authorization",
+        "credentials",
+        "evidence",
+        "security"
+      ],
+      "rules": [
+        {
+          "auditRequirement": {
+            "statement": "Every fixture promotion records an audit entry."
+          }
+        }
+      ]
+    },
+    "policies": [
+      {
+        "authorityBoundary": {
+          "governs": "How fixture dependencies may be updated.",
+          "retainedAuthorities": [
+            "workflowTransitions",
+            "credentials",
+            "evidence"
+          ]
+        },
+        "scope": "dependencyUpdates",
+        "statements": [
+          "Dependency updates require a new candidate revision."
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "parentRevision": "sha256:eeb1c7a5efaf7055cff8f9611f5cbd796811d4606e7a2aa1aea411879e1352d9",
+    "producer": {
+      "kind": "controlPlane",
+      "plane": "pack-control-plane"
+    }
+  },
+  "revisionId": "sha256:250e388c9f60e4b8fec41c38d82f105d30e4adb26bfc008259878848a12c79ea",
+  "semanticVersion": "1.3.0",
+  "systemState": {
+    "capabilityRefs": [
+      {
+        "capability": "navigate_web",
+        "constraint": "headless browser session"
+      }
+    ],
+    "evaluationRefs": [
+      "sha256:be86c1119f87ad02ae34833240be1a6f56e1f723bca69fa3a80647a14137e853"
+    ],
+    "evidenceRefs": [
+      "sha256:c4f56dbc1faa1a859be2f98a71fe683798b83d01f3e41fa27399d722b59bd481"
+    ],
+    "policyRefs": [
+      {
+        "policyId": "sha256:c1902f5fb6fa9d35697e14fdf1de912bc1b99c233a2785f502abfaf6fbf99b05",
+        "validatedContentDigest": "sha256:dca1bb103e849aa2bbf45396a231d1fd0ba3759fe794d870e7218fc36557ed3a"
+      }
+    ],
+    "rollbackCheckpoint": {
+      "reason": "superseded baseline",
+      "stateDigest": "sha256:bc6d33b4a661a7f5fa45ce9f2b9855b02bb022262efbdeab401ef8c46b4e9b81",
+      "targetRevision": "sha256:67236c495e1b4a2bd84558dde5111a864a3db3eeea5cebf4c43258a63313f306"
+    },
+    "workflowVersionRefs": [
+      {
+        "role": "fixture primary workflow",
+        "workflowVersionId": "sha256:d2818deab82648771abd77b36089477a8cf5c82876fb9ab2f69221c50b8bf6a5"
+      }
+    ]
+  },
+  "systemStateDigest": "sha256:848af68ffafc572bbf4cbda057aa3546de32ab5005e6e6cbfb5f9c82dd15677e"
+}
