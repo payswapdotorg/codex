@@ -76,3 +76,4 @@ pub use identity::*;
 pub use mission::*;
 pub use policy::*;
 pub use revision::*;
+pub use system_state::*; (feat(pack-contracts): PACK-002 pack system state with candidate/promoted revision contracts)
