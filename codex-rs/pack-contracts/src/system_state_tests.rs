@@ -219,6 +219,7 @@ fn base_content() -> PackRevisionContent {
         policy_set: policy_set_fixture(),
         dependency_lock: covering_lock(),
         system_state: simple_state(),
+        composition: None,
     }
 }
 

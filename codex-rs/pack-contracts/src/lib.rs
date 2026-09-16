@@ -34,6 +34,7 @@
 //! revision       ── pack revision identity tuple, compatibility   (PACK-001)
 //! system_state   ── PackSystemState, candidate/promoted revisions (PACK-002)
 //! assurance      ── policy-scoped assurance / determinism         (PACK-003)
+//! composition    ── two-parent pack composition contracts         (PACK-005)
 //! ```
 //!
 //! ## Reused Universal contracts
@@ -55,6 +56,7 @@
 #![deny(missing_docs)]
 
 mod assurance;
+mod composition;
 mod constitution;
 mod dependency;
 mod error;
@@ -69,6 +71,7 @@ mod system_state;
 // revision; PACK-002: system_state; PACK-003: assurance) add their re-exports
 // below, keeping modules private and the public API explicitly exported.
 pub use assurance::*;
+pub use composition::*;
 pub use constitution::*;
 pub use dependency::*;
 pub use error::*;

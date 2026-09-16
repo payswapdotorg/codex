@@ -82,6 +82,12 @@ pub struct PackRevisionIdentity {
     /// The revision this revision builds on, or `None` for a root revision.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parent_revision: Option<PackRevisionId>,
+    /// Digest of the two-parent composition record (PACK-005), present only
+    /// on composed revisions. Absent on every non-composed revision, so
+    /// legacy identity tuples and their digests are byte-identical to
+    /// before composition existed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition_digest: Option<ContentDigest>,
 }
 
 impl PackRevisionIdentity {
