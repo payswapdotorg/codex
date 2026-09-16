@@ -1,10 +1,10 @@
 # Codex Universal Architecture Lock
 
-**Version:** 0.3.0
+**Version:** 0.4.0
 **Status:** FROZEN
 **Effective base:** `4b0d9669cc46ba97bf85fa6312431b630d80498d`
-**Change record:** `ARCHITECTURE-CHANGE-REQUEST-001.md`, `ARCHITECTURE-CHANGE-REQUEST-002.md`
-**Supersedes:** `0.2.0`
+**Change record:** `ARCHITECTURE-CHANGE-REQUEST-001.md`, `ARCHITECTURE-CHANGE-REQUEST-002.md`, `ARCHITECTURE-CHANGE-REQUEST-003.md`
+**Supersedes:** `0.3.0`
 
 ## Frozen decisions
 
@@ -36,11 +36,16 @@
 26. **Assurance and determinism are policy-scoped.** Pack execution can require different levels of determinism, replay, approval, evidence, model pinning, dependency pinning, and environment pinning without making the entire platform globally deterministic.
 27. **Pack composition is explicit and provenance-bearing.** Material conflicts in identity, types, dependencies, capabilities, policies, or authority are errors unless resolved by an explicit governed decision.
 28. **Pack evolution is a future governed control-plane loop.** Observe, diagnose, hypothesize, candidate-state construction, assurance, experiment, promote/rollback, and learning may be implemented later without changing Pack authority boundaries.
+29. **Universal client portability is first-class.** Agent, Workflow, Pack, Evidence, and related semantics are exposed through versioned client/application contracts so desktop, web, mobile, browser-extension, VS Code/IDE, and future device/remote clients can be added as bounded adapters rather than alternate runtimes.
+30. **Client and execution adapters are distinct concepts.** A client adapter presents Universal semantics to a host/user; an execution adapter provides an environment in which workflow steps operate. A surface may implement both, but neither gains semantic authority by doing so.
+31. **Client-specific UX may differ while semantic contracts remain shared.** New clients should primarily add presentation, host integration, authentication/session handling, protocol bindings, capability negotiation, and packaging. They must not reimplement durable Workflow/Pack semantics or authority.
+32. **Cross-client concerns are explicit contracts.** Version negotiation, capabilities, streaming, cancellation, reconnect/resume, bounded queues/frames, authorization, error taxonomy, redaction, and compatibility are first-class application-protocol concerns.
 
 ## Intentionally unfrozen implementation choices
 
 - exact Rust crate split for workflow/model contracts;
 - exact Rust crate split for Pack contracts;
+- exact client/application protocol transport implementation;
 - storage backend and deployment topology;
 - exact browser/computer-use integration mechanism where multiple Codex-native mechanisms exist;
 - Git forge abstraction implementation beyond GitHub;
@@ -48,6 +53,9 @@
 - Pack registry/marketplace topology;
 - marketplace/monetization settlement implementation;
 - mobile runtime implementation;
+- web client implementation;
+- browser-extension implementation;
+- VS Code/IDE extension implementation;
 - model routing algorithm;
 - persistent memory implementation;
 - Pack architecture-search algorithms;
