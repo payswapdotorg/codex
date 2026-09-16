@@ -6,6 +6,7 @@
 //! (promotion, rollback) and execution failures are owned by later Pack work
 //! orders and must surface through their own error types.
 
+use codex_workflow_contracts::WorkflowContractError;
 use thiserror::Error;
 
 /// A failure produced while constructing, validating, or verifying Pack
@@ -51,6 +52,14 @@ pub enum PackContractError {
         reason: String,
     },
 
+    /// A pack dependency lock does not cover the declared dependencies, or a
+    /// resolution contradicts its declaration.
+    #[error("incomplete pack dependency lock: {reason}")]
+    IncompleteDependencyLock {
+        /// Which declared dependency is missing or inconsistent.
+        reason: String,
+    },
+
     /// A policy requirement conflicted with another policy or with platform
     /// invariants.
     #[error("pack policy conflict: {reason}")]
@@ -71,6 +80,39 @@ pub enum PackContractError {
 impl From<serde_json::Error> for PackContractError {
     fn from(source: serde_json::Error) -> Self {
         Self::Serialization { source }
+    }
+}
+
+impl From<WorkflowContractError> for PackContractError {
+    /// Converts failures of the reused Universal contract machinery
+    /// ([`codex_workflow_contracts`]) into the Pack contract error surface.
+    ///
+    /// Pack contracts reuse content addressing, semantic versions, and
+    /// dependency identities from workflow contracts; only identifier,
+    /// digest, dependency-lock, and serialization failures can escape that
+    /// machinery into this crate. Any other workflow-contract failure is
+    /// preserved verbatim as a digest failure so no information is lost if
+    /// the reused surface ever widens.
+    fn from(error: WorkflowContractError) -> Self {
+        match error {
+            WorkflowContractError::InvalidIdentifier {
+                kind,
+                value,
+                reason,
+            } => Self::InvalidIdentifier {
+                kind,
+                value,
+                reason,
+            },
+            WorkflowContractError::InvalidDigest { reason } => Self::InvalidDigest { reason },
+            WorkflowContractError::IncompleteDependencyLock { reason } => {
+                Self::IncompleteDependencyLock { reason }
+            }
+            WorkflowContractError::Serialization { source } => Self::Serialization { source },
+            other => Self::InvalidDigest {
+                reason: other.to_string(),
+            },
+        }
     }
 }
 

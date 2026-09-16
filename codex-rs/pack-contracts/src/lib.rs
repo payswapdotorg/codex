@@ -31,6 +31,7 @@
 //! constitution   ── Pack Constitution invariants                 (PACK-001)
 //! policy         ── Pack Policy records                           (PACK-001)
 //! dependency     ── Pack dependencies and dependency locks        (PACK-001)
+//! revision       ── pack revision identity tuple, compatibility   (PACK-001)
 //! system_state   ── PackSystemState, candidate/promoted revisions (PACK-002)
 //! assurance      ── policy-scoped assurance / determinism         (PACK-003)
 //! ```
@@ -60,11 +61,18 @@ mod error;
 mod identity;
 mod mission;
 mod policy;
+mod revision;
 mod system_state;
 
 // The identity and error foundations are complete in this scaffold. The
-// worker-owned modules (PACK-001: mission, constitution, policy, dependency;
-// PACK-002: system_state; PACK-003: assurance) add their re-exports here as
-// they land, keeping modules private and the public API explicitly exported.
+// worker-owned modules (PACK-001: mission, constitution, policy, dependency,
+// revision; PACK-002: system_state; PACK-003: assurance) add their re-exports
+// here as they land, keeping modules private and the public API explicitly
+// exported.
+pub use constitution::*;
+pub use dependency::*;
 pub use error::*;
 pub use identity::*;
+pub use mission::*;
+pub use policy::*;
+pub use revision::*;
