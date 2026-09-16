@@ -1,9 +1,9 @@
 # Codex Universal Architecture
 
-**Status:** FROZEN — Version 0.2.0
+**Status:** FROZEN — Version 0.3.0
 **Parent:** upstream OpenAI Codex runtime.
-**Supersedes:** 0.1.0-bootstrap via `ARCHITECTURE-CHANGE-REQUEST-001.md`.
-**Product objective:** Codex-compatible agent runtime + model portability + a Git-native, multi-environment workflow platform.
+**Supersedes:** 0.2.0 via `ARCHITECTURE-CHANGE-REQUEST-002.md`.
+**Product objective:** Codex-compatible agent runtime + model portability + a Git-native, multi-environment workflow platform + governed Pack/system-state construction and evolution.
 
 ## 1. System mission
 
@@ -36,8 +36,16 @@ CLI | IDE | Desktop | Web | SDK | Automation
                  |      +---------+----------+
                  |                |
                  |        +-------v--------+
-                 |        | Execution      |
-                 +------->| Plane          |
+                 |        | Pack / System  |
+                 +------->| State Platform |
+                          | mission/state  |
+                          | policies/eval  |
+                          | composition    |
+                          +-------+--------+
+                                  |
+                          +-------v--------+
+                          | Execution      |
+                          | Plane          |
                           | browser        |
                           | computer/desk  |
                           | terminal       |
@@ -67,9 +75,15 @@ Owns workflow semantics: definitions, immutable semantic versions, workflow repo
 
 The workflow control plane is the sole authority for legal durable workflow transitions. LLMs and execution adapters may propose or perform actions but cannot mutate workflow meaning directly.
 
+### Pack / System-State Platform
+
+Owns the governed Pack abstraction above Workflow. It owns Pack identity/revision, mission/value/context references, Pack Constitution and Pack Policy, system-state composition, Pack-to-WorkflowVersion references, domain/capability dependency declarations, evaluation/assurance references, and governed candidate/promoted state boundaries.
+
+The Pack layer is not a second runtime. It cannot create a second agent runtime, workflow engine, authorization authority, credential authority, or evidence authority. Pack-generated agents, LLMs, and workers remain proposal/reasoning actors rather than semantic authorities.
+
 ### Execution Plane
 
-Owns actual interaction with supported environments and normalizes observations/results. It must never become workflow semantic authority.
+Owns actual interaction with supported environments and normalizes observations/results. It must never become workflow or Pack semantic authority.
 
 ### Evidence Plane
 
@@ -420,3 +434,120 @@ Architecture changes require an Architecture Change Request and a new immutable 
 - Hard-coding workflow semantics to a specific model provider.
 - Treating workflows as prompts without versioned semantics.
 - Silent mutation of published workflows.
+
+## 20. Pack / System-State architecture
+
+A **Pack** is a governed, versioned system state organized around an explicit user/organization mission, value model, context model, hard constraints, and success measures.
+
+A Pack may reference and compose:
+
+```text
+mission / value / context
+Pack Constitution / Policy
+System State
+WorkflowVersions
+agent roles
+capabilities
+resources
+integrations
+domain models
+UX models
+evaluations
+evidence
+experiments
+evolution history
+```
+
+Pack is above Workflow and below the Codex platform Constitution/authority boundary. It is a product/control-plane abstraction, not a second execution runtime.
+
+## 21. Pack identity and immutability
+
+A Pack revision is immutable and should identify at least:
+
+```text
+pack identity
+pack semantic version
+immutable source/repository revision where applicable
+system-state digest
+mission revision
+policy/constitution revision
+workflow dependency lock
+capability/dependency identities
+evaluation/assurance references
+parent revision
+```
+
+A candidate Pack state and promoted Pack state are distinct. Promotion produces a new immutable revision and preserves provenance to the candidate it promoted.
+
+Existing WorkflowVersions remain independently immutable. A Pack may reference an existing WorkflowVersion without changing it.
+
+## 22. Pack authority and Constitution
+
+The authority hierarchy is:
+
+```text
+Codex platform Constitution / security invariants
+                ↓
+User / Organization Mission
+                ↓
+Pack Constitution / Policy
+                ↓
+Pack Architecture / System State
+                ↓
+Implementation
+                ↓
+LLM / worker proposals
+```
+
+Pack-specific rules may strengthen domain constraints but cannot weaken platform security, credential, authorization, evidence, or immutable-version guarantees.
+
+## 23. Pack assurance and determinism
+
+Pack execution uses a policy-scoped `ExecutionAssurancePolicy` rather than a globally deterministic runtime. The policy may specify:
+
+```text
+determinism
+replayability
+approval requirements
+rollback requirements
+evidence requirements
+model pinning
+dependency pinning
+environment pinning
+```
+
+Profiles such as `CREATIVE`, `REPEATABLE`, `REPLAYABLE`, `DETERMINISTIC`, `ASSURED`, and `MISSION_CRITICAL` may be introduced as policy presets. They do not become semantic authorities.
+
+## 24. Pack composition and evolution
+
+Packs may be composed through specialization, orthogonal composition, or contextual activation. Material conflicts in identity, types, capabilities, policies, dependencies, or authority must be explicitly resolved; runtime LLM guesswork is not a conflict-resolution authority.
+
+Future Pack evolution is a governed control-plane loop:
+
+```text
+Mission
+  ↓
+Context
+  ↓
+Candidate System State
+  ↓
+Implementation
+  ↓
+Evidence
+  ↓
+Evaluation
+  ↓
+Assurance
+  ↓
+Experiment
+  ↓
+Promote / Rollback
+  ↓
+Next System State
+```
+
+The full generator, architecture-search, experimentation, automated-evolution, and advanced formal-verification systems are intentionally staged for later implementation. The 0.3.0 architecture only establishes the contracts, authority boundaries, provenance, and immutable state model needed for them.
+
+## 25. Pack implementation rule
+
+Domain implementations are permitted inside Packs when they represent domain capability rather than platform authority. For example, a CAD Pack may contain CAD geometry and document semantics; it may not introduce another general-purpose agent runtime, workflow engine, credential authority, or evidence authority.
