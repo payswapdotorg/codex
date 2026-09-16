@@ -49,6 +49,8 @@ use super::revisions::PackRevisionContent;
 use super::revisions::ParentRevision;
 use super::revisions::PromotedPackState;
 use super::state::PackSystemState;
+use crate::ConstitutionRule;
+use crate::ConstitutionStatement;
 use crate::HardConstraint;
 use crate::Mission;
 use crate::MissionAuthor;
@@ -69,7 +71,6 @@ use crate::PolicyStatement;
 use crate::ProvenanceProducer;
 use crate::ResolvedPackDependency;
 use crate::ResolvedPackDependencyIdentity;
-use crate::{ConstitutionRule, ConstitutionStatement};
 use codex_workflow_contracts::SemanticVersion;
 
 const SEALED_COMMIT: &str = "0123456789abcdef0123456789abcdef01234567";
