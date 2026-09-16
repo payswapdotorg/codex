@@ -47,9 +47,11 @@ mod state;
 
 pub use refs::CapabilityRef;
 pub use refs::EvaluationRef;
+pub use refs::EvidenceRef;
 pub use refs::PolicyRef;
 pub use refs::WorkflowVersionRef;
 pub use revisions::CandidatePackState;
+pub use revisions::PackRevisionContent;
 pub use revisions::ParentRevision;
 pub use revisions::PromotedPackState;
 pub use state::PackSystemState;
@@ -130,3 +132,7 @@ fn validate_descriptive_text(
 #[cfg(test)]
 #[path = "system_state_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "system_state/integration_tests.rs"]
+mod integration_tests;
