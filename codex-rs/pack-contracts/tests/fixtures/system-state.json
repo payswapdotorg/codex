@@ -1,0 +1,31 @@
+{
+  "capabilityRefs": [
+    {
+      "capability": "navigate_web",
+      "constraint": "headless browser session"
+    }
+  ],
+  "evaluationRefs": [
+    "sha256:be86c1119f87ad02ae34833240be1a6f56e1f723bca69fa3a80647a14137e853"
+  ],
+  "evidenceRefs": [
+    "sha256:c4f56dbc1faa1a859be2f98a71fe683798b83d01f3e41fa27399d722b59bd481"
+  ],
+  "policyRefs": [
+    {
+      "policyId": "sha256:c1902f5fb6fa9d35697e14fdf1de912bc1b99c233a2785f502abfaf6fbf99b05",
+      "validatedContentDigest": "sha256:dca1bb103e849aa2bbf45396a231d1fd0ba3759fe794d870e7218fc36557ed3a"
+    }
+  ],
+  "rollbackCheckpoint": {
+    "reason": "superseded baseline",
+    "stateDigest": "sha256:bc6d33b4a661a7f5fa45ce9f2b9855b02bb022262efbdeab401ef8c46b4e9b81",
+    "targetRevision": "sha256:67236c495e1b4a2bd84558dde5111a864a3db3eeea5cebf4c43258a63313f306"
+  },
+  "workflowVersionRefs": [
+    {
+      "role": "fixture primary workflow",
+      "workflowVersionId": "sha256:d2818deab82648771abd77b36089477a8cf5c82876fb9ab2f69221c50b8bf6a5"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "entries": {
+    "capability:fixture_capability": {
+      "contentDigest": "sha256:46ab698fc75f5b9ceac0d13de8dee9f32356b9aea9573699750460d5f337ab8c",
+      "key": "capability:fixture_capability",
+      "resolved": {
+        "capability": "navigate_web"
+      }
+    },
+    "workflow:fixture_workflow": {
+      "contentDigest": "sha256:84d4683dbeadbc7278baa4cfaa74249d8d37ebaeac5de5d12da43483b94f2915",
+      "key": "workflow:fixture_workflow",
+      "resolved": {
+        "workflowVersion": "sha256:d2818deab82648771abd77b36089477a8cf5c82876fb9ab2f69221c50b8bf6a5"
+      }
+    }
+  }
+}
