@@ -28,3 +28,30 @@ fn identifier_errors_render_kind_value_and_reason() {
         "invalid pack id `Bad Slug`: must be 1-128 chars of [a-z0-9-]"
     );
 }
+
+#[test]
+fn workflow_contract_errors_convert_without_losing_information() {
+    let original = codex_workflow_contracts::WorkflowContractError::InvalidIdentifier {
+        kind: "capability id",
+        value: "NavigateWeb".to_owned(),
+        reason: "must be non-empty lowercase snake_case",
+    };
+    let converted = PackContractError::from(original);
+    assert!(matches!(
+        converted,
+        PackContractError::InvalidIdentifier { .. }
+    ));
+
+    let original = codex_workflow_contracts::WorkflowContractError::IncompleteDependencyLock {
+        reason: "declared skill dependency `browser-use` is not locked".to_owned(),
+    };
+    let converted = PackContractError::from(original);
+    assert!(matches!(
+        converted,
+        PackContractError::IncompleteDependencyLock { .. }
+    ));
+    assert_eq!(
+        converted.to_string(),
+        "incomplete pack dependency lock: declared skill dependency `browser-use` is not locked"
+    );
+}
