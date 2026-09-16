@@ -64,11 +64,11 @@ mod policy;
 mod revision;
 mod system_state;
 
-// The identity and error foundations are complete in this scaffold. The
+// The identity and error foundations are complete in the scaffold. The
 // worker-owned modules (PACK-001: mission, constitution, policy, dependency,
 // revision; PACK-002: system_state; PACK-003: assurance) add their re-exports
-// here as they land, keeping modules private and the public API explicitly
-// exported.
+// below, keeping modules private and the public API explicitly exported.
+pub use assurance::*;
 pub use constitution::*;
 pub use dependency::*;
 pub use error::*;
@@ -76,4 +76,4 @@ pub use identity::*;
 pub use mission::*;
 pub use policy::*;
 pub use revision::*;
-pub use system_state::*; (feat(pack-contracts): PACK-002 pack system state with candidate/promoted revision contracts)
+pub use system_state::*;
