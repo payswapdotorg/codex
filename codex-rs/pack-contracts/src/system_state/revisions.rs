@@ -32,6 +32,7 @@ use serde::Serialize;
 use super::digest_of;
 use super::state::PackSystemState;
 use super::validate_descriptive_text;
+use crate::CompositionRecord;
 use crate::Mission;
 use crate::PackContractError;
 use crate::PackDependencyLock;
@@ -172,6 +173,12 @@ pub struct PackRevisionContent {
     pub dependency_lock: PackDependencyLock,
     /// The proposed system-state content.
     pub system_state: PackSystemState,
+    /// The two-parent composition provenance (PACK-005), present only on
+    /// composed revisions. Absent (`None`) on every pre-composition
+    /// revision, and skipped entirely in that case during serialization,
+    /// so legacy content digests are unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition: Option<CompositionRecord>,
 }
 
 impl PackRevisionContent {
@@ -186,6 +193,9 @@ impl PackRevisionContent {
         self.system_state.validate()?;
         ensure_workflow_references_are_locked(&self.system_state, &self.dependency_lock)?;
         ensure_capability_references_are_locked(&self.system_state, &self.dependency_lock)?;
+        if let Some(record) = &self.composition {
+            record.validate()?;
+        }
         Ok(())
     }
 
@@ -206,6 +216,11 @@ impl PackRevisionContent {
             policy_digest: self.policy_set.digest()?,
             dependency_lock_digest: self.dependency_lock.digest()?,
             parent_revision: parent_revision.cloned(),
+            composition_digest: self
+                .composition
+                .as_ref()
+                .map(CompositionRecord::digest)
+                .transpose()?,
         })
     }
 }
@@ -334,6 +349,13 @@ pub struct CandidatePackState {
     /// Provenance carried verbatim: parent lineage and producing principal.
     /// Provenance is descriptive and never grants authority.
     pub provenance: PackProvenance,
+    /// The two-parent composition provenance (PACK-005), when this candidate
+    /// was produced by composition.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition: Option<CompositionRecord>,
+    /// Digest of the composition record, when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition_digest: Option<ContentDigest>,
     /// The computed candidate revision identity.
     pub revision_id: PackRevisionId,
 }
@@ -373,6 +395,11 @@ impl CandidatePackState {
         let policy_digest = content.policy_set.digest()?;
         let dependency_lock_digest = content.dependency_lock.digest()?;
         let system_state_digest = content.system_state.content_digest()?;
+        let composition = content.composition.clone();
+        let composition_digest = composition
+            .as_ref()
+            .map(CompositionRecord::digest)
+            .transpose()?;
         let identity = PackRevisionIdentity {
             pack: content.pack_id.clone(),
             semantic_version: content.semantic_version.clone(),
@@ -381,6 +408,7 @@ impl CandidatePackState {
             policy_digest: policy_digest.clone(),
             dependency_lock_digest: dependency_lock_digest.clone(),
             parent_revision: parent.as_ref().map(|parent| parent.revision.clone()),
+            composition_digest: composition_digest.clone(),
         };
         let revision_id = candidate_revision_identity(&identity)?;
         Ok(Self {
@@ -396,6 +424,8 @@ impl CandidatePackState {
             system_state: content.system_state,
             system_state_digest,
             provenance,
+            composition,
+            composition_digest,
             revision_id,
         })
     }
@@ -443,6 +473,19 @@ impl CandidatePackState {
                 reason: "system state content does not match the recorded state digest".to_owned(),
             });
         }
+        if let Some(record) = &self.composition {
+            let recomputed = record.digest()?;
+            if Some(recomputed) != self.composition_digest {
+                return Err(PackContractError::RevisionIntegrity {
+                    reason: "composition record does not match the recorded composition digest"
+                        .to_owned(),
+                });
+            }
+        } else if self.composition_digest.is_some() {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "composition digest recorded without a composition record".to_owned(),
+            });
+        }
         let identity = PackRevisionIdentity {
             pack: self.pack_id.clone(),
             semantic_version: self.semantic_version.clone(),
@@ -451,6 +494,7 @@ impl CandidatePackState {
             policy_digest: recomputed_policy_digest,
             dependency_lock_digest: recomputed_lock_digest,
             parent_revision: self.parent.as_ref().map(|parent| parent.revision.clone()),
+            composition_digest: self.composition_digest.clone(),
         };
         let recomputed_revision_id = candidate_revision_identity(&identity)?;
         if recomputed_revision_id != self.revision_id {
@@ -503,6 +547,13 @@ pub struct PromotedPackState {
     pub system_state_digest: ContentDigest,
     /// Provenance carried verbatim from the source candidate.
     pub provenance: PackProvenance,
+    /// The two-parent composition provenance (PACK-005), carried verbatim
+    /// from the source candidate when it was produced by composition.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition: Option<CompositionRecord>,
+    /// Digest of the composition record, when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub composition_digest: Option<ContentDigest>,
     /// The candidate revision this promoted revision was created from.
     pub promoted_from: PackRevisionId,
     /// The computed promoted revision identity.
@@ -536,6 +587,8 @@ impl PromotedPackState {
             system_state: candidate.system_state.clone(),
             system_state_digest: candidate.system_state_digest.clone(),
             provenance: candidate.provenance.clone(),
+            composition: candidate.composition.clone(),
+            composition_digest: candidate.composition_digest.clone(),
             promoted_from: candidate.revision_id.clone(),
             revision_id,
         })
@@ -582,6 +635,19 @@ impl PromotedPackState {
                 reason: "system state content does not match the recorded state digest".to_owned(),
             });
         }
+        if let Some(record) = &self.composition {
+            let recomputed = record.digest()?;
+            if Some(recomputed) != self.composition_digest {
+                return Err(PackContractError::RevisionIntegrity {
+                    reason: "composition record does not match the recorded composition digest"
+                        .to_owned(),
+                });
+            }
+        } else if self.composition_digest.is_some() {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "composition digest recorded without a composition record".to_owned(),
+            });
+        }
         let identity = PackRevisionIdentity {
             pack: self.pack_id.clone(),
             semantic_version: self.semantic_version.clone(),
@@ -590,6 +656,7 @@ impl PromotedPackState {
             policy_digest: recomputed_policy_digest,
             dependency_lock_digest: recomputed_lock_digest,
             parent_revision: self.parent.as_ref().map(|parent| parent.revision.clone()),
+            composition_digest: self.composition_digest.clone(),
         };
         let recomputed_source_candidate = candidate_revision_identity(&identity)?;
         if recomputed_source_candidate != self.promoted_from {
@@ -625,5 +692,6 @@ fn candidate_content_identity(
             .parent
             .as_ref()
             .map(|parent| parent.revision.clone()),
+        composition_digest: candidate.composition_digest.clone(),
     })
 }

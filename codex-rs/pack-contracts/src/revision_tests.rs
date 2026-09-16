@@ -24,6 +24,7 @@ fn base_identity() -> PackRevisionIdentity {
         policy_digest: digest_of("policy"),
         dependency_lock_digest: digest_of("dependency-lock"),
         parent_revision: None,
+        composition_digest: None,
     }
 }
 

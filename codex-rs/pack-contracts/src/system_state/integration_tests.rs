@@ -236,6 +236,7 @@ fn content_over_real_workflow() -> (WorkflowVersion, PackRevisionContent) {
         policy_set: integration_policy_set(),
         dependency_lock: lock_pinning(&version.version_id, "navigate_web"),
         system_state: state_referencing(&version.version_id, "navigate_web"),
+        composition: None,
     };
     (version, content)
 }

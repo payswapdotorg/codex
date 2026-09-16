@@ -38,6 +38,15 @@ pub enum PackContractError {
         reason: String,
     },
 
+    /// A pack composition refused to resolve a semantic conflict
+    /// (PACK-005). Unresolved conflicts are explicit errors; the runtime
+    /// never resolves material pack conflicts by guesswork.
+    #[error("pack composition conflict")]
+    CompositionConflict {
+        /// The typed conflict detail.
+        detail: crate::composition::CompositionConflictDetail,
+    },
+
     /// A pack state transition violated the governed lifecycle.
     #[error("invalid pack state transition: {reason}")]
     InvalidStateTransition {
