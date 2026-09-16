@@ -25,6 +25,7 @@ use serde::Serialize;
 use super::digest_of;
 use super::refs::CapabilityRef;
 use super::refs::EvaluationRef;
+use super::refs::EvidenceRef;
 use super::refs::PolicyRef;
 use super::refs::WorkflowVersionRef;
 use super::validate_descriptive_text;
@@ -96,6 +97,10 @@ pub struct PackSystemState {
     /// Evaluation records the state was assessed by, as opaque
     /// content-addressed references.
     pub evaluation_refs: Vec<EvaluationRef>,
+    /// Platform evidence records tied to this state, as opaque
+    /// content-addressed references. Evidence authority stays with the
+    /// platform; the state only pins digests.
+    pub evidence_refs: Vec<EvidenceRef>,
     /// Recorded rollback point naming the prior promoted state, present on
     /// revisions that supersede a promoted state.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -113,17 +118,20 @@ impl PackSystemState {
         mut capability_refs: Vec<CapabilityRef>,
         mut policy_refs: Vec<PolicyRef>,
         mut evaluation_refs: Vec<EvaluationRef>,
+        mut evidence_refs: Vec<EvidenceRef>,
         rollback_checkpoint: Option<RollbackCheckpoint>,
     ) -> Result<Self, PackContractError> {
         workflow_version_refs.sort();
         capability_refs.sort();
         policy_refs.sort();
         evaluation_refs.sort();
+        evidence_refs.sort();
         let state = Self {
             workflow_version_refs,
             capability_refs,
             policy_refs,
             evaluation_refs,
+            evidence_refs,
             rollback_checkpoint,
         };
         state.validate()?;
@@ -163,6 +171,11 @@ impl PackSystemState {
         ensure_canonical(
             &self.evaluation_refs,
             "evaluation reference",
+            ToString::to_string,
+        )?;
+        ensure_canonical(
+            &self.evidence_refs,
+            "evidence reference",
             ToString::to_string,
         )?;
         Ok(())

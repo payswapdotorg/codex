@@ -10,12 +10,36 @@ use pretty_assertions::assert_ne;
 use serde_json::json;
 
 use super::*;
+use crate::ConstitutionRule;
+use crate::ConstitutionStatement;
+use crate::ContextModel;
+use crate::ContextNote;
+use crate::HardConstraint;
+use crate::Mission;
+use crate::MissionAuthor;
+use crate::MissionId;
+use crate::MissionStatement;
+use crate::PackConstitution;
 use crate::PackContractError;
+use crate::PackDependencyId;
+use crate::PackDependencyKey;
+use crate::PackDependencyLock;
 use crate::PackId;
+use crate::PackPolicy;
 use crate::PackPolicyId;
+use crate::PackPolicyScope;
+use crate::PackPolicySet;
 use crate::PackProvenance;
 use crate::PackRevisionId;
+use crate::PolicyStatement;
 use crate::ProvenanceProducer;
+use crate::ResolvedPackDependency;
+use crate::ResolvedPackDependencyIdentity;
+use crate::SuccessMeasure;
+use crate::UserPreference;
+use crate::ValueModel;
+use crate::ValueObjective;
+use codex_workflow_contracts::SemanticVersion;
 
 /// Computes a real-shaped content digest for a named fixture.
 fn content_digest(name: &str) -> ContentDigest {
@@ -80,7 +104,8 @@ fn checkpoint_at(target: &str, state_digest: &str, reason: &str) -> RollbackChec
     .expect("valid checkpoint")
 }
 
-/// Assembles a system state, failing fast on invalid fixtures.
+/// Assembles a system state with no evidence references, failing fast on
+/// invalid fixtures.
 fn state(
     workflow_version_refs: Vec<WorkflowVersionRef>,
     capability_refs: Vec<CapabilityRef>,
@@ -93,9 +118,108 @@ fn state(
         capability_refs,
         policy_refs,
         evaluation_refs,
+        /*evidence_refs*/ Vec::new(),
         rollback_checkpoint,
     )
     .expect("valid system state")
+}
+
+/// A mission fixture authored by the user organization.
+fn mission_fixture() -> Mission {
+    Mission {
+        id: MissionId::parse("atlas-mission").expect("valid mission id"),
+        statement: MissionStatement::parse("Run billing operations end to end.")
+            .expect("valid statement"),
+        author: MissionAuthor::user("org:atlas").expect("valid principal"),
+        value_model: ValueModel {
+            objectives: vec![ValueObjective {
+                statement: MissionStatement::parse("Invoice accuracy above all else.")
+                    .expect("valid statement"),
+            }],
+        },
+        context_model: ContextModel {
+            notes: vec![ContextNote {
+                statement: MissionStatement::parse("EU-based customers.").expect("valid statement"),
+            }],
+        },
+        hard_constraints: vec![HardConstraint {
+            statement: MissionStatement::parse("Never store customer card numbers.")
+                .expect("valid statement"),
+        }],
+        preferences: vec![UserPreference {
+            statement: MissionStatement::parse("Prefer EU-hosted services.")
+                .expect("valid statement"),
+        }],
+        success_measures: vec![SuccessMeasure {
+            statement: MissionStatement::parse("Zero billing disputes per quarter.")
+                .expect("valid statement"),
+        }],
+    }
+}
+
+/// A governing policy set fixture: one audit constitution rule plus one
+/// dependency-update policy.
+fn policy_set_fixture() -> PackPolicySet {
+    PackPolicySet::new(
+        PackConstitution::new(vec![ConstitutionRule::AuditRequirement {
+            statement: ConstitutionStatement::parse("Every promotion records an audit entry.")
+                .expect("valid statement"),
+        }])
+        .expect("valid constitution"),
+        vec![
+            PackPolicy::new(
+                PackPolicyScope::DependencyUpdates,
+                vec![
+                    PolicyStatement::parse("Dependency updates require a new candidate revision.")
+                        .expect("valid statement"),
+                ],
+                "How pack dependencies may be updated.",
+                BTreeSet::new(),
+            )
+            .expect("valid policy"),
+        ],
+    )
+    .expect("valid policy set")
+}
+
+/// A dependency lock pinning the onboarding and billing workflow versions
+/// and the navigate_web capability — exactly what [`simple_state`] and
+/// [`base_state`] reference.
+fn covering_lock() -> PackDependencyLock {
+    let mut lock = PackDependencyLock::default();
+    for name in ["onboarding", "billing"] {
+        lock.insert(ResolvedPackDependency {
+            key: PackDependencyKey::WorkflowVersion {
+                dependency_id: PackDependencyId::parse(name).expect("valid dependency id"),
+            },
+            resolved: ResolvedPackDependencyIdentity::WorkflowVersion(workflow_version_id(name)),
+            content_digest: content_digest(&format!("{name}-definition")),
+            provenance: None,
+        });
+    }
+    lock.insert(ResolvedPackDependency {
+        key: PackDependencyKey::Capability {
+            dependency_id: PackDependencyId::parse("browser").expect("valid dependency id"),
+        },
+        resolved: ResolvedPackDependencyIdentity::Capability(
+            CapabilityId::parse("navigate_web").expect("valid capability"),
+        ),
+        content_digest: content_digest("browser-implementation"),
+        provenance: None,
+    });
+    lock
+}
+
+/// Governed content for the atlas pack at 0.1.0 covering [`simple_state`].
+fn base_content() -> PackRevisionContent {
+    PackRevisionContent {
+        pack_id: PackId::parse("atlas").expect("valid pack id"),
+        semantic_version: SemanticVersion::new(0, 1, 0),
+        mission: mission_fixture(),
+        policy_set: policy_set_fixture(),
+        dependency_lock: covering_lock(),
+        system_state: simple_state(),
+    }
 }
 
 /// A single-reference state with a fully explicit JSON shape.
@@ -124,9 +248,8 @@ fn base_state() -> PackSystemState {
 fn child_candidate() -> CandidatePackState {
     let parent = pack_revision_id("v17");
     CandidatePackState::propose(
-        PackId::parse("atlas").expect("valid pack id"),
+        base_content(),
         ParentRevision::labeled(parent.clone(), "weekly baseline").expect("valid label"),
-        simple_state(),
         PackProvenance::child_of(
             parent,
             ProvenanceProducer::agent("pack-architect-worker").expect("valid agent"),
@@ -745,6 +868,7 @@ fn states_reject_duplicate_references() {
         vec![navigate_web_ref()],
         vec![governance_policy_ref()],
         vec![evaluation_ref("suite-1")],
+        /*evidence_refs*/ Vec::new(),
         /*rollback_checkpoint*/ None,
     );
     assert!(
@@ -768,6 +892,7 @@ fn states_reject_duplicate_references() {
         ],
         vec![governance_policy_ref()],
         vec![evaluation_ref("suite-1")],
+        /*evidence_refs*/ Vec::new(),
         /*rollback_checkpoint*/ None,
     );
     assert!(
@@ -790,6 +915,7 @@ fn states_reject_duplicate_references() {
             PolicyRef::validated_against(policy_id("governance"), content_digest("other-content")),
         ],
         vec![evaluation_ref("suite-1")],
+        /*evidence_refs*/ Vec::new(),
         /*rollback_checkpoint*/ None,
     );
     assert!(
@@ -808,6 +934,7 @@ fn states_reject_duplicate_references() {
         vec![navigate_web_ref()],
         vec![governance_policy_ref()],
         vec![evaluation_ref("suite-1"), evaluation_ref("suite-1")],
+        /*evidence_refs*/ Vec::new(),
         /*rollback_checkpoint*/ None,
     );
     assert!(
@@ -833,6 +960,7 @@ fn validate_rejects_non_canonical_and_duplicate_deserialized_states() {
         "capabilityRefs": [],
         "policyRefs": [],
         "evaluationRefs": [],
+        "evidenceRefs": [],
     });
     let duplicate_state: PackSystemState =
         serde_json::from_value(duplicate).expect("deserializable");
@@ -864,6 +992,7 @@ fn validate_rejects_non_canonical_and_duplicate_deserialized_states() {
         "capabilityRefs": [],
         "policyRefs": [],
         "evaluationRefs": [],
+        "evidenceRefs": [],
     });
     let reversed_state: PackSystemState = serde_json::from_value(reversed).expect("deserializable");
     assert!(
@@ -902,6 +1031,7 @@ fn state_serde_round_trips_with_and_without_checkpoint() {
                 },
             ],
             "evaluationRefs": [evaluation_ref("suite-1").to_string()],
+            "evidenceRefs": [],
         }),
     );
     assert_eq!(
@@ -955,16 +1085,13 @@ fn state_serde_round_trips_with_and_without_checkpoint() {
 
 #[test]
 fn root_candidate_identity_is_deterministic_and_producer_independent() {
-    let pack_id = PackId::parse("atlas").expect("valid pack id");
     let first = CandidatePackState::propose_root(
-        pack_id.clone(),
-        base_state(),
+        base_content(),
         PackProvenance::root(ProvenanceProducer::user("org:atlas").expect("valid subject")),
     )
     .expect("valid candidate");
     let second = CandidatePackState::propose_root(
-        pack_id,
-        base_state(),
+        base_content(),
         PackProvenance::root(
             ProvenanceProducer::agent("pack-architect-worker").expect("valid agent"),
         ),
@@ -1004,14 +1131,12 @@ fn child_candidate_preserves_parent_lineage() {
 
 #[test]
 fn candidates_reject_lineage_disagreement() {
-    let pack_id = PackId::parse("atlas").expect("valid pack id");
     let parent_id = pack_revision_id("v17");
     let agent = || ProvenanceProducer::agent("pack-architect-worker").expect("valid agent");
 
     let missing_provenance_parent = CandidatePackState::propose(
-        pack_id.clone(),
+        base_content(),
         ParentRevision::new(parent_id.clone()),
-        base_state(),
         PackProvenance::root(agent()),
     );
     assert!(
@@ -1023,8 +1148,7 @@ fn candidates_reject_lineage_disagreement() {
     );
 
     let missing_parent_record = CandidatePackState::propose_root(
-        pack_id,
-        base_state(),
+        base_content(),
         PackProvenance::child_of(parent_id, agent()),
     );
     assert!(
@@ -1101,36 +1225,27 @@ fn candidate_serde_round_trips() {
     let candidate = child_candidate();
     let serialized = serde_json::to_value(&candidate).expect("serializable");
     let parent_id = pack_revision_id("v17");
+    // The wire shape asserts the integration: the record carries the full
+    // governed content (mission, policy set, dependency lock) plus every
+    // component digest, and embeds them under explicit camelCase keys. The
+    // inner shapes of the mission, policy set, and lock records are asserted
+    // exhaustively by the PACK-001 contract tests.
     assert_eq!(
         serialized,
         json!({
             "packId": "atlas",
+            "semanticVersion": "0.1.0",
             "parentRevision": {
                 "revision": parent_id.to_string(),
                 "label": "weekly baseline",
             },
-            "systemState": {
-                "workflowVersionRefs": [
-                    {
-                        "workflowVersionId": workflow_version_id("onboarding").to_string(),
-                        "role": "user onboarding",
-                    },
-                ],
-                "capabilityRefs": [
-                    {
-                        "capability": "navigate_web",
-                        "constraint": "headless browser session",
-                    },
-                ],
-                "policyRefs": [
-                    {
-                        "policyId": policy_id("governance").to_string(),
-                        "validatedContentDigest": content_digest("governance-policy-content")
-                            .to_string(),
-                    },
-                ],
-                "evaluationRefs": [evaluation_ref("suite-1").to_string()],
-            },
+            "mission": serde_json::to_value(mission_fixture()).expect("serializable"),
+            "missionDigest": candidate.mission_digest.to_string(),
+            "policySet": serde_json::to_value(policy_set_fixture()).expect("serializable"),
+            "policyDigest": candidate.policy_digest.to_string(),
+            "dependencyLock": serde_json::to_value(covering_lock()).expect("serializable"),
+            "dependencyLockDigest": candidate.dependency_lock_digest.to_string(),
+            "systemState": serde_json::to_value(simple_state()).expect("serializable"),
             "systemStateDigest": candidate.system_state_digest.to_string(),
             "provenance": {
                 "parentRevision": parent_id.to_string(),
@@ -1265,36 +1380,25 @@ fn promoted_serde_round_trips() {
     let promoted = PromotedPackState::promote(&child_candidate()).expect("promotion succeeds");
     let serialized = serde_json::to_value(&promoted).expect("serializable");
     let parent_id = pack_revision_id("v17");
+    // Same integration shape as the candidate record, plus the promoted
+    // record's own fields; inner content shapes are covered by the PACK-001
+    // contract tests.
     assert_eq!(
         serialized,
         json!({
             "packId": "atlas",
+            "semanticVersion": "0.1.0",
             "parentRevision": {
                 "revision": parent_id.to_string(),
                 "label": "weekly baseline",
             },
-            "systemState": {
-                "workflowVersionRefs": [
-                    {
-                        "workflowVersionId": workflow_version_id("onboarding").to_string(),
-                        "role": "user onboarding",
-                    },
-                ],
-                "capabilityRefs": [
-                    {
-                        "capability": "navigate_web",
-                        "constraint": "headless browser session",
-                    },
-                ],
-                "policyRefs": [
-                    {
-                        "policyId": policy_id("governance").to_string(),
-                        "validatedContentDigest": content_digest("governance-policy-content")
-                            .to_string(),
-                    },
-                ],
-                "evaluationRefs": [evaluation_ref("suite-1").to_string()],
-            },
+            "mission": serde_json::to_value(mission_fixture()).expect("serializable"),
+            "missionDigest": promoted.mission_digest.to_string(),
+            "policySet": serde_json::to_value(policy_set_fixture()).expect("serializable"),
+            "policyDigest": promoted.policy_digest.to_string(),
+            "dependencyLock": serde_json::to_value(covering_lock()).expect("serializable"),
+            "dependencyLockDigest": promoted.dependency_lock_digest.to_string(),
+            "systemState": serde_json::to_value(simple_state()).expect("serializable"),
             "systemStateDigest": promoted.system_state_digest.to_string(),
             "provenance": {
                 "parentRevision": parent_id.to_string(),

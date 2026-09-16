@@ -206,3 +206,64 @@ impl fmt::Display for EvaluationRef {
         f.write_str(self.0.as_str())
     }
 }
+
+/// An opaque content-addressed reference to a platform evidence record.
+///
+/// Evidence authority lives with the platform evidence authority; a pack
+/// state never manufactures evidence. This reference pins the digest of an
+/// evidence record the revision is tied to, so provenance and audit can
+/// verify exactly which evidence was produced for this system without the
+/// pack interpreting or attesting its content.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "String", into = "String")]
+pub struct EvidenceRef(ContentDigest);
+
+impl EvidenceRef {
+    /// Wraps a content digest as an evidence reference.
+    pub const fn from_digest(digest: ContentDigest) -> Self {
+        Self(digest)
+    }
+
+    /// The underlying content digest.
+    pub fn digest(&self) -> &ContentDigest {
+        &self.0
+    }
+}
+
+impl TryFrom<String> for EvidenceRef {
+    type Error = PackContractError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        ContentDigest::try_from(value)
+            .map(Self)
+            .map_err(|error| PackContractError::InvalidDigest {
+                reason: error.to_string(),
+            })
+    }
+}
+
+impl TryFrom<&str> for EvidenceRef {
+    type Error = PackContractError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Self::try_from(value.to_owned())
+    }
+}
+
+impl From<EvidenceRef> for String {
+    fn from(value: EvidenceRef) -> Self {
+        value.0.into()
+    }
+}
+
+impl AsRef<str> for EvidenceRef {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl fmt::Display for EvidenceRef {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}

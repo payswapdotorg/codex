@@ -7,30 +7,40 @@
 //! cannot be misreported, and promotion never mutates the historical
 //! candidate record.
 //!
-//! Revision identities are derived from anchored identity tuples that
-//! deliberately exclude descriptive metadata (roles, labels, constraint
-//! text) and provenance producers, mirroring how published workflow versions
-//! derive identity: identical content always yields the identical revision
-//! identity, regardless of who proposed it. The record kind and — for
-//! promoted revisions — the source candidate identity participate in the
-//! tuple, so a promoted revision identity is always distinct from the
-//! candidate identity it was promoted from.
+//! Revision identities are derived from the full pack revision identity
+//! tuple ([`crate::PackRevisionIdentity`]: pack lineage, semantic version,
+//! system-state digest, mission digest, policy digest, dependency-lock
+//! digest, parent revision) plus a record kind discriminator, mirroring how
+//! published workflow versions derive identity: identical governed content
+//! always yields the identical revision identity, regardless of who
+//! proposed it. Descriptive metadata (roles, labels, constraint text) and
+//! provenance producers are excluded. The record kind and — for promoted
+//! revisions — the source candidate identity participate in the tuple, so a
+//! promoted revision identity is always distinct from the candidate
+//! identity it was promoted from, and a dependency or mission change can
+//! never hide inside a revision that claims to be unchanged.
 //!
 //! Promotion here is a contract operation (record transformation plus
 //! integrity rules), not a controller: no storage, no gates, no automation.
 //! The promotion decision authority lives in control planes.
 
 use codex_workflow_contracts::ContentDigest;
+use codex_workflow_contracts::SemanticVersion;
 use serde::Deserialize;
 use serde::Serialize;
 
 use super::digest_of;
 use super::state::PackSystemState;
 use super::validate_descriptive_text;
+use crate::Mission;
 use crate::PackContractError;
+use crate::PackDependencyLock;
 use crate::PackId;
+use crate::PackPolicySet;
 use crate::PackProvenance;
 use crate::PackRevisionId;
+use crate::PackRevisionIdentity;
+use crate::ResolvedPackDependencyIdentity;
 
 /// A lineage edge from a revision to the promoted revision it builds on.
 ///
@@ -85,62 +95,177 @@ enum RevisionRecordKind {
     Promoted,
 }
 
-/// The identity-covered projection of a candidate revision: pack lineage,
-/// parent revision identity, and system-state content digest. Descriptive
-/// metadata (labels, roles, constraints) and the provenance producer are
-/// excluded so identical proposed content always yields the identical
-/// candidate identity.
+/// The identity-covered projection of a candidate record: the full pack
+/// revision identity tuple plus the candidate record-kind discriminator.
+/// Descriptive metadata (labels, roles, constraints) and the provenance
+/// producer are excluded so identical proposed content always yields the
+/// identical candidate identity.
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AnchoredCandidateIdentity<'a> {
+struct AnchoredCandidateRecord<'a> {
     record_kind: RevisionRecordKind,
-    pack_id: &'a PackId,
-    parent_revision: Option<&'a PackRevisionId>,
-    system_state_digest: &'a ContentDigest,
+    #[serde(flatten)]
+    identity: &'a PackRevisionIdentity,
 }
 
-/// The identity-covered projection of a promoted revision: the candidate
-/// tuple plus the identity of the candidate record that was promoted.
+/// The identity-covered projection of a promoted record: the full pack
+/// revision identity tuple, the promoted record-kind discriminator, and the
+/// identity of the candidate record that was promoted.
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AnchoredPromotedIdentity<'a> {
+struct AnchoredPromotedRecord<'a> {
     record_kind: RevisionRecordKind,
-    pack_id: &'a PackId,
-    parent_revision: Option<&'a PackRevisionId>,
-    system_state_digest: &'a ContentDigest,
+    #[serde(flatten)]
+    identity: &'a PackRevisionIdentity,
     promoted_from: &'a PackRevisionId,
 }
 
-/// Computes the candidate revision identity for an anchored tuple.
+/// Computes the candidate record identity for a full revision tuple.
 fn candidate_revision_identity(
-    pack_id: &PackId,
-    parent_revision: Option<&PackRevisionId>,
-    system_state_digest: &ContentDigest,
+    identity: &PackRevisionIdentity,
 ) -> Result<PackRevisionId, PackContractError> {
-    let anchored = AnchoredCandidateIdentity {
+    let anchored = AnchoredCandidateRecord {
         record_kind: RevisionRecordKind::Candidate,
-        pack_id,
-        parent_revision,
-        system_state_digest,
+        identity,
     };
     Ok(PackRevisionId::from_digest(digest_of(&anchored)?))
 }
 
-/// Computes the promoted revision identity for an anchored tuple.
+/// Computes the promoted record identity for a full revision tuple.
 fn promoted_revision_identity(
-    pack_id: &PackId,
-    parent_revision: Option<&PackRevisionId>,
-    system_state_digest: &ContentDigest,
+    identity: &PackRevisionIdentity,
     promoted_from: &PackRevisionId,
 ) -> Result<PackRevisionId, PackContractError> {
-    let anchored = AnchoredPromotedIdentity {
+    let anchored = AnchoredPromotedRecord {
         record_kind: RevisionRecordKind::Promoted,
-        pack_id,
-        parent_revision,
-        system_state_digest,
+        identity,
         promoted_from,
     };
     Ok(PackRevisionId::from_digest(digest_of(&anchored)?))
+}
+
+/// The governed content of one pack revision: everything the frozen
+/// architecture places under pack governance, assembled into one sealable
+/// bundle.
+///
+/// This is the integration point between the contract domains: the mission
+/// and governing policy records (PACK-001), the resolved dependency lock
+/// pinning immutable [`codex_workflow_contracts::WorkflowVersionId`] and
+/// capability identities (PACK-001), and the system-state snapshot
+/// referencing them (PACK-002). [`PackRevisionContent::validate`] enforces
+/// the integration invariants: every workflow version and capability the
+/// system state references must be pinned by the dependency lock, so a
+/// revision can never reference an unlocked dependency.
+///
+/// The bundle deliberately carries the full records (not only digests) so
+/// record integrity verification can recompute every digest from content.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PackRevisionContent {
+    /// The pack lineage this revision belongs to.
+    pub pack_id: PackId,
+    /// Semantic version of this revision.
+    pub semantic_version: SemanticVersion,
+    /// The mission this revision serves; user/organization authority.
+    pub mission: Mission,
+    /// The governing policy set: constitution plus governing policies.
+    pub policy_set: PackPolicySet,
+    /// The resolved dependency lock pinning immutable identities.
+    pub dependency_lock: PackDependencyLock,
+    /// The proposed system-state content.
+    pub system_state: PackSystemState,
+}
+
+impl PackRevisionContent {
+    /// Validates the content and the integration invariants.
+    ///
+    /// Validation covers the policy set, the system state's canonical form,
+    /// and the lock-coverage cross-check: every workflow version and
+    /// capability referenced by the system state must be resolved by the
+    /// dependency lock to the exact same identity.
+    pub fn validate(&self) -> Result<(), PackContractError> {
+        self.policy_set.validate()?;
+        self.system_state.validate()?;
+        ensure_workflow_references_are_locked(&self.system_state, &self.dependency_lock)?;
+        ensure_capability_references_are_locked(&self.system_state, &self.dependency_lock)?;
+        Ok(())
+    }
+
+    /// Derives the provenance-stripped revision identity tuple for this
+    /// content under the given parent revision.
+    ///
+    /// All component digests are computed from the carried records, so the
+    /// tuple always reflects the content it was sealed against.
+    pub fn identity_tuple(
+        &self,
+        parent_revision: Option<&PackRevisionId>,
+    ) -> Result<PackRevisionIdentity, PackContractError> {
+        Ok(PackRevisionIdentity {
+            pack: self.pack_id.clone(),
+            semantic_version: self.semantic_version.clone(),
+            system_state_digest: self.system_state.content_digest()?,
+            mission_digest: self.mission.digest()?,
+            policy_digest: self.policy_set.digest()?,
+            dependency_lock_digest: self.dependency_lock.digest()?,
+            parent_revision: parent_revision.cloned(),
+        })
+    }
+}
+
+/// Ensures every workflow version referenced by the system state is pinned
+/// by the dependency lock to the exact same identity.
+fn ensure_workflow_references_are_locked(
+    system_state: &PackSystemState,
+    dependency_lock: &PackDependencyLock,
+) -> Result<(), PackContractError> {
+    for reference in &system_state.workflow_version_refs {
+        let pinned = dependency_lock
+            .entries
+            .values()
+            .any(|entry| match &entry.resolved {
+                ResolvedPackDependencyIdentity::WorkflowVersion(version) => {
+                    version == &reference.workflow_version_id
+                }
+                ResolvedPackDependencyIdentity::Capability(_) => false,
+                ResolvedPackDependencyIdentity::PackRevision(_) => false,
+            });
+        if !pinned {
+            return Err(PackContractError::IncompleteDependencyLock {
+                reason: format!(
+                    "workflow version reference `{}` is not pinned by the dependency lock",
+                    reference.workflow_version_id
+                ),
+            });
+        }
+    }
+    Ok(())
+}
+
+/// Ensures every capability referenced by the system state is pinned by the
+/// dependency lock to the exact same identity.
+fn ensure_capability_references_are_locked(
+    system_state: &PackSystemState,
+    dependency_lock: &PackDependencyLock,
+) -> Result<(), PackContractError> {
+    for reference in &system_state.capability_refs {
+        let pinned = dependency_lock
+            .entries
+            .values()
+            .any(|entry| match &entry.resolved {
+                ResolvedPackDependencyIdentity::Capability(capability) => {
+                    capability == &reference.capability
+                }
+                ResolvedPackDependencyIdentity::WorkflowVersion(_) => false,
+                ResolvedPackDependencyIdentity::PackRevision(_) => false,
+            });
+        if !pinned {
+            return Err(PackContractError::IncompleteDependencyLock {
+                reason: format!(
+                    "capability reference `{}` is not pinned by the dependency lock",
+                    reference.capability.as_ref()
+                ),
+            });
+        }
+    }
+    Ok(())
 }
 
 /// Checks that the parent revision record and the provenance parent agree.
@@ -178,6 +303,8 @@ fn ensure_lineage_consistency(
 pub struct CandidatePackState {
     /// The pack lineage this revision belongs to.
     pub pack_id: PackId,
+    /// Semantic version of this candidate revision.
+    pub semantic_version: SemanticVersion,
     /// The promoted revision this candidate builds on, or `None` for a root
     /// candidate.
     #[serde(
@@ -186,6 +313,19 @@ pub struct CandidatePackState {
         skip_serializing_if = "Option::is_none"
     )]
     pub parent: Option<ParentRevision>,
+    /// The mission this candidate serves; user/organization authority.
+    pub mission: Mission,
+    /// Digest of the mission content, pinned so integrity verification can
+    /// detect any mission drift.
+    pub mission_digest: ContentDigest,
+    /// The governing policy set: constitution plus governing policies.
+    pub policy_set: PackPolicySet,
+    /// Digest of the governing policy content.
+    pub policy_digest: ContentDigest,
+    /// The resolved dependency lock pinning immutable identities.
+    pub dependency_lock: PackDependencyLock,
+    /// Digest of the dependency lock.
+    pub dependency_lock_digest: ContentDigest,
     /// The proposed system-state content.
     pub system_state: PackSystemState,
     /// Digest of the system-state content, pinned so a revision identity can
@@ -199,15 +339,14 @@ pub struct CandidatePackState {
 }
 
 impl CandidatePackState {
-    /// Proposes a root candidate: a first system state with no parent.
+    /// Proposes a root candidate: a first governed revision with no parent.
     ///
     /// The provenance must describe a root revision (no parent).
     pub fn propose_root(
-        pack_id: PackId,
-        system_state: PackSystemState,
+        content: PackRevisionContent,
         provenance: PackProvenance,
     ) -> Result<Self, PackContractError> {
-        Self::construct(pack_id, None, system_state, provenance)
+        Self::construct(content, None, provenance)
     }
 
     /// Proposes a candidate building on a parent promoted revision.
@@ -215,32 +354,46 @@ impl CandidatePackState {
     /// The provenance must name the identical parent revision, so lineage is
     /// unambiguous.
     pub fn propose(
-        pack_id: PackId,
+        content: PackRevisionContent,
         parent: ParentRevision,
-        system_state: PackSystemState,
         provenance: PackProvenance,
     ) -> Result<Self, PackContractError> {
-        Self::construct(pack_id, Some(parent), system_state, provenance)
+        Self::construct(content, Some(parent), provenance)
     }
 
     /// Assembles a candidate record, deriving its digests and identity.
     fn construct(
-        pack_id: PackId,
+        content: PackRevisionContent,
         parent: Option<ParentRevision>,
-        system_state: PackSystemState,
         provenance: PackProvenance,
     ) -> Result<Self, PackContractError> {
+        content.validate()?;
         ensure_lineage_consistency(parent.as_ref(), &provenance)?;
-        let system_state_digest = system_state.content_digest()?;
-        let revision_id = candidate_revision_identity(
-            &pack_id,
-            parent.as_ref().map(|parent| &parent.revision),
-            &system_state_digest,
-        )?;
+        let mission_digest = content.mission.digest()?;
+        let policy_digest = content.policy_set.digest()?;
+        let dependency_lock_digest = content.dependency_lock.digest()?;
+        let system_state_digest = content.system_state.content_digest()?;
+        let identity = PackRevisionIdentity {
+            pack: content.pack_id.clone(),
+            semantic_version: content.semantic_version.clone(),
+            system_state_digest: system_state_digest.clone(),
+            mission_digest: mission_digest.clone(),
+            policy_digest: policy_digest.clone(),
+            dependency_lock_digest: dependency_lock_digest.clone(),
+            parent_revision: parent.as_ref().map(|parent| parent.revision.clone()),
+        };
+        let revision_id = candidate_revision_identity(&identity)?;
         Ok(Self {
-            pack_id,
+            pack_id: content.pack_id,
+            semantic_version: content.semantic_version,
             parent,
-            system_state,
+            mission: content.mission,
+            mission_digest,
+            policy_set: content.policy_set,
+            policy_digest,
+            dependency_lock: content.dependency_lock,
+            dependency_lock_digest,
+            system_state: content.system_state,
             system_state_digest,
             provenance,
             revision_id,
@@ -262,18 +415,44 @@ impl CandidatePackState {
     /// a tampered record fails recomputation.
     pub fn verify_integrity(&self) -> Result<(), PackContractError> {
         self.system_state.validate()?;
+        self.policy_set.validate()?;
+        ensure_workflow_references_are_locked(&self.system_state, &self.dependency_lock)?;
+        ensure_capability_references_are_locked(&self.system_state, &self.dependency_lock)?;
         ensure_lineage_consistency(self.parent.as_ref(), &self.provenance)?;
+        let recomputed_mission_digest = self.mission.digest()?;
+        if recomputed_mission_digest != self.mission_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "mission content does not match the recorded mission digest".to_owned(),
+            });
+        }
+        let recomputed_policy_digest = self.policy_set.digest()?;
+        if recomputed_policy_digest != self.policy_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "policy content does not match the recorded policy digest".to_owned(),
+            });
+        }
+        let recomputed_lock_digest = self.dependency_lock.digest()?;
+        if recomputed_lock_digest != self.dependency_lock_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "dependency lock does not match the recorded lock digest".to_owned(),
+            });
+        }
         let recomputed_state_digest = self.system_state.content_digest()?;
         if recomputed_state_digest != self.system_state_digest {
             return Err(PackContractError::RevisionIntegrity {
                 reason: "system state content does not match the recorded state digest".to_owned(),
             });
         }
-        let recomputed_revision_id = candidate_revision_identity(
-            &self.pack_id,
-            self.parent.as_ref().map(|parent| &parent.revision),
-            &recomputed_state_digest,
-        )?;
+        let identity = PackRevisionIdentity {
+            pack: self.pack_id.clone(),
+            semantic_version: self.semantic_version.clone(),
+            system_state_digest: recomputed_state_digest,
+            mission_digest: recomputed_mission_digest,
+            policy_digest: recomputed_policy_digest,
+            dependency_lock_digest: recomputed_lock_digest,
+            parent_revision: self.parent.as_ref().map(|parent| parent.revision.clone()),
+        };
+        let recomputed_revision_id = candidate_revision_identity(&identity)?;
         if recomputed_revision_id != self.revision_id {
             return Err(PackContractError::RevisionIntegrity {
                 reason: "revision id does not match the candidate identity tuple".to_owned(),
@@ -296,6 +475,8 @@ impl CandidatePackState {
 pub struct PromotedPackState {
     /// The pack lineage this revision belongs to.
     pub pack_id: PackId,
+    /// Semantic version of this promoted revision.
+    pub semantic_version: SemanticVersion,
     /// The promoted revision this revision builds on, or `None` for a root
     /// revision.
     #[serde(
@@ -304,6 +485,18 @@ pub struct PromotedPackState {
         skip_serializing_if = "Option::is_none"
     )]
     pub parent: Option<ParentRevision>,
+    /// The mission this promoted revision serves.
+    pub mission: Mission,
+    /// Digest of the mission content.
+    pub mission_digest: ContentDigest,
+    /// The governing policy set.
+    pub policy_set: PackPolicySet,
+    /// Digest of the governing policy content.
+    pub policy_digest: ContentDigest,
+    /// The resolved dependency lock.
+    pub dependency_lock: PackDependencyLock,
+    /// Digest of the dependency lock.
+    pub dependency_lock_digest: ContentDigest,
     /// The promoted system-state content.
     pub system_state: PackSystemState,
     /// Digest of the system-state content.
@@ -328,15 +521,18 @@ impl PromotedPackState {
     /// revision identity is always distinct from the candidate identity.
     pub fn promote(candidate: &CandidatePackState) -> Result<Self, PackContractError> {
         candidate.verify_integrity()?;
-        let revision_id = promoted_revision_identity(
-            &candidate.pack_id,
-            candidate.parent.as_ref().map(|parent| &parent.revision),
-            &candidate.system_state_digest,
-            &candidate.revision_id,
-        )?;
+        let identity = candidate_content_identity(candidate)?;
+        let revision_id = promoted_revision_identity(&identity, &candidate.revision_id)?;
         Ok(Self {
             pack_id: candidate.pack_id.clone(),
+            semantic_version: candidate.semantic_version.clone(),
             parent: candidate.parent.clone(),
+            mission: candidate.mission.clone(),
+            mission_digest: candidate.mission_digest.clone(),
+            policy_set: candidate.policy_set.clone(),
+            policy_digest: candidate.policy_digest.clone(),
+            dependency_lock: candidate.dependency_lock.clone(),
+            dependency_lock_digest: candidate.dependency_lock_digest.clone(),
             system_state: candidate.system_state.clone(),
             system_state_digest: candidate.system_state_digest.clone(),
             provenance: candidate.provenance.clone(),
@@ -358,16 +554,44 @@ impl PromotedPackState {
     ///   identity tuple.
     pub fn verify_integrity(&self) -> Result<(), PackContractError> {
         self.system_state.validate()?;
+        self.policy_set.validate()?;
+        ensure_workflow_references_are_locked(&self.system_state, &self.dependency_lock)?;
+        ensure_capability_references_are_locked(&self.system_state, &self.dependency_lock)?;
         ensure_lineage_consistency(self.parent.as_ref(), &self.provenance)?;
+        let recomputed_mission_digest = self.mission.digest()?;
+        if recomputed_mission_digest != self.mission_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "mission content does not match the recorded mission digest".to_owned(),
+            });
+        }
+        let recomputed_policy_digest = self.policy_set.digest()?;
+        if recomputed_policy_digest != self.policy_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "policy content does not match the recorded policy digest".to_owned(),
+            });
+        }
+        let recomputed_lock_digest = self.dependency_lock.digest()?;
+        if recomputed_lock_digest != self.dependency_lock_digest {
+            return Err(PackContractError::RevisionIntegrity {
+                reason: "dependency lock does not match the recorded lock digest".to_owned(),
+            });
+        }
         let recomputed_state_digest = self.system_state.content_digest()?;
         if recomputed_state_digest != self.system_state_digest {
             return Err(PackContractError::RevisionIntegrity {
                 reason: "system state content does not match the recorded state digest".to_owned(),
             });
         }
-        let parent_revision = self.parent.as_ref().map(|parent| &parent.revision);
-        let recomputed_source_candidate =
-            candidate_revision_identity(&self.pack_id, parent_revision, &recomputed_state_digest)?;
+        let identity = PackRevisionIdentity {
+            pack: self.pack_id.clone(),
+            semantic_version: self.semantic_version.clone(),
+            system_state_digest: recomputed_state_digest,
+            mission_digest: recomputed_mission_digest,
+            policy_digest: recomputed_policy_digest,
+            dependency_lock_digest: recomputed_lock_digest,
+            parent_revision: self.parent.as_ref().map(|parent| parent.revision.clone()),
+        };
+        let recomputed_source_candidate = candidate_revision_identity(&identity)?;
         if recomputed_source_candidate != self.promoted_from {
             return Err(PackContractError::RevisionIntegrity {
                 reason:
@@ -375,12 +599,7 @@ impl PromotedPackState {
                         .to_owned(),
             });
         }
-        let recomputed_revision_id = promoted_revision_identity(
-            &self.pack_id,
-            parent_revision,
-            &recomputed_state_digest,
-            &self.promoted_from,
-        )?;
+        let recomputed_revision_id = promoted_revision_identity(&identity, &self.promoted_from)?;
         if recomputed_revision_id != self.revision_id {
             return Err(PackContractError::RevisionIntegrity {
                 reason: "revision id does not match the promoted identity tuple".to_owned(),
@@ -388,4 +607,23 @@ impl PromotedPackState {
         }
         Ok(())
     }
+}
+
+/// Derives the full revision identity tuple carried by a candidate record,
+/// recomputing every component digest from the record's own content.
+fn candidate_content_identity(
+    candidate: &CandidatePackState,
+) -> Result<PackRevisionIdentity, PackContractError> {
+    Ok(PackRevisionIdentity {
+        pack: candidate.pack_id.clone(),
+        semantic_version: candidate.semantic_version.clone(),
+        system_state_digest: candidate.system_state_digest.clone(),
+        mission_digest: candidate.mission_digest.clone(),
+        policy_digest: candidate.policy_digest.clone(),
+        dependency_lock_digest: candidate.dependency_lock_digest.clone(),
+        parent_revision: candidate
+            .parent
+            .as_ref()
+            .map(|parent| parent.revision.clone()),
+    })
 }
